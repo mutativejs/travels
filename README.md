@@ -1,2 +1,372 @@
-# travels
-A fast, framework-agnostic undo/redo core powered by Mutative patches
+# Travels
+
+![Node CI](https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg)
+[![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
+![license](https://img.shields.io/npm/l/travels)
+
+A fast, framework-agnostic undo/redo core library powered by Mutative patches.
+
+## Motivation
+
+`travels` is a small and high-performance library for implementing undo/redo functionality. It's built on [Mutative](https://github.com/unadlib/mutative) to support mutation-based updates for immutable data. It's designed to be framework-agnostic and can be integrated with React, Vue, Zustand, MobX, Pinia, and other state management libraries.
+
+It's suitable for building time travel features in any JavaScript application.
+
+## Features
+
+- ✨ Framework-agnostic core library
+- 🔄 Undo/Redo/Reset/Go/Archive functionalities
+- 🎯 Subscribe to state changes
+- 💪 Mutations update immutable data via Mutative
+- 📦 Small size with efficient JSON Patch history
+- ⚙️ Customizable history size and initial patches
+- 🚀 High performance
+- 🔧 Mark function for custom immutability
+
+## Installation
+
+```bash
+npm install travels mutative
+# or
+yarn add travels mutative
+# or
+pnpm add travels mutative
+```
+
+## Quick Start
+
+```typescript
+import { createTravels } from 'travels';
+
+// Create a travels instance
+const travels = createTravels({ count: 0 });
+
+// Subscribe to state changes
+const unsubscribe = travels.subscribe((state, patches, position) => {
+  console.log('State:', state);
+  console.log('Position:', position);
+});
+
+// Update state using mutation
+travels.setState((draft) => {
+  draft.count += 1;
+});
+
+// Or set state directly
+travels.setState({ count: 2 });
+
+// Undo
+travels.back();
+
+// Redo
+travels.forward();
+
+// Get current state
+console.log(travels.getState()); // { count: 1 }
+
+// Cleanup
+unsubscribe();
+```
+
+## API Reference
+
+### `createTravels(initialState, options?)`
+
+Creates a new Travels instance.
+
+**Parameters:**
+
+| Parameter          | Type          | Description                                                                                                              | Default                          |
+| ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------- |
+| `initialState`     | S             | The initial state                                                                                                        | -                                |
+| `maxHistory`       | number        | The maximum number of history to keep                                                                                    | 10                               |
+| `initialPatches`   | TravelPatches | The initial patches                                                                                                      | {patches: [],inversePatches: []} |
+| `initialPosition`  | number        | The initial position of the state                                                                                        | 0                                |
+| `autoArchive`      | boolean       | Auto archive the state (see [Archive Mode](#archive-mode) for details)                                                  | true                             |
+| `enableAutoFreeze` | boolean       | Enable auto freeze the state, [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options) | false                            |
+| `strict`           | boolean       | Enable strict mode, [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)           | false                            |
+| `mark`             | Mark<O, F>[]  | The mark function , [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)           | () => void                       |
+
+**Returns:** `Travels<S, F, A>` - A Travels instance
+
+### Instance Methods
+
+#### `getState(): S`
+
+Get the current state.
+
+#### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void)): void`
+
+Update the state. Supports:
+- Direct value: `setState({ count: 1 })`
+- Function returning value: `setState(() => ({ count: 1 }))`
+- Draft mutation: `setState((draft) => { draft.count = 1 })`
+
+#### `subscribe(listener: (state, patches, position) => void): () => void`
+
+Subscribe to state changes. Returns an unsubscribe function.
+
+**Parameters:**
+- `listener`: Callback function called on state changes
+  - `state`: The new state
+  - `patches`: The current patches history
+  - `position`: The current position in history
+
+#### `back(amount?: number): void`
+
+Go back in the history. Default amount is 1.
+
+#### `forward(amount?: number): void`
+
+Go forward in the history. Default amount is 1.
+
+#### `go(position: number): void`
+
+Go to a specific position in the history.
+
+#### `reset(): void`
+
+Reset the state to the initial state and clear history.
+
+#### `getHistory(): S[]`
+
+Get the complete history of states as an array.
+
+#### `getPosition(): number`
+
+Get the current position in the history.
+
+#### `getPatches(): TravelPatches`
+
+Get the patches history.
+
+#### `canBack(): boolean`
+
+Check if it's possible to go back.
+
+#### `canForward(): boolean`
+
+Check if it's possible to go forward.
+
+#### `archive(): void` (Manual archive mode only)
+
+Archive the current state. Only available when `autoArchive: false`.
+
+#### `canArchive(): boolean` (Manual archive mode only)
+
+Check if it's possible to archive the current state.
+
+#### `getControls(): TravelsControls | ManualTravelsControls`
+
+Get a controls object with all navigation methods. Useful for passing controls to UI components.
+
+```typescript
+const travels = createTravels({ count: 0 });
+const controls = travels.getControls();
+
+// Use controls
+controls.back();
+controls.forward();
+console.log(controls.position);
+console.log(controls.patches);
+```
+
+## Archive Mode
+
+`travels` provides two archive modes to control how state changes are recorded in history:
+
+### Auto Archive Mode (default: `autoArchive: true`)
+
+In auto archive mode, every `setState` call is automatically recorded as a separate history entry. This is the simplest mode and suitable for most use cases.
+
+```typescript
+const travels = createTravels({ count: 0 });
+// or explicitly: createTravels({ count: 0 }, { autoArchive: true })
+
+// Each setState creates a new history entry
+travels.setState({ count: 1 }); // History: [0, 1]
+travels.setState({ count: 2 }); // History: [0, 1, 2]
+travels.setState({ count: 3 }); // History: [0, 1, 2, 3]
+
+travels.back(); // Go back to count: 2
+```
+
+### Manual Archive Mode (`autoArchive: false`)
+
+In manual archive mode, you control when state changes are recorded to history using the `archive()` function. This is useful when you want to group multiple state changes into a single undo/redo step.
+
+**Use Case 1: Batch multiple changes into one history entry**
+
+```typescript
+const travels = createTravels({ count: 0 }, { autoArchive: false });
+
+// Multiple setState calls
+travels.setState({ count: 1 }); // Temporary change (not in history yet)
+travels.setState({ count: 2 }); // Temporary change (not in history yet)
+travels.setState({ count: 3 }); // Temporary change (not in history yet)
+
+// Commit all changes as a single history entry
+travels.archive(); // History: [0, 3]
+
+// Now undo will go back to 0, not 2 or 1
+travels.back(); // Back to 0
+```
+
+**Use Case 2: Explicit commit after a single change**
+
+```typescript
+function handleSave() {
+  travels.setState((draft) => {
+    draft.count += 1;
+  });
+  travels.archive(); // Commit immediately
+}
+```
+
+**Key Differences:**
+- **Auto archive**: Each `setState` = one undo step
+- **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
+
+## Integration Examples
+
+### React Integration
+
+```jsx
+import { useSyncExternalStore } from 'react';
+import { createTravels } from 'travels';
+
+const travels = createTravels({ count: 0 });
+
+function useTravel() {
+  const state = useSyncExternalStore(
+    travels.subscribe.bind(travels),
+    travels.getState.bind(travels)
+  );
+
+  return [state, travels.setState.bind(travels), travels.getControls()] as const;
+}
+
+function Counter() {
+  const [state, setState, controls] = useTravel();
+
+  return (
+    <div>
+      <div>Count: {state.count}</div>
+      <button onClick={() => setState((draft) => { draft.count += 1; })}>
+        Increment
+      </button>
+      <button onClick={() => controls.back()} disabled={!controls.canBack()}>
+        Undo
+      </button>
+      <button onClick={() => controls.forward()} disabled={!controls.canForward()}>
+        Redo
+      </button>
+    </div>
+  );
+}
+```
+
+### Zustand Integration
+
+```typescript
+import { create } from 'zustand';
+import { createTravels } from 'travels';
+
+const travels = createTravels({ count: 0 });
+
+const useStore = create((set) => ({
+  ...travels.getState(),
+  setState: (updater) => {
+    travels.setState(updater);
+    set(travels.getState());
+  },
+  controls: travels.getControls(),
+}));
+
+// Subscribe to travels changes
+travels.subscribe((state) => {
+  useStore.setState(state);
+});
+```
+
+### Vue Integration
+
+```typescript
+import { ref, readonly } from 'vue';
+import { createTravels } from 'travels';
+
+export function useTravel(initialState, options) {
+  const travels = createTravels(initialState, options);
+  const state = ref(travels.getState());
+
+  travels.subscribe((newState) => {
+    state.value = newState;
+  });
+
+  const setState = (updater) => {
+    travels.setState(updater);
+  };
+
+  return {
+    state: readonly(state),
+    setState,
+    controls: travels.getControls(),
+  };
+}
+```
+
+## Persistence
+
+If you want to persist the state, you can use `state`/`patches`/`position` to save the travel history. Then, read the persistent data as `initialState`, `initialPatches`, and `initialPosition` when initializing:
+
+```typescript
+// Save to localStorage
+function saveToStorage(travels) {
+  localStorage.setItem('state', JSON.stringify(travels.getState()));
+  localStorage.setItem('patches', JSON.stringify(travels.getPatches()));
+  localStorage.setItem('position', JSON.stringify(travels.getPosition()));
+}
+
+// Load from localStorage
+function loadFromStorage() {
+  const initialState = JSON.parse(localStorage.getItem('state') || '{}');
+  const initialPatches = JSON.parse(localStorage.getItem('patches') || '{"patches":[],"inversePatches":[]}');
+  const initialPosition = JSON.parse(localStorage.getItem('position') || '0');
+
+  return createTravels(initialState, {
+    initialPatches,
+    initialPosition,
+  });
+}
+```
+
+## TypeScript Support
+
+`travels` is written in TypeScript and provides full type definitions.
+
+```typescript
+import { createTravels, type TravelsOptions, type TravelPatches } from 'travels';
+
+interface State {
+  count: number;
+  todos: Array<{ id: number; text: string }>;
+}
+
+const travels = createTravels<State>({ count: 0, todos: [] });
+
+// Type-safe state updates
+travels.setState((draft) => {
+  draft.count += 1;
+  draft.todos.push({ id: 1, text: 'Buy milk' });
+});
+```
+
+## Related Projects
+
+- [use-travel](https://github.com/mutativejs/use-travel) - React hook for time travel
+- [zustand-travel](https://github.com/mutativejs/zustand-travel) - Zustand middleware for time travel
+- [mutative](https://github.com/unadlib/mutative) - Efficient immutable updates
+
+## License
+
+MIT
