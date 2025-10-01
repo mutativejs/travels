@@ -8,9 +8,13 @@ A fast, framework-agnostic undo/redo core library powered by Mutative patches.
 
 ## Motivation
 
-`travels` is a small and high-performance library for implementing undo/redo functionality. It's built on [Mutative](https://github.com/unadlib/mutative) to support mutation-based updates for immutable data. It's designed to be framework-agnostic and can be integrated with React, Vue, Zustand, MobX, Pinia, and other state management libraries.
+`travels` is a small and high-performance library for implementing undo/redo functionality. It's built on [Mutative](https://github.com/unadlib/mutative) to leverage two key performance advantages:
 
-It's suitable for building time travel features in any JavaScript application.
+1. **Efficient History Storage with JSON Patches**: Instead of storing full state snapshots for each history entry, `travels` uses [JSON Patch](https://jsonpatch.com/) (RFC 6902) to store only the differences between states. This dramatically reduces memory usage, especially for large state objects with small changes. For example, changing a single field in a 1MB object only stores a few bytes in history.
+
+2. **High-Performance Immutable Updates**: Mutative is [10x faster than Immer](https://mutative.js.org/docs/getting-started/performance) and provides a mutation-based API for updating immutable data structures. This means you can write natural, mutable-style code (`draft.count++`) while maintaining immutability guarantees, with minimal performance overhead.
+
+`travels` is designed to be framework-agnostic and can be integrated with React, Vue, Zustand, MobX, Pinia, and other libraries. It's suitable for building time travel features in any JavaScript application.
 
 ## Features
 
