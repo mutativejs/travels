@@ -29,6 +29,13 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
    * Whether to automatically archive the current state, by default `true`
    */
   autoArchive?: A;
+  /**
+   * Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)
+   * When true, apply patches directly to the existing state object
+   * When false (default), create new immutable state objects
+   * @default false
+   */
+  mutable?: boolean;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'>;
 
 type InitialValue<I extends any> = I extends (...args: any) => infer R ? R : I;
@@ -112,6 +119,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   private initialPosition: number;
   private initialPatches?: TravelPatches;
   private autoArchive: A;
+  private mutable: boolean;
   private options: Omit<MutativeOptions<true, F>, 'enablePatches'>;
   private listeners: Set<Listener<S>> = new Set();
   private pendingState: S | null = null;
@@ -122,6 +130,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       initialPatches,
       initialPosition = 0,
       autoArchive = true as A,
+      mutable = false,
       ...mutativeOptions
     } = options;
 
@@ -158,12 +167,16 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     }
 
     this.state = initialState;
-    this.initialState = initialState;
+    // For mutable mode, deep clone initialState to prevent mutations
+    this.initialState = mutable
+      ? JSON.parse(JSON.stringify(initialState))
+      : initialState;
     this.position = initialPosition;
     this.initialPosition = initialPosition;
     this.maxHistory = maxHistory;
     this.initialPatches = initialPatches;
     this.autoArchive = autoArchive;
+    this.mutable = mutable;
     this.options = mutativeOptions;
     this.allPatches = cloneTravelPatches(initialPatches);
     this.tempPatches = cloneTravelPatches();
@@ -200,20 +213,51 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
    * Update the state
    */
   public setState(updater: Updater<S>): void {
-    const [nextState, patches, inversePatches] = (
-      typeof updater === 'function'
-        ? create(this.state, updater as any, {
-            ...this.options,
-            enablePatches: true,
-          })
-        : create(this.state, () => updater, {
-            ...this.options,
-            enablePatches: true,
-          })
-    ) as [S, Patches<true>, Patches<true>];
+    let patches: Patches<true>;
+    let inversePatches: Patches<true>;
 
-    this.state = nextState;
-    this.pendingState = nextState;
+    if (this.mutable) {
+      // For observable state: generate patches then apply mutably
+      const isFn = typeof updater === 'function';
+
+      [, patches, inversePatches] = create(
+        this.state,
+        isFn
+          ? (updater as any)
+          : (draft: any) => {
+              // For non-function updater, assign all properties to draft
+              Object.assign(draft, updater);
+            },
+        {
+          ...this.options,
+          enablePatches: true,
+        }
+      ) as [S, Patches<true>, Patches<true>];
+
+      // Apply patches to mutate the existing state object
+      apply(this.state as object, patches, { mutable: true });
+
+      // Keep the same reference
+      this.pendingState = this.state;
+    } else {
+      // For immutable state: create new object
+      const [nextState, p, ip] = (
+        typeof updater === 'function'
+          ? create(this.state, updater as any, {
+              ...this.options,
+              enablePatches: true,
+            })
+          : create(this.state, () => updater, {
+              ...this.options,
+              enablePatches: true,
+            })
+      ) as [S, Patches<true>, Patches<true>];
+
+      patches = p;
+      inversePatches = ip;
+      this.state = nextState;
+      this.pendingState = nextState;
+    }
 
     // Reset pendingState asynchronously
     Promise.resolve().then(() => {
@@ -419,19 +463,24 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       ].reverse();
     }
 
-    this.state = apply(
-      this.state as object,
-      back
-        ? _allPatches.inversePatches
-            .slice(-this.maxHistory)
-            .slice(nextPosition)
-            .flat()
-            .reverse()
-        : _allPatches.patches
-            .slice(-this.maxHistory)
-            .slice(this.position, nextPosition)
-            .flat()
-    ) as S;
+    const patchesToApply = back
+      ? _allPatches.inversePatches
+          .slice(-this.maxHistory)
+          .slice(nextPosition, this.position)
+          .flat()
+          .reverse()
+      : _allPatches.patches
+          .slice(-this.maxHistory)
+          .slice(this.position, nextPosition)
+          .flat();
+
+    if (this.mutable) {
+      // For observable state: mutate in place
+      apply(this.state as object, patchesToApply, { mutable: true });
+    } else {
+      // For immutable state: create new object
+      this.state = apply(this.state as object, patchesToApply) as S;
+    }
 
     this.position = nextPosition;
     this.notify();
@@ -457,8 +506,30 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   public reset(): void {
     this.position = this.initialPosition;
     this.allPatches = cloneTravelPatches(this.initialPatches);
-    this.state = this.initialState;
     this.tempPatches = cloneTravelPatches();
+
+    if (this.mutable) {
+      // For observable state: mutate back to initial state
+      // Directly mutate each property to match initial state
+      const state = this.state as any;
+      const initial = this.initialState as any;
+
+      // Remove properties that exist in current but not in initial
+      for (const key of Object.keys(state)) {
+        if (!(key in initial)) {
+          delete state[key];
+        }
+      }
+
+      // Set/update all properties from initial state
+      for (const key of Object.keys(initial)) {
+        state[key] = initial[key];
+      }
+    } else {
+      // For immutable state: reassign reference
+      this.state = this.initialState;
+    }
+
     this.notify();
   }
 
