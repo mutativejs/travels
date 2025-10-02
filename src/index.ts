@@ -243,11 +243,11 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       // For immutable state: create new object
       const [nextState, p, ip] = (
         typeof updater === 'function'
-          ? create(this.state, updater as any, {
+          ? create(this.state, updater as (draft: Draft<S>) => void, {
               ...this.options,
               enablePatches: true,
             })
-          : create(this.state, () => updater, {
+          : create(this.state, () => updater as S, {
               ...this.options,
               enablePatches: true,
             })
@@ -511,19 +511,19 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     if (this.mutable) {
       // For observable state: mutate back to initial state
       // Directly mutate each property to match initial state
-      const state = this.state as any;
-      const initial = this.initialState as any;
+      const state = this.state as S;
+      const initial = this.initialState as S;
 
       // Remove properties that exist in current but not in initial
-      for (const key of Object.keys(state)) {
-        if (!(key in initial)) {
-          delete state[key];
+      for (const key of Object.keys(state as object)) {
+        if (!(key in (initial as object))) {
+          delete state[key as keyof S];
         }
       }
 
       // Set/update all properties from initial state
-      for (const key of Object.keys(initial)) {
-        state[key] = initial[key];
+      for (const key of Object.keys(initial as object)) {
+        state[key as keyof S] = initial[key as keyof S];
       }
     } else {
       // For immutable state: reassign reference
@@ -578,9 +578,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   /**
    * Get the controls object
    */
-  public getControls():
-    | TravelsControls<S, F>
-    | ManualTravelsControls<S, F> {
+  public getControls(): TravelsControls<S, F> | ManualTravelsControls<S, F> {
     const self = this;
     const controls: any = {
       get position(): number {
@@ -632,7 +630,7 @@ export function createTravels<S, F extends boolean = false>(
  */
 export function createTravels<S, F extends boolean, A extends boolean>(
   initialState: S,
-  options: TravelsOptions<F, A> = {} as any
+  options: TravelsOptions<F, A> = {}
 ): Travels<S, F, A> {
   return new Travels(initialState, options);
 }
