@@ -38,7 +38,9 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
   mutable?: boolean;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'>;
 
-type InitialValue<I extends any> = I extends (...args: any) => infer R ? R : I;
+type InitialValue<I extends unknown> = I extends (...args: unknown[]) => infer R
+  ? R
+  : I;
 type DraftFunction<S> = (draft: Draft<S>) => void;
 export type Updater<S> = S | (() => S) | DraftFunction<S>;
 type Value<S, F extends boolean> = F extends true
@@ -223,11 +225,11 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       [, patches, inversePatches] = create(
         this.state,
         isFn
-          ? (updater as any)
-          : (draft: any) => {
+          ? (updater as (draft: Draft<S>) => void)
+          : (((draft) => {
               // For non-function updater, assign all properties to draft
               Object.assign(draft, updater);
-            },
+            }) as (draft: Draft<any>) => void),
         {
           ...this.options,
           enablePatches: true,
@@ -580,11 +582,11 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
    */
   public getControls(): TravelsControls<S, F> | ManualTravelsControls<S, F> {
     const self = this;
-    const controls: any = {
+    const controls: TravelsControls<S, F> | ManualTravelsControls<S, F> = {
       get position(): number {
         return self.getPosition();
       },
-      getHistory: (): S[] => self.getHistory(),
+      getHistory: () => self.getHistory() as Value<S, F>[],
       get patches(): TravelPatches {
         return self.getPatches();
       },
@@ -597,8 +599,10 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     };
 
     if (!this.autoArchive) {
-      controls.archive = (): void => self.archive();
-      controls.canArchive = (): boolean => self.canArchive();
+      (controls as ManualTravelsControls<S, F>).archive = (): void =>
+        self.archive();
+      (controls as ManualTravelsControls<S, F>).canArchive = (): boolean =>
+        self.canArchive();
     }
 
     return controls;

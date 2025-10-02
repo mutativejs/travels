@@ -1,5 +1,5 @@
 import { expect, describe, test, beforeEach, vi } from 'vitest';
-import { createTravels, Travels } from '../src/index';
+import { createTravels, ManualTravelsControls, Travels } from '../src/index';
 
 describe('Travels - Auto Archive Mode', () => {
   test('should create travels instance with initial state', () => {
@@ -303,7 +303,8 @@ describe('Travels - Manual Archive Mode', () => {
 
   test('manual archive mode controls should have archive method', () => {
     const travels = createTravels({ count: 0 }, { autoArchive: false });
-    const controls = travels.getControls() as any;
+    // todo: fix this
+    const controls = travels.getControls() as ManualTravelsControls<{ count: number; }, false>;
 
     expect(typeof controls.archive).toBe('function');
     expect(typeof controls.canArchive).toBe('function');
