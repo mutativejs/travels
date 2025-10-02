@@ -37,6 +37,11 @@ yarn add travels mutative
 pnpm add travels mutative
 ```
 
+#### Integrations
+
+- Zustand: [zustand-travel](https://github.com/mutativejs/zustand-travel) - A powerful and high-performance time-travel middleware for Zustand
+- React: [use-travel](https://github.com/mutativejs/use-travel) - A React hook for state time travel with undo, redo, reset and archive functionalities.
+
 ## Quick Start
 
 ```typescript
