@@ -40,7 +40,7 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
 
 type InitialValue<I extends any> = I extends (...args: any) => infer R ? R : I;
 type DraftFunction<S> = (draft: Draft<S>) => void;
-type Updater<S> = S | (() => S) | DraftFunction<S>;
+export type Updater<S> = S | (() => S) | DraftFunction<S>;
 type Value<S, F extends boolean> = F extends true
   ? Immutable<InitialValue<S>>
   : InitialValue<S>;
