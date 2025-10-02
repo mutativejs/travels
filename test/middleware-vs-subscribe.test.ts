@@ -5,7 +5,7 @@
  */
 
 import { describe, test, expect, vi } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, Travels } from '../src/index';
 
 describe('Middleware vs Subscribe: Capability Comparison', () => {
   test('Subscribe capability: Post-execution notification', () => {
@@ -350,7 +350,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
 
     class EnhancedTravels<S> {
       constructor(
-        private travels: ReturnType<typeof createTravels<S>>,
+        private travels: Travels<S>,
         private interceptors: {
           beforeSetState?: (state: any) => any;
           afterSetState?: (state: any) => void;

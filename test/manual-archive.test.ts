@@ -1,5 +1,5 @@
 import { expect, describe, test, beforeEach } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, Travels } from '../src/index';
 
 /**
  * Test suite for manual-archive.ts example
@@ -14,12 +14,10 @@ describe('Manual Archive Example - Batch Operations', () => {
     }>;
   }
 
-  let travels: ReturnType<
-    typeof createTravels<TodoState, false, false>
-  >;
+  let travels: Travels<TodoState, false, false>;
 
   beforeEach(() => {
-    travels = createTravels<TodoState>(
+    travels = createTravels<TodoState, false>(
       { todos: [] },
       { autoArchive: false, maxHistory: 20 }
     );
@@ -241,4 +239,3 @@ describe('Manual Archive Example - Batch Operations', () => {
     expect(history[4].todos).toHaveLength(3);
   });
 });
-

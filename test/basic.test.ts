@@ -1,5 +1,5 @@
 import { expect, describe, test, beforeEach } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, Travels } from '../src/index';
 
 /**
  * Test suite for basic.ts example
@@ -11,7 +11,7 @@ describe('Basic Example - Basic Usage', () => {
     text: string;
   }
 
-  let travels: ReturnType<typeof createTravels<AppState>>;
+  let travels: Travels<AppState>;
 
   beforeEach(() => {
     travels = createTravels<AppState>({

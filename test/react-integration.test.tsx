@@ -1,7 +1,7 @@
 import { expect, describe, test, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSyncExternalStore, useCallback } from 'react';
-import { createTravels, type Travels } from '../src/index';
+import { createTravels, Updater, type Travels } from '../src/index';
 
 /**
  * Test suite for react-integration.tsx example
@@ -25,7 +25,11 @@ function useTravel<S>(travelsInstance: Travels<S, any, any>) {
     [travelsInstance]
   );
 
-  return [state, setState, controls] as const;
+  return [
+    state as S,
+    setState as (updater: Updater<S>) => void,
+    controls,
+  ] as const;
 }
 
 describe('React Integration Example - useTravel Hook', () => {
@@ -34,7 +38,7 @@ describe('React Integration Example - useTravel Hook', () => {
     history: string[];
   }
 
-  let travels: ReturnType<typeof createTravels<CounterState>>;
+  let travels: Travels<CounterState>;
 
   beforeEach(() => {
     travels = createTravels<CounterState>({
@@ -199,7 +203,7 @@ describe('React Integration Example - Manual Archive Form', () => {
     email: string;
   }
 
-  let formTravels: ReturnType<typeof createTravels<FormState, false, false>>;
+  let formTravels: Travels<FormState, false, false>;
 
   beforeEach(() => {
     formTravels = createTravels<FormState>(
@@ -391,4 +395,3 @@ describe('React Integration Example - Manual Archive Form', () => {
     expect(result.current[0].lastName).toBe('Smith');
   });
 });
-
