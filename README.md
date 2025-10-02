@@ -26,6 +26,8 @@ A fast, framework-agnostic undo/redo core library powered by Mutative patches.
 - ⚙️ Customizable history size and initial patches
 - 🚀 High performance
 - 🔧 Mark function for custom immutability
+- 📦 Supports both auto archive and manual archive modes
+- 🔥 Supports both immutable and mutable state
 
 ## Installation
 
