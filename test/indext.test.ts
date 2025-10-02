@@ -303,8 +303,7 @@ describe('Travels - Manual Archive Mode', () => {
 
   test('manual archive mode controls should have archive method', () => {
     const travels = createTravels({ count: 0 }, { autoArchive: false });
-    // todo: fix this
-    const controls = travels.getControls() as ManualTravelsControls<{ count: number; }, false>;
+    const controls = travels.getControls();
 
     expect(typeof controls.archive).toBe('function');
     expect(typeof controls.canArchive).toBe('function');

@@ -580,7 +580,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   /**
    * Get the controls object
    */
-  public getControls(): TravelsControls<S, F> | ManualTravelsControls<S, F> {
+  public getControls() {
     const self = this;
     const controls: TravelsControls<S, F> | ManualTravelsControls<S, F> = {
       get position(): number {
@@ -605,7 +605,9 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
         self.canArchive();
     }
 
-    return controls;
+    return controls as A extends true
+      ? TravelsControls<S, F>
+      : ManualTravelsControls<S, F>;
   }
 }
 
