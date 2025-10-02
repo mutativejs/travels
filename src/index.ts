@@ -352,10 +352,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     // Merge temp patches
     const [, patches, inversePatches] = create(
       stateToUse,
-      (draft) =>
-        rawReturn(
-          apply(draft, this.tempPatches.inversePatches.flat().reverse())
-        ),
+      (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
       {
         enablePatches: true,
       }
