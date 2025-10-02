@@ -5,6 +5,7 @@ import {
   type Immutable,
   apply,
   create,
+  rawReturn,
 } from 'mutative';
 
 export type TravelPatches = {
@@ -249,7 +250,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
               ...this.options,
               enablePatches: true,
             })
-          : create(this.state, () => updater as S, {
+          : create(this.state, () => rawReturn(updater as object) as S, {
               ...this.options,
               enablePatches: true,
             })
@@ -348,9 +349,13 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     // Use pendingState if available, otherwise use current state
     const stateToUse = (this.pendingState ?? this.state) as object;
 
+    // Merge temp patches
     const [, patches, inversePatches] = create(
       stateToUse,
-      (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
+      (draft) =>
+        rawReturn(
+          apply(draft, this.tempPatches.inversePatches.flat().reverse())
+        ),
       {
         enablePatches: true,
       }
