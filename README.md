@@ -93,7 +93,7 @@ Creates a new Travels instance.
 | `maxHistory`       | number        | The maximum number of history to keep                                                                                    | 10                               |
 | `initialPatches`   | TravelPatches | The initial patches                                                                                                      | {patches: [],inversePatches: []} |
 | `initialPosition`  | number        | The initial position of the state                                                                                        | 0                                |
-| `autoArchive`      | boolean       | Auto archive the state (see [Archive Mode](#archive-mode) for details)                                                  | true                             |
+| `autoArchive`      | boolean       | Auto archive the state (see [Archive Mode](#archive-mode) for details)                                                   | true                             |
 | `enableAutoFreeze` | boolean       | Enable auto freeze the state, [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options) | false                            |
 | `strict`           | boolean       | Enable strict mode, [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)           | false                            |
 | `mark`             | Mark<O, F>[]  | The mark function , [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)           | () => void                       |
@@ -109,6 +109,7 @@ Get the current state.
 #### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void)): void`
 
 Update the state. Supports:
+
 - Direct value: `setState({ count: 1 })`
 - Function returning value: `setState(() => ({ count: 1 }))`
 - Draft mutation: `setState((draft) => { draft.count = 1 })`
@@ -118,6 +119,7 @@ Update the state. Supports:
 Subscribe to state changes. Returns an unsubscribe function.
 
 **Parameters:**
+
 - `listener`: Callback function called on state changes
   - `state`: The new state
   - `patches`: The current patches history
@@ -182,6 +184,52 @@ console.log(controls.position);
 console.log(controls.patches);
 ```
 
+#### `maxHistory` option
+
+When you set `maxHistory`, the history window is limited to the last `maxHistory` states.
+
+For example, if you set `maxHistory` to 3, the history window is [2, 3, 4, 5].
+
+```ts
+const travels = createTravels({ count: 0 }, { maxHistory: 3 });
+
+const controls = travels.getControls();
+const increment = () =>
+  travels.setState((draft) => {
+    draft.count += 1;
+  });
+
+// Make 5 changes
+increment(); // 1
+increment(); // 2
+increment(); // 3
+increment(); // 4
+increment(); // 5
+
+expect(travels.getState().count).toBe(5);
+
+// With maxHistory: 3, we can go back up to 3 steps
+// Position is capped at maxHistory (3), so we're at position 3 with count 5
+// Due to how travels manages patches with maxHistory, the history window is [2, 3, 4, 5]
+controls.back();
+expect(travels.getPosition()).toBe(2);
+expect(travels.getState().count).toBe(4);
+
+controls.back();
+expect(travels.getPosition()).toBe(1);
+expect(travels.getState().count).toBe(3);
+
+controls.back();
+expect(travels.getPosition()).toBe(0);
+expect(travels.getState().count).toBe(2); // Can only go back to the window start, not initial state
+
+expect(controls.canBack()).toBe(false); // Can't go further back
+
+// However, reset() can still return to the true initial state
+controls.reset();
+expect(travels.getState().count).toBe(0);
+```
+
 ## Archive Mode
 
 `travels` provides two archive modes to control how state changes are recorded in history:
@@ -235,6 +283,7 @@ function handleSave() {
 ```
 
 **Key Differences:**
+
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
 
@@ -341,7 +390,9 @@ function saveToStorage(travels) {
 // Load from localStorage
 function loadFromStorage() {
   const initialState = JSON.parse(localStorage.getItem('state') || '{}');
-  const initialPatches = JSON.parse(localStorage.getItem('patches') || '{"patches":[],"inversePatches":[]}');
+  const initialPatches = JSON.parse(
+    localStorage.getItem('patches') || '{"patches":[],"inversePatches":[]}'
+  );
   const initialPosition = JSON.parse(localStorage.getItem('position') || '0');
 
   return createTravels(initialState, {
@@ -356,7 +407,11 @@ function loadFromStorage() {
 `travels` is written in TypeScript and provides full type definitions.
 
 ```typescript
-import { createTravels, type TravelsOptions, type TravelPatches } from 'travels';
+import {
+  createTravels,
+  type TravelsOptions,
+  type TravelPatches,
+} from 'travels';
 
 interface State {
   count: number;
@@ -389,7 +444,7 @@ const travels = createTravels({ count: 0 });
 const originalSetState = travels.setState.bind(travels);
 
 // Wrap setState with validation
-travels.setState = function(updater: any) {
+travels.setState = function (updater: any) {
   // Only validate direct values (not functions)
   if (typeof updater === 'object' && updater !== null) {
     // Validate
@@ -430,7 +485,7 @@ travels.setState = function(updater: any) {
   originalSetState(updater);
 } as any;
 
-travels.setState({ count: 5 });   // ✅ Works
+travels.setState({ count: 5 }); // ✅ Works
 travels.setState({ count: 100 }); // ❌ Blocked, capped at 10
 
 // Also works with mutation functions
@@ -448,7 +503,7 @@ const currentUser = { role: 'viewer' }; // Read-only user
 
 // Prevent undo/redo for viewers
 const originalBack = travels.back.bind(travels);
-travels.back = function(amount?: number) {
+travels.back = function (amount?: number) {
   if (currentUser.role === 'viewer') {
     throw new Error('Permission denied: viewers cannot undo');
   }
@@ -457,7 +512,7 @@ travels.back = function(amount?: number) {
 
 // Same for other methods
 const originalForward = travels.forward.bind(travels);
-travels.forward = function(amount?: number) {
+travels.forward = function (amount?: number) {
   if (currentUser.role === 'viewer') {
     throw new Error('Permission denied: viewers cannot redo');
   }
@@ -475,7 +530,7 @@ const currentUser = { id: 'user123' };
 
 const originalSetState = travels.setState.bind(travels);
 
-travels.setState = function(updater: any) {
+travels.setState = function (updater: any) {
   // Handle direct value
   if (typeof updater === 'object' && updater !== null) {
     if (updater.items) {
@@ -534,7 +589,7 @@ const auditLog: any[] = [];
 
 const originalSetState = travels.setState.bind(travels);
 
-travels.setState = function(updater: any) {
+travels.setState = function (updater: any) {
   // Log before
   auditLog.push({
     type: 'setState',
@@ -568,7 +623,7 @@ const throttleInterval = 100; // ms
 
 const originalSetState = travels.setState.bind(travels);
 
-travels.setState = function(updater: any) {
+travels.setState = function (updater: any) {
   const now = Date.now();
   if (now - lastCallTime < throttleInterval) {
     console.warn('Too many updates, throttled');
@@ -599,7 +654,7 @@ function enhanceTravels<S>(
   // Wrap setState
   if (config.validation || config.metadata || config.logging) {
     const original = travels.setState.bind(travels);
-    travels.setState = function(updater: any) {
+    travels.setState = function (updater: any) {
       // Logging - before
       if (config.logging) {
         console.log('[setState] before:', travels.getState());
@@ -611,7 +666,9 @@ function enhanceTravels<S>(
         if (config.validation) {
           const result = config.validation(updater);
           if (result !== true) {
-            throw new Error(typeof result === 'string' ? result : 'Validation failed');
+            throw new Error(
+              typeof result === 'string' ? result : 'Validation failed'
+            );
           }
         }
 
@@ -642,7 +699,9 @@ function enhanceTravels<S>(
           if (config.validation) {
             const result = config.validation(travels.getState(), draft);
             if (result !== true) {
-              throw new Error(typeof result === 'string' ? result : 'Validation failed');
+              throw new Error(
+                typeof result === 'string' ? result : 'Validation failed'
+              );
             }
           }
 
@@ -671,7 +730,7 @@ function enhanceTravels<S>(
     ['back', 'forward', 'reset', 'archive'].forEach((method) => {
       const original = (travels as any)[method]?.bind(travels);
       if (original) {
-        (travels as any)[method] = function(...args: any[]) {
+        (travels as any)[method] = function (...args: any[]) {
           if (!config.permissions!(method)) {
             throw new Error(`Permission denied: ${method}`);
           }
@@ -702,7 +761,9 @@ const enhanced = enhanceTravels(travels, {
 
 // Now works with both styles
 enhanced.setState({ count: 50 }); // ✅ Direct value
-enhanced.setState((draft) => { draft.count = 75; }); // ✅ Mutation
+enhanced.setState((draft) => {
+  draft.count = 75;
+}); // ✅ Mutation
 ```
 
 ### Q: What about detecting history overflow?
@@ -744,12 +805,14 @@ function withValidation<S>(
   validator: (state: any, draft?: any) => boolean | string
 ) {
   const original = travels.setState.bind(travels);
-  travels.setState = function(updater: any) {
+  travels.setState = function (updater: any) {
     // Handle direct value
     if (typeof updater === 'object' && updater !== null) {
       const result = validator(updater);
       if (result !== true) {
-        throw new Error(typeof result === 'string' ? result : 'Validation failed');
+        throw new Error(
+          typeof result === 'string' ? result : 'Validation failed'
+        );
       }
       return original(updater);
     }
@@ -760,7 +823,9 @@ function withValidation<S>(
         updater(draft);
         const result = validator(travels.getState(), draft);
         if (result !== true) {
-          throw new Error(typeof result === 'string' ? result : 'Validation failed');
+          throw new Error(
+            typeof result === 'string' ? result : 'Validation failed'
+          );
         }
       };
       return original(wrapped);
@@ -777,7 +842,7 @@ function withLogging<S>(travels: Travels<S>) {
   methods.forEach((method) => {
     const original = (travels as any)[method]?.bind(travels);
     if (original) {
-      (travels as any)[method] = function(...args: any[]) {
+      (travels as any)[method] = function (...args: any[]) {
         console.log(`[${method}] called with:`, args);
         const result = original(...args);
         console.log(`[${method}] result:`, travels.getState());
@@ -797,7 +862,7 @@ function withPermissions<S>(
   methods.forEach((method) => {
     const original = (travels as any)[method]?.bind(travels);
     if (original) {
-      (travels as any)[method] = function(...args: any[]) {
+      (travels as any)[method] = function (...args: any[]) {
         if (!checkPermission(method)) {
           throw new Error(`Permission denied: ${method}`);
         }
@@ -811,7 +876,10 @@ function withPermissions<S>(
 // Compose all wrappers
 const travels = createTravels({ count: 0 });
 
-withValidation(travels, (state) => state.count >= 0 || 'Count must be non-negative');
+withValidation(
+  travels,
+  (state) => state.count >= 0 || 'Count must be non-negative'
+);
 withLogging(travels);
 withPermissions(travels, (action) => currentUser.role === 'admin');
 ```
