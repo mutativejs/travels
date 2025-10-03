@@ -1,6 +1,6 @@
 {
   "name": "travels",
-  "description": "A fast, framework-agnostic undo/redo core powered by Mutative patches",
+  "description": "A fast, framework-agnostic undo/redo core library powered by Mutative JSON Patch",
   "version": "0.4.0",
   "type": "module",
   "author": "unadlib",
@@ -45,7 +45,8 @@
     "time-travel",
     "time travel",
     "travels",
-    "mutative"
+    "mutative",
+    "json-patch"
   ],
   "license": "MIT",
   "devDependencies": {

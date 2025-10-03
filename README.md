@@ -4,15 +4,15 @@
 [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
 ![license](https://img.shields.io/npm/l/travels)
 
-A fast, framework-agnostic undo/redo core library powered by Mutative patches.
+A fast, framework-agnostic undo/redo core library powered by Mutative JSON Patch.
 
 ## Motivation
 
 `travels` is a small and high-performance library for implementing undo/redo functionality. It's built on [Mutative](https://github.com/unadlib/mutative) to leverage two key performance advantages:
 
-1. **Efficient History Storage with JSON Patches**: Instead of storing full state snapshots for each history entry, `travels` uses [JSON Patch](https://jsonpatch.com/) (RFC 6902) to store only the differences between states. This dramatically reduces memory usage, especially for large state objects with small changes. For example, changing a single field in a 1MB object only stores a few bytes in history.
+- **Efficient History Storage with JSON Patches**: Instead of storing full state snapshots for each history entry, `travels` uses [JSON Patch](https://jsonpatch.com/) (RFC 6902) to store only the differences between states. This dramatically reduces memory usage, especially for large state objects with small changes. For example, changing a single field in a 1MB object only stores a few bytes in history.
 
-2. **High-Performance Immutable Updates**: Mutative is [10x faster than Immer](https://mutative.js.org/docs/getting-started/performance) and provides a mutation-based API for updating immutable data structures. This means you can write mutation update code (`draft.count++`) while maintaining immutability guarantees, with minimal performance overhead.
+- **High-Performance Immutable Updates**: Mutative is [10x faster than Immer](https://mutative.js.org/docs/getting-started/performance) and provides a mutation-based API for updating immutable data structures. This means you can write mutation update code (`draft.count++`) while maintaining immutability guarantees, with minimal performance overhead.
 
 `travels` is designed to be framework-agnostic and can be integrated with React, Vue, Zustand, MobX, Pinia, and other libraries. It's suitable for building time travel features in any JavaScript application.
 
