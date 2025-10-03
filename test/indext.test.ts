@@ -388,7 +388,49 @@ describe('Travels - Edge Cases', () => {
 
     travels.archive();
 
-    expect(consoleSpy).toHaveBeenCalledWith('Auto archive is enabled, no need to archive manually');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Auto archive is enabled, no need to archive manually'
+    );
     consoleSpy.mockRestore();
+  });
+
+  test('should respect maxHistory option', () => {
+    const travels = createTravels({ count: 0 }, { maxHistory: 3 });
+
+    const controls = travels.getControls();
+    const increment = () =>
+      travels.setState((draft) => {
+        draft.count += 1;
+      });
+
+    // Make 5 changes
+    increment(); // 1
+    increment(); // 2
+    increment(); // 3
+    increment(); // 4
+    increment(); // 5
+
+    expect(travels.getState().count).toBe(5);
+
+    // With maxHistory: 3, we can go back up to 3 steps
+    // Position is capped at maxHistory (3), so we're at position 3 with count 5
+    // Due to how travels manages patches with maxHistory, the history window is [2, 3, 4, 5]
+    controls.back();
+    expect(travels.getPosition()).toBe(2);
+    expect(travels.getState().count).toBe(4);
+
+    controls.back();
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getState().count).toBe(3);
+
+    controls.back();
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getState().count).toBe(2); // Can only go back to the window start, not initial state
+
+    expect(controls.canBack()).toBe(false); // Can't go further back
+
+    // However, reset() can still return to the true initial state
+    controls.reset();
+    expect(travels.getState().count).toBe(0);
   });
 });

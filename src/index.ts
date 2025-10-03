@@ -39,12 +39,12 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
   mutable?: boolean;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'>;
 
-type InitialValue<I extends unknown> = I extends (...args: unknown[]) => infer R
+export type InitialValue<I extends unknown> = I extends (...args: unknown[]) => infer R
   ? R
   : I;
 type DraftFunction<S> = (draft: Draft<S>) => void;
 export type Updater<S> = S | (() => S) | DraftFunction<S>;
-type Value<S, F extends boolean> = F extends true
+export type Value<S, F extends boolean> = F extends true
   ? Immutable<InitialValue<S>>
   : InitialValue<S>;
 
@@ -268,27 +268,27 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     });
 
     if (this.autoArchive) {
-      this.position =
-        this.maxHistory < this.allPatches.patches.length + 1
-          ? this.maxHistory
-          : this.position + 1;
-
-      const notLast = this.position - 1 < this.allPatches.patches.length;
+      const notLast = this.position < this.allPatches.patches.length;
 
       // Remove all patches after the current position
       if (notLast) {
         this.allPatches.patches.splice(
-          this.position - 1,
-          this.allPatches.patches.length - (this.position - 1)
+          this.position,
+          this.allPatches.patches.length - this.position
         );
         this.allPatches.inversePatches.splice(
-          this.position - 1,
-          this.allPatches.inversePatches.length - (this.position - 1)
+          this.position,
+          this.allPatches.inversePatches.length - this.position
         );
       }
 
       this.allPatches.patches.push(patches);
       this.allPatches.inversePatches.push(inversePatches);
+
+      this.position =
+        this.maxHistory < this.allPatches.patches.length
+          ? this.maxHistory
+          : this.position + 1;
 
       if (this.maxHistory < this.allPatches.patches.length) {
         this.allPatches.patches = this.allPatches.patches.slice(

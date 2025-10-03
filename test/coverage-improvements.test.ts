@@ -293,9 +293,14 @@ describe('Coverage Improvements', () => {
       // Verify current state
       expect(travels.getState().value).toBe(4);
 
-      // Can go back 2 steps to initial state
+      // Can go back 2 steps to window start (not initial state)
+      // With maxHistory: 2, history window is [2, 3, 4]
       travels.back(2);
-      expect(travels.getState().value).toBe(0); // Back to initial state
+      expect(travels.getState().value).toBe(2); // Back to window start
+
+      // Can still reset to true initial state
+      travels.reset();
+      expect(travels.getState().value).toBe(0);
     });
 
     test('should handle maxHistory = 1 in auto-archive mode', () => {
@@ -337,10 +342,50 @@ describe('Coverage Improvements', () => {
       // Position should be capped at maxHistory
       expect(travels.getPosition()).toBe(3);
 
-      // Should be able to go back 3 steps to initial state
-      travels.back(3);
-      expect(travels.getState().id).toBe(0); // Back to initial state
+      // Should be able to go back 3 steps to window start (not initial state)
+      // With maxHistory: 3, history window is [2, 3, 4, 5]
+      travels.back();
+      expect(travels.getPosition()).toBe(2);
+      travels.back();
+      expect(travels.getPosition()).toBe(1);
+      travels.back();
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getState().id).toBe(2); // Back to window start
       expect(travels.canBack()).toBe(false);
+
+      // Can still reset to true initial state
+      travels.reset();
+      expect(travels.getState().id).toBe(0);
+    });
+
+    test('back(amount): should handle mixed operations with maxHistory in auto mode', () => {
+      const travels = createTravels(
+        { id: 0, name: '' },
+        { autoArchive: true, maxHistory: 3 }
+      );
+
+      // Create 5 changes
+      travels.setState({ id: 1, name: 'a' });
+      travels.setState({ id: 2, name: 'b' });
+      travels.setState({ id: 3, name: 'c' });
+      travels.setState({ id: 4, name: 'd' });
+      travels.setState({ id: 5, name: 'e' });
+
+      const patches = travels.getPatches();
+      expect(patches.patches.length).toBe(3);
+
+      // Position should be capped at maxHistory
+      expect(travels.getPosition()).toBe(3);
+
+      // Should be able to go back 3 steps to window start (not initial state)
+      // With maxHistory: 3, history window is [2, 3, 4, 5]
+      travels.back(3);
+      expect(travels.getState().id).toBe(2); // Back to window start
+      expect(travels.canBack()).toBe(false);
+
+      // Can still reset to true initial state
+      travels.reset();
+      expect(travels.getState().id).toBe(0);
     });
   });
 

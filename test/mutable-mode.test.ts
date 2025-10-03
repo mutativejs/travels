@@ -212,10 +212,18 @@ describe('Mutable mode for observable state', () => {
     expect(travels.getPosition()).toBe(3);
 
     // Go back to position 0
-    // Note: In mutable mode, initialState is preserved separately,
-    // so position 0 returns to the original initialState (count: 0)
+    // Note: With maxHistory: 3, the history window is [2, 3, 4, 5]
+    // Position 0 is the window start (count: 2), not the original initial state
     travels.go(0);
-    expect(travels.getState().count).toBe(0); // Back to initial state
+    expect(travels.getState().count).toBe(2); // Back to window start
+
+    // ✅ Reference still preserved even after navigation
+    expect(travels.getState()).toBe(originalRef);
+
+    // ✅ Can still reset to true initial state
+    travels.reset();
+    expect(travels.getState().count).toBe(0);
+    expect(travels.getState()).toBe(originalRef); // Reference preserved
   });
 
   test('getHistory with mutable mode', () => {
