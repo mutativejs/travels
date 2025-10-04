@@ -79,6 +79,10 @@ console.log(travels.getState()); // { count: 1 }
 unsubscribe();
 ```
 
+## Online Examples
+
+- [Travels Counter Demo](https://codesandbox.io/p/sandbox/travels-vanilla-ts-wzdd62)
+
 ## API Reference
 
 ### `createTravels(initialState, options?)`
