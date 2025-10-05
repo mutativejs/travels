@@ -1,0 +1,24 @@
+{
+  "name": "travels-benchmarks",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Performance benchmarks for undo/redo libraries",
+  "scripts": {
+    "test:memory": "node --expose-gc memory-performance-test.js",
+    "test:real": "node --expose-gc real-library-benchmark.js",
+    "test:all": "npm run test:memory && npm run test:real"
+  },
+  "dependencies": {
+    "redux": "^4.2.1",
+    "redux-undo": "^1.1.0",
+    "zustand": "^4.5.0",
+    "zundo": "^2.3.0",
+    "travels": "file:../",
+    "mutative": "^1.3.0",
+    "microdiff": "^1.4.0"
+  },
+  "devDependencies": {
+    "benchmark": "^2.1.4"
+  }
+}
