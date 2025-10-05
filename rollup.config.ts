@@ -12,7 +12,7 @@ export default {
     {
       format: 'cjs',
       exports: 'auto',
-      file: 'dist/index.cjs.js',
+      file: 'dist/index.cjs',
       sourcemap: true,
     },
     {
@@ -39,7 +39,7 @@ export default {
     resolve(),
     commonjs(),
     replace({
-      __DEV__: 'false',
+      __DEV__: JSON.stringify(false),
       preventAssignment: true,
     }),
     terser(),
