@@ -3,6 +3,7 @@ import {
   type Patches,
   type Draft,
   type Immutable,
+  type PatchesOptions,
   apply,
   create,
   rawReturn,
@@ -37,9 +38,13 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
    * @default false
    */
   mutable?: boolean;
-} & Omit<MutativeOptions<true, F>, 'enablePatches'>;
+} & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
+    patchesOptions?: Exclude<PatchesOptions, boolean>;
+  };
 
-export type InitialValue<I extends unknown> = I extends (...args: unknown[]) => infer R
+export type InitialValue<I extends unknown> = I extends (
+  ...args: unknown[]
+) => infer R
   ? R
   : I;
 type DraftFunction<S> = (draft: Draft<S>) => void;
@@ -123,7 +128,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   private initialPatches?: TravelPatches;
   private autoArchive: A;
   private mutable: boolean;
-  private options: Omit<MutativeOptions<true, F>, 'enablePatches'>;
+  private options: MutativeOptions<Exclude<PatchesOptions, boolean> | true, F>;
   private listeners: Set<Listener<S>> = new Set();
   private pendingState: S | null = null;
 
@@ -134,6 +139,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       initialPosition = 0,
       autoArchive = true as A,
       mutable = false,
+      patchesOptions,
       ...mutativeOptions
     } = options;
 
@@ -180,7 +186,10 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     this.initialPatches = initialPatches;
     this.autoArchive = autoArchive;
     this.mutable = mutable;
-    this.options = mutativeOptions;
+    this.options = {
+      ...mutativeOptions,
+      enablePatches: patchesOptions ?? true,
+    };
     this.allPatches = cloneTravelPatches(initialPatches);
     this.tempPatches = cloneTravelPatches();
   }
@@ -231,10 +240,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
               // For non-function updater, assign all properties to draft
               Object.assign(draft, updater);
             }) as (draft: Draft<any>) => void),
-        {
-          ...this.options,
-          enablePatches: true,
-        }
+        this.options
       ) as [S, Patches<true>, Patches<true>];
 
       // Apply patches to mutate the existing state object
@@ -246,14 +252,16 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       // For immutable state: create new object
       const [nextState, p, ip] = (
         typeof updater === 'function'
-          ? create(this.state, updater as (draft: Draft<S>) => void, {
-              ...this.options,
-              enablePatches: true,
-            })
-          : create(this.state, () => rawReturn(updater as object) as S, {
-              ...this.options,
-              enablePatches: true,
-            })
+          ? create(
+              this.state,
+              updater as (draft: Draft<S>) => void,
+              this.options
+            )
+          : create(
+              this.state,
+              () => rawReturn(updater as object) as S,
+              this.options
+            )
       ) as [S, Patches<true>, Patches<true>];
 
       patches = p;
@@ -353,9 +361,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
     const [, patches, inversePatches] = create(
       stateToUse,
       (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
-      {
-        enablePatches: true,
-      }
+      this.options
     );
 
     this.allPatches.patches.push(inversePatches);
