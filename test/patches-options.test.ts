@@ -45,7 +45,7 @@ describe('PatchesOptions Configuration', () => {
     });
 
     test('should use string paths when pathAsArray is false', () => {
-      const travels = createTravels<AppState>(
+      const travels = createTravels(
         {
           count: 0,
           items: ['a', 'b'],
@@ -98,7 +98,7 @@ describe('PatchesOptions Configuration', () => {
     });
 
     test('should use string paths for nested properties when pathAsArray is false', () => {
-      const travels = createTravels<AppState>(
+      const travels = createTravels(
         {
           count: 0,
           items: ['a', 'b'],
@@ -217,7 +217,7 @@ describe('PatchesOptions Configuration', () => {
 
   describe('combined patchesOptions', () => {
     test('should work with both pathAsArray=false and arrayLengthAssignment=false', () => {
-      const travels = createTravels<AppState>(
+      const travels = createTravels(
         {
           count: 0,
           items: ['a', 'b', 'c'],
@@ -244,9 +244,7 @@ describe('PatchesOptions Configuration', () => {
       });
 
       // No length patch
-      const lengthPatch = allPatches.find((p) =>
-        (p.path as string).endsWith('/length')
-      );
+      const lengthPatch = allPatches.find((p) => p.path.endsWith('/length'));
       expect(lengthPatch).toBeUndefined();
     });
 
@@ -340,7 +338,7 @@ describe('PatchesOptions Configuration', () => {
 
   describe('inverse patches with patchesOptions', () => {
     test('should generate correct inverse patches with pathAsArray=false', () => {
-      const travels = createTravels<AppState>(
+      const travels = createTravels(
         {
           count: 0,
           items: ['a', 'b'],

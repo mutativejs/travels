@@ -102,8 +102,11 @@ export interface TravelsControls<
   canForward: () => boolean;
 }
 
-export interface ManualTravelsControls<S, F extends boolean>
-  extends TravelsControls<S, F> {
+export interface ManualTravelsControls<
+  S,
+  F extends boolean,
+  P extends PatchesOption = {},
+> extends TravelsControls<S, F, P> {
   /**
    * Archive the current state
    */
@@ -611,32 +614,33 @@ export class Travels<
    */
   public getControls() {
     const self = this;
-    const controls: TravelsControls<S, F> | ManualTravelsControls<S, F> = {
-      get position(): number {
-        return self.getPosition();
-      },
-      getHistory: () => self.getHistory() as Value<S, F>[],
-      get patches(): TravelPatches<P> {
-        return self.getPatches();
-      },
-      back: (amount?: number): void => self.back(amount),
-      forward: (amount?: number): void => self.forward(amount),
-      reset: (): void => self.reset(),
-      go: (position: number): void => self.go(position),
-      canBack: (): boolean => self.canBack(),
-      canForward: (): boolean => self.canForward(),
-    };
+    const controls: TravelsControls<S, F, P> | ManualTravelsControls<S, F, P> =
+      {
+        get position(): number {
+          return self.getPosition();
+        },
+        getHistory: () => self.getHistory() as Value<S, F>[],
+        get patches(): TravelPatches<P> {
+          return self.getPatches();
+        },
+        back: (amount?: number): void => self.back(amount),
+        forward: (amount?: number): void => self.forward(amount),
+        reset: (): void => self.reset(),
+        go: (position: number): void => self.go(position),
+        canBack: (): boolean => self.canBack(),
+        canForward: (): boolean => self.canForward(),
+      };
 
     if (!this.autoArchive) {
-      (controls as ManualTravelsControls<S, F>).archive = (): void =>
+      (controls as ManualTravelsControls<S, F, P>).archive = (): void =>
         self.archive();
-      (controls as ManualTravelsControls<S, F>).canArchive = (): boolean =>
+      (controls as ManualTravelsControls<S, F, P>).canArchive = (): boolean =>
         self.canArchive();
     }
 
     return controls as A extends true
-      ? TravelsControls<S, F>
-      : ManualTravelsControls<S, F>;
+      ? TravelsControls<S, F, P>
+      : ManualTravelsControls<S, F, P>;
   }
 }
 
