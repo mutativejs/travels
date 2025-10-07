@@ -9,12 +9,18 @@ import {
   rawReturn,
 } from 'mutative';
 
-export type TravelPatches = {
-  patches: Patches[];
-  inversePatches: Patches[];
+export type TravelPatches<P extends PatchesOption = {}> = {
+  patches: Patches<P>[];
+  inversePatches: Patches<P>[];
 };
 
-export type TravelsOptions<F extends boolean, A extends boolean> = {
+export type PatchesOption = Exclude<PatchesOptions, boolean>;
+
+export type TravelsOptions<
+  F extends boolean,
+  A extends boolean,
+  P extends PatchesOption = {},
+> = {
   /**
    * The maximum number of history to keep, by default `10`
    */
@@ -26,7 +32,7 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
   /**
    * The initial patches of the history
    */
-  initialPatches?: TravelPatches;
+  initialPatches?: TravelPatches<P>;
   /**
    * Whether to automatically archive the current state, by default `true`
    */
@@ -39,7 +45,7 @@ export type TravelsOptions<F extends boolean, A extends boolean> = {
    */
   mutable?: boolean;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
-    patchesOptions?: Exclude<PatchesOptions, boolean>;
+    patchesOptions?: P;
   };
 
 export type InitialValue<I extends unknown> = I extends (
@@ -53,7 +59,11 @@ export type Value<S, F extends boolean> = F extends true
   ? Immutable<InitialValue<S>>
   : InitialValue<S>;
 
-export interface TravelsControls<S, F extends boolean> {
+export interface TravelsControls<
+  S,
+  F extends boolean,
+  P extends PatchesOption = {},
+> {
   /**
    * The current position in the history
    */
@@ -65,7 +75,7 @@ export interface TravelsControls<S, F extends boolean> {
   /**
    * The patches of the history
    */
-  patches: TravelPatches;
+  patches: TravelPatches<P>;
   /**
    * Go back in the history
    */
@@ -107,9 +117,15 @@ export interface ManualTravelsControls<S, F extends boolean>
 /**
  * Listener callback for state changes
  */
-type Listener<S> = (state: S, patches: TravelPatches, position: number) => void;
+type Listener<S, P extends PatchesOption = {}> = (
+  state: S,
+  patches: TravelPatches<P>,
+  position: number
+) => void;
 
-const cloneTravelPatches = (base?: TravelPatches): TravelPatches => ({
+const cloneTravelPatches = <P extends PatchesOption = {}>(
+  base?: TravelPatches<P>
+): TravelPatches<P> => ({
   patches: base ? base.patches.map((patch) => [...patch]) : [],
   inversePatches: base ? base.inversePatches.map((patch) => [...patch]) : [],
 });
@@ -117,19 +133,24 @@ const cloneTravelPatches = (base?: TravelPatches): TravelPatches => ({
 /**
  * Core Travels class for managing undo/redo history
  */
-export class Travels<S, F extends boolean = false, A extends boolean = true> {
+export class Travels<
+  S,
+  F extends boolean = false,
+  A extends boolean = true,
+  P extends PatchesOption = {},
+> {
   private state: S;
   private position: number;
-  private allPatches: TravelPatches;
-  private tempPatches: TravelPatches;
+  private allPatches: TravelPatches<P>;
+  private tempPatches: TravelPatches<P>;
   private maxHistory: number;
   private initialState: S;
   private initialPosition: number;
-  private initialPatches?: TravelPatches;
+  private initialPatches?: TravelPatches<P>;
   private autoArchive: A;
   private mutable: boolean;
-  private options: MutativeOptions<Exclude<PatchesOptions, boolean> | true, F>;
-  private listeners: Set<Listener<S>> = new Set();
+  private options: MutativeOptions<PatchesOption | true, F>;
+  private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
 
   constructor(initialState: S, options: TravelsOptions<F, A> = {} as any) {
@@ -198,7 +219,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
    * Subscribe to state changes
    * @returns Unsubscribe function
    */
-  public subscribe(listener: Listener<S>): () => void {
+  public subscribe(listener: Listener<S, P>): () => void {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
@@ -225,8 +246,8 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
    * Update the state
    */
   public setState(updater: Updater<S>): void {
-    let patches: Patches<true>;
-    let inversePatches: Patches<true>;
+    let patches: Patches<P>;
+    let inversePatches: Patches<P>;
 
     if (this.mutable) {
       // For observable state: generate patches then apply mutably
@@ -241,7 +262,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
               Object.assign(draft, updater);
             }) as (draft: Draft<any>) => void),
         this.options
-      ) as [S, Patches<true>, Patches<true>];
+      ) as [S, Patches<P>, Patches<P>];
 
       // Apply patches to mutate the existing state object
       apply(this.state as object, patches, { mutable: true });
@@ -262,7 +283,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
               () => rawReturn(updater as object) as S,
               this.options
             )
-      ) as [S, Patches<true>, Patches<true>];
+      ) as [S, Patches<P>, Patches<P>];
 
       patches = p;
       inversePatches = ip;
@@ -362,7 +383,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
       stateToUse,
       (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
       this.options
-    );
+    ) as [S, Patches<P>, Patches<P>];
 
     this.allPatches.patches.push(inversePatches);
     this.allPatches.inversePatches.push(patches);
@@ -385,7 +406,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   /**
    * Get all patches including temporary patches
    */
-  private getAllPatches(): TravelPatches {
+  private getAllPatches(): TravelPatches<P> {
     const shouldArchive =
       !this.autoArchive && !!this.tempPatches.patches.length;
 
@@ -579,7 +600,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
   /**
    * Get the patches history
    */
-  public getPatches(): TravelPatches {
+  public getPatches(): TravelPatches<P> {
     const shouldArchive =
       !this.autoArchive && !!this.tempPatches.patches.length;
     return shouldArchive ? this.getAllPatches() : this.allPatches;
@@ -595,7 +616,7 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
         return self.getPosition();
       },
       getHistory: () => self.getHistory() as Value<S, F>[],
-      get patches(): TravelPatches {
+      get patches(): TravelPatches<P> {
         return self.getPatches();
       },
       back: (amount?: number): void => self.back(amount),
@@ -622,29 +643,39 @@ export class Travels<S, F extends boolean = false, A extends boolean = true> {
 /**
  * Create a new Travels instance with auto archive mode
  */
-export function createTravels<S, F extends boolean = false>(
+export function createTravels<
+  S,
+  F extends boolean = false,
+  P extends PatchesOption = {},
+>(
   initialState: S,
-  options?: Omit<TravelsOptions<F, true>, 'autoArchive'> & {
+  options?: Omit<TravelsOptions<F, true, P>, 'autoArchive'> & {
     autoArchive?: true;
   }
-): Travels<S, F, true>;
+): Travels<S, F, true, P>;
 
 /**
  * Create a new Travels instance with manual archive mode
  */
-export function createTravels<S, F extends boolean = false>(
+export function createTravels<
+  S,
+  F extends boolean = false,
+  P extends PatchesOption = {},
+>(
   initialState: S,
-  options: Omit<TravelsOptions<F, false>, 'autoArchive'> & {
+  options: Omit<TravelsOptions<F, false, P>, 'autoArchive'> & {
     autoArchive: false;
   }
-): Travels<S, F, false>;
+): Travels<S, F, false, P>;
 
 /**
  * Create a new Travels instance
  */
-export function createTravels<S, F extends boolean, A extends boolean>(
-  initialState: S,
-  options: TravelsOptions<F, A> = {}
-): Travels<S, F, A> {
+export function createTravels<
+  S,
+  F extends boolean,
+  A extends boolean,
+  P extends PatchesOption = {},
+>(initialState: S, options: TravelsOptions<F, A, P> = {}): Travels<S, F, A, P> {
   return new Travels(initialState, options);
 }
