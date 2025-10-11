@@ -12,6 +12,8 @@ import type {
   TravelPatches,
   TravelsControls,
   TravelsOptions,
+  Updater,
+  Value,
 } from './type';
 
 /**
