@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import { createTravels, Travels } from '../src/index';
 
 describe('Position/Boundary Consistency', () => {
@@ -32,7 +32,7 @@ describe('Position/Boundary Consistency', () => {
       expect(travels.getState().count).toBe(0);
     });
 
-    test('position consistency: manual mode with temp patches then navigation', () => {
+    test('manual mode: navigation auto-archives pending patches', () => {
       const travels = createTravels({ count: 0 }, { autoArchive: false });
 
       // Create archived history
@@ -150,7 +150,34 @@ describe('Position/Boundary Consistency', () => {
       expect(travels.canBack()).toBe(false);
     });
 
-    test('position with initialPosition and initialPatches', () => {
+    test('initialPosition does not auto-apply patches on init', () => {
+      const travels1 = createTravels({ count: 0 });
+      travels1.setState({ count: 1 });
+      travels1.setState({ count: 2 });
+
+      const patches = travels1.getPatches();
+      const position = travels1.getPosition();
+
+      const restored = createTravels({ count: 0 }, {
+        initialPatches: patches,
+        initialPosition: position,
+      });
+
+      expect(restored.getPosition()).toBe(2);
+      expect(restored.getState().count).toBe(0);
+
+      // Directly going to the same position is a no-op because the constructor already sets it
+      restored.go(position);
+      expect(restored.getState().count).toBe(0);
+
+      // Replaying from the start applies the expected patches
+      restored.go(0);
+      restored.go(position);
+      expect(restored.getState().count).toBe(2);
+      expect(restored.getPosition()).toBe(2);
+    });
+
+    test('restoring with persisted snapshot keeps state and position aligned', () => {
       const travels1 = createTravels({ count: 0 });
       travels1.setState({ count: 1 });
       travels1.setState({ count: 2 });
@@ -182,6 +209,96 @@ describe('Position/Boundary Consistency', () => {
       travels2.forward();
       expect(travels2.getState().count).toBe(2);
       expect(travels2.getPosition()).toBe(2);
+    });
+
+    test('manual mode retains forward capability after stepping back', () => {
+      const travels = createTravels({ value: 0 }, { autoArchive: false });
+
+      travels.setState({ value: 1 });
+      travels.archive();
+
+      travels.setState({ value: 2 });
+      travels.archive();
+
+      expect(travels.getPosition()).toBe(2);
+
+      travels.back();
+      expect(travels.getPosition()).toBe(1);
+      expect(travels.canForward()).toBe(true);
+
+      travels.forward();
+      expect(travels.getState().value).toBe(2);
+      expect(travels.getPosition()).toBe(2);
+    });
+
+    test('go clamps bounds and is a no-op when position is unchanged', () => {
+      const travels = createTravels({ value: 0 });
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+
+      travels.setState({ value: 1 });
+      travels.setState({ value: 2 });
+      travels.setState({ value: 3 });
+
+      const currentRef = travels.getState();
+      const currentPosition = travels.getPosition();
+
+      travels.go(currentPosition);
+      expect(travels.getState()).toBe(currentRef);
+      expect(travels.getPosition()).toBe(currentPosition);
+
+      travels.go(-999);
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getState().value).toBe(0);
+
+      travels.go(10_000);
+      expect(travels.getPosition()).toBe(3);
+      expect(travels.getState().value).toBe(3);
+
+      const clamped = createTravels({ value: 0 }, { initialPosition: 5 });
+      clamped.back();
+      expect(clamped.getPosition()).toBe(0);
+      expect(clamped.getState().value).toBe(0);
+
+      expect(warnSpy).toHaveBeenCalled();
+      warnSpy.mockRestore();
+    });
+
+    test('archive is a no-op when there are no temporary patches', () => {
+      const travels = createTravels({ value: 0 }, { autoArchive: false });
+
+      travels.archive();
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getPatches().patches).toHaveLength(0);
+
+      travels.setState({ value: 1 });
+      travels.archive();
+      const patchesAfterArchive = travels.getPatches().patches.length;
+      const positionAfterArchive = travels.getPosition();
+
+      travels.archive();
+      expect(travels.getPatches().patches).toHaveLength(patchesAfterArchive);
+      expect(travels.getPosition()).toBe(positionAfterArchive);
+    });
+
+    test('maxHistory truncates future branches when writing new history', () => {
+      const travels = createTravels({ value: 0 }, { maxHistory: 3 });
+
+      travels.setState({ value: 1 });
+      travels.setState({ value: 2 });
+      travels.setState({ value: 3 });
+
+      travels.back(2);
+      expect(travels.getState().value).toBe(1);
+
+      travels.setState({ value: 4 });
+
+      expect(travels.getState().value).toBe(4);
+      expect(travels.canForward()).toBe(false);
+
+      const historyValues = travels.getHistory().map((state) => state.value);
+      expect(historyValues).toEqual([0, 1, 4]);
     });
   });
 });
@@ -518,6 +635,105 @@ describe('Random Fuzzing', () => {
   });
 });
 
+describe('Event Notifications', () => {
+  test('subscribe emits ordered snapshots for state and navigation changes', () => {
+    const travels = createTravels({ value: 0 }, { autoArchive: false });
+
+    type Expectation = {
+      name: string;
+      assert: (
+        state: { value: number },
+        patches: ReturnType<typeof travels.getPatches>,
+        position: number
+      ) => void;
+    };
+
+    const expectations: Expectation[] = [];
+    let callIndex = 0;
+
+    travels.subscribe((state, patches, position) => {
+      const expectation = expectations[callIndex++];
+      expect(expectation?.name).toBeDefined();
+      expectation.assert(state, patches, position);
+    });
+
+    const run = (
+      name: string,
+      operation: () => void,
+      assert: Expectation['assert']
+    ) => {
+      expectations.push({ name, assert });
+      operation();
+    };
+
+    run(
+      'setState-1',
+      () => travels.setState({ value: 1 }),
+      (state, patches, position) => {
+        expect(state.value).toBe(1);
+        expect(position).toBe(1);
+        expect(patches.patches).toHaveLength(1);
+        expect(patches.inversePatches).toHaveLength(1);
+      }
+    );
+
+    run('archive-1', () => travels.archive(), (state, patches, position) => {
+      expect(state.value).toBe(1);
+      expect(position).toBe(1);
+      expect(patches.patches).toHaveLength(1);
+      expect(patches.inversePatches).toHaveLength(1);
+    });
+
+    run(
+      'setState-2',
+      () => travels.setState({ value: 2 }),
+      (state, patches, position) => {
+        expect(state.value).toBe(2);
+        expect(position).toBe(2);
+        expect(patches.patches).toHaveLength(2);
+        expect(patches.inversePatches).toHaveLength(2);
+      }
+    );
+
+    run('archive-2', () => travels.archive(), (state, patches, position) => {
+      expect(state.value).toBe(2);
+      expect(position).toBe(2);
+      expect(patches.patches).toHaveLength(2);
+      expect(patches.inversePatches).toHaveLength(2);
+    });
+
+    run('back', () => travels.back(), (state, patches, position) => {
+      expect(state.value).toBe(1);
+      expect(position).toBe(1);
+      expect(patches.patches).toHaveLength(2);
+      expect(patches.inversePatches).toHaveLength(2);
+    });
+
+    run('forward', () => travels.forward(), (state, patches, position) => {
+      expect(state.value).toBe(2);
+      expect(position).toBe(2);
+      expect(patches.patches).toHaveLength(2);
+      expect(patches.inversePatches).toHaveLength(2);
+    });
+
+    run('go', () => travels.go(1), (state, patches, position) => {
+      expect(state.value).toBe(1);
+      expect(position).toBe(1);
+      expect(patches.patches).toHaveLength(2);
+      expect(patches.inversePatches).toHaveLength(2);
+    });
+
+    run('reset', () => travels.reset(), (state, patches, position) => {
+      expect(state.value).toBe(0);
+      expect(position).toBe(0);
+      expect(patches.patches).toHaveLength(0);
+      expect(patches.inversePatches).toHaveLength(0);
+    });
+
+    expect(callIndex).toBe(expectations.length);
+  });
+});
+
 describe('Mutable/Immutable Alignment', () => {
   interface TestState {
     count: number;
@@ -530,6 +746,31 @@ describe('Mutable/Immutable Alignment', () => {
     nested: { value: 'initial' },
     list: [1, 2, 3],
   };
+
+  test('mutable mode retains reference identity while immutable replaces it', () => {
+    const immutable = createTravels<TestState>(
+      JSON.parse(JSON.stringify(initialState))
+    );
+    const mutable = createTravels<TestState>(
+      JSON.parse(JSON.stringify(initialState)),
+      { mutable: true }
+    );
+
+    const immutableRef = immutable.getState();
+    const mutableRef = mutable.getState();
+
+    immutable.setState((draft) => {
+      draft.count = 1;
+    });
+    mutable.setState((draft) => {
+      draft.count = 1;
+    });
+
+    expect(immutable.getState()).not.toBe(immutableRef);
+    expect(mutable.getState()).toBe(mutableRef);
+    expect(immutable.getState().count).toBe(1);
+    expect(mutable.getState().count).toBe(1);
+  });
 
   test('identical operations produce identical results', () => {
     const immutable = createTravels<TestState>(
@@ -649,6 +890,48 @@ describe('Mutable/Immutable Alignment', () => {
     immutable.back();
     mutable.back();
     expect(mutable.getState()).toEqual(immutable.getState());
+  });
+
+  test('reset restores deep mutable state and clears history', () => {
+    interface DeepState {
+      count: number;
+      nested: { value: string; meta: { flag: boolean; tags: string[] } };
+      list: Array<{ id: number; label: string }>;
+    }
+
+    const base: DeepState = {
+      count: 0,
+      nested: { value: 'initial', meta: { flag: true, tags: ['a', 'b'] } },
+      list: [
+        { id: 1, label: 'one' },
+        { id: 2, label: 'two' },
+      ],
+    };
+
+    const mutable = createTravels<DeepState>(
+      JSON.parse(JSON.stringify(base)),
+      { mutable: true }
+    );
+
+    const reference = mutable.getState();
+
+    mutable.setState((draft) => {
+      draft.count = 10;
+      draft.nested.value = 'changed';
+      draft.nested.meta.flag = false;
+      draft.nested.meta.tags.push('c');
+      draft.list[0].label = 'uno';
+      draft.list.push({ id: 3, label: 'three' });
+    });
+
+    expect(mutable.canBack()).toBe(true);
+
+    mutable.reset();
+
+    expect(mutable.getState()).toBe(reference);
+    expect(mutable.getState()).toEqual(base);
+    expect(mutable.canBack()).toBe(false);
+    expect(mutable.canForward()).toBe(false);
   });
 
   test('maxHistory behavior alignment', () => {
