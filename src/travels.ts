@@ -41,6 +41,10 @@ export class Travels<
   A extends boolean = true,
   P extends PatchesOption = {},
 > {
+  /**
+   * Get the mutable mode
+   */
+  public mutable: boolean;
   private state: S;
   private position: number;
   private allPatches: TravelPatches<P>;
@@ -50,7 +54,6 @@ export class Travels<
   private initialPosition: number;
   private initialPatches?: TravelPatches<P>;
   private autoArchive: A;
-  private mutable: boolean;
   private options: MutativeOptions<PatchesOption | true, F>;
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;

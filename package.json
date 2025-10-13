@@ -1,7 +1,7 @@
 {
   "name": "travels",
   "description": "A fast, framework-agnostic undo/redo core library powered by Mutative JSON Patch",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "type": "module",
   "author": "unadlib",
   "repository": {

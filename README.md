@@ -173,6 +173,10 @@ Archive the current state. Only available when `autoArchive: false`.
 
 Check if it's possible to archive the current state.
 
+#### `mutable: boolean`
+
+Get the mutable mode.
+
 #### `getControls(): TravelsControls | ManualTravelsControls`
 
 Get a controls object with all navigation methods. Useful for passing controls to UI components.

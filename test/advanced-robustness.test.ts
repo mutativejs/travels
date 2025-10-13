@@ -777,10 +777,14 @@ describe('Mutable/Immutable Alignment', () => {
       JSON.parse(JSON.stringify(initialState)),
       { mutable: false }
     );
+    expect(immutable.mutable).toBe(false);
+
     const mutable = createTravels<TestState>(
       JSON.parse(JSON.stringify(initialState)),
       { mutable: true }
     );
+    expect(mutable.mutable).toBe(true);
+
 
     // Perform same operations
     const operations = [
