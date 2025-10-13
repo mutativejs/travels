@@ -437,31 +437,48 @@ export class Travels<
    * Reset to the initial state
    */
   public reset(): void {
-    this.position = this.initialPosition;
-    this.allPatches = cloneTravelPatches(this.initialPatches);
-    this.tempPatches = cloneTravelPatches();
-
     if (this.mutable) {
-      // For observable state: mutate back to initial state
-      // Directly mutate each property to match initial state
-      const state = this.state as S;
-      const initial = this.initialState as S;
+      // For observable state: use patch system to reset to initial state
+      // Generate patches from current state to initial state
+      const [, patches] = create(
+        this.state,
+        (draft) => {
+          // Clear all properties
+          for (const key of Object.keys(draft as object)) {
+            delete (draft as any)[key];
+          }
+          // Deep copy all properties from initialState
+          const clone = (source: any, target: any) => {
+            for (const key in source) {
+              if (source.hasOwnProperty(key)) {
+                const value = source[key];
+                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                  target[key] = {};
+                  clone(value, target[key]);
+                } else if (Array.isArray(value)) {
+                  target[key] = value.map((item: any) =>
+                    item && typeof item === 'object' ? Object.assign({}, item) : item
+                  );
+                } else {
+                  target[key] = value;
+                }
+              }
+            }
+          };
+          clone(this.initialState, draft);
+        },
+        this.options
+      ) as [S, Patches<P>];
 
-      // Remove properties that exist in current but not in initial
-      for (const key of Object.keys(state as object)) {
-        if (!(key in (initial as object))) {
-          delete state[key as keyof S];
-        }
-      }
-
-      // Set/update all properties from initial state
-      for (const key of Object.keys(initial as object)) {
-        state[key as keyof S] = initial[key as keyof S];
-      }
+      apply(this.state as object, patches, { mutable: true });
     } else {
       // For immutable state: reassign reference
       this.state = this.initialState;
     }
+
+    this.position = this.initialPosition;
+    this.allPatches = cloneTravelPatches(this.initialPatches);
+    this.tempPatches = cloneTravelPatches();
 
     this.notify();
   }
@@ -477,12 +494,8 @@ export class Travels<
    * Check if it's possible to go forward
    */
   public canForward(): boolean {
-    const shouldArchive =
-      !this.autoArchive && !!this.tempPatches.patches.length;
     const _allPatches = this.getAllPatches();
-    return shouldArchive
-      ? this.position < _allPatches.patches.length - 1
-      : this.position < this.allPatches.patches.length;
+    return this.position < _allPatches.patches.length;
   }
 
   /**
