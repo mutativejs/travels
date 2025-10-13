@@ -55,7 +55,7 @@ export class Travels<
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
 
-  constructor(initialState: S, options: TravelsOptions<F, A> = {} as any) {
+  constructor(initialState: S, options: TravelsOptions<F, A> = {}) {
     const {
       maxHistory = 10,
       initialPatches,
@@ -159,10 +159,10 @@ export class Travels<
         this.state,
         isFn
           ? (updater as (draft: Draft<S>) => void)
-          : (((draft) => {
+          : (draft: Draft<S>) => {
               // For non-function updater, assign all properties to draft
-              Object.assign(draft, updater);
-            }) as (draft: Draft<any>) => void),
+              Object.assign(draft!, updater);
+            },
         this.options
       ) as [S, Patches<P>, Patches<P>];
 
@@ -452,12 +452,18 @@ export class Travels<
             for (const key in source) {
               if (source.hasOwnProperty(key)) {
                 const value = source[key];
-                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                if (
+                  value &&
+                  typeof value === 'object' &&
+                  !Array.isArray(value)
+                ) {
                   target[key] = {};
                   clone(value, target[key]);
                 } else if (Array.isArray(value)) {
                   target[key] = value.map((item: any) =>
-                    item && typeof item === 'object' ? Object.assign({}, item) : item
+                    item && typeof item === 'object'
+                      ? Object.assign({}, item)
+                      : item
                   );
                 } else {
                   target[key] = value;
@@ -468,7 +474,7 @@ export class Travels<
           clone(this.initialState, draft);
         },
         this.options
-      ) as [S, Patches<P>];
+      );
 
       apply(this.state as object, patches, { mutable: true });
     } else {

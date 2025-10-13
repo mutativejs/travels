@@ -9,6 +9,7 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
       exclude: [
+        'benchmarks/**',
         'examples/**',
         'node_modules/**',
         'dist/**',
