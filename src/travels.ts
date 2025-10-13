@@ -503,8 +503,14 @@ export class Travels<
    * Check if it's possible to go forward
    */
   public canForward(): boolean {
+    const shouldArchive =
+      !this.autoArchive && !!this.tempPatches.patches.length;
     const _allPatches = this.getAllPatches();
-    return this.position < _allPatches.patches.length;
+
+    // Temporary patches represent the current state, not a future state
+    return shouldArchive
+      ? this.position < _allPatches.patches.length - 1
+      : this.position < _allPatches.patches.length;
   }
 
   /**
