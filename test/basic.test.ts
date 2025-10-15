@@ -188,6 +188,39 @@ describe('Basic Example - Basic Usage', () => {
     expect(states).toHaveLength(2);
   });
 
+  test('supports destructured subscribe and getState bindings', () => {
+    const capturedStates: AppState[] = [];
+    const capturedPositions: number[] = [];
+
+    const { subscribe, getState } = travels;
+
+    // check function auto bind travel
+    const unsubscribe = subscribe.call({} ,(state, _patches, position) => {
+      capturedStates.push(state);
+      capturedPositions.push(position);
+    });
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    expect(capturedStates).toHaveLength(1);
+    expect(capturedStates[0]).toEqual({ count: 1, text: 'Hello' });
+    expect(capturedPositions).toEqual([1]);
+    // check function auto bind travel
+    expect(getState.call({}, )).toEqual({ count: 1, text: 'Hello' });
+
+    unsubscribe();
+
+    travels.setState((draft) => {
+      draft.count = 2;
+    });
+
+    expect(capturedStates).toHaveLength(1);
+    expect(capturedPositions).toEqual([1]);
+    expect(getState()).toEqual({ count: 2, text: 'Hello' });
+  });
+
   test('should check canBack and canForward correctly', () => {
     expect(travels.canBack()).toBe(false);
     expect(travels.canForward()).toBe(false);
@@ -205,4 +238,3 @@ describe('Basic Example - Basic Usage', () => {
     expect(travels.canForward()).toBe(true);
   });
 });
-
