@@ -210,6 +210,16 @@ export class Travels<
   }
 
   /**
+   * Check if patches contain root-level replacement operations
+   * Root replacement cannot be done mutably as it changes the type/value of the entire state
+   */
+  private hasRootReplacement(patches: Patches<P>): boolean {
+    return patches.some((patch) =>
+      Array.isArray(patch.path) && patch.path.length === 0 && patch.op === 'replace'
+    );
+  }
+
+  /**
    * Get the current state
    */
   getState = () => this.state;
@@ -492,7 +502,14 @@ export class Travels<
           .slice(this.position, nextPosition)
           .flat();
 
-    const canGoMutably = this.mutable && this.isObjectLike(this.state);
+    // Can only use mutable mode if:
+    // 1. mutable mode is enabled
+    // 2. current state is an object
+    // 3. patches don't contain root-level replacements (which change the entire state)
+    const canGoMutably =
+      this.mutable &&
+      this.isObjectLike(this.state) &&
+      !this.hasRootReplacement(patchesToApply);
 
     if (canGoMutably) {
       // For observable state: mutate in place
