@@ -124,12 +124,12 @@ export class Travels<
    * Subscribe to state changes
    * @returns Unsubscribe function
    */
-  public subscribe(listener: Listener<S, P>): () => void {
+  public subscribe = (listener: Listener<S, P>) => {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
-  }
+  };
 
   /**
    * Notify all listeners of state changes
@@ -143,9 +143,7 @@ export class Travels<
   /**
    * Get the current state
    */
-  public getState(): S {
-    return this.state;
-  }
+  getState = () => this.state;
 
   /**
    * Update the state
