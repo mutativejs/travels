@@ -15,6 +15,7 @@ import type {
   Updater,
   Value,
 } from './type';
+import { isObjectLike } from './utils';
 
 /**
  * Listener callback for state changes
@@ -205,17 +206,16 @@ export class Travels<
     );
   }
 
-  private isObjectLike(value: unknown): value is Record<PropertyKey, unknown> {
-    return typeof value === 'object' && value !== null;
-  }
-
   /**
    * Check if patches contain root-level replacement operations
    * Root replacement cannot be done mutably as it changes the type/value of the entire state
    */
   private hasRootReplacement(patches: Patches<P>): boolean {
-    return patches.some((patch) =>
-      Array.isArray(patch.path) && patch.path.length === 0 && patch.op === 'replace'
+    return patches.some(
+      (patch) =>
+        Array.isArray(patch.path) &&
+        patch.path.length === 0 &&
+        patch.op === 'replace'
     );
   }
 
@@ -231,7 +231,7 @@ export class Travels<
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
 
-    const useMutable = this.mutable && this.isObjectLike(this.state);
+    const useMutable = this.mutable && isObjectLike(this.state);
 
     if (this.mutable && !useMutable && !this.mutableFallbackWarned) {
       this.mutableFallbackWarned = true;
@@ -275,9 +275,9 @@ export class Travels<
           : create(
               this.state,
               () =>
-                (typeof updater === 'object' && updater !== null
+                isObjectLike(updater)
                   ? (rawReturn(updater as object) as S)
-                  : (updater as S)),
+                  : (updater as S),
               this.options
             )
       ) as [S, Patches<P>, Patches<P>];
@@ -508,7 +508,7 @@ export class Travels<
     // 3. patches don't contain root-level replacements (which change the entire state)
     const canGoMutably =
       this.mutable &&
-      this.isObjectLike(this.state) &&
+      isObjectLike(this.state) &&
       !this.hasRootReplacement(patchesToApply);
 
     if (canGoMutably) {
@@ -543,8 +543,8 @@ export class Travels<
   public reset(): void {
     const canResetMutably =
       this.mutable &&
-      this.isObjectLike(this.state) &&
-      this.isObjectLike(this.initialState);
+      isObjectLike(this.state) &&
+      isObjectLike(this.initialState);
 
     if (canResetMutably) {
       // For observable state: use patch system to reset to initial state
