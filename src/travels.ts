@@ -106,18 +106,82 @@ export class Travels<
     this.initialState = mutable
       ? JSON.parse(JSON.stringify(initialState))
       : initialState;
-    this.position = initialPosition;
-    this.initialPosition = initialPosition;
     this.maxHistory = maxHistory;
-    this.initialPatches = initialPatches;
     this.autoArchive = autoArchive;
     this.mutable = mutable;
     this.options = {
       ...mutativeOptions,
       enablePatches: patchesOptions ?? true,
     };
-    this.allPatches = cloneTravelPatches(initialPatches);
+
+    const { patches: normalizedPatches, position: normalizedPosition } =
+      this.normalizeInitialHistory(initialPatches, initialPosition);
+
+    this.allPatches = normalizedPatches;
+    this.initialPatches = initialPatches
+      ? cloneTravelPatches(normalizedPatches)
+      : undefined;
+    this.position = normalizedPosition;
+    this.initialPosition = normalizedPosition;
+
     this.tempPatches = cloneTravelPatches();
+  }
+
+  private normalizeInitialHistory(
+    initialPatches: TravelPatches<P> | undefined,
+    initialPosition: number
+  ): { patches: TravelPatches<P>; position: number } {
+    const cloned = cloneTravelPatches(initialPatches);
+    const total = cloned.patches.length;
+    const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
+    let position =
+      Number.isFinite(initialPosition) && typeof initialPosition === 'number'
+        ? (initialPosition as number)
+        : 0;
+
+    position = Math.max(0, Math.min(position, total));
+
+    if (total === 0) {
+      return { patches: cloned, position: 0 };
+    }
+
+    if (historyLimit === 0) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Travels: maxHistory (${this.maxHistory}) discards persisted history.`
+        );
+      }
+
+      return { patches: cloneTravelPatches(), position: 0 };
+    }
+
+    if (historyLimit >= total) {
+      return { patches: cloned, position };
+    }
+
+    const trim = total - historyLimit;
+    const trimmedBase = {
+      patches: cloned.patches.slice(-historyLimit),
+      inversePatches: cloned.inversePatches.slice(-historyLimit),
+    } as TravelPatches<P>;
+
+    const trimmed = cloneTravelPatches(trimmedBase);
+    const adjustedPosition = Math.max(
+      0,
+      Math.min(historyLimit, position - trim)
+    );
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        `Travels: initialPatches length (${total}) exceeds maxHistory (${historyLimit}). ` +
+          `Trimmed to last ${historyLimit} steps. Position adjusted to ${adjustedPosition}.`
+      );
+    }
+
+    return {
+      patches: trimmed,
+      position: adjustedPosition,
+    };
   }
 
   /**
