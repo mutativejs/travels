@@ -8,6 +8,25 @@ import { describe, test, expect } from 'vitest';
 import { createTravels } from '../src/index';
 
 describe('Mutable mode for observable state', () => {
+  test('falls back to immutable behavior for primitive state roots', () => {
+    const travels = createTravels<number>(0, { mutable: true });
+
+    expect(travels.getState()).toBe(0);
+
+    travels.setState(() => 1);
+    expect(travels.getState()).toBe(1);
+
+    travels.setState(2);
+    expect(travels.getState()).toBe(2);
+    expect(travels.getPosition()).toBe(2);
+
+    travels.back();
+    expect(travels.getState()).toBe(1);
+
+    travels.reset();
+    expect(travels.getState()).toBe(0);
+  });
+
   test('setState with mutable: true preserves reference', () => {
     const state = { count: 0 };
     const travels = createTravels(state, { mutable: true });

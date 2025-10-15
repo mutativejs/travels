@@ -57,6 +57,7 @@ export class Travels<
   private options: MutativeOptions<PatchesOption | true, F>;
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
+  private mutableFallbackWarned = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A> = {}) {
     const {
@@ -204,6 +205,10 @@ export class Travels<
     );
   }
 
+  private isObjectLike(value: unknown): value is Record<PropertyKey, unknown> {
+    return typeof value === 'object' && value !== null;
+  }
+
   /**
    * Get the current state
    */
@@ -216,7 +221,19 @@ export class Travels<
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
 
-    if (this.mutable) {
+    const useMutable = this.mutable && this.isObjectLike(this.state);
+
+    if (this.mutable && !useMutable && !this.mutableFallbackWarned) {
+      this.mutableFallbackWarned = true;
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Travels: mutable mode requires the state root to be an object. Falling back to immutable updates.'
+        );
+      }
+    }
+
+    if (useMutable) {
       // For observable state: generate patches then apply mutably
       const isFn = typeof updater === 'function';
 
@@ -247,7 +264,10 @@ export class Travels<
             )
           : create(
               this.state,
-              () => rawReturn(updater as object) as S,
+              () =>
+                (typeof updater === 'object' && updater !== null
+                  ? (rawReturn(updater as object) as S)
+                  : (updater as S)),
               this.options
             )
       ) as [S, Patches<P>, Patches<P>];
@@ -472,11 +492,13 @@ export class Travels<
           .slice(this.position, nextPosition)
           .flat();
 
-    if (this.mutable) {
+    const canGoMutably = this.mutable && this.isObjectLike(this.state);
+
+    if (canGoMutably) {
       // For observable state: mutate in place
       apply(this.state as object, patchesToApply, { mutable: true });
     } else {
-      // For immutable state: create new object
+      // For immutable state or primitive types: create new state
       this.state = apply(this.state as object, patchesToApply) as S;
     }
 
@@ -502,7 +524,12 @@ export class Travels<
    * Reset to the initial state
    */
   public reset(): void {
-    if (this.mutable) {
+    const canResetMutably =
+      this.mutable &&
+      this.isObjectLike(this.state) &&
+      this.isObjectLike(this.initialState);
+
+    if (canResetMutably) {
       // For observable state: use patch system to reset to initial state
       // Generate patches from current state to initial state
       const [, patches] = create(
