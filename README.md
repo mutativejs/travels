@@ -295,6 +295,14 @@ function handleSave() {
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
 
+## State Shape Requirements
+
+`travels` stores snapshots and persists state by running `JSON.parse(JSON.stringify(...))` under the hood. This keeps the reset/persist logic fast and deterministic, but it also means that only JSON-serializable values are preserved. In practice, initial state and every update should stay within plain objects/arrays made of numbers, strings, booleans, `null`, or other JSON-friendly values.
+
+- Non-POJO(`Plain Old JavaScript Object`) structures such as `Date`, `Map`, `Set`, class instances, functions, and custom prototypes are not supported. They will either be coerced (e.g. `Date` becomes an ISO string) or dropped when history is reset or persisted.
+- The `mutable: true` option still relies on the same serialization workflow; mutable drafts do not bypass the JSON constraint.
+- If you need those richer data types, convert them to serializable representations before storing them, or manage them outside of the travel state (for example, keep IDs in the store and look up the non-POJO data elsewhere).
+
 ## Integration Examples
 
 ### React Integration
