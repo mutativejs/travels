@@ -4,30 +4,42 @@
 [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
 ![license](https://img.shields.io/npm/l/travels)
 
-A fast, framework-agnostic undo/redo core library powered by Mutative JSON Patch.
+**A fast, framework-agnostic undo/redo library that stores only changes, not full snapshots.**
 
-## Motivation
+Travels gives your users the power to undo and redo their actions—essential for text editors, drawing apps, form builders, and any interactive application. Unlike traditional undo systems that copy entire state objects for each change, Travels stores only the differences (JSON Patches), making it **10x faster and far more memory-efficient**.
 
-`travels` is a small and high-performance library for implementing undo/redo functionality. It's built on [Mutative](https://github.com/unadlib/mutative) to leverage two key performance advantages:
+Works with React, Vue, Zustand, or vanilla JavaScript.
 
-- **Efficient History Storage with JSON Patches**: Instead of storing full state snapshots for each history entry, `travels` uses [JSON Patch](https://jsonpatch.com/) (RFC 6902) to store only the differences between states. This dramatically reduces memory usage, especially for large state objects with small changes. For example, changing a single field in a 1MB object only stores a few bytes in history.
+## Table of Contents
 
-- **High-Performance Immutable Updates**: Mutative is [10x faster than Immer](https://mutative.js.org/docs/getting-started/performance) and provides a mutation-based API for updating immutable data structures. This means you can write mutation update code (`draft.count++`) while maintaining immutability guarantees, with minimal performance overhead.
+- [Why Travels? Performance That Scales](#why-travels-performance-that-scales)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [API Reference](#api-reference)
+  - [createTravels](#createtravelsinitialstate-options)
+  - [Instance Methods](#instance-methods)
+  - [maxHistory option](#maxhistory-option)
+- [Archive Mode: Control When Changes Are Saved](#archive-mode-control-when-changes-are-saved)
+- [State Requirements: JSON-Serializable Only](#state-requirements-json-serializable-only)
+- [Framework Integration](#framework-integration)
+- [Persistence: Saving History to Storage](#persistence-saving-history-to-storage)
+- [TypeScript Support](#typescript-support)
+- [Advanced: Extending Travels with Custom Logic](#advanced-extending-travels-with-custom-logic)
+- [Related Projects](#related-projects)
+- [License](#license)
 
-`travels` is designed to be framework-agnostic and can be integrated with React, Vue, Zustand, MobX, Pinia, and other libraries. It's suitable for building time travel features in any JavaScript application.
+## Why Travels? Performance That Scales
 
-## Features
+Traditional undo systems clone your entire state object for each change. If your state is 1MB and the user makes 100 edits, that's 100MB of memory. Travels stores only the differences between states (JSON Patches following [RFC 6902](https://jsonpatch.com/)), so that same 1MB object with 100 small edits might use just a few kilobytes.
 
-- ✨ Framework-agnostic core library
-- 🔄 Undo/Redo/Reset/Go/Archive functionalities
-- 🎯 Subscribe to state changes
-- 💪 Mutations update immutable data via Mutative
-- 📦 Small size with efficient JSON Patch history
-- ⚙️ Customizable history size and initial patches
-- 🚀 High performance
-- 🔧 Mark function for custom immutability
-- 🌟 Supports both auto archive and manual archive modes
-- 🔥 Supports both immutable and mutable state
+**Two key advantages:**
+
+- **Memory-efficient history storage** - Stores only differences (patches), not full snapshots. Changing one field in a large object stores only a few bytes.
+
+- **Fast immutable updates** - Built on [Mutative](https://github.com/unadlib/mutative), which is [10x faster than Immer](https://mutative.js.org/docs/getting-started/performance). Write simple mutation code like `draft.count++` while maintaining immutability.
+
+**Framework-agnostic** - Works with React, Vue, Zustand, MobX, Pinia, or vanilla JavaScript.
 
 ## Installation
 
@@ -49,7 +61,7 @@ pnpm add travels mutative
 ```typescript
 import { createTravels } from 'travels';
 
-// Create a travels instance
+// Create a travels instance with initial state
 const travels = createTravels({ count: 0 });
 
 // Subscribe to state changes
@@ -58,30 +70,42 @@ const unsubscribe = travels.subscribe((state, patches, position) => {
   console.log('Position:', position);
 });
 
-// Update state using mutation
+// Update state using mutation syntax (preferred - more intuitive)
 travels.setState((draft) => {
-  draft.count += 1;
+  draft.count += 1; // Mutate the draft directly
 });
 
-// Or set state directly
+// Or set state directly by providing a new value
 travels.setState({ count: 2 });
 
-// Undo
+// Undo the last change
 travels.back();
 
-// Redo
+// Redo the undone change
 travels.forward();
 
 // Get current state
 console.log(travels.getState()); // { count: 1 }
 
-// Cleanup
+// Cleanup when done
 unsubscribe();
 ```
 
-## Online Examples
+**Try it yourself:** [Travels Counter Demo](https://codesandbox.io/p/sandbox/travels-vanilla-ts-wzdd62)
 
-- [Travels Counter Demo](https://codesandbox.io/p/sandbox/travels-vanilla-ts-wzdd62)
+## Core Concepts
+
+Before diving into the API, understanding these terms will help:
+
+**State** - Your application data. In the example above, `{ count: 0 }` is the state.
+
+**Draft** - A temporary mutable copy of your state that you can change freely. When you use `setState((draft) => { draft.count++ })`, the `draft` parameter is what you modify. Travels converts your mutations into immutable updates automatically.
+
+**Patches** - The differences between states, stored as JSON Patch operations. Instead of saving entire state copies, Travels saves these small change records to minimize memory usage.
+
+**Position** - Your current location in the history timeline. Position 0 is the initial state, position 1 is after the first change, etc. Moving back decreases position; moving forward increases it.
+
+**Archive** - The act of saving the current state to history. By default, every `setState` call archives automatically. You can disable this and control archiving manually for more advanced use cases.
 
 ## API Reference
 
@@ -93,14 +117,14 @@ Creates a new Travels instance.
 
 | Parameter          | Type          | Description                                                                                                              | Default                          |
 | ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------- |
-| `initialState`     | S             | The initial state                                                                                                        | -                                |
-| `maxHistory`       | number        | The maximum number of history to keep                                                                                    | 10                               |
-| `initialPatches`   | TravelPatches | The initial patches                                                                                                      | {patches: [],inversePatches: []} |
-| `initialPosition`  | number        | The initial position of the state                                                                                        | 0                                |
-| `autoArchive`      | boolean       | Auto archive the state (see [Archive Mode](#archive-mode) for details)                                                   | true                             |
-| `enableAutoFreeze` | boolean       | Enable auto freeze the state, [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options) | false                            |
-| `strict`           | boolean       | Enable strict mode, [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)           | false                            |
-| `mark`             | Mark<O, F>[]  | The mark function , [view more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)           | () => void                       |
+| `initialState`     | S             | Your application's starting state (must be JSON-serializable)                                                           | (required)                       |
+| `maxHistory`       | number        | Maximum number of history entries to keep. Older entries are dropped.                                                   | 10                               |
+| `initialPatches`   | TravelPatches | Restore saved patches when loading from storage                                                                         | {patches: [],inversePatches: []} |
+| `initialPosition`  | number        | Restore position when loading from storage                                                                               | 0                                |
+| `autoArchive`      | boolean       | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))            | true                             |
+| `enableAutoFreeze` | boolean       | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)) | false                            |
+| `strict`           | boolean       | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))           | false                            |
+| `mark`             | Mark<O, F>[]  | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))           | () => void                       |
 
 **Returns:** `Travels<S, F, A>` - A Travels instance
 
@@ -112,11 +136,11 @@ Get the current state.
 
 #### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void)): void`
 
-Update the state. Supports:
+Update the state. Supports three styles:
 
-- Direct value: `setState({ count: 1 })`
-- Function returning value: `setState(() => ({ count: 1 }))`
-- Draft mutation: `setState((draft) => { draft.count = 1 })`
+- **Direct value:** `setState({ count: 1 })` - Replace state with a new object
+- **Function returning value:** `setState(() => ({ count: 1 }))` - Compute new state
+- **Draft mutation (recommended):** `setState((draft) => { draft.count = 1 })` - Mutate a draft copy
 
 #### `subscribe(listener: (state, patches, position) => void): () => void`
 
@@ -131,55 +155,55 @@ Subscribe to state changes. Returns an unsubscribe function.
 
 #### `back(amount?: number): void`
 
-Go back in the history. Default amount is 1.
+Undo one or more changes by moving back in history. Defaults to 1 step.
 
 #### `forward(amount?: number): void`
 
-Go forward in the history. Default amount is 1.
+Redo one or more changes by moving forward in history. Defaults to 1 step.
 
 #### `go(position: number): void`
 
-Go to a specific position in the history.
+Jump to a specific position in the history timeline.
 
 #### `reset(): void`
 
-Reset the state to the initial state and clear history.
+Reset to the initial state and clear all history.
 
 #### `getHistory(): S[]`
 
-Get the complete history of states as an array.
+Returns the complete history of states as an array.
 
 #### `getPosition(): number`
 
-Get the current position in the history.
+Returns the current position in the history timeline.
 
 #### `getPatches(): TravelPatches`
 
-Get the patches history.
+Returns the stored patches (the differences between states).
 
 #### `canBack(): boolean`
 
-Check if it's possible to go back.
+Returns `true` if undo is possible (not at the beginning of history).
 
 #### `canForward(): boolean`
 
-Check if it's possible to go forward.
+Returns `true` if redo is possible (not at the end of history).
 
 #### `archive(): void` (Manual archive mode only)
 
-Archive the current state. Only available when `autoArchive: false`.
+Saves the current state to history. Only available when `autoArchive: false`.
 
 #### `canArchive(): boolean` (Manual archive mode only)
 
-Check if it's possible to archive the current state.
+Returns `true` if there are unsaved changes that can be archived.
 
 #### `mutable: boolean`
 
-Get the mutable mode.
+Returns whether mutable mode is enabled.
 
 #### `getControls(): TravelsControls | ManualTravelsControls`
 
-Get a controls object with all navigation methods. Useful for passing controls to UI components.
+Returns a controls object containing all navigation methods and current state. Useful for passing to UI components without exposing the entire Travels instance.
 
 ```typescript
 const travels = createTravels({ count: 0 });
@@ -238,9 +262,9 @@ controls.reset();
 expect(travels.getState().count).toBe(0);
 ```
 
-## Archive Mode
+## Archive Mode: Control When Changes Are Saved
 
-`travels` provides two archive modes to control how state changes are recorded in history:
+Travels provides two ways to control when state changes are recorded in history:
 
 ### Auto Archive Mode (default: `autoArchive: true`)
 
@@ -295,15 +319,19 @@ function handleSave() {
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
 
-## State Shape Requirements
+## State Requirements: JSON-Serializable Only
 
-`travels` stores snapshots and persists state by running `JSON.parse(JSON.stringify(...))` under the hood. This keeps the reset/persist logic fast and deterministic, but it also means that only JSON-serializable values are preserved. In practice, initial state and every update should stay within plain objects/arrays made of numbers, strings, booleans, `null`, or other JSON-friendly values.
+Travels stores and persists state using `JSON.parse(JSON.stringify(...))` internally. This makes reset and persistence fast and reliable, but **only JSON-serializable values are preserved**.
 
-- Non-POJO(`Plain Old JavaScript Object`) structures such as `Date`, `Map`, `Set`, class instances, functions, and custom prototypes are not supported. They will either be coerced (e.g. `Date` becomes an ISO string) or dropped when history is reset or persisted.
-- The `mutable: true` option still relies on the same serialization workflow; mutable drafts do not bypass the JSON constraint.
-- If you need those richer data types, convert them to serializable representations before storing them, or manage them outside of the travel state (for example, keep IDs in the store and look up the non-POJO data elsewhere).
+**What works:** Objects, arrays, numbers, strings, booleans, and `null`.
 
-## Integration Examples
+**What doesn't work:** `Date`, `Map`, `Set`, class instances, functions, or custom prototypes. These will either be converted (Date becomes an ISO string) or dropped entirely when history is reset or persisted.
+
+**Solution:** Convert complex types to simple representations before storing. For example, store timestamps as numbers instead of Date objects, or store IDs that reference external data instead of storing class instances directly.
+
+This limitation applies even with the `mutable: true` option.
+
+## Framework Integration
 
 ### React Integration
 
@@ -391,9 +419,9 @@ export function useTravel(initialState, options) {
 }
 ```
 
-## Persistence
+## Persistence: Saving History to Storage
 
-If you want to persist the state, you can use `state`/`patches`/`position` to save the travel history. Then, read the persistent data as `initialState`, `initialPatches`, and `initialPosition` when initializing:
+To persist state across browser sessions or page reloads, save the current state, patches, and position. When reloading, pass these values as `initialState`, `initialPatches`, and `initialPosition`:
 
 ```typescript
 // Save to localStorage
@@ -443,15 +471,15 @@ travels.setState((draft) => {
 });
 ```
 
-## Advanced Usage: Extending Travels
+## Advanced: Extending Travels with Custom Logic
 
-### Q: Can I intercept and modify operations before they execute?
+You can enhance Travels by wrapping its methods to add validation, permissions, logging, or other custom behavior.
 
-**A: Yes! You can wrap any method to add custom behavior.**
+### Intercepting and modifying operations
 
-While `subscribe()` is great for observing state changes, it cannot intercept or prevent operations. However, you can wrap Travels methods to add validation, logging, permissions, and more.
+While `subscribe()` lets you observe state changes, it cannot prevent or modify operations. To add validation, permissions, or transform data before execution, wrap the Travels methods:
 
-#### Example: Adding Validation
+**Adding validation:**
 
 ```typescript
 const travels = createTravels({ count: 0 });
@@ -510,9 +538,9 @@ travels.setState((draft) => {
 });
 ```
 
-### Q: How do I add permission checks?
+### Adding permission checks
 
-**A: Wrap methods to check permissions before executing.**
+Wrap methods to verify permissions before allowing execution:
 
 ```typescript
 const currentUser = { role: 'viewer' }; // Read-only user
@@ -536,9 +564,9 @@ travels.forward = function (amount?: number) {
 } as any;
 ```
 
-### Q: Can I automatically add metadata to every state change?
+### Automatically adding metadata to state changes
 
-**A: Yes! Wrap `setState` to enhance the data.**
+Wrap `setState` to inject metadata like timestamps or user IDs:
 
 ```typescript
 const travels = createTravels<any>({ items: [] });
@@ -596,9 +624,9 @@ travels.setState((draft) => {
 });
 ```
 
-### Q: How do I implement operation logging/auditing?
+### Implementing operation logging and auditing
 
-**A: Wrap methods to log before and after execution.**
+Wrap methods to record all operations before and after execution:
 
 ```typescript
 const auditLog: any[] = [];
@@ -629,9 +657,9 @@ travels.setState = function (updater: any) {
 } as any;
 ```
 
-### Q: Can I implement rate limiting/throttling?
+### Implementing rate limiting and throttling
 
-**A: Yes! Wrap methods to control execution frequency.**
+Wrap methods to control how frequently they can be called:
 
 ```typescript
 let lastCallTime = 0;
@@ -650,9 +678,9 @@ travels.setState = function (updater: any) {
 } as any;
 ```
 
-### Q: How do I compose multiple wrappers?
+### Composing multiple wrappers
 
-**A: Create a composable wrapper function.**
+Create a reusable function that applies multiple enhancements:
 
 ```typescript
 const currentUser = { id: 'user123', role: 'admin' };
@@ -782,9 +810,9 @@ enhanced.setState((draft) => {
 }); // ✅ Mutation
 ```
 
-### Q: What about detecting history overflow?
+### Detecting history overflow
 
-**A: Use `subscribe()` to detect when history reaches `maxHistory`.**
+Use `subscribe()` to detect when history reaches the maximum limit:
 
 ```typescript
 const travels = createTravels({ count: 0 }, { maxHistory: 5 });
