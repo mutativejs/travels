@@ -383,3 +383,125 @@ describe('maxHistory Usage Patterns Documentation', () => {
     expect(archive.length).toBeGreaterThan(0);
   });
 });
+
+describe('maxHistory Validation and Error Handling', () => {
+  test('should throw error when maxHistory is negative', () => {
+    // ❌ Negative maxHistory is invalid
+    expect(() => {
+      createTravels({ count: 0 }, { maxHistory: -1 });
+    }).toThrow('Travels: maxHistory must be non-negative, but got -1');
+
+    expect(() => {
+      createTravels({ count: 0 }, { maxHistory: -10 });
+    }).toThrow('Travels: maxHistory must be non-negative, but got -10');
+
+    expect(() => {
+      createTravels({ count: 0 }, { maxHistory: -100 });
+    }).toThrow('Travels: maxHistory must be non-negative, but got -100');
+  });
+
+  test('should allow maxHistory = 0 but it disables history', () => {
+    // ✅ maxHistory = 0 is allowed (disables history tracking)
+    const travels = createTravels({ count: 0 }, { maxHistory: 0 });
+
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(travels.getPosition()).toBe(0);
+
+    // Make changes
+    travels.setState({ count: 1 });
+    travels.setState({ count: 2 });
+    travels.setState({ count: 3 });
+
+    // ✅ Current state is updated
+    expect(travels.getState()).toEqual({ count: 3 });
+
+    // ✅ But no history is kept (position stays at 0)
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches().patches.length).toBe(0);
+    expect(travels.getPatches().inversePatches.length).toBe(0);
+
+    // ✅ Cannot go back (no history)
+    expect(travels.canBack()).toBe(false);
+    expect(travels.canForward()).toBe(false);
+
+    // ✅ But reset() still works (returns to initial state)
+    travels.reset();
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
+  test('should allow maxHistory = 0 with manual archive mode', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { maxHistory: 0, autoArchive: false }
+    );
+
+    travels.setState({ count: 1 });
+    travels.setState({ count: 2 });
+
+    // Cannot archive (maxHistory is 0)
+    expect(travels.canArchive()).toBe(true); // Has temp patches
+
+    travels.archive();
+
+    // Still no history after archive
+    expect(travels.getPatches().patches.length).toBe(0);
+    expect(travels.canBack()).toBe(false);
+  });
+
+  test('should work normally with positive maxHistory', () => {
+    // ✅ Positive values work as expected
+    const travels = createTravels({ count: 0 }, { maxHistory: 5 });
+
+    travels.setState({ count: 1 });
+    travels.setState({ count: 2 });
+    travels.setState({ count: 3 });
+
+    expect(travels.getPosition()).toBe(3);
+    expect(travels.getPatches().patches.length).toBe(3);
+    expect(travels.canBack()).toBe(true);
+
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 2 });
+  });
+
+  test('should handle edge case: maxHistory = 1', () => {
+    const travels = createTravels({ count: 0 }, { maxHistory: 1 });
+
+    travels.setState({ count: 1 });
+    travels.setState({ count: 2 });
+    travels.setState({ count: 3 });
+
+    // Can only keep 1 patch in history
+    expect(travels.getPatches().patches.length).toBe(1);
+    expect(travels.getPosition()).toBe(1);
+
+    // Can go back 1 step
+    expect(travels.canBack()).toBe(true);
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 2 }); // Window: [2, 3]
+
+    // Can still reset to initial state
+    travels.reset();
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
+  test('should validate maxHistory type (not NaN or Infinity)', () => {
+    // Default maxHistory when invalid values are provided through destructuring
+    const travels1 = createTravels({ count: 0 }, { maxHistory: undefined });
+    expect(travels1.getState()).toEqual({ count: 0 });
+
+    // NaN gets coerced to default (10)
+    const travels2 = createTravels({ count: 0 }, { maxHistory: NaN as any });
+    expect(travels2.getState()).toEqual({ count: 0 });
+
+    // Infinity should throw
+    expect(() => {
+      createTravels({ count: 0 }, { maxHistory: Infinity });
+    }).not.toThrow(); // Infinity is > 0, so it's technically valid (though not practical)
+
+    // Negative Infinity should throw
+    expect(() => {
+      createTravels({ count: 0 }, { maxHistory: -Infinity });
+    }).toThrow('Travels: maxHistory must be non-negative');
+  });
+});

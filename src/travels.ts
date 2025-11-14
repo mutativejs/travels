@@ -71,14 +71,21 @@ export class Travels<
       ...mutativeOptions
     } = options;
 
+    // Validate and enforce maxHistory constraints
+    if (maxHistory < 0) {
+      throw new Error(
+        `Travels: maxHistory must be non-negative, but got ${maxHistory}`
+      );
+    }
+
+    if (maxHistory === 0 && process.env.NODE_ENV !== 'production') {
+      console.warn(
+        'Travels: maxHistory is 0, which disables undo/redo history. This is rarely intended.'
+      );
+    }
+
     // Validate options in development mode
     if (process.env.NODE_ENV !== 'production') {
-      if (maxHistory <= 0) {
-        console.error(
-          `Travels: maxHistory must be a positive number, but got ${maxHistory}`
-        );
-      }
-
       if (initialPosition < 0) {
         console.error(
           `Travels: initialPosition must be non-negative, but got ${initialPosition}`
@@ -317,12 +324,18 @@ export class Travels<
           : this.position + 1;
 
       if (this.maxHistory < this.allPatches.patches.length) {
-        this.allPatches.patches = this.allPatches.patches.slice(
-          -this.maxHistory
-        );
-        this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
-          -this.maxHistory
-        );
+        // Handle maxHistory = 0 case: clear all patches
+        if (this.maxHistory === 0) {
+          this.allPatches.patches = [];
+          this.allPatches.inversePatches = [];
+        } else {
+          this.allPatches.patches = this.allPatches.patches.slice(
+            -this.maxHistory
+          );
+          this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
+            -this.maxHistory
+          );
+        }
       }
     } else {
       const notLast =
@@ -387,10 +400,16 @@ export class Travels<
 
     // Respect maxHistory limit
     if (this.maxHistory < this.allPatches.patches.length) {
-      this.allPatches.patches = this.allPatches.patches.slice(-this.maxHistory);
-      this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
-        -this.maxHistory
-      );
+      // Handle maxHistory = 0 case: clear all patches
+      if (this.maxHistory === 0) {
+        this.allPatches.patches = [];
+        this.allPatches.inversePatches = [];
+      } else {
+        this.allPatches.patches = this.allPatches.patches.slice(-this.maxHistory);
+        this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
+          -this.maxHistory
+        );
+      }
     }
 
     // Clear temporary patches after archiving
