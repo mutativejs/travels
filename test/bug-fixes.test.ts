@@ -356,3 +356,265 @@ describe('Bug #3: reset() with mutable mode - deep copy issues', () => {
     expect(travels.getState().sparseArray).toHaveLength(3);
   });
 });
+
+describe('Bug #4: Deep clone in reset() for nested arrays and objects', () => {
+  test('should deep clone arrays containing nested objects', () => {
+    const initialState = {
+      users: [
+        { id: 1, profile: { name: 'Alice', age: 30 } },
+        { id: 2, profile: { name: 'Bob', age: 25 } },
+      ],
+    };
+
+    const travels = createTravels(initialState, { mutable: true });
+
+    // Modify deeply nested properties
+    travels.setState((draft) => {
+      draft.users[0].profile.name = 'Alice Updated';
+      draft.users[0].profile.age = 31;
+      draft.users.push({ id: 3, profile: { name: 'Charlie', age: 28 } });
+    });
+
+    expect(travels.getState().users).toHaveLength(3);
+    expect(travels.getState().users[0].profile.name).toBe('Alice Updated');
+
+    // Reset
+    travels.reset();
+
+    // Should be back to initial state
+    expect(travels.getState().users).toHaveLength(2);
+    expect(travels.getState().users[0].profile.name).toBe('Alice');
+    expect(travels.getState().users[0].profile.age).toBe(30);
+
+    // Modify again to test reference isolation
+    travels.setState((draft) => {
+      draft.users[0].profile.name = 'Alice Modified Again';
+      draft.users[0].profile.age = 35;
+    });
+
+    // Reset again
+    travels.reset();
+
+    // Should still return to correct initial state
+    expect(travels.getState().users[0].profile.name).toBe('Alice');
+    expect(travels.getState().users[0].profile.age).toBe(30);
+  });
+
+  test('should deep clone nested arrays (arrays within arrays)', () => {
+    const initialState = {
+      matrix: [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+      ],
+    };
+
+    const travels = createTravels(initialState, { mutable: true });
+
+    // Modify nested array
+    travels.setState((draft) => {
+      draft.matrix[0][0] = 100;
+      draft.matrix[1].push(10);
+      draft.matrix.push([11, 12, 13]);
+    });
+
+    expect(travels.getState().matrix[0][0]).toBe(100);
+    expect(travels.getState().matrix).toHaveLength(4);
+
+    // Reset
+    travels.reset();
+
+    // Should be back to initial state
+    expect(travels.getState().matrix[0][0]).toBe(1);
+    expect(travels.getState().matrix).toHaveLength(3);
+    expect(travels.getState().matrix).toEqual([
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ]);
+  });
+
+  test('should deep clone complex nested structures', () => {
+    const initialState = {
+      departments: [
+        {
+          name: 'Engineering',
+          teams: [
+            {
+              name: 'Frontend',
+              members: [
+                { id: 1, name: 'Alice', skills: ['React', 'TypeScript'] },
+                { id: 2, name: 'Bob', skills: ['Vue', 'JavaScript'] },
+              ],
+            },
+            {
+              name: 'Backend',
+              members: [
+                { id: 3, name: 'Charlie', skills: ['Node.js', 'Python'] },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'Design',
+          teams: [
+            {
+              name: 'UX',
+              members: [{ id: 4, name: 'Diana', skills: ['Figma', 'Sketch'] }],
+            },
+          ],
+        },
+      ],
+    };
+
+    const travels = createTravels(initialState, { mutable: true });
+
+    // Deep modifications
+    travels.setState((draft) => {
+      draft.departments[0].teams[0].members[0].name = 'Alice Updated';
+      draft.departments[0].teams[0].members[0].skills.push('Next.js');
+      draft.departments[0].teams.push({
+        name: 'DevOps',
+        members: [{ id: 5, name: 'Eve', skills: ['Docker', 'Kubernetes'] }],
+      });
+    });
+
+    expect(travels.getState().departments[0].teams).toHaveLength(3);
+    expect(travels.getState().departments[0].teams[0].members[0].name).toBe(
+      'Alice Updated'
+    );
+    expect(
+      travels.getState().departments[0].teams[0].members[0].skills
+    ).toContain('Next.js');
+
+    // Reset
+    travels.reset();
+
+    // Verify complete restoration
+    expect(travels.getState().departments[0].teams).toHaveLength(2);
+    expect(travels.getState().departments[0].teams[0].members[0].name).toBe(
+      'Alice'
+    );
+    expect(
+      travels.getState().departments[0].teams[0].members[0].skills
+    ).toEqual(['React', 'TypeScript']);
+    expect(
+      travels.getState().departments[0].teams[0].members[0].skills
+    ).not.toContain('Next.js');
+  });
+
+  test('should not have reference sharing issues after reset', () => {
+    const initialState = {
+      data: {
+        items: [
+          { id: 1, nested: { value: 'a' } },
+          { id: 2, nested: { value: 'b' } },
+        ],
+      },
+    };
+
+    const travels = createTravels(initialState, { mutable: true });
+
+    // Get reference to initial state
+    const stateAfterReset1 = travels.getState();
+
+    // Modify
+    travels.setState((draft) => {
+      draft.data.items[0].nested.value = 'modified';
+    });
+
+    // Reset
+    travels.reset();
+    const stateAfterReset2 = travels.getState();
+
+    // Modify again
+    travels.setState((draft) => {
+      draft.data.items[1].nested.value = 'modified again';
+    });
+
+    // Reset again
+    travels.reset();
+    const stateAfterReset3 = travels.getState();
+
+    // All reset states should have the same values
+    expect(stateAfterReset1.data.items[0].nested.value).toBe('a');
+    expect(stateAfterReset2.data.items[0].nested.value).toBe('a');
+    expect(stateAfterReset3.data.items[0].nested.value).toBe('a');
+    expect(stateAfterReset3.data.items[1].nested.value).toBe('b');
+
+    // Should maintain the same reference (mutable mode)
+    expect(stateAfterReset1).toBe(stateAfterReset2);
+    expect(stateAfterReset2).toBe(stateAfterReset3);
+  });
+
+  test('should handle arrays with mixed types and nested structures', () => {
+    const initialState = {
+      mixed: [
+        1,
+        'string',
+        { nested: { deep: [1, 2, 3] } },
+        [4, 5, { inner: 'value' }],
+        null,
+        true,
+      ],
+    };
+
+    const travels = createTravels(initialState, { mutable: true });
+
+    // Modify various elements
+    travels.setState((draft) => {
+      (draft.mixed[2] as any).nested.deep.push(4);
+      ((draft.mixed[3] as any)[2] as any).inner = 'modified';
+      draft.mixed.push('new item');
+    });
+
+    expect((travels.getState().mixed[2] as any).nested.deep).toHaveLength(4);
+    expect(((travels.getState().mixed[3] as any)[2] as any).inner).toBe(
+      'modified'
+    );
+    expect(travels.getState().mixed).toHaveLength(7);
+
+    // Reset
+    travels.reset();
+
+    // Verify restoration
+    expect((travels.getState().mixed[2] as any).nested.deep).toEqual([1, 2, 3]);
+    expect(((travels.getState().mixed[3] as any)[2] as any).inner).toBe(
+      'value'
+    );
+    expect(travels.getState().mixed).toHaveLength(6);
+  });
+
+  test('should handle arrays containing arrays of objects', () => {
+    const initialState = {
+      grid: [
+        [
+          { x: 0, y: 0, data: { value: 'a' } },
+          { x: 0, y: 1, data: { value: 'b' } },
+        ],
+        [
+          { x: 1, y: 0, data: { value: 'c' } },
+          { x: 1, y: 1, data: { value: 'd' } },
+        ],
+      ],
+    };
+
+    const travels = createTravels(initialState, { mutable: true });
+
+    // Deep modification
+    travels.setState((draft) => {
+      draft.grid[0][0].data.value = 'modified';
+      draft.grid[1].push({ x: 1, y: 2, data: { value: 'e' } });
+    });
+
+    expect(travels.getState().grid[0][0].data.value).toBe('modified');
+    expect(travels.getState().grid[1]).toHaveLength(3);
+
+    // Reset
+    travels.reset();
+
+    // Verify restoration
+    expect(travels.getState().grid[0][0].data.value).toBe('a');
+    expect(travels.getState().grid[1]).toHaveLength(2);
+  });
+});

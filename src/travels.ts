@@ -577,25 +577,27 @@ export class Travels<
           }
           // Deep copy all properties from initialState
           const clone = (source: any, target: any) => {
+            // Helper function to recursively clone any value
+            const cloneValue = (value: any): any => {
+              // Handle null and primitives
+              if (!value || typeof value !== 'object') {
+                return value;
+              }
+
+              // Handle arrays (including nested arrays)
+              if (Array.isArray(value)) {
+                return value.map(cloneValue);
+              }
+
+              // Handle objects
+              const cloned = {};
+              clone(value, cloned);
+              return cloned;
+            };
+
             for (const key in source) {
               if (source.hasOwnProperty(key)) {
-                const value = source[key];
-                if (
-                  value &&
-                  typeof value === 'object' &&
-                  !Array.isArray(value)
-                ) {
-                  target[key] = {};
-                  clone(value, target[key]);
-                } else if (Array.isArray(value)) {
-                  target[key] = value.map((item: any) =>
-                    item && typeof item === 'object'
-                      ? Object.assign({}, item)
-                      : item
-                  );
-                } else {
-                  target[key] = value;
-                }
+                target[key] = cloneValue(source[key]);
               }
             }
           };
