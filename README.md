@@ -467,7 +467,7 @@ function handleSave() {
 
 ## State Requirements: JSON-Serializable Only
 
-Travels stores and persists state using `JSON.parse(JSON.stringify(...))` internally. This makes reset and persistence fast and reliable, but **only JSON-serializable values are preserved**.
+Travels stores and persists state using `deepClone(...)` internally. This makes reset and persistence fast and reliable, but **only JSON-serializable values are preserved**.
 
 **What works:** Objects, arrays, numbers, strings, booleans,`null`, and `Map`/`Set`(Supported only in immutable mode; not supported in mutable mode.).
 

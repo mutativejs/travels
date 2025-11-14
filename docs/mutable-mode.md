@@ -29,7 +29,7 @@ travels.setState((draft) => {
 
 ## How It Works Under the Hood
 
-1. `createTravels` deep clones the initial state once (via `JSON.parse(JSON.stringify(initialState))`) to keep a pristine copy for `reset()`.
+1. `createTravels` deep clones the initial state once (via `deepClone(initialState)`) to keep a pristine copy for `reset()`.
 2. Each `setState` call runs through Mutative's `create(...)` to generate patches/inverse patches. Those patches are immediately applied back to the live object via `apply(..., { mutable: true })`, so the reference never changes.
 3. Navigation commands (`back`, `forward`, `go`) reuse the stored patches. `reset()` instead computes a fresh diff back to the JSON-cloned initial snapshot so it can restore the original data shape without replaying every history step.
 4. If a history step replaces the entire root (patch path `[]` with `op: 'replace'`), Travels falls back to immutable assignment for that jump to guarantee correctness.
@@ -52,7 +52,7 @@ The full implementation lives in `src/travels.ts` and is exercised by `test/muta
 
 - **Non-object roots**: If the current state is a primitive or `null`, Travels logs a dev warning and behaves immutably for that update. Undo/redo still works—it just cannot mutate a primitive in place.
 - **Root replacements in history**: Navigating to a step that replaces the entire root (e.g., switching from `{...}` to `[]` or a primitive) forces a new reference for that jump only.
-- **JSON-only data**: Travels clones the initial state via `JSON.parse(JSON.stringify(initialState))` the moment you call `createTravels`. Any non-JSON values are therefore lost up front, and `reset()` simply copies from that sanitized snapshot. The same constraint applies regardless of mutable mode.
+- **JSON-only data**: Travels clones the initial state via `deepClone(initialState)` the moment you call `createTravels`. Any non-JSON values are therefore lost up front, and `reset()` simply copies from that sanitized snapshot. The same constraint applies regardless of mutable mode.
 - **Draft best practices**: Prefer mutating the provided draft (`draft.count++`) instead of returning a brand new object. Mutating drafts lets Travels keep using in-place patches during navigation.
 
 ## Integration Patterns
