@@ -98,7 +98,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-Your state must be **JSON-serializable** (plain objects, arrays, strings, numbers, booleans, null) or Map/Set. Complex types like Date, class instances, and functions are not supported and may cause unexpected behavior. See [State Requirements](#state-requirements-json-serializable-only) for details.
+Your state must be **JSON-serializable** (plain objects, arrays, strings, numbers, booleans, null) or Map/Set(Supported only in immutable mode; not supported in mutable mode.). Complex types like Date, class instances, and functions are not supported and may cause unexpected behavior. See [State Requirements](#state-requirements-json-serializable-only) for details.
 
 ---
 
@@ -469,9 +469,9 @@ function handleSave() {
 
 Travels stores and persists state using `JSON.parse(JSON.stringify(...))` internally. This makes reset and persistence fast and reliable, but **only JSON-serializable values are preserved**.
 
-**What works:** Objects, arrays, numbers, strings, booleans, and `null`.
+**What works:** Objects, arrays, numbers, strings, booleans,`null`, and `Map`/`Set`(Supported only in immutable mode; not supported in mutable mode.).
 
-**What doesn't work:** `Date`, `Map`, `Set`, class instances, functions, or custom prototypes. These will either be converted (Date becomes an ISO string) or dropped entirely when history is reset or persisted.
+**What doesn't work:** `Date`, class instances, functions, or custom prototypes. These will either be converted (Date becomes an ISO string) or dropped entirely when history is reset or persisted.
 
 **Solution:** Convert complex types to simple representations before storing. For example, store timestamps as numbers instead of Date objects, or store IDs that reference external data instead of storing class instances directly.
 
