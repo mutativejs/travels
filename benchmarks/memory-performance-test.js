@@ -171,97 +171,6 @@ class ZundoSimulator {
   }
 }
 
-// ============ Zundo with Diff simulator ============
-
-class ZundoDiffSimulator {
-  constructor(initialState) {
-    this.pastStates = [];
-    this.futureStates = [];
-    this.currentState = initialState;
-  }
-
-  // Simple diff implementation (similar to microdiff)
-  diff(obj1, obj2, path = '') {
-    const changes = {};
-    const keys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]);
-
-    for (const key of keys) {
-      const currentPath = path ? `${path}.${key}` : key;
-
-      if (!(key in obj2)) {
-        changes[currentPath] = { type: 'REMOVE' };
-      } else if (!(key in obj1)) {
-        changes[currentPath] = { type: 'CREATE', value: obj2[key] };
-      } else if (typeof obj2[key] === 'object' && obj2[key] !== null) {
-        Object.assign(changes, this.diff(obj1[key], obj2[key], currentPath));
-      } else if (obj1[key] !== obj2[key]) {
-        changes[currentPath] = { type: 'CHANGE', value: obj2[key] };
-      }
-    }
-
-    return changes;
-  }
-
-  setState(updater) {
-    const newState = typeof updater === 'function'
-      ? updater(JSON.parse(JSON.stringify(this.currentState)))
-      : updater;
-
-    const delta = this.diff(this.currentState, newState);
-
-    if (Object.keys(delta).length > 0) {
-      this.pastStates.push(delta);
-      this.currentState = newState;
-      this.futureStates = [];
-    }
-  }
-
-  applyDiff(base, delta) {
-    const result = JSON.parse(JSON.stringify(base));
-
-    for (const [path, change] of Object.entries(delta)) {
-      const keys = path.split('.');
-      let current = result;
-
-      for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
-      }
-
-      const lastKey = keys[keys.length - 1];
-
-      if (change.type === 'REMOVE') {
-        delete current[lastKey];
-      } else {
-        current[lastKey] = change.value;
-      }
-    }
-
-    return result;
-  }
-
-  undo() {
-    if (this.pastStates.length === 0) return;
-    // Simplified: should apply reverse diff, but rebuild for test simplicity
-    this.pastStates.pop();
-  }
-
-  redo() {
-    // Simplified
-  }
-
-  getState() {
-    return this.currentState;
-  }
-
-  getHistory() {
-    return {
-      pastDeltas: this.pastStates,
-      present: this.currentState,
-      futureDeltas: this.futureStates,
-    };
-  }
-}
-
 // ============ Travels simulator ============
 
 class TravelsSimulator {
@@ -461,7 +370,6 @@ function main() {
   // Run tests
   results.push(runBenchmark('Redux-undo (snapshot mode)', ReduxUndoSimulator, 100));
   results.push(runBenchmark('Zundo (snapshot mode)', ZundoSimulator, 100));
-  results.push(runBenchmark('Zundo (Diff mode)', ZundoDiffSimulator, 100));
   results.push(runBenchmark('Travels (JSON Patch)', TravelsSimulator, 100));
 
   // Summary
@@ -469,8 +377,8 @@ function main() {
   console.log('   Summary of results');
   console.log('█'.repeat(60));
 
-  console.log('\n| Metric | Redux-undo | Zundo | Zundo-Diff | Travels | Best |');
-  console.log('|------|-----------|-------|-----------|---------|------|');
+  console.log('\n| Metric | Redux-undo | Zundo | Travels | Best |');
+  console.log('|------|-----------|-------|---------|------|');
 
   // Memory usage
   const minMemory = Math.min(...results.map(r => r.memoryMB));
@@ -555,6 +463,5 @@ module.exports = {
   generateComplexObject,
   ReduxUndoSimulator,
   ZundoSimulator,
-  ZundoDiffSimulator,
   TravelsSimulator,
 };

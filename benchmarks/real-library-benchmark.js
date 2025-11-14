@@ -8,8 +8,7 @@ const { createStore } = require('redux');
 const undoable = require('redux-undo').default;
 const { createStore: create } = require('zustand/vanilla');
 const { temporal } = require('zundo');
-const { createTravels } = require('travels');
-const diff = require('microdiff').default;
+const { createTravels } = require('../');
 const { performance } = require('perf_hooks');
 
 // ============ Utilities ============
@@ -235,98 +234,6 @@ function testZundoNoDialog(iterations = 100) {
   };
 }
 
-// ============ Zundo with Diff Benchmark ============
-
-function testZundoWithDiff(iterations = 100) {
-  console.log(`\n${'='.repeat(60)}`);
-  console.log('Zundo (with microdiff - real implementation)');
-  console.log('='.repeat(60));
-
-  const initialState = generateComplexObject(100);
-  const memBefore = measureMemory('Initial state');
-
-  // Create store with diff
-  const useStore = create(
-    temporal(
-      (set) => ({
-        ...initialState,
-        update: (payload) => set((state) => ({ ...state, ...payload })),
-      }),
-      {
-        diff: (pastState, currentState) => {
-          const differences = diff(pastState, currentState);
-          if (differences.length === 0) return null;
-
-          // Convert to delta object
-          const delta = {};
-          for (const d of differences) {
-            const path = d.path.join('.');
-            delta[path] = d.value;
-          }
-          return delta;
-        },
-      }
-    )
-  );
-
-  // setState benchmark
-  console.log('\n--- Test 1: Small consecutive updates ---');
-  const setStateTime = measureTime(() => {
-    for (let i = 0; i < iterations; i++) {
-      useStore.getState().update({
-        id: `modified-${i}`,
-        timestamp: Date.now(),
-      });
-    }
-  }, `${iterations} updates`);
-
-  const memAfterSetState = measureMemory('After consecutive updates');
-  const memUsed = Math.round((memAfterSetState - memBefore) / 1024 / 1024 * 100) / 100;
-  console.log(`  Memory increase: ${memUsed} MB`);
-
-  // Undo benchmark
-  console.log('\n--- Test 2: Undo performance ---');
-  const { undo, redo } = useStore.temporal.getState();
-  const undoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
-      undo();
-    }
-  }, '50 undos');
-
-  // Redo benchmark
-  console.log('\n--- Test 3: Redo performance ---');
-  const redoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
-      redo();
-    }
-  }, '50 redos');
-
-  // Serialization benchmark
-  console.log('\n--- Test 4: Serialization performance ---');
-  const temporalState = useStore.temporal.getState();
-
-  const serializeTime = measureTime(() => {
-    JSON.stringify(temporalState);
-  }, 'JSON.stringify');
-
-  const serializedSize = measureSerializedSize(temporalState, 'Serialized size');
-
-  const deserializeTime = measureTime(() => {
-    JSON.parse(JSON.stringify(temporalState));
-  }, 'JSON.parse');
-
-  return {
-    label: 'Zundo (with diff)',
-    memoryMB: memUsed,
-    setStateTime,
-    undoTime,
-    redoTime,
-    serializeTime,
-    deserializeTime,
-    serializedSizeKB: serializedSize,
-  };
-}
-
 // ============ Travels Benchmark ============
 
 function testTravels(iterations = 100) {
@@ -418,7 +325,6 @@ function main() {
   // Run all tests
   results.push(testReduxUndo(100));
   results.push(testZundoNoDialog(100));
-  results.push(testZundoWithDiff(100));
   results.push(testTravels(100));
 
   // Summary
@@ -426,8 +332,8 @@ function main() {
   console.log('   Benchmark results summary');
   console.log('█'.repeat(60));
 
-  console.log('\n| Metric | Redux-undo | Zundo | Zundo+Diff | Travels |');
-  console.log('|------|-----------|-------|-----------|---------|');
+  console.log('\n| Metric | Redux-undo | Zundo | Travels |');
+  console.log('|------|-----------|-------|---------|');
 
   const metrics = [
     { key: 'memoryMB', label: 'Memory (MB)', lower: true },
