@@ -20,6 +20,7 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
   - [createTravels](#createtravelsinitialstate-options)
   - [Instance Methods](#instance-methods)
   - [maxHistory option](#maxhistory-option)
+- [Mutable Mode: Keep Reactive State In Place](#mutable-mode-keep-reactive-state-in-place)
 - [Archive Mode: Control When Changes Are Saved](#archive-mode-control-when-changes-are-saved)
 - [State Requirements: JSON-Serializable Only](#state-requirements-json-serializable-only)
 - [Framework Integration](#framework-integration)
@@ -262,6 +263,58 @@ expect(controls.canBack()).toBe(false); // Can't go further back
 controls.reset();
 expect(travels.getState().count).toBe(0);
 ```
+
+## Mutable Mode: Keep Reactive State In Place
+
+`mutable: true` lets Travels mutate the same object reference you hand in. This is crucial for observable stores (MobX, Vue/Pinia, custom proxies) that depend on identity stability to trigger reactions. Under the hood, Travels still generates JSON Patches but applies them back to the live object via Mutative's `apply(..., { mutable: true })`, so undo/redo continues to work without allocating new objects.
+
+### When to Enable It
+
+- You pass a reactive store into `createTravels` and swapping the reference would break your observers.
+- You expect subscribers (`travels.subscribe`) to always receive the exact same object instance.
+- You batch multiple mutations with `autoArchive: false` but still need the UI to reflect every intermediate change.
+
+Stick with the default immutable mode for reducer-driven stores (Redux, Zustand) where replacing the root object is the norm.
+
+### Behavior at a Glance
+
+- `setState` keeps the reference stable as long as the current state root is an object. Primitive roots (number, string, `null`) trigger an automatic immutable fallback plus a dev warning.
+- `back`, `forward`, and `go` also mutate in place unless the history entry performs a root-level replacement (patch path `[]`). Those rare steps reassign the reference to keep history correct.
+- `reset` replays a diff from the original initial state, so the observable reference survives a reset.
+- `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
+- `getHistory()` reconstructs new objects from the stored patches. Treat them as read-only snapshots—they are not reactive proxies.
+- `subscribe` listeners always receive the live mutable object, so `state === travels.getState()` stays true.
+
+### Example: Pinia/Vue Store
+
+```ts
+import { defineStore } from 'pinia';
+import { reactive } from 'vue';
+import { createTravels } from 'travels';
+
+export const useTodosStore = defineStore('todos', () => {
+  const state = reactive({ items: [] });
+  const travels = createTravels(state, { mutable: true });
+  const controls = travels.getControls();
+
+  function addTodo(text: string) {
+    travels.setState((draft) => {
+      draft.items.push({ id: crypto.randomUUID(), text, done: false });
+    });
+  }
+
+  return { state, addTodo, controls };
+});
+```
+
+Vue components keep using the original `state` reference while Travels tracks history and provides `controls` for undo/redo.
+
+### Limitations & Tips
+
+- The state must stay JSON-serializable because `reset()` relies on `JSON.parse(JSON.stringify(initialState))`. Sparse arrays lose their holes and complex types (Map, Set, Date, functions) are not preserved.
+- If you often replace the entire root object (e.g., `setState(() => newState)`) the library has to fall back to immutable jumps when navigating history. Prefer mutating the provided draft to keep reference sharing.
+- You can inspect `travels.mutable` at runtime to verify which mode is active.
+- See [`docs/mutable-mode.md`](docs/mutable-mode.md) for a deep dive, integration checklists, and troubleshooting tips.
 
 ## Archive Mode: Control When Changes Are Saved
 
