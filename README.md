@@ -180,9 +180,13 @@ Jump to a specific position in the history timeline.
 
 Reset to the initial state and clear all history.
 
-#### `getHistory(): S[]`
+#### `getHistory(): readonly S[]`
 
 Returns the complete history of states as an array.
+
+> **IMPORTANT**: Do not modify the returned array. It is cached internally.
+> In development mode, the array is frozen
+> In production mode, modifications will corrupt the cache
 
 #### `getPosition(): number`
 

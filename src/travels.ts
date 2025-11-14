@@ -90,6 +90,8 @@ export class Travels<
   private options: MutativeOptions<PatchesOption | true, F>;
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
+  private historyCache: { version: number; history: S[] } | null = null;
+  private historyVersion = 0;
   private mutableFallbackWarned = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A> = {}) {
@@ -225,6 +227,11 @@ export class Travels<
       patches: trimmed,
       position: adjustedPosition,
     };
+  }
+
+  private invalidateHistoryCache(): void {
+    this.historyVersion += 1;
+    this.historyCache = null;
   }
 
   /**
@@ -405,6 +412,7 @@ export class Travels<
       this.tempPatches.inversePatches.push(inversePatches);
     }
 
+    this.invalidateHistoryCache();
     this.notify();
   }
 
@@ -452,6 +460,7 @@ export class Travels<
     this.tempPatches.patches.length = 0;
     this.tempPatches.inversePatches.length = 0;
 
+    this.invalidateHistoryCache();
     this.notify();
   }
 
@@ -478,8 +487,22 @@ export class Travels<
 
   /**
    * Get the complete history of states
+   *
+   * @returns The history array. Reference equality indicates cache hit.
+   *
+   * @remarks
+   * **IMPORTANT**: Do not modify the returned array. It is cached internally.
+   * - In development mode, the array is frozen
+   * - In production mode, modifications will corrupt the cache
    */
-  public getHistory(): S[] {
+  public getHistory(): readonly S[] {
+    if (
+      this.historyCache &&
+      this.historyCache.version === this.historyVersion
+    ) {
+      return this.historyCache.history;
+    }
+
     const history: S[] = [this.state];
     let currentState = this.state;
     const _allPatches = this.getAllPatches();
@@ -508,6 +531,16 @@ export class Travels<
     for (let i = this.position - 1; i > -1; i--) {
       currentState = apply(currentState as object, inversePatches[i]) as S;
       history.unshift(currentState);
+    }
+
+    this.historyCache = {
+      version: this.historyVersion,
+      history,
+    };
+
+    // In development mode, freeze the history array to prevent accidental mutations
+    if (process.env.NODE_ENV !== 'production') {
+      Object.freeze(history);
     }
 
     return history;
@@ -575,6 +608,7 @@ export class Travels<
     }
 
     this.position = nextPosition;
+    this.invalidateHistoryCache();
     this.notify();
   }
 
@@ -627,6 +661,7 @@ export class Travels<
     this.allPatches = cloneTravelPatches(this.initialPatches);
     this.tempPatches = cloneTravelPatches();
 
+    this.invalidateHistoryCache();
     this.notify();
   }
 
