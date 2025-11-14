@@ -1,4 +1,4 @@
-import { expect, describe, test } from 'vitest';
+import { expect, describe, test, vi } from 'vitest';
 import { createTravels } from '../src/index';
 
 /**
@@ -7,6 +7,104 @@ import { createTravels } from '../src/index';
  */
 
 describe('Coverage Improvements', () => {
+  describe('Constructor options validation and normalization', () => {
+    test('logs an error when initialPosition is negative', () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      createTravels({ count: 0 }, { initialPosition: -3 });
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Travels: initialPosition must be non-negative, but got -3'
+      );
+
+      errorSpy.mockRestore();
+    });
+
+    test('validates that initialPatches include array properties', () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      expect(() =>
+        createTravels(
+          { count: 0 },
+          {
+            initialPatches: { patches: {} as any, inversePatches: [] as any },
+          }
+        )
+      ).toThrow();
+
+      expect(
+        errorSpy.mock.calls.some(([message]) =>
+          String(message).includes(
+            `Travels: initialPatches must have 'patches' and 'inversePatches' arrays`
+          )
+        )
+      ).toBe(true);
+
+      errorSpy.mockRestore();
+    });
+
+    test('validates that patches and inversePatches have equal lengths', () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      createTravels(
+        { count: 0 },
+        {
+          initialPatches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [],
+          },
+        }
+      );
+
+      expect(
+        errorSpy.mock.calls.some(([message]) =>
+          String(message).includes(
+            'Travels: initialPatches.patches and initialPatches.inversePatches must have the same length'
+          )
+        )
+      ).toBe(true);
+
+      errorSpy.mockRestore();
+    });
+
+    test('normalizes non-numeric initialPosition values to zero', () => {
+      const travels = createTravels({ count: 42 }, { initialPosition: Number.NaN });
+
+      expect(travels.getPosition()).toBe(0);
+    });
+
+    test('warns and discards persisted history when maxHistory is zero', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const travels = createTravels(
+        { count: 0 },
+        {
+          maxHistory: 0,
+          initialPosition: 1,
+          initialPatches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
+        }
+      );
+
+      const warnMessages = warnSpy.mock.calls.map(([message]) =>
+        String(message)
+      );
+      expect(
+        warnMessages.some((message) =>
+          message.includes('discards persisted history.')
+        )
+      ).toBe(true);
+
+      expect(travels.getPatches().patches.length).toBe(0);
+      expect(travels.getPatches().inversePatches.length).toBe(0);
+      expect(travels.getPosition()).toBe(0);
+
+      warnSpy.mockRestore();
+    });
+  });
+
   describe('archive() with maxHistory exceeded', () => {
     test('should enforce maxHistory limit during archive (lines 366-370)', () => {
       // Target: Lines 366-370 in index.ts
@@ -76,6 +174,51 @@ describe('Coverage Improvements', () => {
       travels.back();
       expect(travels.getState().value).toBe('c');
       expect(travels.canBack()).toBe(false); // Can't go further back
+    });
+
+    test('manual archive uses pendingState snapshot before async reset', () => {
+      interface State {
+        value: number;
+      }
+
+      const travels = createTravels<State>(
+        { value: 0 },
+        {
+          autoArchive: false,
+          maxHistory: 3,
+        }
+      );
+
+      travels.setState({ value: 1 });
+      expect((travels as any).pendingState).not.toBeNull();
+      // Archive immediately so pendingState is still populated
+      travels.archive();
+
+      expect(travels.getPatches().patches.length).toBe(1);
+      expect(travels.getHistory().map((state) => state.value)).toEqual([0, 1]);
+    });
+
+    test('manual archive falls back to committed state after pendingState reset', async () => {
+      interface State {
+        value: number;
+      }
+
+      const travels = createTravels<State>(
+        { value: 0 },
+        {
+          autoArchive: false,
+          maxHistory: 2,
+        }
+      );
+
+      travels.setState({ value: 1 });
+      await Promise.resolve();
+      expect((travels as any).pendingState).toBeNull();
+
+      travels.archive();
+
+      expect(travels.getPatches().patches.length).toBe(1);
+      expect(travels.getHistory().map((state) => state.value)).toEqual([0, 1]);
     });
   });
 
