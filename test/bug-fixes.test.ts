@@ -349,10 +349,8 @@ describe('Bug #3: reset() with mutable mode - deep copy issues', () => {
     // Reset
     travels.reset();
 
-    // Note: Due to JSON.parse/stringify limitation in deep clone,
-    // sparse array holes (undefined) become null
-    // This is expected behavior and documented limitation
-    expect(travels.getState().sparseArray[1]).toBe(null);
+    // Deep clone now preserves sparse array holes as undefined entries
+    expect(travels.getState().sparseArray[1]).toBeUndefined();
     expect(travels.getState().sparseArray).toHaveLength(3);
   });
 });

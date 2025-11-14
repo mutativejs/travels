@@ -33,6 +33,38 @@ const cloneTravelPatches = <P extends PatchesOption = {}>(
   inversePatches: base ? base.inversePatches.map((patch) => [...patch]) : [],
 });
 
+const deepCloneValue = (value: any): any => {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(deepCloneValue);
+  }
+
+  const cloned: Record<string, any> = {};
+  for (const key in value) {
+    if (Object.prototype.hasOwnProperty.call(value, key)) {
+      cloned[key] = deepCloneValue(value[key]);
+    }
+  }
+
+  return cloned;
+};
+
+const deepClone = <T>(source: T, target?: any): T => {
+  if (target && source && typeof source === 'object') {
+    for (const key in source as any) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = deepCloneValue((source as any)[key]);
+      }
+    }
+    return target;
+  }
+
+  return deepCloneValue(source);
+};
+
 /**
  * Core Travels class for managing undo/redo history
  */
@@ -112,9 +144,7 @@ export class Travels<
 
     this.state = initialState;
     // For mutable mode, deep clone initialState to prevent mutations
-    this.initialState = mutable
-      ? JSON.parse(JSON.stringify(initialState))
-      : initialState;
+    this.initialState = mutable ? deepClone(initialState) : initialState;
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
     this.mutable = mutable;
@@ -576,32 +606,7 @@ export class Travels<
             delete (draft as any)[key];
           }
           // Deep copy all properties from initialState
-          const clone = (source: any, target: any) => {
-            // Helper function to recursively clone any value
-            const cloneValue = (value: any): any => {
-              // Handle null and primitives
-              if (!value || typeof value !== 'object') {
-                return value;
-              }
-
-              // Handle arrays (including nested arrays)
-              if (Array.isArray(value)) {
-                return value.map(cloneValue);
-              }
-
-              // Handle objects
-              const cloned = {};
-              clone(value, cloned);
-              return cloned;
-            };
-
-            for (const key in source) {
-              if (source.hasOwnProperty(key)) {
-                target[key] = cloneValue(source[key]);
-              }
-            }
-          };
-          clone(this.initialState, draft);
+          deepClone(this.initialState, draft);
         },
         this.options
       );
