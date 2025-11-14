@@ -98,7 +98,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-Your state must be **JSON-serializable** (plain objects, arrays, strings, numbers, booleans, null). Complex types like Date, Map, Set, class instances, and functions are not supported and may cause unexpected behavior. See [State Requirements](#state-requirements-json-serializable-only) for details.
+Your state must be **JSON-serializable** (plain objects, arrays, strings, numbers, booleans, null) or Map/Set. Complex types like Date, class instances, and functions are not supported and may cause unexpected behavior. See [State Requirements](#state-requirements-json-serializable-only) for details.
 
 ---
 
