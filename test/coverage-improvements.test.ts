@@ -8,16 +8,16 @@ import { createTravels } from '../src/index';
 
 describe('Coverage Improvements', () => {
   describe('Constructor options validation and normalization', () => {
-    test('logs an error when initialPosition is negative', () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    test('logs a warning when initialPosition is negative', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       createTravels({ count: 0 }, { initialPosition: -3 });
 
-      expect(errorSpy).toHaveBeenCalledWith(
-        'Travels: initialPosition must be non-negative, but got -3'
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Travels: initialPosition (-3) is invalid for available patches (0). Using 0 instead.'
       );
 
-      errorSpy.mockRestore();
+      warnSpy.mockRestore();
     });
 
     test('validates that initialPatches include array properties', () => {

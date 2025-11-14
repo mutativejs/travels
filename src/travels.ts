@@ -118,12 +118,6 @@ export class Travels<
 
     // Validate options in development mode
     if (process.env.NODE_ENV !== 'production') {
-      if (initialPosition < 0) {
-        console.error(
-          `Travels: initialPosition must be non-negative, but got ${initialPosition}`
-        );
-      }
-
       if (initialPatches) {
         if (
           !Array.isArray(initialPatches.patches) ||
@@ -173,12 +167,22 @@ export class Travels<
     const cloned = cloneTravelPatches(initialPatches);
     const total = cloned.patches.length;
     const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
-    let position =
-      Number.isFinite(initialPosition) && typeof initialPosition === 'number'
-        ? (initialPosition as number)
-        : 0;
+    const invalidInitialPosition =
+      typeof initialPosition !== 'number' || !Number.isFinite(initialPosition);
+    let position = invalidInitialPosition ? 0 : (initialPosition as number);
+    const clampedPosition = Math.max(0, Math.min(position, total));
 
-    position = Math.max(0, Math.min(position, total));
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      (invalidInitialPosition || clampedPosition !== position)
+    ) {
+      console.warn(
+        `Travels: initialPosition (${initialPosition}) is invalid for available patches (${total}). ` +
+          `Using ${clampedPosition} instead.`
+      );
+    }
+
+    position = clampedPosition;
 
     if (total === 0) {
       return { patches: cloned, position: 0 };
@@ -435,7 +439,9 @@ export class Travels<
         this.allPatches.patches = [];
         this.allPatches.inversePatches = [];
       } else {
-        this.allPatches.patches = this.allPatches.patches.slice(-this.maxHistory);
+        this.allPatches.patches = this.allPatches.patches.slice(
+          -this.maxHistory
+        );
         this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
           -this.maxHistory
         );
