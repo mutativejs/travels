@@ -339,7 +339,7 @@ Vue components keep using the original `state` reference while Travels tracks hi
 
 **JSON Serialization Requirements:**
 
-The state must stay JSON-serializable because `reset()` relies on `JSON.parse(JSON.stringify(initialState))` for mutable mode. This has important implications:
+The state must stay JSON-serializable because `reset()` relies on `deepClone(initialState)` for mutable mode. This has important implications:
 
 - ❌ **Date objects** → Converted to ISO strings (not restored as Date)
 
