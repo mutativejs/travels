@@ -94,6 +94,14 @@ unsubscribe();
 
 **Try it yourself:** [Travels Counter Demo](https://codesandbox.io/p/sandbox/travels-vanilla-ts-wzdd62)
 
+---
+
+**⚠️ Important: State Requirements**
+
+Your state must be **JSON-serializable** (plain objects, arrays, strings, numbers, booleans, null). Complex types like Date, Map, Set, class instances, and functions are not supported and may cause unexpected behavior. See [State Requirements](#state-requirements-json-serializable-only) for details.
+
+---
+
 ## Core Concepts
 
 Before diving into the API, understanding these terms will help:
@@ -116,17 +124,18 @@ Creates a new Travels instance.
 
 **Parameters:**
 
-| Parameter          | Type          | Description                                                                                                                                       | Default                          |
-| ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `initialState`     | S             | Your application's starting state (must be JSON-serializable)                                                                                     | (required)                       |
-| `maxHistory`       | number        | Maximum number of history entries to keep. Older entries are dropped.                                                                             | 10                               |
-| `initialPatches`   | TravelPatches | Restore saved patches when loading from storage                                                                                                   | {patches: [],inversePatches: []} |
-| `initialPosition`  | number        | Restore position when loading from storage                                                                                                        | 0                                |
-| `autoArchive`      | boolean       | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                      | true                             |
-| `mutable`          | boolean       | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                 | false                            |
-| `enableAutoFreeze` | boolean       | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)) | false                            |
-| `strict`           | boolean       | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                 | false                            |
-| `mark`             | Mark<O, F>[]  | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                   | () => void                       |
+| Parameter          | Type                      | Description                                                                                                                                                                     | Default                          |
+| ------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `initialState`     | S                         | Your application's starting state (must be [JSON-serializable](#state-requirements-json-serializable-only))                                                                     | (required)                       |
+| `maxHistory`       | number                    | Maximum number of history entries to keep. Older entries are dropped.                                                                                                           | 10                               |
+| `initialPatches`   | TravelPatches             | Restore saved patches when loading from storage                                                                                                                                 | {patches: [],inversePatches: []} |
+| `initialPosition`  | number                    | Restore position when loading from storage                                                                                                                                      | 0                                |
+| `autoArchive`      | boolean                   | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                    | true                             |
+| `mutable`          | boolean                   | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                               | false                            |
+| `patchesOptions`   | boolean ｜ PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `true` (enable patches)          |
+| `enableAutoFreeze` | boolean                   | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                               | false                            |
+| `strict`           | boolean                   | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                               | false                            |
+| `mark`             | Mark<O, F>[]              | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                 | () => void                       |
 
 **Returns:** `Travels<S, F, A>` - A Travels instance
 
@@ -220,9 +229,18 @@ console.log(controls.patches);
 
 #### `maxHistory` option
 
-When you set `maxHistory`, the history window is limited to the last `maxHistory` states.
+The `maxHistory` option limits how many history entries (patches) are kept in memory. Older entries beyond this limit are automatically discarded to save memory.
 
-For example, if you set `maxHistory` to 3, the history window is [2, 3, 4, 5].
+**How it works:**
+
+- `maxHistory` defines the maximum number of **patches** (changes), not states
+- When the limit is exceeded, the oldest patches are removed
+- The current `position` is capped at `maxHistory`, even if you make more changes
+- `reset()` can always return to the true initial state, regardless of history trimming
+
+**Example: Understanding the history window**
+
+If you set `maxHistory: 3` and make 5 increments, here's what happens:
 
 ```ts
 const travels = createTravels({ count: 0 }, { maxHistory: 3 });
@@ -242,26 +260,34 @@ increment(); // 5
 
 expect(travels.getState().count).toBe(5);
 
-// With maxHistory: 3, we can go back up to 3 steps
-// Position is capped at maxHistory (3), so we're at position 3 with count 5
-// Due to how travels manages patches with maxHistory, the history window is [2, 3, 4, 5]
+// Position is capped at maxHistory (3), so we're at position 3
+// The library keeps only the last 3 patches, representing states: [2, 3, 4, 5]
+// Why 4 states? Because patches represent *transitions*:
+//   - patch 0: 2→3
+//   - patch 1: 3→4
+//   - patch 2: 4→5
+// So you can access 4 states total: the window start (2) plus 3 transitions
+
+// Go back 1 step: from 5 to 4
 controls.back();
 expect(travels.getPosition()).toBe(2);
 expect(travels.getState().count).toBe(4);
 
+// Go back 1 step: from 4 to 3
 controls.back();
 expect(travels.getPosition()).toBe(1);
 expect(travels.getState().count).toBe(3);
 
+// Go back 1 step: from 3 to 2 (the window start)
 controls.back();
 expect(travels.getPosition()).toBe(0);
-expect(travels.getState().count).toBe(2); // Can only go back to the window start, not initial state
+expect(travels.getState().count).toBe(2); // Can only go back to the window start
 
 expect(controls.canBack()).toBe(false); // Can't go further back
 
 // However, reset() can still return to the true initial state
 controls.reset();
-expect(travels.getState().count).toBe(0);
+expect(travels.getState().count).toBe(0); // Back to the original initial state
 ```
 
 ## Mutable Mode: Keep Reactive State In Place
@@ -311,7 +337,73 @@ Vue components keep using the original `state` reference while Travels tracks hi
 
 ### Limitations & Tips
 
-- The state must stay JSON-serializable because `reset()` relies on `JSON.parse(JSON.stringify(initialState))`. Sparse arrays lose their holes and complex types (Map, Set, Date, functions) are not preserved.
+**JSON Serialization Requirements:**
+
+The state must stay JSON-serializable because `reset()` relies on `JSON.parse(JSON.stringify(initialState))` for mutable mode. This has important implications:
+
+- ❌ **Date objects** → Converted to ISO strings (not restored as Date)
+
+  ```ts
+  {
+    createdAt: new Date();
+  } // Becomes: { createdAt: "2025-01-15T..." }
+  ```
+
+- ❌ **Map and Set** → Lost entirely (empty objects)
+
+  ```ts
+  {
+    tags: new Set(['a', 'b']);
+  } // Becomes: { tags: {} }
+  ```
+
+- ❌ **undefined values** → Removed from objects
+
+  ```ts
+  { name: 'Alice', age: undefined }  // Becomes: { name: 'Alice' }
+  ```
+
+- ❌ **Sparse arrays** → Holes become `null`
+
+  ```ts
+  [1, , 3]; // Becomes: [1, null, 3]
+  ```
+
+- ❌ **Functions** → Lost entirely
+
+  ```ts
+  {
+    handler: () => {};
+  } // Becomes: { handler: undefined } → removed
+  ```
+
+- ❌ **Circular references** → Causes JSON.stringify error
+
+  ```ts
+  const obj = { self: null };
+  obj.self = obj; // ❌ TypeError: Converting circular structure to JSON
+  ```
+
+- ❌ **Class instances** → Converted to plain objects (lose methods/prototype)
+  ```ts
+  class User {
+    getName() {}
+  }
+  {
+    user: new User();
+  } // Becomes plain object without methods
+  ```
+
+**Workarounds:**
+
+- Store timestamps as numbers: `{ createdAt: Date.now() }`
+- Store Set/Map as arrays: `{ tags: ['a', 'b'] }`
+- Avoid undefined—use `null` instead
+- Serialize class instances before storing
+- Break circular references or use a custom serialization strategy
+
+**Other Tips:**
+
 - If you often replace the entire root object (e.g., `setState(() => newState)`) the library has to fall back to immutable jumps when navigating history. Prefer mutating the provided draft to keep reference sharing.
 - You can inspect `travels.mutable` at runtime to verify which mode is active.
 - See [`docs/mutable-mode.md`](docs/mutable-mode.md) for a deep dive, integration checklists, and troubleshooting tips.
@@ -527,460 +619,39 @@ travels.setState((draft) => {
 
 ## Advanced: Extending Travels with Custom Logic
 
-You can enhance Travels by wrapping its methods to add validation, permissions, logging, or other custom behavior.
+You can enhance Travels by wrapping its methods to add validation, permissions, logging, rate limiting, and other custom behaviors.
 
-### Intercepting and modifying operations
+**Common use cases:**
 
-While `subscribe()` lets you observe state changes, it cannot prevent or modify operations. To add validation, permissions, or transform data before execution, wrap the Travels methods:
+- ✅ **Validation** - Prevent invalid state changes before they're applied
+- ✅ **Permissions** - Control who can undo/redo or modify state
+- ✅ **Logging & Auditing** - Track all state changes for debugging or compliance
+- ✅ **Metadata** - Automatically add timestamps, user IDs, or version numbers
+- ✅ **Rate Limiting** - Throttle frequent updates to prevent performance issues
+- ✅ **History Overflow Detection** - Archive old history to external storage
 
-**Adding validation:**
+**Quick example:**
 
 ```typescript
 const travels = createTravels({ count: 0 });
-
-// Save the original method
 const originalSetState = travels.setState.bind(travels);
 
-// Wrap setState with validation
+// Add validation
 travels.setState = function (updater: any) {
-  // Only validate direct values (not functions)
-  if (typeof updater === 'object' && updater !== null) {
-    // Validate
-    if (updater.count > 10) {
-      console.error('Count cannot exceed 10!');
-      return; // Prevent execution
-    }
-
-    // Modify input - add metadata
-    updater = {
-      ...updater,
-      count: Math.min(updater.count, 10),
-      timestamp: Date.now(),
-    };
+  if (typeof updater === 'object' && updater.count > 100) {
+    console.error('Count cannot exceed 100');
+    return; // Block the operation
   }
-
-  // For mutation functions, wrap to validate after execution
-  if (typeof updater === 'function') {
-    const wrappedUpdater = (draft: any) => {
-      // Execute the original mutation
-      updater(draft);
-
-      // Validate after mutation
-      if (draft.count > 10) {
-        draft.count = 10; // Fix invalid state
-        console.warn('Count was capped at 10');
-      }
-
-      // Add metadata
-      draft.timestamp = Date.now();
-    };
-
-    originalSetState(wrappedUpdater);
-    return;
-  }
-
-  // Execute for direct values
-  originalSetState(updater);
-} as any;
-
-travels.setState({ count: 5 }); // ✅ Works
-travels.setState({ count: 100 }); // ❌ Blocked, capped at 10
-
-// Also works with mutation functions
-travels.setState((draft) => {
-  draft.count = 100; // Will be capped at 10
-});
-```
-
-### Adding permission checks
-
-Wrap methods to verify permissions before allowing execution:
-
-```typescript
-const currentUser = { role: 'viewer' }; // Read-only user
-
-// Prevent undo/redo for viewers
-const originalBack = travels.back.bind(travels);
-travels.back = function (amount?: number) {
-  if (currentUser.role === 'viewer') {
-    throw new Error('Permission denied: viewers cannot undo');
-  }
-  return originalBack(amount);
-} as any;
-
-// Same for other methods
-const originalForward = travels.forward.bind(travels);
-travels.forward = function (amount?: number) {
-  if (currentUser.role === 'viewer') {
-    throw new Error('Permission denied: viewers cannot redo');
-  }
-  return originalForward(amount);
-} as any;
-```
-
-### Automatically adding metadata to state changes
-
-Wrap `setState` to inject metadata like timestamps or user IDs:
-
-```typescript
-const travels = createTravels<any>({ items: [] });
-const currentUser = { id: 'user123' };
-
-const originalSetState = travels.setState.bind(travels);
-
-travels.setState = function (updater: any) {
-  // Handle direct value
-  if (typeof updater === 'object' && updater !== null) {
-    if (updater.items) {
-      updater = {
-        ...updater,
-        items: updater.items.map((item: any) => ({
-          ...item,
-          timestamp: Date.now(),
-          userId: currentUser.id,
-          version: (item.version || 0) + 1,
-        })),
-      };
-    }
-    return originalSetState(updater);
-  }
-
-  // Handle mutation function
-  if (typeof updater === 'function') {
-    const wrappedUpdater = (draft: any) => {
-      updater(draft); // Execute original mutation
-
-      // Add metadata after mutation
-      if (draft.items) {
-        draft.items.forEach((item: any) => {
-          if (!item.timestamp) {
-            item.timestamp = Date.now();
-            item.userId = currentUser.id;
-            item.version = (item.version || 0) + 1;
-          }
-        });
-      }
-    };
-    return originalSetState(wrappedUpdater);
-  }
-
-  return originalSetState(updater);
-} as any;
-
-// Works with direct value
-travels.setState({ items: [{ name: 'Task 1' }] });
-// Result: { items: [{ name: 'Task 1', timestamp: ..., userId: ..., version: 1 }] }
-
-// Also works with mutation
-travels.setState((draft) => {
-  draft.items.push({ name: 'Task 2' });
-  // Metadata will be added automatically
-});
-```
-
-### Implementing operation logging and auditing
-
-Wrap methods to record all operations before and after execution:
-
-```typescript
-const auditLog: any[] = [];
-
-const originalSetState = travels.setState.bind(travels);
-
-travels.setState = function (updater: any) {
-  // Log before
-  auditLog.push({
-    type: 'setState',
-    timestamp: Date.now(),
-    user: currentUser.id,
-    before: travels.getState(),
-  });
-
-  // Execute
-  const result = originalSetState(updater);
-
-  // Log after
-  auditLog.push({
-    type: 'setState',
-    timestamp: Date.now(),
-    user: currentUser.id,
-    after: travels.getState(),
-  });
-
-  return result;
-} as any;
-```
-
-### Implementing rate limiting and throttling
-
-Wrap methods to control how frequently they can be called:
-
-```typescript
-let lastCallTime = 0;
-const throttleInterval = 100; // ms
-
-const originalSetState = travels.setState.bind(travels);
-
-travels.setState = function (updater: any) {
-  const now = Date.now();
-  if (now - lastCallTime < throttleInterval) {
-    console.warn('Too many updates, throttled');
-    return;
-  }
-  lastCallTime = now;
   return originalSetState(updater);
 } as any;
 ```
 
-### Composing multiple wrappers
+**📖 Full documentation:** See [Advanced Patterns Guide](docs/advanced-patterns.md) for:
 
-Create a reusable function that applies multiple enhancements:
-
-```typescript
-const currentUser = { id: 'user123', role: 'admin' };
-
-// Helper function to wrap travels with multiple enhancers
-function enhanceTravels<S>(
-  travels: Travels<S>,
-  config: {
-    validation?: (state: any, draft?: any) => boolean | string;
-    permissions?: (action: string) => boolean;
-    logging?: boolean;
-    metadata?: boolean;
-  }
-) {
-  // Wrap setState
-  if (config.validation || config.metadata || config.logging) {
-    const original = travels.setState.bind(travels);
-    travels.setState = function (updater: any) {
-      // Logging - before
-      if (config.logging) {
-        console.log('[setState] before:', travels.getState());
-      }
-
-      // Handle direct value
-      if (typeof updater === 'object' && updater !== null) {
-        // Validation for direct values
-        if (config.validation) {
-          const result = config.validation(updater);
-          if (result !== true) {
-            throw new Error(
-              typeof result === 'string' ? result : 'Validation failed'
-            );
-          }
-        }
-
-        // Add metadata for direct values
-        if (config.metadata) {
-          updater = {
-            ...updater,
-            _meta: { timestamp: Date.now(), user: currentUser.id },
-          };
-        }
-
-        const res = original(updater);
-
-        // Logging - after
-        if (config.logging) {
-          console.log('[setState] after:', travels.getState());
-        }
-
-        return res;
-      }
-
-      // Handle mutation function
-      if (typeof updater === 'function') {
-        const wrappedUpdater = (draft: any) => {
-          updater(draft);
-
-          // Validation for mutations
-          if (config.validation) {
-            const result = config.validation(travels.getState(), draft);
-            if (result !== true) {
-              throw new Error(
-                typeof result === 'string' ? result : 'Validation failed'
-              );
-            }
-          }
-
-          // Add metadata for mutations
-          if (config.metadata) {
-            draft._meta = { timestamp: Date.now(), user: currentUser.id };
-          }
-        };
-
-        const res = original(wrappedUpdater);
-
-        // Logging - after
-        if (config.logging) {
-          console.log('[setState] after:', travels.getState());
-        }
-
-        return res;
-      }
-
-      return original(updater);
-    } as any;
-  }
-
-  // Wrap navigation methods with permissions
-  if (config.permissions) {
-    ['back', 'forward', 'reset', 'archive'].forEach((method) => {
-      const original = (travels as any)[method]?.bind(travels);
-      if (original) {
-        (travels as any)[method] = function (...args: any[]) {
-          if (!config.permissions!(method)) {
-            throw new Error(`Permission denied: ${method}`);
-          }
-          return original(...args);
-        };
-      }
-    });
-  }
-
-  return travels;
-}
-
-// Usage
-const travels = createTravels({ count: 0 });
-const enhanced = enhanceTravels(travels, {
-  validation: (state, draft) => {
-    const target = draft || state;
-    if (target.count < 0) return 'Count cannot be negative';
-    if (target.count > 100) return 'Count cannot exceed 100';
-    return true;
-  },
-  permissions: (action) => {
-    return currentUser.role !== 'viewer' || action === 'setState';
-  },
-  logging: true,
-  metadata: true,
-});
-
-// Now works with both styles
-enhanced.setState({ count: 50 }); // ✅ Direct value
-enhanced.setState((draft) => {
-  draft.count = 75;
-}); // ✅ Mutation
-```
-
-### Detecting history overflow
-
-Use `subscribe()` to detect when history reaches the maximum limit:
-
-```typescript
-const travels = createTravels({ count: 0 }, { maxHistory: 5 });
-const archive: any[] = [];
-
-let lastPosition = 0;
-
-travels.subscribe((state, patches, position) => {
-  // Detect overflow: position stops growing
-  if (position === lastPosition && position >= 5) {
-    // Archive to external storage
-    archive.push({
-      state: travels.getState(),
-      patches: travels.getPatches(),
-      timestamp: Date.now(),
-    });
-
-    // You can save to localStorage, IndexedDB, or API
-    localStorage.setItem('archive', JSON.stringify(archive));
-  }
-
-  lastPosition = position;
-});
-```
-
-### Common Patterns
-
-Here are some reusable wrapper patterns:
-
-```typescript
-// Pattern 1: Validation wrapper
-function withValidation<S>(
-  travels: Travels<S>,
-  validator: (state: any, draft?: any) => boolean | string
-) {
-  const original = travels.setState.bind(travels);
-  travels.setState = function (updater: any) {
-    // Handle direct value
-    if (typeof updater === 'object' && updater !== null) {
-      const result = validator(updater);
-      if (result !== true) {
-        throw new Error(
-          typeof result === 'string' ? result : 'Validation failed'
-        );
-      }
-      return original(updater);
-    }
-
-    // Handle mutation function
-    if (typeof updater === 'function') {
-      const wrapped = (draft: any) => {
-        updater(draft);
-        const result = validator(travels.getState(), draft);
-        if (result !== true) {
-          throw new Error(
-            typeof result === 'string' ? result : 'Validation failed'
-          );
-        }
-      };
-      return original(wrapped);
-    }
-
-    return original(updater);
-  } as any;
-  return travels;
-}
-
-// Pattern 2: Logging wrapper
-function withLogging<S>(travels: Travels<S>) {
-  const methods = ['setState', 'back', 'forward', 'reset', 'archive'];
-  methods.forEach((method) => {
-    const original = (travels as any)[method]?.bind(travels);
-    if (original) {
-      (travels as any)[method] = function (...args: any[]) {
-        console.log(`[${method}] called with:`, args);
-        const result = original(...args);
-        console.log(`[${method}] result:`, travels.getState());
-        return result;
-      };
-    }
-  });
-  return travels;
-}
-
-// Pattern 3: Permissions wrapper
-function withPermissions<S>(
-  travels: Travels<S>,
-  checkPermission: (action: string) => boolean
-) {
-  const methods = ['setState', 'back', 'forward', 'reset', 'archive'];
-  methods.forEach((method) => {
-    const original = (travels as any)[method]?.bind(travels);
-    if (original) {
-      (travels as any)[method] = function (...args: any[]) {
-        if (!checkPermission(method)) {
-          throw new Error(`Permission denied: ${method}`);
-        }
-        return original(...args);
-      };
-    }
-  });
-  return travels;
-}
-
-// Compose all wrappers
-const travels = createTravels({ count: 0 });
-
-withValidation(
-  travels,
-  (state) => state.count >= 0 || 'Count must be non-negative'
-);
-withLogging(travels);
-withPermissions(travels, (action) => currentUser.role === 'admin');
-```
+- Complete examples with both direct values and mutation functions
+- Composable wrapper patterns (validation, logging, permissions)
+- Real-world integration patterns
+- TypeScript-safe implementation techniques
 
 ## Related Projects
 
