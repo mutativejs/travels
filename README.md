@@ -115,16 +115,17 @@ Creates a new Travels instance.
 
 **Parameters:**
 
-| Parameter          | Type          | Description                                                                                                              | Default                          |
-| ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------- |
-| `initialState`     | S             | Your application's starting state (must be JSON-serializable)                                                           | (required)                       |
-| `maxHistory`       | number        | Maximum number of history entries to keep. Older entries are dropped.                                                   | 10                               |
-| `initialPatches`   | TravelPatches | Restore saved patches when loading from storage                                                                         | {patches: [],inversePatches: []} |
-| `initialPosition`  | number        | Restore position when loading from storage                                                                               | 0                                |
-| `autoArchive`      | boolean       | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))            | true                             |
+| Parameter          | Type          | Description                                                                                                                                       | Default                          |
+| ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `initialState`     | S             | Your application's starting state (must be JSON-serializable)                                                                                     | (required)                       |
+| `maxHistory`       | number        | Maximum number of history entries to keep. Older entries are dropped.                                                                             | 10                               |
+| `initialPatches`   | TravelPatches | Restore saved patches when loading from storage                                                                                                   | {patches: [],inversePatches: []} |
+| `initialPosition`  | number        | Restore position when loading from storage                                                                                                        | 0                                |
+| `autoArchive`      | boolean       | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                      | true                             |
+| `mutable`          | boolean       | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                 | false                            |
 | `enableAutoFreeze` | boolean       | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options)) | false                            |
-| `strict`           | boolean       | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))           | false                            |
-| `mark`             | Mark<O, F>[]  | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))           | () => void                       |
+| `strict`           | boolean       | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                 | false                            |
+| `mark`             | Mark<O, F>[]  | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                   | () => void                       |
 
 **Returns:** `Travels<S, F, A>` - A Travels instance
 
