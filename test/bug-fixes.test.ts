@@ -4,7 +4,7 @@
  * Tests for specific bug fixes to ensure they don't regress
  */
 
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { createTravels, Travels } from '../src/index';
 
 describe('Bug #1: canForward() boundary condition in Manual mode', () => {
@@ -672,5 +672,77 @@ describe('Bug #5: Mutable mode value updates should match immutable replacements
 
     expect(travels.getState()).toEqual([7, 8]);
     expect((travels.getState() as any).meta).toBeUndefined();
+  });
+});
+
+describe('Bug #6: No-op updates should not push history entries', () => {
+  test('auto archive mode ignores no-op updates', () => {
+    const travels = createTravels({ count: 0 });
+    const listener = vi.fn();
+    travels.subscribe(listener);
+
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getHistory()).toHaveLength(1);
+
+    travels.setState(() => {
+      // noop
+    });
+
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getHistory()).toHaveLength(1);
+    expect(travels.getPatches().patches).toHaveLength(0);
+    expect(listener).not.toHaveBeenCalled();
+
+    travels.setState({ count: 1 });
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getHistory()).toHaveLength(2);
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    listener.mockClear();
+
+    travels.setState(() => {
+      // noop again
+    });
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getHistory()).toHaveLength(2);
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  test('manual archive mode retains position and temp patches for no-ops', () => {
+    const travels = createTravels({ count: 0 }, { autoArchive: false });
+    const listener = vi.fn();
+    travels.subscribe(listener);
+
+    travels.setState(() => {
+      // noop
+    });
+
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.canArchive()).toBe(false);
+    expect(travels.getHistory()).toHaveLength(1);
+    expect(listener).not.toHaveBeenCalled();
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.canArchive()).toBe(true);
+    expect(travels.getHistory()).toHaveLength(2);
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    listener.mockClear();
+
+    travels.setState(() => {
+      // noop while temp patches exist
+    });
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.canArchive()).toBe(true);
+    expect(travels.getHistory()).toHaveLength(2);
+    expect(listener).not.toHaveBeenCalled();
   });
 });

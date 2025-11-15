@@ -399,6 +399,12 @@ export class Travels<
       this.pendingState = null;
     });
 
+    const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
+
+    if (hasNoChanges) {
+      return;
+    }
+
     if (this.autoArchive) {
       const notLast = this.position < this.allPatches.patches.length;
 
