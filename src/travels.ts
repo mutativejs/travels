@@ -65,6 +65,26 @@ const deepClone = <T>(source: T, target?: any): T => {
   return deepCloneValue(source);
 };
 
+// Align mutable value updates with immutable replacements by syncing objects
+const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
+  if (Array.isArray(draft) && Array.isArray(value)) {
+    draft.length = 0;
+    for (const item of value) {
+      (draft as any[]).push(item);
+    }
+    return;
+  }
+
+  const draftKeys = Reflect.ownKeys(draft as object);
+  for (const key of draftKeys) {
+    if (!Object.prototype.hasOwnProperty.call(value, key)) {
+      delete (draft as any)[key as any];
+    }
+  }
+
+  Object.assign(draft as object, value);
+};
+
 /**
  * Core Travels class for managing undo/redo history
  */
@@ -279,9 +299,17 @@ export class Travels<
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
 
-    const useMutable = this.mutable && isObjectLike(this.state);
+    const canUseMutableRoot = this.mutable && isObjectLike(this.state);
+    const isFunctionUpdater = typeof updater === 'function';
+    const canMutateWithValue =
+      canUseMutableRoot &&
+      !isFunctionUpdater &&
+      isObjectLike(updater) &&
+      Array.isArray(this.state) === Array.isArray(updater);
+    const useMutable =
+      (isFunctionUpdater && canUseMutableRoot) || canMutateWithValue;
 
-    if (this.mutable && !useMutable && !this.mutableFallbackWarned) {
+    if (this.mutable && !canUseMutableRoot && !this.mutableFallbackWarned) {
       this.mutableFallbackWarned = true;
 
       if (process.env.NODE_ENV !== 'production') {
@@ -293,15 +321,12 @@ export class Travels<
 
     if (useMutable) {
       // For observable state: generate patches then apply mutably
-      const isFn = typeof updater === 'function';
-
       [, patches, inversePatches] = create(
         this.state,
-        isFn
+        isFunctionUpdater
           ? (updater as (draft: Draft<S>) => void)
           : (draft: Draft<S>) => {
-              // For non-function updater, assign all properties to draft
-              Object.assign(draft!, updater);
+              overwriteDraftWith(draft!, updater);
             },
         this.options
       ) as [S, Patches<P>, Patches<P>];

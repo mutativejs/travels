@@ -616,3 +616,36 @@ describe('Bug #4: Deep clone in reset() for nested arrays and objects', () => {
     expect(travels.getState().grid[1]).toHaveLength(2);
   });
 });
+
+describe('Bug #5: Mutable mode value updates should match immutable replacements', () => {
+  test('object updaters drop stale keys in mutable mode', () => {
+    const mutable = createTravels({ a: 1, b: 2 }, { mutable: true });
+    const immutable = createTravels({ a: 1, b: 2 });
+
+    mutable.setState({ a: 5 });
+    immutable.setState({ a: 5 });
+
+    expect(mutable.getState()).toEqual({ a: 5 });
+    expect(mutable.getState()).toEqual(immutable.getState());
+  });
+
+  test('array updaters fully replace contents in mutable mode', () => {
+    const travels = createTravels<number[]>([1, 2, 3], { mutable: true });
+    const originalRef = travels.getState();
+
+    travels.setState([99]);
+
+    expect(travels.getState()).toBe(originalRef);
+    expect(travels.getState()).toEqual([99]);
+  });
+
+  test('primitive replacements fall back to immutable logic', () => {
+    const travels = createTravels<any>({ value: 1 }, { mutable: true });
+
+    travels.setState(42);
+    expect(travels.getState()).toBe(42);
+
+    travels.setState({ value: 2 });
+    expect(travels.getState()).toEqual({ value: 2 });
+  });
+});
