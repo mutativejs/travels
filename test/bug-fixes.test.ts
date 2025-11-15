@@ -648,4 +648,29 @@ describe('Bug #5: Mutable mode value updates should match immutable replacements
     travels.setState({ value: 2 });
     expect(travels.getState()).toEqual({ value: 2 });
   });
+
+  test('non-plain object replacements fall back to immutable logic', () => {
+    const date = new Date('2024-02-03T00:00:00.000Z');
+    const mutable = createTravels<any>({ a: 1 }, { mutable: true });
+    const immutable = createTravels<any>({ a: 1 });
+
+    mutable.setState(date as any);
+    immutable.setState(date as any);
+
+    expect(mutable.getState()).toBeInstanceOf(Date);
+    expect((mutable.getState() as Date).getTime()).toBe(date.getTime());
+    expect(mutable.getState()).toEqual(immutable.getState());
+  });
+
+  test('array replacements remove stale custom properties', () => {
+    const withMeta: any = [1, 2, 3];
+    withMeta.meta = 'old';
+
+    const travels = createTravels<any>(withMeta, { mutable: true });
+
+    travels.setState([7, 8]);
+
+    expect(travels.getState()).toEqual([7, 8]);
+    expect((travels.getState() as any).meta).toBeUndefined();
+  });
 });

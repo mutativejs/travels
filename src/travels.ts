@@ -15,7 +15,7 @@ import type {
   Updater,
   Value,
 } from './type';
-import { isObjectLike } from './utils';
+import { isObjectLike, isPlainObject } from './utils';
 
 /**
  * Listener callback for state changes
@@ -65,21 +65,43 @@ const deepClone = <T>(source: T, target?: any): T => {
   return deepCloneValue(source);
 };
 
+const hasOnlyArrayIndices = (value: unknown): value is any[] => {
+  if (!Array.isArray(value)) {
+    return false;
+  }
+
+  return Reflect.ownKeys(value).every((key) => {
+    if (key === 'length') {
+      return true;
+    }
+
+    if (typeof key === 'symbol') {
+      return false;
+    }
+
+    const index = Number(key);
+    return Number.isInteger(index) && index >= 0 && String(index) === key;
+  });
+};
+
 // Align mutable value updates with immutable replacements by syncing objects
 const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
-  if (Array.isArray(draft) && Array.isArray(value)) {
-    draft.length = 0;
-    for (const item of value) {
-      (draft as any[]).push(item);
-    }
-    return;
-  }
+  const draftIsArray = Array.isArray(draft);
+  const valueIsArray = Array.isArray(value);
 
   const draftKeys = Reflect.ownKeys(draft as object);
   for (const key of draftKeys) {
+    if (draftIsArray && key === 'length') {
+      continue;
+    }
+
     if (!Object.prototype.hasOwnProperty.call(value, key)) {
       delete (draft as any)[key as any];
     }
+  }
+
+  if (draftIsArray && valueIsArray) {
+    (draft as any[]).length = (value as any[]).length;
   }
 
   Object.assign(draft as object, value);
@@ -301,11 +323,22 @@ export class Travels<
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
+    const stateIsArray = Array.isArray(this.state);
+    const updaterIsArray = Array.isArray(updater);
+    const canMutatePlainObjects =
+      !stateIsArray &&
+      !updaterIsArray &&
+      isPlainObject(this.state) &&
+      isPlainObject(updater);
+    const canMutateArrays =
+      stateIsArray &&
+      updaterIsArray &&
+      hasOnlyArrayIndices(this.state) &&
+      hasOnlyArrayIndices(updater);
     const canMutateWithValue =
       canUseMutableRoot &&
       !isFunctionUpdater &&
-      isObjectLike(updater) &&
-      Array.isArray(this.state) === Array.isArray(updater);
+      (canMutateArrays || canMutatePlainObjects);
     const useMutable =
       (isFunctionUpdater && canUseMutableRoot) || canMutateWithValue;
 
