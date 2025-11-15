@@ -153,6 +153,8 @@ Update the state. Supports three styles:
 - **Function returning value:** `setState(() => ({ count: 1 }))` - Compute new state
 - **Draft mutation (recommended):** `setState((draft) => { draft.count = 1 })` - Mutate a draft copy
 
+> **Performance Optimization:** Updates that produce no actual changes (empty patches) won't create history entries or trigger subscribers. For example, `setState(state => state)` or conditional updates that don't modify any fields. This prevents memory bloat from no-op operations.
+
 #### `subscribe(listener: (state, patches, position) => void): () => void`
 
 Subscribe to state changes. Returns an unsubscribe function.
@@ -309,6 +311,7 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 ### Behavior at a Glance
 
 - `setState` keeps the reference stable as long as the current state root is an object. Primitive roots (number, string, `null`) trigger an automatic immutable fallback plus a dev warning.
+- No-op updates (producing empty patches) are optimized away and won't create history entries or notify subscribers.
 - `back`, `forward`, and `go` also mutate in place unless the history entry performs a root-level replacement (patch path `[]`). Those rare steps reassign the reference to keep history correct.
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
@@ -425,9 +428,19 @@ const travels = createTravels({ count: 0 });
 // or explicitly: createTravels({ count: 0 }, { autoArchive: true })
 
 // Each setState creates a new history entry
-travels.setState({ count: 1 }); // History: [0, 1]
-travels.setState({ count: 2 }); // History: [0, 1, 2]
-travels.setState({ count: 3 }); // History: [0, 1, 2, 3]
+travels.setState({ count: 1 }); // History: [0, 1], position: 1
+travels.setState({ count: 2 }); // History: [0, 1, 2], position: 2
+travels.setState({ count: 3 }); // History: [0, 1, 2, 3], position: 3
+
+// No-op update - position stays the same (optimization)
+travels.setState(state => state); // History: [0, 1, 2, 3], position: 3
+
+// Conditional update that changes nothing
+travels.setState(draft => {
+  if (draft.count > 10) {  // false, so no changes
+    draft.count = 0;
+  }
+}); // History: [0, 1, 2, 3], position: 3
 
 travels.back(); // Go back to count: 2
 ```
