@@ -848,6 +848,10 @@ export class Travels<
         self.canArchive();
     }
 
+    if (process.env.NODE_ENV !== 'production') {
+      Object.freeze(controls);
+    }
+
     this.controlsCache = controls;
 
     return controls as A extends true

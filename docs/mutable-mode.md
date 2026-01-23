@@ -53,6 +53,7 @@ The full implementation lives in `src/travels.ts` and is exercised by `test/muta
 - **Non-object roots**: If the current state is a primitive or `null`, Travels logs a dev warning and behaves immutably for that update. Undo/redo still works—it just cannot mutate a primitive in place.
 - **Root replacements in history**: Navigating to a step that replaces the entire root (e.g., switching from `{...}` to `[]` or a primitive) forces a new reference for that jump only.
 - **Function updaters returning a new root**: In mutable mode, `setState(() => newState)` that replaces the root falls back to immutable assignment for that update (dev warning emitted).
+- **Root array time travel**: When the root state is an array, mutable back/forward/go can exhibit ordering limitations due to patch application semantics. If you rely on array-root navigation, use immutable mode or wrap the array in an object.
 - **JSON-only data**: Travels clones the initial state via `deepClone(initialState)` the moment you call `createTravels`. Any non-JSON values are therefore lost up front, and `reset()` simply copies from that sanitized snapshot. The same constraint applies regardless of mutable mode.
 - **Draft best practices**: Prefer mutating the provided draft (`draft.count++`) instead of returning a brand new object. Mutating drafts lets Travels keep using in-place patches during navigation.
 

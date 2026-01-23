@@ -220,7 +220,7 @@ Returns whether mutable mode is enabled.
 
 #### `getControls(): TravelsControls | ManualTravelsControls`
 
-Returns a controls object containing all navigation methods and current state. Useful for passing to UI components without exposing the entire Travels instance.
+Returns a controls object containing all navigation methods and current state. Useful for passing to UI components without exposing the entire Travels instance. The controls object is cached and should be treated as read-only (it is frozen in development).
 
 ```typescript
 const travels = createTravels({ count: 0 });
@@ -314,6 +314,7 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 - Function updaters that return a brand-new root (root replacement) also fall back to immutable assignment in mutable mode, with a dev warning.
 - No-op updates (producing empty patches) are optimized away and won't create history entries or notify subscribers.
 - `back`, `forward`, and `go` also mutate in place unless the history entry performs a root-level replacement (patch path `[]`). Those rare steps reassign the reference to keep history correct.
+- Root array time-travel in mutable mode can have ordering limitations; if you rely on array root navigation, prefer immutable mode or wrap the array in an object.
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
 - `getHistory()` reconstructs new objects from the stored patches. Treat them as read-only snapshots—they are not reactive proxies.
