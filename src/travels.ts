@@ -133,6 +133,10 @@ export class Travels<
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
   private pendingStateVersion = 0;
+  private controlsCache:
+    | TravelsControls<S, F, P>
+    | ManualTravelsControls<S, F, P>
+    | null = null;
   private historyCache: { version: number; history: S[] } | null = null;
   private historyVersion = 0;
   private mutableFallbackWarned = false;
@@ -782,6 +786,12 @@ export class Travels<
    * Get the controls object
    */
   public getControls() {
+    if (this.controlsCache) {
+      return this.controlsCache as A extends true
+        ? TravelsControls<S, F, P>
+        : ManualTravelsControls<S, F, P>;
+    }
+
     const self = this;
     const controls: TravelsControls<S, F, P> | ManualTravelsControls<S, F, P> =
       {
@@ -806,6 +816,8 @@ export class Travels<
       (controls as ManualTravelsControls<S, F, P>).canArchive = (): boolean =>
         self.canArchive();
     }
+
+    this.controlsCache = controls;
 
     return controls as A extends true
       ? TravelsControls<S, F, P>

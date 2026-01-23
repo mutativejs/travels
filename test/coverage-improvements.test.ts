@@ -427,6 +427,38 @@ describe('Coverage Improvements', () => {
       expect(travels.getState().items).toEqual(['item1', 'item2', 'item3']);
       expect(controls.canForward()).toBe(false);
     });
+
+    test('returns the same controls instance for manual mode', () => {
+      interface State {
+        value: number;
+      }
+
+      const travels = createTravels<State>(
+        { value: 0 },
+        { autoArchive: false }
+      );
+
+      const first = travels.getControls();
+      const second = travels.getControls();
+
+      expect(first).toBe(second);
+    });
+
+    test('returns the same controls instance for auto mode', () => {
+      interface State {
+        value: number;
+      }
+
+      const travels = createTravels<State>(
+        { value: 0 },
+        { autoArchive: true }
+      );
+
+      const first = travels.getControls();
+      const second = travels.getControls();
+
+      expect(first).toBe(second);
+    });
   });
 
 
