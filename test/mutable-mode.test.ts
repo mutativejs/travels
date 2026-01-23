@@ -54,6 +54,28 @@ describe('Mutable mode for observable state', () => {
     expect(travels.getState().name).toBe('updated');
   });
 
+  test('function updater returning new object falls back to immutable assignment', () => {
+    const state = { count: 0 };
+    const travels = createTravels(state, { mutable: true });
+    const originalRef = travels.getState();
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    travels.setState(() => ({ count: 5 }));
+
+    expect(travels.getState()).toEqual({ count: 5 });
+    expect(travels.getState()).not.toBe(originalRef);
+    expect(travels.getPosition()).toBe(1);
+
+    expect(
+      warnSpy.mock.calls.some(([message]) =>
+        String(message).includes('root replacements')
+      )
+    ).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
   test('back() with mutable: true preserves reference', () => {
     const state = { count: 0 };
     const travels = createTravels(state, { mutable: true });

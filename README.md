@@ -311,6 +311,7 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 ### Behavior at a Glance
 
 - `setState` keeps the reference stable as long as the current state root is an object. Primitive roots (number, string, `null`) trigger an automatic immutable fallback plus a dev warning.
+- Function updaters that return a brand-new root (root replacement) also fall back to immutable assignment in mutable mode, with a dev warning.
 - No-op updates (producing empty patches) are optimized away and won't create history entries or notify subscribers.
 - `back`, `forward`, and `go` also mutate in place unless the history entry performs a root-level replacement (patch path `[]`). Those rare steps reassign the reference to keep history correct.
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.

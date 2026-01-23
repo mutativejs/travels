@@ -148,6 +148,7 @@ export class Travels<
   private historyCache: { version: number; history: S[] } | null = null;
   private historyVersion = 0;
   private mutableFallbackWarned = false;
+  private mutableRootReplaceWarned = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A> = {}) {
     const {
@@ -367,7 +368,7 @@ export class Travels<
 
     if (useMutable) {
       // For observable state: generate patches then apply mutably
-      [, patches, inversePatches] = create(
+      const [nextState, p, ip] = create(
         this.state,
         isFunctionUpdater
           ? (updater as (draft: Draft<S>) => void)
@@ -377,11 +378,30 @@ export class Travels<
         this.options
       ) as [S, Patches<P>, Patches<P>];
 
-      // Apply patches to mutate the existing state object
-      apply(this.state as object, patches, { mutable: true });
+      patches = p;
+      inversePatches = ip;
 
-      // Keep the same reference
-      this.pendingState = this.state;
+      if (this.hasRootReplacement(patches)) {
+        if (
+          process.env.NODE_ENV !== 'production' &&
+          !this.mutableRootReplaceWarned
+        ) {
+          this.mutableRootReplaceWarned = true;
+          console.warn(
+            'Travels: mutable mode cannot apply root replacements in place. Falling back to immutable update for this change.'
+          );
+        }
+
+        // Root replacement cannot be applied mutably; fall back to immutable assignment.
+        this.state = nextState;
+        this.pendingState = nextState;
+      } else {
+        // Apply patches to mutate the existing state object
+        apply(this.state as object, patches, { mutable: true });
+
+        // Keep the same reference
+        this.pendingState = this.state;
+      }
     } else {
       // For immutable state: create new object
       const [nextState, p, ip] = (
