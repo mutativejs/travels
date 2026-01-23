@@ -370,10 +370,10 @@ The state must stay JSON-serializable because `reset()` relies on `deepClone(ini
   { name: 'Alice', age: undefined }  // Becomes: { name: 'Alice' }
   ```
 
-- ❌ **Sparse arrays** → Holes become `null`
+- ⚠️ **Sparse arrays** → Mutable value updates fall back to immutable to preserve holes
 
   ```ts
-  [1, , 3]; // Becomes: [1, null, 3]
+  [1, , 3]; // Holes are preserved by falling back to immutable updates
   ```
 
 - ❌ **Functions** → Lost entirely

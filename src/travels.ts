@@ -70,7 +70,8 @@ const hasOnlyArrayIndices = (value: unknown): value is any[] => {
     return false;
   }
 
-  return Reflect.ownKeys(value).every((key) => {
+  const keys = Reflect.ownKeys(value);
+  const hasOnlyIndices = keys.every((key) => {
     if (key === 'length') {
       return true;
     }
@@ -82,6 +83,13 @@ const hasOnlyArrayIndices = (value: unknown): value is any[] => {
     const index = Number(key);
     return Number.isInteger(index) && index >= 0 && String(index) === key;
   });
+
+  if (!hasOnlyIndices) {
+    return false;
+  }
+
+  // Sparse arrays cannot be safely synchronized with in-place patches.
+  return Object.keys(value).length === value.length;
 };
 
 // Align mutable value updates with immutable replacements by syncing objects
@@ -720,6 +728,9 @@ export class Travels<
           }
           // Deep copy all properties from initialState
           deepClone(this.initialState, draft);
+          if (Array.isArray(draft) && Array.isArray(this.initialState)) {
+            (draft as any[]).length = (this.initialState as any[]).length;
+          }
         },
         this.options
       );

@@ -235,6 +235,24 @@ describe('Bug #3: reset() with mutable mode - deep copy issues', () => {
     expect(travels.getState().todos[0].text).toBe('Task 1');
   });
 
+  test('reset should restore root array length in mutable mode', () => {
+    const travels = createTravels([1, 2, 3], { mutable: true });
+    const originalRef = travels.getState();
+
+    travels.setState((draft) => {
+      draft.push(4, 5);
+    });
+
+    expect(travels.getState().length).toBe(5);
+
+    travels.reset();
+
+    const state = travels.getState();
+    expect(state).toBe(originalRef);
+    expect(state).toEqual([1, 2, 3]);
+    expect(state.length).toBe(3);
+  });
+
   test('should handle property deletion on reset in mutable mode', () => {
     const initialState = {
       name: 'Test',
@@ -352,6 +370,16 @@ describe('Bug #3: reset() with mutable mode - deep copy issues', () => {
     // Deep clone now preserves sparse array holes as undefined entries
     expect(travels.getState().sparseArray[1]).toBeUndefined();
     expect(travels.getState().sparseArray).toHaveLength(3);
+  });
+
+  test('sparse array value update should preserve holes in mutable mode', () => {
+    const travels = createTravels([1, 2, 3], { mutable: true });
+
+    travels.setState([1, , 3] as number[]); // eslint-disable-line no-sparse-arrays
+
+    const state = travels.getState() as number[];
+    expect(state.length).toBe(3);
+    expect(Object.prototype.hasOwnProperty.call(state, '1')).toBe(false);
   });
 });
 

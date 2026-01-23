@@ -113,7 +113,7 @@ Because the state is mutated in place, your UI keeps updating during the transac
 
 - Mutable mode still generates JSON patches, so you can persist or inspect diffs just like immutable mode.
 - The dedicated `test/mutable-mode.test.ts` suite verifies reference stability across `setState`, `back`, `forward`, `go`, `reset`, `archive`, and `subscribe`.
-- `test/bug-fixes.test.ts` and `test/coverage-improvements.test.ts` include regression tests for resetting nested objects, deleting extra properties, and handling sparse arrays while keeping the same reference.
+- `test/bug-fixes.test.ts` and `test/coverage-improvements.test.ts` include regression tests for resetting nested objects, deleting extra properties, and handling sparse arrays (mutable value updates fall back to immutable to preserve holes).
 
 ## Troubleshooting Checklist
 
