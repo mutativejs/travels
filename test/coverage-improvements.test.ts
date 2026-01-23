@@ -220,6 +220,32 @@ describe('Coverage Improvements', () => {
       expect(travels.getPatches().patches.length).toBe(1);
       expect(travels.getHistory().map((state) => state.value)).toEqual([0, 1]);
     });
+
+    test('pendingState reset does not clear newer updates before queued microtasks', async () => {
+      interface State {
+        value: number;
+      }
+
+      const travels = createTravels<State>(
+        { value: 0 },
+        {
+          autoArchive: false,
+        }
+      );
+
+      const observed: Array<number | null> = [];
+
+      travels.setState({ value: 1 });
+      Promise.resolve().then(() => {
+        observed.push((travels as any).pendingState?.value ?? null);
+      });
+      travels.setState({ value: 2 });
+
+      await Promise.resolve();
+
+      expect(observed).toEqual([2]);
+      expect((travels as any).pendingState).toBeNull();
+    });
   });
 
   describe('reset() in mutable mode with extra properties', () => {

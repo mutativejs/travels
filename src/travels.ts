@@ -132,6 +132,7 @@ export class Travels<
   private options: MutativeOptions<PatchesOption | true, F>;
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
+  private pendingStateVersion = 0;
   private historyCache: { version: number; history: S[] } | null = null;
   private historyVersion = 0;
   private mutableFallbackWarned = false;
@@ -394,9 +395,13 @@ export class Travels<
       this.pendingState = nextState;
     }
 
-    // Reset pendingState asynchronously
+    const pendingStateVersion = ++this.pendingStateVersion;
+
+    // Reset pendingState asynchronously, but only if no newer update landed.
     Promise.resolve().then(() => {
-      this.pendingState = null;
+      if (this.pendingStateVersion === pendingStateVersion) {
+        this.pendingState = null;
+      }
     });
 
     const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
