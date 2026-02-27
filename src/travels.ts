@@ -26,31 +26,99 @@ type Listener<S, P extends PatchesOption = {}> = (
   position: number
 ) => void;
 
-const cloneTravelPatches = <P extends PatchesOption = {}>(
-  base?: TravelPatches<P>
-): TravelPatches<P> => ({
-  patches: base ? base.patches.map((patch) => [...patch]) : [],
-  inversePatches: base ? base.inversePatches.map((patch) => [...patch]) : [],
-});
+const tryStructuredClone = <T>(value: T): T | undefined => {
+  if (typeof (globalThis as any).structuredClone !== 'function') {
+    return undefined;
+  }
 
-const deepCloneValue = (value: any): any => {
+  try {
+    return (globalThis as any).structuredClone(value) as T;
+  } catch {
+    return undefined;
+  }
+};
+
+const deepCloneValue = (value: any, seen = new WeakMap<object, any>()): any => {
   if (value === null || typeof value !== 'object') {
     return value;
   }
 
+  if (seen.has(value)) {
+    return seen.get(value);
+  }
+
   if (Array.isArray(value)) {
-    return value.map(deepCloneValue);
+    const cloned: any[] = new Array(value.length);
+    seen.set(value, cloned);
+
+    for (let i = 0; i < value.length; i += 1) {
+      if (Object.prototype.hasOwnProperty.call(value, i)) {
+        cloned[i] = deepCloneValue(value[i], seen);
+      }
+    }
+
+    return cloned;
+  }
+
+  if (value instanceof Map) {
+    const cloned = new Map();
+    seen.set(value, cloned);
+    value.forEach((entryValue, entryKey) => {
+      cloned.set(deepCloneValue(entryKey, seen), deepCloneValue(entryValue, seen));
+    });
+    return cloned;
+  }
+
+  if (value instanceof Set) {
+    const cloned = new Set();
+    seen.set(value, cloned);
+    value.forEach((entryValue) => {
+      cloned.add(deepCloneValue(entryValue, seen));
+    });
+    return cloned;
+  }
+
+  if (value instanceof Date) {
+    const cloned = new Date(value.getTime());
+    seen.set(value, cloned);
+    return cloned;
+  }
+
+  const structuredCloneValue = tryStructuredClone(value);
+  if (structuredCloneValue !== undefined) {
+    seen.set(value, structuredCloneValue);
+    return structuredCloneValue;
+  }
+
+  if (!isPlainObject(value) && Object.getPrototypeOf(value) !== null) {
+    return value;
   }
 
   const cloned: Record<string, any> = {};
+  seen.set(value, cloned);
   for (const key in value) {
     if (Object.prototype.hasOwnProperty.call(value, key)) {
-      cloned[key] = deepCloneValue(value[key]);
+      cloned[key] = deepCloneValue(value[key], seen);
     }
   }
 
   return cloned;
 };
+
+const cloneTravelPatches = <P extends PatchesOption = {}>(
+  base?: TravelPatches<P>
+): TravelPatches<P> => ({
+  patches: base
+    ? base.patches.map((patch) =>
+        patch.map((operation) => deepCloneValue(operation))
+      )
+    : [],
+  inversePatches: base
+    ? base.inversePatches.map((patch) =>
+        patch.map((operation) => deepCloneValue(operation))
+      )
+    : [],
+});
 
 const deepClone = <T>(source: T, target?: any): T => {
   if (target && source && typeof source === 'object') {
@@ -63,6 +131,19 @@ const deepClone = <T>(source: T, target?: any): T => {
   }
 
   return deepCloneValue(source);
+};
+
+const cloneInitialSnapshot = <T>(value: T): T => {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  const structuredCloneValue = tryStructuredClone(value);
+  if (structuredCloneValue !== undefined) {
+    return structuredCloneValue;
+  }
+
+  return deepClone(value);
 };
 
 const hasOnlyArrayIndices = (value: unknown): value is any[] => {
@@ -90,6 +171,31 @@ const hasOnlyArrayIndices = (value: unknown): value is any[] => {
 
   // Sparse arrays cannot be safely synchronized with in-place patches.
   return Object.keys(value).length === value.length;
+};
+
+const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
+  return Array.isArray(value) && value.every((entry) => Array.isArray(entry));
+};
+
+const getInitialPatchesValidationError = <P extends PatchesOption = {}>(
+  initialPatches: TravelPatches<P> | undefined
+): string | null => {
+  if (!initialPatches) {
+    return null;
+  }
+
+  if (
+    !isPatchHistoryEntries(initialPatches.patches) ||
+    !isPatchHistoryEntries(initialPatches.inversePatches)
+  ) {
+    return `initialPatches must have 'patches' and 'inversePatches' arrays`;
+  }
+
+  if (initialPatches.patches.length !== initialPatches.inversePatches.length) {
+    return `initialPatches.patches and initialPatches.inversePatches must have the same length`;
+  }
+
+  return null;
 };
 
 // Align mutable value updates with immutable replacements by syncing objects
@@ -153,15 +259,28 @@ export class Travels<
   constructor(initialState: S, options: TravelsOptions<F, A> = {}) {
     const {
       maxHistory = 10,
-      initialPatches,
-      initialPosition = 0,
+      initialPatches: inputInitialPatches,
+      initialPosition: inputInitialPosition = 0,
+      strictInitialPatches = false,
       autoArchive = true as A,
       mutable = false,
       patchesOptions,
       ...mutativeOptions
     } = options;
+    let initialPatches = inputInitialPatches;
+    let initialPosition = inputInitialPosition;
 
     // Validate and enforce maxHistory constraints
+    if (
+      typeof maxHistory !== 'number' ||
+      !Number.isFinite(maxHistory) ||
+      !Number.isInteger(maxHistory)
+    ) {
+      throw new Error(
+        `Travels: maxHistory must be a non-negative integer, but got ${maxHistory}`
+      );
+    }
+
     if (maxHistory < 0) {
       throw new Error(
         `Travels: maxHistory must be non-negative, but got ${maxHistory}`
@@ -174,29 +293,28 @@ export class Travels<
       );
     }
 
-    // Validate options in development mode
-    if (process.env.NODE_ENV !== 'production') {
-      if (initialPatches) {
-        if (
-          !Array.isArray(initialPatches.patches) ||
-          !Array.isArray(initialPatches.inversePatches)
-        ) {
-          console.error(
-            `Travels: initialPatches must have 'patches' and 'inversePatches' arrays`
-          );
-        } else if (
-          initialPatches.patches.length !== initialPatches.inversePatches.length
-        ) {
-          console.error(
-            `Travels: initialPatches.patches and initialPatches.inversePatches must have the same length`
-          );
-        }
+    const initialPatchesValidationError =
+      getInitialPatchesValidationError(initialPatches);
+
+    if (initialPatchesValidationError) {
+      if (strictInitialPatches) {
+        throw new Error(`Travels: ${initialPatchesValidationError}`);
       }
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Travels: ${initialPatchesValidationError}. Falling back to empty history. ` +
+            `Set strictInitialPatches: true to throw instead.`
+        );
+      }
+
+      initialPatches = undefined;
+      initialPosition = 0;
     }
 
     this.state = initialState;
     // For mutable mode, deep clone initialState to prevent mutations
-    this.initialState = mutable ? deepClone(initialState) : initialState;
+    this.initialState = cloneInitialSnapshot(initialState);
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
     this.mutable = mutable;
@@ -226,7 +344,9 @@ export class Travels<
     const total = cloned.patches.length;
     const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
     const invalidInitialPosition =
-      typeof initialPosition !== 'number' || !Number.isFinite(initialPosition);
+      typeof initialPosition !== 'number' ||
+      !Number.isFinite(initialPosition) ||
+      !Number.isInteger(initialPosition);
     let position = invalidInitialPosition ? 0 : (initialPosition as number);
     const clampedPosition = Math.max(0, Math.min(position, total));
 
@@ -317,8 +437,8 @@ export class Travels<
   private hasRootReplacement(patches: Patches<P>): boolean {
     return patches.some(
       (patch) =>
-        Array.isArray(patch.path) &&
-        patch.path.length === 0 &&
+        ((Array.isArray(patch.path) && patch.path.length === 0) ||
+          patch.path === '') &&
         patch.op === 'replace'
     );
   }
@@ -604,7 +724,6 @@ export class Travels<
       return this.historyCache.history;
     }
 
-    const history: S[] = [this.state];
     let currentState = this.state;
     const _allPatches = this.getAllPatches();
 
@@ -622,17 +741,22 @@ export class Travels<
         : _allPatches.inversePatches;
 
     // Build future history
+    const futureHistory: S[] = [];
     for (let i = this.position; i < patches.length; i++) {
       currentState = apply(currentState as object, patches[i]) as S;
-      history.push(currentState);
+      futureHistory.push(currentState);
     }
 
     // Build past history
     currentState = this.state;
+    const pastHistory: S[] = [];
     for (let i = this.position - 1; i > -1; i--) {
       currentState = apply(currentState as object, inversePatches[i]) as S;
-      history.unshift(currentState);
+      pastHistory.push(currentState);
     }
+    pastHistory.reverse();
+
+    const history: S[] = [...pastHistory, this.state, ...futureHistory];
 
     this.historyCache = {
       version: this.historyVersion,
@@ -651,6 +775,19 @@ export class Travels<
    * Go to a specific position in the history
    */
   public go(nextPosition: number): void {
+    if (typeof nextPosition !== 'number' || !Number.isFinite(nextPosition)) {
+      console.warn(`Can't go to invalid position ${nextPosition}`);
+      return;
+    }
+
+    if (!Number.isInteger(nextPosition)) {
+      const normalizedPosition = Math.trunc(nextPosition);
+      console.warn(
+        `Can't go to non-integer position ${nextPosition}. Using ${normalizedPosition} instead.`
+      );
+      nextPosition = normalizedPosition;
+    }
+
     const shouldArchive =
       !this.autoArchive && !!this.tempPatches.patches.length;
 
@@ -673,15 +810,15 @@ export class Travels<
 
     if (nextPosition === this.position) return;
 
-    if (shouldArchive) {
-      const lastInversePatch = _allPatches.inversePatches.slice(-1)[0];
-      _allPatches.inversePatches[_allPatches.inversePatches.length - 1] = [
-        ...lastInversePatch,
-      ].reverse();
-    }
+    const inversePatchesForNavigation =
+      shouldArchive && _allPatches.inversePatches.length > 0
+        ? _allPatches.inversePatches.map((patch, index, allPatches) =>
+            index === allPatches.length - 1 ? [...patch].reverse() : patch
+          )
+        : _allPatches.inversePatches;
 
     const patchesToApply = back
-      ? _allPatches.inversePatches
+      ? inversePatchesForNavigation
           .slice(-this.maxHistory)
           .slice(nextPosition, this.position)
           .flat()
@@ -757,8 +894,8 @@ export class Travels<
 
       apply(this.state as object, patches, { mutable: true });
     } else {
-      // For immutable state: reassign reference
-      this.state = this.initialState;
+      // For immutable state: restore from a snapshot clone.
+      this.state = cloneInitialSnapshot(this.initialState);
     }
 
     this.position = this.initialPosition;
@@ -810,7 +947,8 @@ export class Travels<
   public getPatches(): TravelPatches<P> {
     const shouldArchive =
       !this.autoArchive && !!this.tempPatches.patches.length;
-    return shouldArchive ? this.getAllPatches() : this.allPatches;
+    const patchSource = shouldArchive ? this.getAllPatches() : this.allPatches;
+    return cloneTravelPatches(patchSource);
   }
 
   /**

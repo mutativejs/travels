@@ -774,3 +774,304 @@ describe('Bug #6: No-op updates should not push history entries', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 });
+
+describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
+  test('rejects non-integer maxHistory values', () => {
+    expect(() =>
+      createTravels({ count: 0 }, { maxHistory: 1.5 as number })
+    ).toThrow('Travels: maxHistory must be a non-negative integer, but got 1.5');
+  });
+
+  test('normalizes non-integer initialPosition values', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const travels = createTravels(
+      { count: 0 },
+      {
+        initialPatches: {
+          patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+          inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+        },
+        initialPosition: 0.5 as number,
+      }
+    );
+
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1]);
+    expect(
+      warnSpy.mock.calls.some(([message]) =>
+        String(message).includes('initialPosition (0.5) is invalid')
+      )
+    ).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
+  test('go() truncates non-integer positions safely', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ count: 0 });
+
+    travels.setState({ count: 1 });
+    travels.setState({ count: 2 });
+
+    travels.go(1.8 as number);
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getState().count).toBe(1);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 2]);
+    expect(
+      warnSpy.mock.calls.some(([message]) =>
+        String(message).includes("Can't go to non-integer position 1.8")
+      )
+    ).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
+  test('go() ignores non-finite positions without side effects', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ count: 0 });
+
+    travels.setState({ count: 1 });
+    const currentState = travels.getState();
+    const currentPosition = travels.getPosition();
+
+    travels.go(Number.NaN as number);
+
+    expect(travels.getPosition()).toBe(currentPosition);
+    expect(travels.getState()).toBe(currentState);
+    expect(
+      warnSpy.mock.calls.some(([message]) =>
+        String(message).includes("Can't go to invalid position NaN")
+      )
+    ).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+});
+
+describe('Bug #8: Rehydrated patches should not share references', () => {
+  test('mutating external initialPatches does not affect internal history', () => {
+    const initialPatches = {
+      patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+      inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+    };
+
+    const travels = createTravels(
+      { count: 0 },
+      {
+        initialPatches,
+        initialPosition: 0,
+      }
+    );
+
+    initialPatches.patches[0][0].value = 999;
+    initialPatches.inversePatches[0][0].value = -1;
+
+    travels.forward();
+    expect(travels.getState().count).toBe(1);
+
+    travels.back();
+    expect(travels.getState().count).toBe(0);
+  });
+});
+
+describe('Bug #9: reset() in immutable mode should restore from stable snapshot', () => {
+  test('reset is isolated from external mutations of initial state', () => {
+    const initialState = { count: 0 };
+    const travels = createTravels(initialState);
+
+    travels.setState({ count: 1 });
+    initialState.count = 42;
+
+    travels.reset();
+
+    expect(travels.getState().count).toBe(0);
+  });
+
+  test('reset does not reuse a mutable snapshot reference', () => {
+    const travels = createTravels({ nested: { value: 0 } });
+
+    travels.setState({ nested: { value: 1 } });
+    travels.reset();
+
+    const resetState = travels.getState();
+    resetState.nested.value = 99;
+
+    travels.setState({ nested: { value: 2 } });
+    travels.reset();
+
+    expect(travels.getState().nested.value).toBe(0);
+  });
+});
+
+describe('Bug #10: getPatches() should not expose internal mutable history', () => {
+  test('mutating returned patches does not break undo/redo', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.setState({ count: 1 });
+    const patches = travels.getPatches();
+
+    patches.patches.length = 0;
+    patches.inversePatches.length = 0;
+
+    travels.back();
+    expect(travels.getState().count).toBe(0);
+    expect(travels.getPosition()).toBe(0);
+  });
+});
+
+describe('Bug #11: patch cloning should preserve Map/Set values', () => {
+  test('getPatches keeps Map payloads intact', () => {
+    const travels = createTravels(new Map([['a', 1]]));
+    travels.setState(new Map([['b', 2]]));
+
+    const patches = travels.getPatches();
+    expect(patches.patches[0][0].value).toBeInstanceOf(Map);
+    expect((patches.patches[0][0].value as Map<string, number>).get('b')).toBe(
+      2
+    );
+
+    travels.back();
+    expect((travels.getState() as Map<string, number>).get('a')).toBe(1);
+  });
+
+  test('rehydration with Map payload patches replays correctly', () => {
+    const initialPatches = {
+      patches: [[{ op: 'replace', path: [], value: new Map([['b', 2]]) }]],
+      inversePatches: [[{ op: 'replace', path: [], value: new Map([['a', 1]]) }]],
+    };
+
+    const travels = createTravels(new Map([['a', 1]]), {
+      initialPatches,
+      initialPosition: 0,
+    });
+
+    travels.forward();
+    const state = travels.getState() as Map<string, number>;
+    expect(state).toBeInstanceOf(Map);
+    expect(state.get('b')).toBe(2);
+  });
+
+  test('getPatches keeps Set payloads intact', () => {
+    const travels = createTravels(new Set([1]));
+    travels.setState(new Set([2, 3]));
+
+    const patches = travels.getPatches();
+    expect(patches.patches[0][0].value).toBeInstanceOf(Set);
+    expect(
+      Array.from((patches.patches[0][0].value as Set<number>).values()).sort(
+        (a, b) => a - b
+      )
+    ).toEqual([2, 3]);
+
+    travels.back();
+    expect(Array.from((travels.getState() as Set<number>).values())).toEqual([1]);
+  });
+
+  test('rehydration with Set payload patches replays correctly', () => {
+    const initialPatches = {
+      patches: [[{ op: 'replace', path: [], value: new Set([2, 3]) }]],
+      inversePatches: [[{ op: 'replace', path: [], value: new Set([1]) }]],
+    };
+
+    const travels = createTravels(new Set([1]), {
+      initialPatches,
+      initialPosition: 0,
+    });
+
+    travels.forward();
+    const state = travels.getState() as Set<number>;
+    expect(state).toBeInstanceOf(Set);
+    expect(Array.from(state.values()).sort((a, b) => a - b)).toEqual([2, 3]);
+  });
+});
+
+describe('Bug #12: reset() should remain stable without structuredClone', () => {
+  test('Map baseline remains isolated when structuredClone is unavailable', () => {
+    const originalStructuredClone = (globalThis as any).structuredClone;
+    (globalThis as any).structuredClone = undefined;
+
+    try {
+      const travels = createTravels(new Map([['a', 1]]));
+      travels.setState((draft) => {
+        draft.set('a', 2);
+      });
+
+      travels.reset();
+      expect((travels.getState() as Map<string, number>).get('a')).toBe(1);
+
+      (travels.getState() as Map<string, number>).set('a', 999);
+      travels.setState((draft) => {
+        draft.set('a', 3);
+      });
+
+      travels.reset();
+      expect((travels.getState() as Map<string, number>).get('a')).toBe(1);
+    } finally {
+      (globalThis as any).structuredClone = originalStructuredClone;
+    }
+  });
+});
+
+describe('Bug #13: mutable mode should detect string root replacement paths', () => {
+  test('rehydrated empty-string root patch falls back to immutable apply in back()', () => {
+    const travels = createTravels(
+      { count: 1 },
+      {
+        mutable: true,
+        initialPatches: {
+          patches: [[{ op: 'replace', path: '', value: { count: 2 } }]],
+          inversePatches: [[{ op: 'replace', path: '', value: { count: 1 } }]],
+        } as any,
+        initialPosition: 1,
+      }
+    );
+
+    const beforeBackRef = travels.getState();
+
+    travels.back();
+
+    expect(travels.getState()).toEqual({ count: 1 });
+    expect(travels.getState()).not.toBe(beforeBackRef);
+    expect(travels.getPosition()).toBe(0);
+  });
+});
+
+describe('Bug #14: go() should not mutate archived inverse patches', () => {
+  test('navigation-triggered auto archive keeps same patch ordering as explicit archive', () => {
+    const initialState: { a?: number; b: number; c?: number; list: number[] } = {
+      a: 1,
+      b: 2,
+      list: [1, 2],
+    };
+    const applyChanges = (
+      travels: Travels<typeof initialState, false, false>
+    ) => {
+      travels.setState((draft) => {
+        delete draft.a;
+        draft.b = 3;
+        draft.list.push(3);
+        draft.list.shift();
+        draft.c = 5;
+      });
+    };
+
+    const explicitArchive = createTravels<typeof initialState, false>(
+      { ...initialState, list: [...initialState.list] },
+      { autoArchive: false }
+    );
+    applyChanges(explicitArchive);
+    explicitArchive.archive();
+    const archivedPatches = explicitArchive.getPatches();
+
+    const navigationArchive = createTravels<typeof initialState, false>(
+      { ...initialState, list: [...initialState.list] },
+      { autoArchive: false }
+    );
+    applyChanges(navigationArchive);
+    navigationArchive.back(); // auto-archives pending patches before navigating
+
+    expect(navigationArchive.getPatches()).toEqual(archivedPatches);
+  });
+});

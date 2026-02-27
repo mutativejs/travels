@@ -20,33 +20,34 @@ describe('Coverage Improvements', () => {
       warnSpy.mockRestore();
     });
 
-    test('validates that initialPatches include array properties', () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    test('falls back to empty history when initialPatches shape is invalid', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      expect(() =>
-        createTravels(
-          { count: 0 },
-          {
-            initialPatches: { patches: {} as any, inversePatches: [] as any },
-          }
-        )
-      ).toThrow();
+      const travels = createTravels(
+        { count: 0 },
+        {
+          initialPatches: { patches: {} as any, inversePatches: [] as any },
+          initialPosition: 3,
+        }
+      );
 
+      expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+      expect(travels.getPosition()).toBe(0);
       expect(
-        errorSpy.mock.calls.some(([message]) =>
+        warnSpy.mock.calls.some(([message]) =>
           String(message).includes(
-            `Travels: initialPatches must have 'patches' and 'inversePatches' arrays`
+            "initialPatches must have 'patches' and 'inversePatches' arrays. Falling back to empty history."
           )
         )
       ).toBe(true);
 
-      errorSpy.mockRestore();
+      warnSpy.mockRestore();
     });
 
-    test('validates that patches and inversePatches have equal lengths', () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    test('falls back to empty history when initialPatches lengths mismatch', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      createTravels(
+      const travels = createTravels(
         { count: 0 },
         {
           initialPatches: {
@@ -56,15 +57,48 @@ describe('Coverage Improvements', () => {
         }
       );
 
+      expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+      expect(travels.getPosition()).toBe(0);
       expect(
-        errorSpy.mock.calls.some(([message]) =>
+        warnSpy.mock.calls.some(([message]) =>
           String(message).includes(
-            'Travels: initialPatches.patches and initialPatches.inversePatches must have the same length'
+            'initialPatches.patches and initialPatches.inversePatches must have the same length. Falling back to empty history.'
           )
         )
       ).toBe(true);
 
-      errorSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
+
+    test('throws for invalid initialPatches when strictInitialPatches is true', () => {
+      expect(() =>
+        createTravels(
+          { count: 0 },
+          {
+            strictInitialPatches: true,
+            initialPatches: { patches: {} as any, inversePatches: [] as any },
+          }
+        )
+      ).toThrow(
+        `Travels: initialPatches must have 'patches' and 'inversePatches' arrays`
+      );
+    });
+
+    test('throws for mismatched initialPatches when strictInitialPatches is true', () => {
+      expect(() =>
+        createTravels(
+          { count: 0 },
+          {
+            strictInitialPatches: true,
+            initialPatches: {
+              patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+              inversePatches: [],
+            },
+          }
+        )
+      ).toThrow(
+        'Travels: initialPatches.patches and initialPatches.inversePatches must have the same length'
+      );
     });
 
     test('normalizes non-numeric initialPosition values to zero', () => {

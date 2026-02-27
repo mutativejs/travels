@@ -31,6 +31,11 @@ export type TravelsOptions<
    */
   initialPatches?: TravelPatches<P>;
   /**
+   * Whether to throw when `initialPatches` is invalid.
+   * When false (default), invalid patches are discarded and history starts empty.
+   */
+  strictInitialPatches?: boolean;
+  /**
    * Whether to automatically archive the current state, by default `true`
    */
   autoArchive?: A;

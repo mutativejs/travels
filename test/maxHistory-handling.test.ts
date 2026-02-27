@@ -490,18 +490,19 @@ describe('maxHistory Validation and Error Handling', () => {
     const travels1 = createTravels({ count: 0 }, { maxHistory: undefined });
     expect(travels1.getState()).toEqual({ count: 0 });
 
-    // NaN gets coerced to default (10)
-    const travels2 = createTravels({ count: 0 }, { maxHistory: NaN as any });
-    expect(travels2.getState()).toEqual({ count: 0 });
+    // NaN should throw
+    expect(() => {
+      createTravels({ count: 0 }, { maxHistory: NaN as any });
+    }).toThrow('Travels: maxHistory must be a non-negative integer');
 
     // Infinity should throw
     expect(() => {
       createTravels({ count: 0 }, { maxHistory: Infinity });
-    }).not.toThrow(); // Infinity is > 0, so it's technically valid (though not practical)
+    }).toThrow('Travels: maxHistory must be a non-negative integer');
 
     // Negative Infinity should throw
     expect(() => {
       createTravels({ count: 0 }, { maxHistory: -Infinity });
-    }).toThrow('Travels: maxHistory must be non-negative');
+    }).toThrow('Travels: maxHistory must be a non-negative integer');
   });
 });

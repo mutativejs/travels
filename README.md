@@ -127,8 +127,9 @@ Creates a new Travels instance.
 | Parameter          | Type                      | Description                                                                                                                                                                     | Default                          |
 | ------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `initialState`     | S                         | Your application's starting state (must be [JSON-serializable](#state-requirements-json-serializable-only))                                                                     | (required)                       |
-| `maxHistory`       | number                    | Maximum number of history entries to keep. Older entries are dropped.                                                                                                           | 10                               |
+| `maxHistory`       | number                    | Maximum number of history entries to keep. Older entries are dropped. Must be a non-negative integer (`NaN`, `Infinity`, decimals are rejected).                               | 10                               |
 | `initialPatches`   | TravelPatches             | Restore saved patches when loading from storage                                                                                                                                 | {patches: [],inversePatches: []} |
+| `strictInitialPatches` | boolean               | Whether invalid `initialPatches` should throw. When `false`, invalid patches are discarded and history starts empty                                                            | false                            |
 | `initialPosition`  | number                    | Restore position when loading from storage                                                                                                                                      | 0                                |
 | `autoArchive`      | boolean                   | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                    | true                             |
 | `mutable`          | boolean                   | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                               | false                            |
@@ -243,6 +244,7 @@ The `maxHistory` option limits how many history entries (patches) are kept in me
 - When the limit is exceeded, the oldest patches are removed
 - The current `position` is capped at `maxHistory`, even if you make more changes
 - `reset()` can always return to the true initial state, regardless of history trimming
+- Invalid values throw immediately: `maxHistory` must be a non-negative integer
 
 **Example: Understanding the history window**
 
@@ -608,6 +610,28 @@ function loadFromStorage() {
     initialPatches,
     initialPosition,
   });
+}
+```
+
+By default, invalid persisted `initialPatches` are ignored and Travels falls back to empty history. If you prefer fail-fast behavior, enable `strictInitialPatches` and handle errors explicitly:
+
+```typescript
+function loadFromStorageStrict() {
+  const initialState = JSON.parse(localStorage.getItem('state') || '{}');
+  const initialPatches = JSON.parse(
+    localStorage.getItem('patches') || '{"patches":[],"inversePatches":[]}'
+  );
+  const initialPosition = JSON.parse(localStorage.getItem('position') || '0');
+
+  try {
+    return createTravels(initialState, {
+      initialPatches,
+      initialPosition,
+      strictInitialPatches: true,
+    });
+  } catch {
+    return createTravels(initialState);
+  }
 }
 ```
 

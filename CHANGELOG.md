@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- Preserve `Map`/`Set` values when cloning patch history for `getPatches()` and rehydration.
+- Keep `reset()` baseline isolated for `Map`/`Set` states even when `structuredClone` is unavailable.
+
+### Changed
+
+- `maxHistory` now strictly requires a non-negative integer. Invalid values such as `NaN`, `Infinity`, and decimals throw an error.
+- Invalid `initialPatches` now default to safe fallback (discard persisted history and continue). Set `strictInitialPatches: true` to opt into fail-fast throws.
+
 ## [1.0.0] - 2026-01-24
 
 🎉 **First Stable Release**
