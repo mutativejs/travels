@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-02-28
+
 ### Fixed
 
 - Preserve `Map`/`Set` values when cloning patch history for `getPatches()` and rehydration.
