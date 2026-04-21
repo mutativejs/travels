@@ -309,7 +309,7 @@ function enhanceTravels<S>(
 
   // Wrap navigation methods with permissions
   if (config.permissions) {
-    ['back', 'forward', 'reset', 'archive'].forEach((method) => {
+    ['back', 'forward', 'reset', 'archive', 'rebase'].forEach((method) => {
       const original = (travels as any)[method]?.bind(travels);
       if (original) {
         (travels as any)[method] = function (...args: any[]) {
@@ -420,7 +420,7 @@ function withValidation<S>(
 
 // Pattern 2: Logging wrapper
 function withLogging<S>(travels: Travels<S>) {
-  const methods = ['setState', 'back', 'forward', 'reset', 'archive'];
+  const methods = ['setState', 'back', 'forward', 'reset', 'archive', 'rebase'];
   methods.forEach((method) => {
     const original = (travels as any)[method]?.bind(travels);
     if (original) {
@@ -440,7 +440,7 @@ function withPermissions<S>(
   travels: Travels<S>,
   checkPermission: (action: string) => boolean
 ) {
-  const methods = ['setState', 'back', 'forward', 'reset', 'archive'];
+  const methods = ['setState', 'back', 'forward', 'reset', 'archive', 'rebase'];
   methods.forEach((method) => {
     const original = (travels as any)[method]?.bind(travels);
     if (original) {

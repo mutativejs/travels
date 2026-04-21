@@ -183,6 +183,13 @@ Jump to a specific position in the history timeline.
 
 Reset to the initial state and clear all history.
 
+#### `rebase(): void`
+
+Remove all past and future history and make the current state as the new initial state.
+
+> [!WARNING]
+> This is a **destructive operation**. All previous and future history entries are discarded, and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()` calls will return to this new baseline, not the original initial state.
+
 #### `getHistory(): readonly S[]`
 
 Returns the complete history of states as an array.

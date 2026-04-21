@@ -7,10 +7,10 @@ import {
   rawReturn,
 } from 'mutative';
 import type {
-  ManualTravelsControls,
   PatchesOption,
+  RebasableManualTravelsControls,
+  RebasableTravelsControls,
   TravelPatches,
-  TravelsControls,
   TravelsOptions,
   Updater,
   Value,
@@ -248,8 +248,8 @@ export class Travels<
   private pendingState: S | null = null;
   private pendingStateVersion = 0;
   private controlsCache:
-    | TravelsControls<S, F, P>
-    | ManualTravelsControls<S, F, P>
+    | RebasableTravelsControls<S, F, P>
+    | RebasableManualTravelsControls<S, F, P>
     | null = null;
   private historyCache: { version: number; history: S[] } | null = null;
   private historyVersion = 0;
@@ -907,6 +907,25 @@ export class Travels<
   }
 
   /**
+   * Remove all history and make the current state (including any unarchived temp patches) as the new initial state.
+   *
+   * This is a destructive operation that discards all history and overwrites
+   * the internal baseline. Future `reset()` calls will return to this snapshot.
+   */
+  public rebase(): void {
+    this.initialState = cloneInitialSnapshot(this.state);
+    this.initialPosition = 0;
+    this.initialPatches = undefined;
+
+    this.position = 0;
+    this.allPatches = cloneTravelPatches();
+    this.tempPatches = cloneTravelPatches();
+
+    this.invalidateHistoryCache();
+    this.notify();
+  }
+
+  /**
    * Check if it's possible to go back
    */
   public canBack(): boolean {
@@ -957,33 +976,35 @@ export class Travels<
   public getControls() {
     if (this.controlsCache) {
       return this.controlsCache as A extends true
-        ? TravelsControls<S, F, P>
-        : ManualTravelsControls<S, F, P>;
+        ? RebasableTravelsControls<S, F, P>
+        : RebasableManualTravelsControls<S, F, P>;
     }
 
     const self = this;
-    const controls: TravelsControls<S, F, P> | ManualTravelsControls<S, F, P> =
-      {
-        get position(): number {
-          return self.getPosition();
-        },
-        getHistory: () => self.getHistory() as Value<S, F>[],
-        get patches(): TravelPatches<P> {
-          return self.getPatches();
-        },
-        back: (amount?: number): void => self.back(amount),
-        forward: (amount?: number): void => self.forward(amount),
-        reset: (): void => self.reset(),
-        go: (position: number): void => self.go(position),
-        canBack: (): boolean => self.canBack(),
-        canForward: (): boolean => self.canForward(),
-      };
+    const controls:
+      | RebasableTravelsControls<S, F, P>
+      | RebasableManualTravelsControls<S, F, P> = {
+      get position(): number {
+        return self.getPosition();
+      },
+      getHistory: () => self.getHistory() as Value<S, F>[],
+      get patches(): TravelPatches<P> {
+        return self.getPatches();
+      },
+      back: (amount?: number): void => self.back(amount),
+      forward: (amount?: number): void => self.forward(amount),
+      reset: (): void => self.reset(),
+      go: (position: number): void => self.go(position),
+      canBack: (): boolean => self.canBack(),
+      canForward: (): boolean => self.canForward(),
+      rebase: (): void => self.rebase(),
+    };
 
     if (!this.autoArchive) {
-      (controls as ManualTravelsControls<S, F, P>).archive = (): void =>
+      (controls as RebasableManualTravelsControls<S, F, P>).archive = (): void =>
         self.archive();
-      (controls as ManualTravelsControls<S, F, P>).canArchive = (): boolean =>
-        self.canArchive();
+      (controls as RebasableManualTravelsControls<S, F, P>).canArchive =
+        (): boolean => self.canArchive();
     }
 
     if (process.env.NODE_ENV !== 'production') {
@@ -993,7 +1014,7 @@ export class Travels<
     this.controlsCache = controls;
 
     return controls as A extends true
-      ? TravelsControls<S, F, P>
-      : ManualTravelsControls<S, F, P>;
+      ? RebasableTravelsControls<S, F, P>
+      : RebasableManualTravelsControls<S, F, P>;
   }
 }

@@ -75,5 +75,15 @@ travels.reset();
 console.log('State:', travels.getState());
 console.log('Position:', travels.getPosition());
 
+// Rebase history
+console.log('\n=== Rebase ===');
+travels.setState({ count: 10, text: 'Rebased' });
+console.log('State before rebase:', travels.getState());
+console.log('Position before rebase:', travels.getPosition());
+travels.rebase();
+console.log('State after rebase:', travels.getState());
+console.log('Position after rebase:', travels.getPosition());
+console.log('Can undo after rebase:', travels.canBack());
+
 // Cleanup
 unsubscribe();

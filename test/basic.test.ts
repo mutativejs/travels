@@ -156,6 +156,47 @@ describe('Basic Example - Basic Usage', () => {
     expect(travels.getPosition()).toBe(0);
   });
 
+  test('should rebase history to current state', () => {
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    travels.setState((draft) => {
+      draft.text = 'World';
+    });
+
+    expect(travels.getPosition()).toBe(2);
+    expect(travels.getHistory()).toHaveLength(3);
+
+    travels.rebase();
+
+    expect(travels.getState()).toEqual({
+      count: 1,
+      text: 'World',
+    });
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getHistory()).toHaveLength(1);
+    expect(travels.canBack()).toBe(false);
+    expect(travels.canForward()).toBe(false);
+
+    // ensure operations after rebase work correctly
+    travels.setState((draft) => {
+      draft.count = 2;
+    });
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getHistory()).toHaveLength(2);
+    expect(travels.canBack()).toBe(true);
+
+    // ensure reset goes to the rebased state
+    travels.reset();
+    expect(travels.getState()).toEqual({
+      count: 1,
+      text: 'World',
+    });
+    expect(travels.getPosition()).toBe(0);
+  });
+
   test('should notify subscribers on state changes', () => {
     const states: AppState[] = [];
     const positions: number[] = [];

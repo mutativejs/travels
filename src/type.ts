@@ -104,6 +104,22 @@ export interface TravelsControls<
   canForward: () => boolean;
 }
 
+export type RebasableTravelsControls<
+  S,
+  F extends boolean,
+  P extends PatchesOption = {},
+> = TravelsControls<S, F, P> & {
+  /**
+   * Remove all history and make the current state as the new initial state.
+   *
+   * @remarks
+   * **IMPORTANT**: This is a destructive operation. All previous and future history entries are discarded,
+   * and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()`
+   * calls will return to this new baseline, not the original initial state.
+   */
+  rebase: () => void;
+};
+
 export interface ManualTravelsControls<
   S,
   F extends boolean,
@@ -118,3 +134,19 @@ export interface ManualTravelsControls<
    */
   canArchive: () => boolean;
 }
+
+export type RebasableManualTravelsControls<
+  S,
+  F extends boolean,
+  P extends PatchesOption = {},
+> = ManualTravelsControls<S, F, P> & {
+  /**
+   * Remove all history and make the current state as the new initial state.
+   *
+   * @remarks
+   * **IMPORTANT**: This is a destructive operation. All previous and future history entries are discarded,
+   * and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()`
+   * calls will return to this new baseline, not the original initial state.
+   */
+  rebase: () => void;
+};
