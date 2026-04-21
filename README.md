@@ -544,6 +544,80 @@ function Counter() {
 }
 ```
 
+### External Form Manager Integration
+
+When a form manager or external store remains the single source of truth, Travels can stay as a pure history engine. In that setup, update Travels from the form layer with detached value snapshots, then apply undo/redo results back to the form by reading `travels.getState()` immediately after navigation. With `autoArchive: false`, you can decide when a set of form edits should become one undoable history step.
+
+```tsx
+import { createTravels } from 'travels';
+
+type FormValues = {
+  title: string;
+  description: string;
+};
+
+type FormApi<S> = {
+  getValues: () => S;
+  setValues: (values: S) => void;
+};
+
+const travels = createTravels<FormValues>(
+  {
+    title: '',
+    description: '',
+  },
+  { autoArchive: false }
+);
+
+function bindHistoryToForm(form: FormApi<FormValues>) {
+  const syncToHistory = () => {
+    travels.setState(structuredClone(form.getValues()));
+  };
+
+  const commitHistoryStep = () => {
+    if (travels.canArchive()) {
+      travels.archive();
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const modifier = event.metaKey || event.ctrlKey;
+
+    if (modifier && event.key === 'z' && !event.shiftKey) {
+      event.preventDefault();
+      if (!travels.canBack()) return;
+      travels.back();
+      form.setValues(travels.getState());
+      return;
+    }
+
+    if (
+      (modifier && event.key === 'z' && event.shiftKey) ||
+      (modifier && event.key === 'y')
+    ) {
+      event.preventDefault();
+      if (!travels.canForward()) return;
+      travels.forward();
+      form.setValues(travels.getState());
+    }
+  };
+
+  return {
+    syncToHistory,
+    commitHistoryStep,
+    handleKeyDown,
+  };
+}
+```
+
+Call `syncToHistory()` whenever the form values change, and call `commitHistoryStep()` whenever your form layer considers those changes a single undoable step, for example on blur, submit, or a debounced commit.
+
+`getValues()` should return a detached snapshot, not a live mutable reference owned by the form manager. If your form library returns live objects, clone them before passing them to Travels.
+
+For `react-hook-form`, `getValues()` maps naturally to `form.getValues()`, and `setValues(...)` is typically implemented with `form.reset(...)`.
+
+This pattern is useful for integrations such as `react-hook-form`, custom form managers, or external stores where you want to avoid two reactive sources of truth. React can still render the form state, but Travels only records and replays history.
+
 ### Zustand Integration
 
 ```typescript
