@@ -226,9 +226,9 @@ Returns `true` if there are unsaved changes that can be archived.
 
 Returns whether mutable mode is enabled.
 
-#### `getControls(): TravelsControls | ManualTravelsControls`
+#### `getControls(): RebasableTravelsControls | RebasableManualTravelsControls`
 
-Returns a controls object containing all navigation methods and current state. Useful for passing to UI components without exposing the entire Travels instance. The controls object is cached and should be treated as read-only (it is frozen in development).
+Returns a controls object containing all navigation methods and current state, including `rebase()`. Useful for passing to UI components without exposing the entire Travels instance. The controls object is cached and should be treated as read-only (it is frozen in development).
 
 ```typescript
 const travels = createTravels({ count: 0 });

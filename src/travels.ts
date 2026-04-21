@@ -64,7 +64,10 @@ const deepCloneValue = (value: any, seen = new WeakMap<object, any>()): any => {
     const cloned = new Map();
     seen.set(value, cloned);
     value.forEach((entryValue, entryKey) => {
-      cloned.set(deepCloneValue(entryKey, seen), deepCloneValue(entryValue, seen));
+      cloned.set(
+        deepCloneValue(entryKey, seen),
+        deepCloneValue(entryValue, seen)
+      );
     });
     return cloned;
   }
@@ -1001,8 +1004,8 @@ export class Travels<
     };
 
     if (!this.autoArchive) {
-      (controls as RebasableManualTravelsControls<S, F, P>).archive = (): void =>
-        self.archive();
+      (controls as RebasableManualTravelsControls<S, F, P>).archive =
+        (): void => self.archive();
       (controls as RebasableManualTravelsControls<S, F, P>).canArchive =
         (): boolean => self.canArchive();
     }
