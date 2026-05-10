@@ -3,7 +3,12 @@
  */
 
 import { computed, readonly, shallowRef } from 'vue';
-import { createTravels, type TravelsOptions } from '../src/index';
+import {
+  createTravels,
+  type TravelMetadata,
+  type TravelsOptions,
+  type Updater,
+} from '../src/index';
 
 export function useTravelsHistory<S>(
   initialState: S,
@@ -23,10 +28,11 @@ export function useTravelsHistory<S>(
     position: readonly(position),
     canUndo: computed(() => travels.canBack()),
     canRedo: computed(() => travels.canForward()),
-    setState: travels.setState,
-    undo: travels.back,
-    redo: travels.forward,
-    reset: travels.reset,
+    setState: (updater: Updater<S>, metadata?: TravelMetadata) =>
+      travels.setState(updater, metadata),
+    undo: (amount?: number) => travels.back(amount),
+    redo: (amount?: number) => travels.forward(amount),
+    reset: () => travels.reset(),
     controls: travels.getControls(),
   };
 }
