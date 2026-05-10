@@ -11,10 +11,16 @@ import type {
   RebasableManualTravelsControls,
   RebasableTravelsControls,
   TravelPatches,
+  TravelsDeserializeOptions,
   TravelsOptions,
+  TravelsSerializedHistory,
   Updater,
   Value,
 } from './type';
+import {
+  deserializeTravelsHistory,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
+} from './persistence';
 import { isObjectLike, isPlainObject } from './utils';
 
 /**
@@ -234,6 +240,16 @@ export class Travels<
   P extends PatchesOption = {},
 > {
   /**
+   * Validate and normalize a persisted Travels history snapshot.
+   */
+  public static deserialize<S, P extends PatchesOption = {}>(
+    snapshot: unknown,
+    options?: TravelsDeserializeOptions<S, P>
+  ): TravelsSerializedHistory<S, P> {
+    return deserializeTravelsHistory(snapshot, options);
+  }
+
+  /**
    * Get the mutable mode
    */
   public mutable: boolean;
@@ -259,9 +275,10 @@ export class Travels<
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
 
-  constructor(initialState: S, options: TravelsOptions<F, A> = {}) {
+  constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
       maxHistory = 10,
+      history,
       initialPatches: inputInitialPatches,
       initialPosition: inputInitialPosition = 0,
       strictInitialPatches = false,
@@ -270,8 +287,18 @@ export class Travels<
       patchesOptions,
       ...mutativeOptions
     } = options;
-    let initialPatches = inputInitialPatches;
-    let initialPosition = inputInitialPosition;
+    let initialPatches = history?.patches ?? inputInitialPatches;
+    let initialPosition = history?.position ?? inputInitialPosition;
+
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      history &&
+      (inputInitialPatches || inputInitialPosition !== 0)
+    ) {
+      console.warn(
+        'Travels: history overrides initialPatches and initialPosition.'
+      );
+    }
 
     // Validate and enforce maxHistory constraints
     if (
@@ -971,6 +998,18 @@ export class Travels<
       !this.autoArchive && !!this.tempPatches.patches.length;
     const patchSource = shouldArchive ? this.getAllPatches() : this.allPatches;
     return cloneTravelPatches(patchSource);
+  }
+
+  /**
+   * Serialize the current state, patch history, and position for persistence.
+   */
+  public serialize(): TravelsSerializedHistory<S, P> {
+    return {
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: cloneInitialSnapshot(this.state),
+      patches: this.getPatches(),
+      position: this.getPosition(),
+    };
   }
 
   /**

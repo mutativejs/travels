@@ -1,5 +1,12 @@
 import { expect, describe, test, beforeEach, afterEach } from 'vitest';
-import { createTravels, type TravelPatches } from '../src/index';
+import {
+  createTravels,
+  Travels,
+  TravelsPersistenceError,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
+  type TravelPatches,
+  type TravelsSerializedHistory,
+} from '../src/index';
 
 /**
  * Test suite for persistence.ts example
@@ -330,5 +337,153 @@ describe('Persistence Example - State Persistence', () => {
     localStorage.removeItem(STORAGE_KEY);
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
-});
 
+  test('serialize() should export a versioned snapshot with cloned state and patches', () => {
+    const travels = createTravels<AppState>(
+      {
+        user: {
+          name: 'Guest',
+          preferences: { theme: 'light', notifications: true },
+        },
+        notes: [],
+      },
+      { maxHistory: 50 }
+    );
+
+    travels.setState((draft) => {
+      draft.user.name = 'Alice';
+    });
+
+    const snapshot = travels.serialize();
+    expect(snapshot.version).toBe(TRAVELS_HISTORY_SCHEMA_VERSION);
+    expect(snapshot.state.user.name).toBe('Alice');
+    expect(snapshot.position).toBe(1);
+    expect(snapshot.patches.patches).toHaveLength(1);
+
+    snapshot.state.user.name = 'Mutated outside';
+    snapshot.patches.patches.length = 0;
+
+    expect(travels.getState().user.name).toBe('Alice');
+    expect(travels.getPatches().patches).toHaveLength(1);
+  });
+
+  test('Travels.deserialize() should restore history through the history option', () => {
+    const initialTravels = createTravels<AppState>(
+      {
+        user: {
+          name: 'Guest',
+          preferences: { theme: 'light', notifications: true },
+        },
+        notes: [],
+      },
+      { maxHistory: 50 }
+    );
+
+    initialTravels.setState((draft) => {
+      draft.user.name = 'Alice';
+    });
+    initialTravels.setState((draft) => {
+      draft.notes.push({
+        id: 1,
+        title: 'Restored',
+        content: 'From serialized history',
+        createdAt: new Date().toISOString(),
+      });
+    });
+
+    const stored = JSON.stringify(initialTravels.serialize());
+    const history = Travels.deserialize<AppState>(stored);
+    const reloadedTravels = createTravels(history.state, {
+      history,
+      maxHistory: 50,
+      strictInitialPatches: true,
+    });
+
+    expect(reloadedTravels.getState().user.name).toBe('Alice');
+    expect(reloadedTravels.getState().notes).toHaveLength(1);
+    expect(reloadedTravels.getPosition()).toBe(2);
+
+    reloadedTravels.back();
+    expect(reloadedTravels.getState().notes).toHaveLength(0);
+
+    reloadedTravels.forward();
+    expect(reloadedTravels.getState().notes).toHaveLength(1);
+  });
+
+  test('Travels.deserialize() should throw typed errors for corrupted storage', () => {
+    expect(() => Travels.deserialize<AppState>('{broken json')).toThrow(
+      TravelsPersistenceError
+    );
+
+    try {
+      Travels.deserialize<AppState>({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: {},
+        position: 0,
+        patches: {
+          patches: [[{ op: 'invalid', path: '/x' }]],
+          inversePatches: [[]],
+        },
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(TravelsPersistenceError);
+      expect((error as TravelsPersistenceError).code).toBe('INVALID_PATCHES');
+    }
+  });
+
+  test('Travels.deserialize() should support corrupted storage fallback', () => {
+    const errors: string[] = [];
+    const fallback: TravelsSerializedHistory<AppState> = {
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: {
+        user: {
+          name: 'Fallback',
+          preferences: { theme: 'light', notifications: true },
+        },
+        notes: [],
+      },
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+    };
+
+    const history = Travels.deserialize<AppState>('not-json', {
+      fallback,
+      onError(error) {
+        errors.push((error as TravelsPersistenceError).code);
+      },
+    });
+
+    expect(errors).toEqual(['PARSE_ERROR']);
+    expect(history.state.user.name).toBe('Fallback');
+  });
+
+  test('Travels.deserialize() should run migration before validation', () => {
+    const oldSnapshot = {
+      version: 0,
+      state: {
+        user: {
+          name: 'Migrated',
+          preferences: { theme: 'dark', notifications: true },
+        },
+        notes: [],
+      },
+      history: { patches: [], inversePatches: [] },
+      cursor: 0,
+    };
+
+    const history = Travels.deserialize<AppState>(oldSnapshot, {
+      migrate(snapshot) {
+        const legacy = snapshot as typeof oldSnapshot;
+        return {
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: legacy.state,
+          patches: legacy.history,
+          position: legacy.cursor,
+        };
+      },
+    });
+
+    expect(history.state.user.name).toBe('Migrated');
+    expect(history.position).toBe(0);
+  });
+});

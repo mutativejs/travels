@@ -5,7 +5,13 @@
  * and restore it on application restart.
  */
 
-import { createTravels, type TravelPatches } from '../src/index';
+import {
+  createTravels,
+  Travels,
+  TravelsPersistenceError,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
+  type TravelsSerializedHistory,
+} from '../src/index';
 
 interface AppState {
   user: {
@@ -30,15 +36,8 @@ const STORAGE_KEY = 'travels-app-state';
  * Save travels state to localStorage
  */
 function saveToStorage(travels: any) {
-  const data = {
-    state: travels.getState(),
-    patches: travels.getPatches(),
-    position: travels.getPosition(),
-    timestamp: new Date().toISOString(),
-  };
-
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(travels.serialize()));
     console.log('✓ State saved to localStorage');
   } catch (error) {
     console.error('Failed to save state:', error);
@@ -48,24 +47,55 @@ function saveToStorage(travels: any) {
 /**
  * Load travels state from localStorage
  */
-function loadFromStorage(): {
-  initialState: AppState;
-  initialPatches?: TravelPatches;
-  initialPosition?: number;
-} | null {
+function createEmptySnapshot(): TravelsSerializedHistory<AppState> {
+  return {
+    version: TRAVELS_HISTORY_SCHEMA_VERSION,
+    state: defaultState,
+    patches: { patches: [], inversePatches: [] },
+    position: 0,
+  };
+}
+
+function loadFromStorage(): TravelsSerializedHistory<AppState> | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return null;
 
-    const data = JSON.parse(stored);
-    console.log('✓ State loaded from localStorage');
-    console.log('  Timestamp:', data.timestamp);
+    const data = Travels.deserialize<AppState>(stored, {
+      fallback: createEmptySnapshot,
+      migrate(snapshot) {
+        if (
+          snapshot &&
+          typeof snapshot === 'object' &&
+          'version' in snapshot &&
+          (snapshot as { version: unknown }).version === '1.0.0'
+        ) {
+          const legacy = snapshot as {
+            state: AppState;
+            patches: TravelsSerializedHistory<AppState>['patches'];
+            position: number;
+          };
 
-    return {
-      initialState: data.state,
-      initialPatches: data.patches,
-      initialPosition: data.position,
-    };
+          return {
+            version: TRAVELS_HISTORY_SCHEMA_VERSION,
+            state: legacy.state,
+            patches: legacy.patches,
+            position: legacy.position,
+          };
+        }
+
+        return snapshot;
+      },
+      onError(error) {
+        if (error instanceof TravelsPersistenceError) {
+          console.warn('Invalid persisted history:', error.code);
+        }
+      },
+    });
+
+    console.log('✓ State loaded from localStorage');
+
+    return data;
   } catch (error) {
     console.error('Failed to load state:', error);
     return null;
@@ -96,10 +126,10 @@ console.log('=== Initializing Travels ===');
 const persisted = loadFromStorage();
 
 const travels = persisted
-  ? createTravels(persisted.initialState, {
-      initialPatches: persisted.initialPatches,
-      initialPosition: persisted.initialPosition,
+  ? createTravels(persisted.state, {
+      history: persisted,
       maxHistory: 50,
+      strictInitialPatches: true,
     })
   : createTravels(defaultState, { maxHistory: 50 });
 
@@ -157,10 +187,10 @@ console.log('Reloading state from localStorage...\n');
 
 const reloadedData = loadFromStorage();
 if (reloadedData) {
-  const reloadedTravels = createTravels(reloadedData.initialState, {
-    initialPatches: reloadedData.initialPatches,
-    initialPosition: reloadedData.initialPosition,
+  const reloadedTravels = createTravels(reloadedData.state, {
+    history: reloadedData,
     maxHistory: 50,
+    strictInitialPatches: true,
   });
 
   console.log('✓ State restored successfully');
@@ -192,11 +222,8 @@ if (reloadedData) {
 // Example: Exporting history for backup
 console.log('\n=== Exporting for backup ===');
 const exportData = {
-  state: travels.getState(),
-  patches: travels.getPatches(),
-  position: travels.getPosition(),
+  ...travels.serialize(),
   exportedAt: new Date().toISOString(),
-  version: '1.0.0',
 };
 
 console.log('Export data size:', JSON.stringify(exportData).length, 'bytes');
@@ -206,7 +233,7 @@ console.log('Patches count:', exportData.patches.patches.length);
 // 1. Compress the data before storing
 // 2. Store in IndexedDB for larger datasets
 // 3. Implement data migration strategies
-// 4. Add versioning to handle schema changes
+// 4. Use the schema version to handle format changes
 // 5. Debounce the auto-save to reduce storage operations
 
 // Cleanup (optional)

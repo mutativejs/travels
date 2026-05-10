@@ -154,6 +154,7 @@ Creates a new Travels instance.
 | `initialPatches`   | TravelPatches             | Restore saved patches when loading from storage                                                                                                                                 | {patches: [],inversePatches: []} |
 | `strictInitialPatches` | boolean               | Whether invalid `initialPatches` should throw. When `false`, invalid patches are discarded and history starts empty                                                            | false                            |
 | `initialPosition`  | number                    | Restore position when loading from storage                                                                                                                                      | 0                                |
+| `history`          | TravelsHistory            | Restore validated history returned by `Travels.deserialize(...)`; overrides `initialPatches` and `initialPosition`                                                             | undefined                        |
 | `autoArchive`      | boolean                   | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                    | true                             |
 | `mutable`          | boolean                   | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                               | false                            |
 | `patchesOptions`   | boolean ｜ PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `true` (enable patches)          |
@@ -228,6 +229,14 @@ Returns the current position in the history timeline.
 #### `getPatches(): TravelPatches`
 
 Returns the stored patches (the differences between states).
+
+#### `serialize(): TravelsSerializedHistory`
+
+Returns a versioned persistence snapshot containing the current state, patch history, and position. The returned state and patches are cloned so callers can safely pass the value to `JSON.stringify`, storage adapters, or compression.
+
+#### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
+
+Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied.
 
 #### `canBack(): boolean`
 
@@ -692,52 +701,75 @@ export function useTravel(initialState, options) {
 
 ## Persistence: Saving History to Storage
 
-To persist state across browser sessions or page reloads, save the current state, patches, and position. When reloading, pass these values as `initialState`, `initialPatches`, and `initialPosition`:
+To persist state across browser sessions or page reloads, use the versioned snapshot API. A snapshot contains the current state, patch history, position, and schema version.
 
 ```typescript
-// Save to localStorage
+import {
+  createTravels,
+  Travels,
+  TravelsPersistenceError,
+} from 'travels';
+
 function saveToStorage(travels) {
-  localStorage.setItem('state', JSON.stringify(travels.getState()));
-  localStorage.setItem('patches', JSON.stringify(travels.getPatches()));
-  localStorage.setItem('position', JSON.stringify(travels.getPosition()));
+  localStorage.setItem('travels:document', JSON.stringify(travels.serialize()));
 }
 
-// Load from localStorage
 function loadFromStorage() {
-  const initialState = JSON.parse(localStorage.getItem('state') || '{}');
-  const initialPatches = JSON.parse(
-    localStorage.getItem('patches') || '{"patches":[],"inversePatches":[]}'
-  );
-  const initialPosition = JSON.parse(localStorage.getItem('position') || '0');
+  const stored = localStorage.getItem('travels:document');
+  if (!stored) return createTravels(defaultState);
 
-  return createTravels(initialState, {
-    initialPatches,
-    initialPosition,
+  const history = Travels.deserialize(stored, {
+    fallback: {
+      version: 1,
+      state: defaultState,
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+    },
+    onError(error) {
+      if (error instanceof TravelsPersistenceError) {
+        console.warn('Ignoring invalid persisted history:', error.code);
+      }
+    },
+  });
+
+  return createTravels(history.state, {
+    history,
+    maxHistory: 50,
+    strictInitialPatches: true,
   });
 }
 ```
 
-By default, invalid persisted `initialPatches` are ignored and Travels falls back to empty history. If you prefer fail-fast behavior, enable `strictInitialPatches` and handle errors explicitly:
+`Travels.deserialize(...)` validates:
+
+- schema version
+- snapshot shape
+- patch array shape
+- JSON Patch operation names and paths
+- position bounds
+
+It throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, or `MIGRATION_FAILED`. Provide `fallback` when corrupted storage should recover to a known-safe snapshot instead of failing startup.
+
+Use `migrate` to upgrade older snapshots before validation:
 
 ```typescript
-function loadFromStorageStrict() {
-  const initialState = JSON.parse(localStorage.getItem('state') || '{}');
-  const initialPatches = JSON.parse(
-    localStorage.getItem('patches') || '{"patches":[],"inversePatches":[]}'
-  );
-  const initialPosition = JSON.parse(localStorage.getItem('position') || '0');
+const history = Travels.deserialize(stored, {
+  migrate(snapshot) {
+    if (snapshot && typeof snapshot === 'object' && snapshot.version === 0) {
+      return {
+        version: 1,
+        state: snapshot.state,
+        patches: snapshot.history,
+        position: snapshot.cursor,
+      };
+    }
 
-  try {
-    return createTravels(initialState, {
-      initialPatches,
-      initialPosition,
-      strictInitialPatches: true,
-    });
-  } catch {
-    return createTravels(initialState);
-  }
-}
+    return snapshot;
+  },
+});
 ```
+
+For larger histories, store `JSON.stringify(travels.serialize())` in IndexedDB instead of localStorage. If storage size matters, compress the serialized string with a library such as `lz-string` before writing it, then decompress before calling `Travels.deserialize(...)`.
 
 ## TypeScript Support
 

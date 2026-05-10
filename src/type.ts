@@ -13,6 +13,51 @@ export type TravelPatches<P extends PatchesOption = {}> = {
 
 export type PatchesOption = Exclude<PatchesOptions, boolean>;
 
+export type TravelsHistory<P extends PatchesOption = {}> = {
+  patches: TravelPatches<P>;
+  position: number;
+};
+
+export type TravelsSerializedHistory<
+  S,
+  P extends PatchesOption = {},
+> = TravelsHistory<P> & {
+  version: 1;
+  state: S;
+};
+
+export type TravelsPersistenceErrorCode =
+  | 'PARSE_ERROR'
+  | 'INVALID_SCHEMA'
+  | 'UNSUPPORTED_VERSION'
+  | 'INVALID_PATCHES'
+  | 'MIGRATION_FAILED';
+
+export type TravelsMigration<
+  S,
+  P extends PatchesOption = {},
+> = (snapshot: unknown) => TravelsSerializedHistory<S, P> | unknown;
+
+export type TravelsDeserializeOptions<
+  S,
+  P extends PatchesOption = {},
+> = {
+  /**
+   * Migrate old persisted snapshots into the current schema before validation.
+   */
+  migrate?: TravelsMigration<S, P>;
+  /**
+   * Fallback snapshot used when parsing, migration, or validation fails.
+   */
+  fallback?:
+    | TravelsSerializedHistory<S, P>
+    | (() => TravelsSerializedHistory<S, P>);
+  /**
+   * Receive typed persistence errors before a fallback is returned or the error is thrown.
+   */
+  onError?: (error: Error) => void;
+};
+
 export type TravelsOptions<
   F extends boolean,
   A extends boolean,
@@ -30,6 +75,12 @@ export type TravelsOptions<
    * The initial patches of the history
    */
   initialPatches?: TravelPatches<P>;
+  /**
+   * Restore validated serialized history. This is equivalent to passing
+   * initialPatches and initialPosition directly, but preserves the first-class
+   * persistence API shape returned by `Travels.deserialize(...)`.
+   */
+  history?: TravelsHistory<P>;
   /**
    * Whether to throw when `initialPatches` is invalid.
    * When false (default), invalid patches are discarded and history starts empty.
