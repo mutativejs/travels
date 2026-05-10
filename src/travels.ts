@@ -21,6 +21,7 @@ import {
   deserializeTravelsHistory,
   TRAVELS_HISTORY_SCHEMA_VERSION,
 } from './persistence';
+import { findStateCompatibilityIssues } from './compatibility';
 import { isObjectLike, isPlainObject } from './utils';
 
 /**
@@ -274,6 +275,8 @@ export class Travels<
   private historyVersion = 0;
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
+  private warnOnUnsupportedState: boolean;
+  private stateCompatibilityWarningKeys = new Set<string>();
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
@@ -284,6 +287,7 @@ export class Travels<
       strictInitialPatches = false,
       autoArchive = true as A,
       mutable = false,
+      warnOnUnsupportedState = process.env.NODE_ENV !== 'production',
       patchesOptions,
       ...mutativeOptions
     } = options;
@@ -348,10 +352,13 @@ export class Travels<
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
     this.mutable = mutable;
+    this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.options = {
       ...mutativeOptions,
       enablePatches: patchesOptions ?? true,
     };
+
+    this.warnAboutStateCompatibility(initialState);
 
     const { patches: normalizedPatches, position: normalizedPosition } =
       this.normalizeInitialHistory(initialPatches, initialPosition);
@@ -364,6 +371,31 @@ export class Travels<
     this.initialPosition = normalizedPosition;
 
     this.tempPatches = cloneTravelPatches();
+  }
+
+  private warnAboutStateCompatibility(state: unknown): void {
+    if (
+      !this.warnOnUnsupportedState ||
+      process.env.NODE_ENV === 'production'
+    ) {
+      return;
+    }
+
+    const issues = findStateCompatibilityIssues(state, {
+      mutable: this.mutable,
+    });
+
+    for (const issue of issues) {
+      const key = `${issue.code}:${issue.path}`;
+      if (this.stateCompatibilityWarningKeys.has(key)) {
+        continue;
+      }
+
+      this.stateCompatibilityWarningKeys.add(key);
+      console.warn(
+        `Travels state compatibility warning at ${issue.path}: ${issue.message}`
+      );
+    }
   }
 
   private normalizeInitialHistory(
@@ -591,6 +623,8 @@ export class Travels<
     if (hasNoChanges) {
       return;
     }
+
+    this.warnAboutStateCompatibility(this.state);
 
     if (this.autoArchive) {
       const notLast = this.position < this.allPatches.patches.length;

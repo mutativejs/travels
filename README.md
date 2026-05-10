@@ -23,7 +23,7 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
   - [maxHistory option](#maxhistory-option)
 - [Mutable Mode: Keep Reactive State In Place](#mutable-mode-keep-reactive-state-in-place)
 - [Archive Mode: Control When Changes Are Saved](#archive-mode-control-when-changes-are-saved)
-- [State Requirements: JSON-Serializable Only](#state-requirements-json-serializable-only)
+- [State Requirements and Compatibility](#state-requirements-and-compatibility)
 - [Framework Integration](#framework-integration)
 - [Persistence: Saving History to Storage](#persistence-saving-history-to-storage)
 - [TypeScript Support](#typescript-support)
@@ -121,7 +121,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-Your state must be **JSON-serializable** (plain objects, arrays, strings, numbers, booleans, null) or Map/Set(Supported only in immutable mode; not supported in mutable mode.). Complex types like Date, class instances, and functions are not supported and may cause unexpected behavior. See [State Requirements](#state-requirements-json-serializable-only) for details.
+For persistence-safe history, keep state **JSON-compatible**: plain objects, arrays, strings, numbers, booleans, and `null`. Map/Set have limited runtime support in immutable mode, but need a custom codec for JSON persistence. Complex types like Date, class instances, DOM nodes, refs, and functions are not supported as durable state. See [State Requirements](#state-requirements-and-compatibility) for details.
 
 ---
 
@@ -149,7 +149,7 @@ Creates a new Travels instance.
 
 | Parameter          | Type                      | Description                                                                                                                                                                     | Default                          |
 | ------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `initialState`     | S                         | Your application's starting state (must be [JSON-serializable](#state-requirements-json-serializable-only))                                                                     | (required)                       |
+| `initialState`     | S                         | Your application's starting state (see [state compatibility](#state-requirements-and-compatibility))                                                                            | (required)                       |
 | `maxHistory`       | number                    | Maximum number of history entries to keep. Older entries are dropped. Must be a non-negative integer (`NaN`, `Infinity`, decimals are rejected).                               | 10                               |
 | `initialPatches`   | TravelPatches             | Restore saved patches when loading from storage                                                                                                                                 | {patches: [],inversePatches: []} |
 | `strictInitialPatches` | boolean               | Whether invalid `initialPatches` should throw. When `false`, invalid patches are discarded and history starts empty                                                            | false                            |
@@ -387,70 +387,9 @@ Vue components keep using the original `state` reference while Travels tracks hi
 
 ### Limitations & Tips
 
-**JSON Serialization Requirements:**
+**Compatibility Requirements:**
 
-The state must stay JSON-serializable because `reset()` relies on `deepClone(initialState)` for mutable mode. This has important implications:
-
-- ❌ **Date objects** → Converted to ISO strings (not restored as Date)
-
-  ```ts
-  {
-    createdAt: new Date();
-  } // Becomes: { createdAt: "2025-01-15T..." }
-  ```
-
-- ❌ **Map and Set** → Lost entirely (empty objects)
-
-  ```ts
-  {
-    tags: new Set(['a', 'b']);
-  } // Becomes: { tags: {} }
-  ```
-
-- ❌ **undefined values** → Removed from objects
-
-  ```ts
-  { name: 'Alice', age: undefined }  // Becomes: { name: 'Alice' }
-  ```
-
-- ⚠️ **Sparse arrays** → Mutable value updates fall back to immutable to preserve holes
-
-  ```ts
-  [1, , 3]; // Holes are preserved by falling back to immutable updates
-  ```
-
-- ❌ **Functions** → Lost entirely
-
-  ```ts
-  {
-    handler: () => {};
-  } // Becomes: { handler: undefined } → removed
-  ```
-
-- ❌ **Circular references** → Causes JSON.stringify error
-
-  ```ts
-  const obj = { self: null };
-  obj.self = obj; // ❌ TypeError: Converting circular structure to JSON
-  ```
-
-- ❌ **Class instances** → Converted to plain objects (lose methods/prototype)
-  ```ts
-  class User {
-    getName() {}
-  }
-  {
-    user: new User();
-  } // Becomes plain object without methods
-  ```
-
-**Workarounds:**
-
-- Store timestamps as numbers: `{ createdAt: Date.now() }`
-- Store Set/Map as arrays: `{ tags: ['a', 'b'] }`
-- Avoid undefined—use `null` instead
-- Serialize class instances before storing
-- Break circular references or use a custom serialization strategy
+Mutable mode has the same durable-state requirements as immutable mode, plus a stricter rule for Map/Set: Map and Set are not supported in mutable mode because in-place patch application cannot reliably preserve their reactive semantics. See [State Requirements and Compatibility](#state-requirements-and-compatibility) for the full matrix.
 
 **Other Tips:**
 
@@ -525,17 +464,42 @@ function handleSave() {
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
 
-## State Requirements: JSON-Serializable Only
+## State Requirements and Compatibility
 
-Travels stores and persists state using `deepClone(...)` internally. This makes reset and persistence fast and reliable, but **only JSON-serializable values are preserved**.
+Travels works best when state is durable data: plain objects, arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data.
 
-**What works:** Objects, arrays, numbers, strings, booleans,`null`, and `Map`/`Set`(Supported only in immutable mode; not supported in mutable mode.).
+| Value | Immutable runtime | Mutable runtime | JSON persistence | Recommendation |
+| --- | --- | --- | --- | --- |
+| Plain object | Supported | Supported | Supported | Preferred |
+| Array | Supported | Supported, except sparse root array edge cases | Supported | Preferred |
+| string, number, boolean, `null` | Supported | Falls back to immutable for primitive roots | Supported | Preferred |
+| `undefined` | Patchable in memory | Patchable in memory | Removed from JSON objects | Use `null` |
+| `Date` | Cloneable, but not durable | Cloneable, but not durable | Restored as a string through JSON | Store timestamp or ISO string |
+| `Map` / `Set` | Runtime support in immutable mode | Not supported | Requires custom codec | Store arrays, or provide a codec |
+| Class instance / custom prototype | Not durable | Not durable | Loses prototype/methods | Store plain data or IDs |
+| Function | Not supported | Not supported | Dropped by JSON | Keep behavior outside state |
+| Circular reference | Not supported for JSON persistence | Not supported for JSON persistence | `JSON.stringify` fails | Normalize graph to IDs |
+| DOM node, ref, observable instance body | Not supported as durable state | Not supported as durable state | Not serializable | Store outside Travels state |
+| WeakMap / WeakSet | Not supported | Not supported | Not serializable | Store outside Travels state |
 
-**What doesn't work:** `Date`, class instances, functions, or custom prototypes. These will either be converted (Date becomes an ISO string) or dropped entirely when history is reset or persisted.
+TypeScript helpers are exported for users who want to enforce the durable subset in their own app code:
 
-**Solution:** Convert complex types to simple representations before storing. For example, store timestamps as numbers instead of Date objects, or store IDs that reference external data instead of storing class instances directly.
+```ts
+import { createTravels, type JsonValue, type PatchableState } from 'travels';
 
-This limitation applies even with the `mutable: true` option.
+const initialDocumentState = {
+  title: 'Draft',
+  blocks: [] as Array<{ id: string; text: string }>,
+} satisfies JsonValue;
+
+const travels = createTravels(initialDocumentState);
+
+function createHistoryFor<S extends PatchableState>(state: S) {
+  return createTravels(state);
+}
+```
+
+In development, Travels scans initial state and changed state for known compatibility hazards and logs warnings once per path. Disable those warnings with `warnOnUnsupportedState: false` when you intentionally provide custom codecs or non-persistent runtime-only values.
 
 ## Framework Integration
 

@@ -13,6 +13,16 @@ export type TravelPatches<P extends PatchesOption = {}> = {
 
 export type PatchesOption = Exclude<PatchesOptions, boolean>;
 
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonObject = { [key: string]: JsonValue };
+export type JsonArray = JsonValue[];
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+
+export type PatchableState =
+  | JsonValue
+  | Map<unknown, unknown>
+  | Set<unknown>;
+
 export type TravelsHistory<P extends PatchesOption = {}> = {
   patches: TravelPatches<P>;
   position: number;
@@ -97,6 +107,11 @@ export type TravelsOptions<
    * @default false
    */
   mutable?: boolean;
+  /**
+   * Whether to warn in development when state contains values with weak patch or
+   * JSON persistence semantics, by default `true` in development.
+   */
+  warnOnUnsupportedState?: boolean;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
     patchesOptions?: P;
   };
