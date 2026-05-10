@@ -988,23 +988,24 @@ export class Travels<
 
     const previousAutoArchive = this.autoArchive;
     const previousMetadata = this.transactionMetadata;
-    const transactionSnapshot =
-      this.transactionDepth === 0
-        ? this.captureTransactionSnapshot()
-        : undefined;
+    const isRootTransaction = this.transactionDepth === 0;
+    const transactionSnapshot = this.captureTransactionSnapshot();
     let failed = false;
 
     this.transactionDepth += 1;
-    this.transactionMetadata = metadata ?? previousMetadata;
+    if (isRootTransaction) {
+      this.transactionMetadata = metadata;
+    } else if (!this.transactionMetadata && metadata) {
+      this.transactionMetadata = metadata;
+    }
     this.autoArchive = false as A;
 
     try {
       fn();
     } catch (error) {
       failed = true;
-      if (transactionSnapshot) {
-        this.restoreTransactionSnapshot(transactionSnapshot);
-      }
+      this.restoreTransactionSnapshot(transactionSnapshot);
+      this.transactionMetadata = previousMetadata;
       throw this.reportError('TRANSACTION_FAILED', error);
     } finally {
       this.transactionDepth -= 1;

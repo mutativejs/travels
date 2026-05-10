@@ -102,6 +102,57 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ title: 'Draft', blocks: [] });
   });
 
+  test('nested transactions keep outer metadata', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.transaction({ label: 'Outer action' }, () => {
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+      travels.transaction({ label: 'Inner action' }, () => {
+        travels.setState((draft) => {
+          draft.count = 2;
+        });
+      });
+    });
+
+    expect(travels.getState()).toEqual({ count: 2 });
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(travels.getMetadata()[0]?.label).toBe('Outer action');
+  });
+
+  test('caught nested transaction failures roll back only nested changes', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.transaction({ label: 'Outer action' }, () => {
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+
+      try {
+        travels.transaction({ label: 'Inner action' }, () => {
+          travels.setState((draft) => {
+            draft.count = 2;
+          });
+          throw new Error('boom');
+        });
+      } catch {
+        // Keep the outer transaction alive.
+      }
+
+      travels.setState((draft) => {
+        draft.count = 3;
+      });
+    });
+
+    expect(travels.getState()).toEqual({ count: 3 });
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(travels.getMetadata()[0]?.label).toBe('Outer action');
+
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
   test('pauseTracking and replaceStateWithoutHistory update state without entries', () => {
     const travels = createTravels({ count: 0 });
 
