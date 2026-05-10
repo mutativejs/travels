@@ -157,6 +157,10 @@ Creates a new Travels instance.
 | `history`          | TravelsHistory            | Restore validated history returned by `Travels.deserialize(...)`; overrides `initialPatches` and `initialPosition`                                                             | undefined                        |
 | `autoArchive`      | boolean                   | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                    | true                             |
 | `mutable`          | boolean                   | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                               | false                            |
+| `warnOnUnsupportedState` | boolean             | Development warning for state values with weak patch/persistence semantics                                                                                                      | true in development              |
+| `onError`          | function                  | Receives typed `TravelsError` failures from core helper APIs                                                                                                                    | undefined                        |
+| `onBranchDiscard`  | function                  | Called when a new edit after undo discards redo entries                                                                                                                         | undefined                        |
+| `devtools`         | function                  | Receives timeline events for external devtools integrations                                                                                                                     | undefined                        |
 | `patchesOptions`   | boolean ｜ PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `true` (enable patches)          |
 | `enableAutoFreeze` | boolean                   | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                               | false                            |
 | `strict`           | boolean                   | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                               | false                            |
@@ -170,7 +174,7 @@ Creates a new Travels instance.
 
 Get the current state.
 
-#### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void)): void`
+#### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void), metadata?): void`
 
 Update the state. Supports three styles:
 
@@ -179,6 +183,17 @@ Update the state. Supports three styles:
 - **Draft mutation (recommended):** `setState((draft) => { draft.count = 1 })` - Mutate a draft copy
 
 > **Performance Optimization:** Updates that produce no actual changes (empty patches) won't create history entries or trigger subscribers. For example, `setState(state => state)` or conditional updates that don't modify any fields. This prevents memory bloat from no-op operations.
+
+Pass optional metadata to label history entries for product UI:
+
+```ts
+travels.setState(
+  (draft) => {
+    draft.layer.name = 'Header';
+  },
+  { label: 'Rename Layer', source: 'layers-panel', timestamp: Date.now() }
+);
+```
 
 #### `subscribe(listener: (state, patches, position) => void): () => void`
 
@@ -230,6 +245,14 @@ Returns the current position in the history timeline.
 
 Returns the stored patches (the differences between states).
 
+#### `getMetadata(): Array<TravelMetadata | undefined>`
+
+Returns metadata aligned with the stored patch entries.
+
+#### `getHistoryEntries(): TravelHistoryEntry[]`
+
+Returns patch entries with inverse patches and optional metadata. Use this for undo menus, devtools timelines, and audit views.
+
 #### `serialize(): TravelsSerializedHistory`
 
 Returns a versioned persistence snapshot containing the current state, patch history, and position. The returned state and patches are cloned so callers can safely pass the value to `JSON.stringify`, storage adapters, or compression.
@@ -248,7 +271,7 @@ Returns `true` if redo is possible (not at the end of history).
 
 #### `archive(): void` (Manual archive mode only)
 
-Saves the current state to history. Only available when `autoArchive: false`.
+Saves the current state to history. Only available when `autoArchive: false`. Accepts optional metadata.
 
 #### `canArchive(): boolean` (Manual archive mode only)
 
@@ -257,6 +280,31 @@ Returns `true` if there are unsaved changes that can be archived.
 #### `mutable: boolean`
 
 Returns whether mutable mode is enabled.
+
+#### `transaction(metadata?, fn): void`
+
+Runs multiple `setState` calls and archives them as one undo step.
+
+```ts
+travels.transaction({ label: 'Move Selection' }, () => {
+  travels.setState((draft) => {
+    draft.selection.x += 10;
+  });
+  travels.setState((draft) => {
+    draft.selection.y += 20;
+  });
+});
+```
+
+`batch(...)` is an alias for `transaction(...)`.
+
+#### `pauseTracking(): void` / `resumeTracking(): void`
+
+Temporarily apply state updates without creating history entries. Paused updates become the new baseline so later undo/redo cannot replay patches against mismatched state.
+
+#### `replaceStateWithoutHistory(updater): void`
+
+Replace or mutate state without creating a history entry, then clear history and use the result as the new baseline. This is useful for loading server state, applying remote snapshots, or resetting external store data.
 
 #### `getControls(): RebasableTravelsControls | RebasableManualTravelsControls`
 

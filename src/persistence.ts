@@ -173,11 +173,29 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     );
   }
 
+  const metadata = snapshot.metadata as
+    | TravelsSerializedHistory<S, P>['metadata']
+    | undefined;
+  if (metadata && !Array.isArray(metadata)) {
+    throw new TravelsPersistenceError(
+      'INVALID_SCHEMA',
+      "Travels: persisted history 'metadata' must be an array when provided."
+    );
+  }
+
+  if (metadata && metadata.length !== patches!.patches.length) {
+    throw new TravelsPersistenceError(
+      'INVALID_SCHEMA',
+      "Travels: persisted history 'metadata' length must match patches length."
+    );
+  }
+
   return {
     version: TRAVELS_HISTORY_SCHEMA_VERSION,
     state: snapshot.state as S,
     patches: patches as TravelPatches<P>,
     position,
+    metadata,
   };
 };
 

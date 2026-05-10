@@ -1,0 +1,142 @@
+import { describe, expect, test, vi } from 'vitest';
+import { createTravels, TravelsError } from '../src/index';
+
+describe('Productized history API', () => {
+  test('stores metadata for setState entries and serialized snapshots', () => {
+    const travels = createTravels({ title: 'Draft' });
+
+    travels.setState(
+      (draft) => {
+        draft.title = 'Published';
+      },
+      { label: 'Rename document', source: 'toolbar', timestamp: 1 }
+    );
+
+    expect(travels.getMetadata()).toEqual([
+      { label: 'Rename document', source: 'toolbar', timestamp: 1 },
+    ]);
+    expect(travels.getHistoryEntries()[0].metadata?.label).toBe(
+      'Rename document'
+    );
+    expect(travels.serialize().metadata?.[0]?.source).toBe('toolbar');
+  });
+
+  test('transaction batches multiple updates into one undo step', () => {
+    const travels = createTravels({
+      title: 'Draft',
+      blocks: [] as string[],
+    });
+
+    travels.transaction({ label: 'Build intro' }, () => {
+      travels.setState((draft) => {
+        draft.title = 'Intro';
+      });
+      travels.setState((draft) => {
+        draft.blocks.push('A');
+      });
+      travels.setState((draft) => {
+        draft.blocks.push('B');
+      });
+    });
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getMetadata()[0]?.label).toBe('Build intro');
+    expect(travels.getState()).toEqual({
+      title: 'Intro',
+      blocks: ['A', 'B'],
+    });
+
+    travels.back();
+    expect(travels.getState()).toEqual({ title: 'Draft', blocks: [] });
+  });
+
+  test('pauseTracking and replaceStateWithoutHistory update state without entries', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    travels.replaceStateWithoutHistory({ count: 10 });
+
+    expect(travels.getState()).toEqual({ count: 10 });
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+
+    travels.pauseTracking();
+    travels.setState((draft) => {
+      draft.count = 11;
+    });
+    travels.resumeTracking();
+
+    expect(travels.getState()).toEqual({ count: 11 });
+    expect(travels.getPatches().patches).toHaveLength(0);
+  });
+
+  test('onBranchDiscard exposes discarded redo entries', () => {
+    const discardedLabels: string[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            ...event.discarded.map((entry) => entry.metadata?.label ?? '')
+          );
+        },
+      }
+    );
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    }, { label: 'one' });
+    travels.setState((draft) => {
+      draft.count = 2;
+    }, { label: 'two' });
+
+    travels.back();
+    travels.setState((draft) => {
+      draft.count = 3;
+    }, { label: 'three' });
+
+    expect(discardedLabels).toEqual(['two']);
+    expect(travels.canForward()).toBe(false);
+  });
+
+  test('devtools receives timeline events', () => {
+    const events: string[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          events.push(event.type);
+        },
+      }
+    );
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    travels.back();
+    travels.reset();
+
+    expect(events).toEqual(['setState', 'go', 'reset']);
+  });
+
+  test('onError receives typed transaction errors', () => {
+    const onError = vi.fn();
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onError,
+      }
+    );
+
+    expect(() =>
+      travels.transaction({ label: 'Failing action' }, () => {
+        throw new Error('boom');
+      })
+    ).toThrow(TravelsError);
+
+    expect(onError).toHaveBeenCalledWith(expect.any(TravelsError));
+    expect(onError.mock.calls[0][0].code).toBe('TRANSACTION_FAILED');
+  });
+});

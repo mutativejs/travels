@@ -3,3 +3,4 @@ export * from './travels';
 export * from './createTravels';
 export * from './persistence';
 export * from './compatibility';
+export * from './errors';

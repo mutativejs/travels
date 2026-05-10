@@ -10,8 +10,12 @@ import type {
   PatchesOption,
   RebasableManualTravelsControls,
   RebasableTravelsControls,
+  TravelHistoryEntry,
+  TravelMetadata,
   TravelPatches,
+  TravelsBranchDiscardEvent,
   TravelsDeserializeOptions,
+  TravelsDevtoolsEvent,
   TravelsOptions,
   TravelsSerializedHistory,
   Updater,
@@ -22,6 +26,7 @@ import {
   TRAVELS_HISTORY_SCHEMA_VERSION,
 } from './persistence';
 import { findStateCompatibilityIssues } from './compatibility';
+import { TravelsError } from './errors';
 import { isObjectLike, isPlainObject } from './utils';
 
 /**
@@ -257,13 +262,18 @@ export class Travels<
   private state: S;
   private position: number;
   private allPatches: TravelPatches<P>;
+  private allMetadata: Array<TravelMetadata | undefined>;
   private tempPatches: TravelPatches<P>;
   private maxHistory: number;
   private initialState: S;
   private initialPosition: number;
   private initialPatches?: TravelPatches<P>;
+  private initialMetadata?: Array<TravelMetadata | undefined>;
   private autoArchive: A;
   private options: MutativeOptions<PatchesOption | true, F>;
+  private onError?: (error: Error) => void;
+  private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
+  private devtools?: (event: TravelsDevtoolsEvent<S, P>) => void;
   private listeners: Set<Listener<S, P>> = new Set();
   private pendingState: S | null = null;
   private pendingStateVersion = 0;
@@ -277,6 +287,9 @@ export class Travels<
   private mutableRootReplaceWarned = false;
   private warnOnUnsupportedState: boolean;
   private stateCompatibilityWarningKeys = new Set<string>();
+  private trackingPauseDepth = 0;
+  private transactionDepth = 0;
+  private transactionMetadata?: TravelMetadata;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
@@ -288,6 +301,9 @@ export class Travels<
       autoArchive = true as A,
       mutable = false,
       warnOnUnsupportedState = process.env.NODE_ENV !== 'production',
+      onError,
+      onBranchDiscard,
+      devtools,
       patchesOptions,
       ...mutativeOptions
     } = options;
@@ -353,6 +369,10 @@ export class Travels<
     this.autoArchive = autoArchive;
     this.mutable = mutable;
     this.warnOnUnsupportedState = warnOnUnsupportedState;
+    this.onError = onError;
+    this.onBranchDiscard = onBranchDiscard;
+    this.devtools = devtools as ((event: TravelsDevtoolsEvent<S, P>) => void)
+      | undefined;
     this.options = {
       ...mutativeOptions,
       enablePatches: patchesOptions ?? true,
@@ -360,12 +380,23 @@ export class Travels<
 
     this.warnAboutStateCompatibility(initialState);
 
-    const { patches: normalizedPatches, position: normalizedPosition } =
-      this.normalizeInitialHistory(initialPatches, initialPosition);
+    const {
+      patches: normalizedPatches,
+      position: normalizedPosition,
+      metadata: normalizedMetadata,
+    } = this.normalizeInitialHistory(
+      initialPatches,
+      initialPosition,
+      history?.metadata
+    );
 
     this.allPatches = normalizedPatches;
+    this.allMetadata = normalizedMetadata;
     this.initialPatches = initialPatches
       ? cloneTravelPatches(normalizedPatches)
+      : undefined;
+    this.initialMetadata = history?.metadata
+      ? normalizedMetadata.slice()
       : undefined;
     this.position = normalizedPosition;
     this.initialPosition = normalizedPosition;
@@ -400,9 +431,15 @@ export class Travels<
 
   private normalizeInitialHistory(
     initialPatches: TravelPatches<P> | undefined,
-    initialPosition: number
-  ): { patches: TravelPatches<P>; position: number } {
+    initialPosition: number,
+    metadata?: Array<TravelMetadata | undefined>
+  ): {
+    patches: TravelPatches<P>;
+    position: number;
+    metadata: Array<TravelMetadata | undefined>;
+  } {
     const cloned = cloneTravelPatches(initialPatches);
+    const clonedMetadata = metadata ? metadata.slice() : [];
     const total = cloned.patches.length;
     const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
     const invalidInitialPosition =
@@ -425,7 +462,7 @@ export class Travels<
     position = clampedPosition;
 
     if (total === 0) {
-      return { patches: cloned, position: 0 };
+      return { patches: cloned, position: 0, metadata: [] };
     }
 
     if (historyLimit === 0) {
@@ -435,11 +472,15 @@ export class Travels<
         );
       }
 
-      return { patches: cloneTravelPatches(), position: 0 };
+      return { patches: cloneTravelPatches(), position: 0, metadata: [] };
     }
 
     if (historyLimit >= total) {
-      return { patches: cloned, position };
+      return {
+        patches: cloned,
+        position,
+        metadata: clonedMetadata.slice(0, total),
+      };
     }
 
     const trim = total - historyLimit;
@@ -464,6 +505,7 @@ export class Travels<
     return {
       patches: trimmed,
       position: adjustedPosition,
+      metadata: clonedMetadata.slice(-historyLimit),
     };
   }
 
@@ -492,6 +534,96 @@ export class Travels<
     );
   }
 
+  private emitDevtools(
+    type: TravelsDevtoolsEvent<S, P>['type'],
+    metadata?: TravelMetadata
+  ): void {
+    this.devtools?.({
+      type,
+      state: this.state,
+      position: this.position,
+      patches: this.getPatches(),
+      metadata,
+    });
+  }
+
+  private reportError(code: 'TRANSACTION_FAILED', error: unknown): TravelsError {
+    const travelsError =
+      error instanceof TravelsError
+        ? error
+        : new TravelsError(code, `Travels: ${code}`, { cause: error });
+    this.onError?.(travelsError);
+    return travelsError;
+  }
+
+  private toEntries(
+    patches: TravelPatches<P>,
+    metadata: Array<TravelMetadata | undefined> = []
+  ): TravelHistoryEntry<P>[] {
+    return patches.patches.map((patch, index) => ({
+      patches: patch,
+      inversePatches: patches.inversePatches[index],
+      metadata: metadata[index],
+    }));
+  }
+
+  private discardFutureFrom(position: number): void {
+    if (position >= this.allPatches.patches.length) {
+      return;
+    }
+
+    const discardedPatches = {
+      patches: this.allPatches.patches.slice(position),
+      inversePatches: this.allPatches.inversePatches.slice(position),
+    } as TravelPatches<P>;
+    const discardedMetadata = this.allMetadata.slice(position);
+
+    this.allPatches.patches.splice(
+      position,
+      this.allPatches.patches.length - position
+    );
+    this.allPatches.inversePatches.splice(
+      position,
+      this.allPatches.inversePatches.length - position
+    );
+    this.allMetadata.splice(position, this.allMetadata.length - position);
+
+    this.onBranchDiscard?.({
+      position,
+      discarded: this.toEntries(discardedPatches, discardedMetadata),
+    });
+  }
+
+  private trimHistoryToMax(): void {
+    if (this.maxHistory >= this.allPatches.patches.length) {
+      return;
+    }
+
+    if (this.maxHistory === 0) {
+      this.allPatches.patches = [];
+      this.allPatches.inversePatches = [];
+      this.allMetadata = [];
+      return;
+    }
+
+    this.allPatches.patches = this.allPatches.patches.slice(-this.maxHistory);
+    this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
+      -this.maxHistory
+    );
+    this.allMetadata = this.allMetadata.slice(-this.maxHistory);
+  }
+
+  private resetHistoryToCurrentState(): void {
+    this.initialState = cloneInitialSnapshot(this.state);
+    this.initialPosition = 0;
+    this.initialPatches = undefined;
+    this.initialMetadata = undefined;
+    this.position = 0;
+    this.allPatches = cloneTravelPatches();
+    this.allMetadata = [];
+    this.tempPatches = cloneTravelPatches();
+  }
+
   /**
    * Check if patches contain root-level replacement operations
    * Root replacement cannot be done mutably as it changes the type/value of the entire state
@@ -513,7 +645,7 @@ export class Travels<
   /**
    * Update the state
    */
-  public setState(updater: Updater<S>): void {
+  public setState(updater: Updater<S>, metadata?: TravelMetadata): void {
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
 
@@ -626,43 +758,32 @@ export class Travels<
 
     this.warnAboutStateCompatibility(this.state);
 
+    if (this.trackingPauseDepth > 0) {
+      this.resetHistoryToCurrentState();
+      this.invalidateHistoryCache();
+      this.notify();
+      this.emitDevtools('replaceStateWithoutHistory', metadata);
+      return;
+    }
+
     if (this.autoArchive) {
       const notLast = this.position < this.allPatches.patches.length;
 
       // Remove all patches after the current position
       if (notLast) {
-        this.allPatches.patches.splice(
-          this.position,
-          this.allPatches.patches.length - this.position
-        );
-        this.allPatches.inversePatches.splice(
-          this.position,
-          this.allPatches.inversePatches.length - this.position
-        );
+        this.discardFutureFrom(this.position);
       }
 
       this.allPatches.patches.push(patches);
       this.allPatches.inversePatches.push(inversePatches);
+      this.allMetadata.push(metadata);
 
       this.position =
         this.maxHistory < this.allPatches.patches.length
           ? this.maxHistory
           : this.position + 1;
 
-      if (this.maxHistory < this.allPatches.patches.length) {
-        // Handle maxHistory = 0 case: clear all patches
-        if (this.maxHistory === 0) {
-          this.allPatches.patches = [];
-          this.allPatches.inversePatches = [];
-        } else {
-          this.allPatches.patches = this.allPatches.patches.slice(
-            -this.maxHistory
-          );
-          this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
-            -this.maxHistory
-          );
-        }
-      }
+      this.trimHistoryToMax();
     } else {
       const notLast =
         this.position <
@@ -671,14 +792,7 @@ export class Travels<
 
       // Remove all patches after the current position
       if (notLast) {
-        this.allPatches.patches.splice(
-          this.position,
-          this.allPatches.patches.length - this.position
-        );
-        this.allPatches.inversePatches.splice(
-          this.position,
-          this.allPatches.inversePatches.length - this.position
-        );
+        this.discardFutureFrom(this.position);
       }
 
       if (!this.tempPatches.patches.length || notLast) {
@@ -699,18 +813,14 @@ export class Travels<
 
     this.invalidateHistoryCache();
     this.notify();
+    this.emitDevtools('setState', metadata);
   }
 
   /**
    * Archive the current state (only for manual archive mode)
    */
-  public archive(): void {
-    if (this.autoArchive) {
-      console.warn('Auto archive is enabled, no need to archive manually');
-      return;
-    }
-
-    if (!this.tempPatches.patches.length) return;
+  private archivePending(metadata?: TravelMetadata): boolean {
+    if (!this.tempPatches.patches.length) return false;
 
     // Use pendingState if available, otherwise use current state
     const stateToUse = (this.pendingState ?? this.state) as object;
@@ -724,22 +834,10 @@ export class Travels<
 
     this.allPatches.patches.push(inversePatches);
     this.allPatches.inversePatches.push(patches);
+    this.allMetadata.push(metadata);
 
     // Respect maxHistory limit
-    if (this.maxHistory < this.allPatches.patches.length) {
-      // Handle maxHistory = 0 case: clear all patches
-      if (this.maxHistory === 0) {
-        this.allPatches.patches = [];
-        this.allPatches.inversePatches = [];
-      } else {
-        this.allPatches.patches = this.allPatches.patches.slice(
-          -this.maxHistory
-        );
-        this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
-          -this.maxHistory
-        );
-      }
-    }
+    this.trimHistoryToMax();
 
     // Clear temporary patches after archiving
     this.tempPatches.patches.length = 0;
@@ -747,6 +845,85 @@ export class Travels<
 
     this.invalidateHistoryCache();
     this.notify();
+    this.emitDevtools('archive', metadata);
+    return true;
+  }
+
+  public archive(metadata?: TravelMetadata): void {
+    if (this.autoArchive) {
+      console.warn('Auto archive is enabled, no need to archive manually');
+      return;
+    }
+
+    this.archivePending(metadata);
+  }
+
+  public transaction(
+    metadata: TravelMetadata,
+    fn: () => void
+  ): void;
+  public transaction(fn: () => void): void;
+  public transaction(
+    metadataOrFn: TravelMetadata | (() => void),
+    maybeFn?: () => void
+  ): void {
+    const metadata =
+      typeof metadataOrFn === 'function' ? undefined : metadataOrFn;
+    const fn = typeof metadataOrFn === 'function' ? metadataOrFn : maybeFn;
+
+    if (!fn) {
+      return;
+    }
+
+    const previousAutoArchive = this.autoArchive;
+    const previousMetadata = this.transactionMetadata;
+
+    this.transactionDepth += 1;
+    this.transactionMetadata = metadata ?? previousMetadata;
+    this.autoArchive = false as A;
+
+    try {
+      fn();
+    } catch (error) {
+      throw this.reportError('TRANSACTION_FAILED', error);
+    } finally {
+      this.transactionDepth -= 1;
+
+      if (this.transactionDepth === 0) {
+        this.autoArchive = previousAutoArchive;
+        const committed = this.archivePending(this.transactionMetadata);
+        if (committed) {
+          this.emitDevtools('transaction', this.transactionMetadata);
+        }
+        this.transactionMetadata = previousMetadata;
+      }
+    }
+  }
+
+  public batch(metadata: TravelMetadata, fn: () => void): void;
+  public batch(fn: () => void): void;
+  public batch(
+    metadataOrFn: TravelMetadata | (() => void),
+    maybeFn?: () => void
+  ): void {
+    this.transaction(metadataOrFn as any, maybeFn as any);
+  }
+
+  public pauseTracking(): void {
+    this.trackingPauseDepth += 1;
+  }
+
+  public resumeTracking(): void {
+    this.trackingPauseDepth = Math.max(0, this.trackingPauseDepth - 1);
+  }
+
+  public replaceStateWithoutHistory(updater: Updater<S>): void {
+    this.pauseTracking();
+    try {
+      this.setState(updater);
+    } finally {
+      this.resumeTracking();
+    }
   }
 
   /**
@@ -912,6 +1089,7 @@ export class Travels<
     this.position = nextPosition;
     this.invalidateHistoryCache();
     this.notify();
+    this.emitDevtools('go');
   }
 
   /**
@@ -964,10 +1142,14 @@ export class Travels<
 
     this.position = this.initialPosition;
     this.allPatches = cloneTravelPatches(this.initialPatches);
+    this.allMetadata = this.initialMetadata
+      ? this.initialMetadata.slice()
+      : [];
     this.tempPatches = cloneTravelPatches();
 
     this.invalidateHistoryCache();
     this.notify();
+    this.emitDevtools('reset');
   }
 
   /**
@@ -980,13 +1162,16 @@ export class Travels<
     this.initialState = cloneInitialSnapshot(this.state);
     this.initialPosition = 0;
     this.initialPatches = undefined;
+    this.initialMetadata = undefined;
 
     this.position = 0;
     this.allPatches = cloneTravelPatches();
+    this.allMetadata = [];
     this.tempPatches = cloneTravelPatches();
 
     this.invalidateHistoryCache();
     this.notify();
+    this.emitDevtools('rebase');
   }
 
   /**
@@ -1043,7 +1228,16 @@ export class Travels<
       state: cloneInitialSnapshot(this.state),
       patches: this.getPatches(),
       position: this.getPosition(),
+      metadata: this.getMetadata(),
     };
+  }
+
+  public getMetadata(): Array<TravelMetadata | undefined> {
+    return this.allMetadata.slice();
+  }
+
+  public getHistoryEntries(): TravelHistoryEntry<P>[] {
+    return this.toEntries(this.allPatches, this.allMetadata);
   }
 
   /**

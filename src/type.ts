@@ -11,6 +11,19 @@ export type TravelPatches<P extends PatchesOption = {}> = {
   inversePatches: Patches<P>[];
 };
 
+export type TravelMetadata = {
+  label?: string;
+  timestamp?: number;
+  source?: string;
+  [key: string]: unknown;
+};
+
+export type TravelHistoryEntry<P extends PatchesOption = {}> = {
+  patches: Patches<P>;
+  inversePatches: Patches<P>;
+  metadata?: TravelMetadata;
+};
+
 export type PatchesOption = Exclude<PatchesOptions, boolean>;
 
 export type JsonPrimitive = string | number | boolean | null;
@@ -26,6 +39,7 @@ export type PatchableState =
 export type TravelsHistory<P extends PatchesOption = {}> = {
   patches: TravelPatches<P>;
   position: number;
+  metadata?: Array<TravelMetadata | undefined>;
 };
 
 export type TravelsSerializedHistory<
@@ -67,6 +81,31 @@ export type TravelsDeserializeOptions<
    */
   onError?: (error: Error) => void;
 };
+
+export type TravelsBranchDiscardEvent<P extends PatchesOption = {}> = {
+  position: number;
+  discarded: TravelHistoryEntry<P>[];
+};
+
+export type TravelsDevtoolsEvent<
+  S,
+  P extends PatchesOption = {},
+> = {
+  type:
+    | 'setState'
+    | 'archive'
+    | 'transaction'
+    | 'go'
+    | 'reset'
+    | 'rebase'
+    | 'replaceStateWithoutHistory';
+  state: S;
+  position: number;
+  patches: TravelPatches<P>;
+  metadata?: TravelMetadata;
+};
+
+export type TravelsErrorCode = 'TRANSACTION_FAILED';
 
 export type TravelsOptions<
   F extends boolean,
@@ -112,6 +151,18 @@ export type TravelsOptions<
    * JSON persistence semantics, by default `true` in development.
    */
   warnOnUnsupportedState?: boolean;
+  /**
+   * Called when Travels wraps a thrown core operation error.
+   */
+  onError?: (error: Error) => void;
+  /**
+   * Called when undoing and then making a new edit discards redo history.
+   */
+  onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
+  /**
+   * Optional hook for external devtools or debugging timelines.
+   */
+  devtools?: (event: TravelsDevtoolsEvent<any, P>) => void;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
     patchesOptions?: P;
   };
