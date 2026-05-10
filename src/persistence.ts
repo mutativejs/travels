@@ -56,10 +56,7 @@ const isValidPatchOperation = (operation: unknown): boolean => {
   if (
     op !== 'add' &&
     op !== 'remove' &&
-    op !== 'replace' &&
-    op !== 'move' &&
-    op !== 'copy' &&
-    op !== 'test'
+    op !== 'replace'
   ) {
     return false;
   }
@@ -68,14 +65,7 @@ const isValidPatchOperation = (operation: unknown): boolean => {
     return false;
   }
 
-  if (
-    (op === 'add' || op === 'replace' || op === 'test') &&
-    !hasOwn(operation, 'value')
-  ) {
-    return false;
-  }
-
-  if ((op === 'move' || op === 'copy') && !isValidPatchPath(operation.from)) {
+  if ((op === 'add' || op === 'replace') && !hasOwn(operation, 'value')) {
     return false;
   }
 

@@ -516,7 +516,25 @@ describe('Persistence Example - State Persistence', () => {
     for (const operation of [
       { op: 'add', path: ['count'] },
       { op: 'replace', path: ['count'] },
-      { op: 'test', path: ['count'] },
+    ]) {
+      expect(() =>
+        Travels.deserialize<AppState>({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches: {
+            patches: [[operation]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
+          metadata: [undefined],
+        })
+      ).toThrow(TravelsPersistenceError);
+    }
+
+    for (const operation of [
+      { op: 'move', from: ['count'], path: ['other'] },
+      { op: 'copy', from: ['count'], path: ['other'] },
+      { op: 'test', path: ['count'], value: 1 },
     ]) {
       expect(() =>
         Travels.deserialize<AppState>({
