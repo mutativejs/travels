@@ -483,6 +483,21 @@ describe('Persistence Example - State Persistence', () => {
       })
     ).toThrow(TravelsPersistenceError);
 
+    for (const metadata of [[123], [[]]]) {
+      expect(() =>
+        Travels.deserialize<AppState>({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: {},
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
+          metadata,
+        })
+      ).toThrow(TravelsPersistenceError);
+    }
+
     try {
       Travels.deserialize<AppState>({
         version: TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -529,6 +544,24 @@ describe('Persistence Example - State Persistence', () => {
         metadata: [undefined],
       })
     ).not.toThrow();
+  });
+
+  test('Travels.deserialize() should normalize null metadata placeholders', () => {
+    const history = Travels.deserialize<{ count: number }>({
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: { count: 1 },
+      position: 1,
+      patches: {
+        patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+        inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+      },
+      metadata: [null],
+    });
+
+    expect(history.metadata).toEqual([undefined]);
+
+    const travels = createTravels(history.state, { history });
+    expect(travels.getMetadata()).toEqual([undefined]);
   });
 
   test('Travels.deserialize() should support corrupted storage fallback', () => {

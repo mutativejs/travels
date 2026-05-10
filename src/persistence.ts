@@ -1,5 +1,6 @@
 import type {
   PatchesOption,
+  TravelMetadata,
   TravelPatches,
   TravelsDeserializeOptions,
   TravelsPersistenceErrorCode,
@@ -30,6 +31,10 @@ const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
 
 const hasOwn = (value: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(value, key);
+
+const isValidMetadataEntry = (entry: unknown): boolean => {
+  return entry == null || (isObjectRecord(entry) && !Array.isArray(entry));
+};
 
 const isValidPatchPath = (path: unknown): boolean => {
   return (
@@ -184,15 +189,27 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     );
   }
 
-  const metadata = snapshot.metadata as
-    | TravelsSerializedHistory<S, P>['metadata']
-    | undefined;
-  if (metadata !== undefined && !Array.isArray(metadata)) {
+  const metadataInput = snapshot.metadata as unknown;
+  if (metadataInput !== undefined && !Array.isArray(metadataInput)) {
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
       "Travels: persisted history 'metadata' must be an array when provided."
     );
   }
+
+  if (
+    metadataInput !== undefined &&
+    !metadataInput.every(isValidMetadataEntry)
+  ) {
+    throw new TravelsPersistenceError(
+      'INVALID_SCHEMA',
+      "Travels: persisted history 'metadata' entries must be objects, null, or undefined."
+    );
+  }
+
+  const metadata = metadataInput?.map((entry) =>
+    entry == null ? undefined : (entry as TravelMetadata)
+  );
 
   if (metadata !== undefined && metadata.length !== patches!.patches.length) {
     throw new TravelsPersistenceError(
