@@ -38,6 +38,20 @@ type Listener<S, P extends PatchesOption = {}> = (
   position: number
 ) => void;
 
+type TransactionSnapshot<S, P extends PatchesOption = {}> = {
+  state: S;
+  position: number;
+  allPatches: TravelPatches<P>;
+  allMetadata: Array<TravelMetadata | undefined>;
+  tempPatches: TravelPatches<P>;
+  initialState: S;
+  initialPosition: number;
+  initialPatches?: TravelPatches<P>;
+  initialMetadata?: Array<TravelMetadata | undefined>;
+  pendingState: S | null;
+  pendingStateVersion: number;
+};
+
 const tryStructuredClone = <T>(value: T): T | undefined => {
   if (typeof (globalThis as any).structuredClone !== 'function') {
     return undefined;
@@ -630,6 +644,78 @@ export class Travels<
     this.tempPatches = cloneTravelPatches();
   }
 
+  private restoreStateFromSnapshot(snapshot: S): void {
+    const canRestoreMutably =
+      this.mutable && isObjectLike(this.state) && isObjectLike(snapshot);
+
+    if (canRestoreMutably) {
+      const [, patches] = create(
+        this.state,
+        (draft) => {
+          for (const key of Object.keys(draft as object)) {
+            delete (draft as any)[key];
+          }
+          deepClone(snapshot, draft);
+          if (Array.isArray(draft) && Array.isArray(snapshot)) {
+            (draft as any[]).length = (snapshot as any[]).length;
+          }
+        },
+        this.options
+      );
+
+      apply(this.state as object, patches, { mutable: true });
+      return;
+    }
+
+    this.state = snapshot;
+  }
+
+  private captureTransactionSnapshot(): TransactionSnapshot<S, P> {
+    return {
+      state:
+        this.mutable && isObjectLike(this.state)
+          ? cloneInitialSnapshot(this.state)
+          : this.state,
+      position: this.position,
+      allPatches: cloneTravelPatches(this.allPatches),
+      allMetadata: this.allMetadata.slice(),
+      tempPatches: cloneTravelPatches(this.tempPatches),
+      initialState: cloneInitialSnapshot(this.initialState),
+      initialPosition: this.initialPosition,
+      initialPatches: this.initialPatches
+        ? cloneTravelPatches(this.initialPatches)
+        : undefined,
+      initialMetadata: this.initialMetadata
+        ? this.initialMetadata.slice()
+        : undefined,
+      pendingState: this.pendingState,
+      pendingStateVersion: this.pendingStateVersion,
+    };
+  }
+
+  private restoreTransactionSnapshot(
+    snapshot: TransactionSnapshot<S, P>
+  ): void {
+    this.restoreStateFromSnapshot(snapshot.state);
+    this.position = snapshot.position;
+    this.allPatches = cloneTravelPatches(snapshot.allPatches);
+    this.allMetadata = snapshot.allMetadata.slice();
+    this.tempPatches = cloneTravelPatches(snapshot.tempPatches);
+    this.initialState = cloneInitialSnapshot(snapshot.initialState);
+    this.initialPosition = snapshot.initialPosition;
+    this.initialPatches = snapshot.initialPatches
+      ? cloneTravelPatches(snapshot.initialPatches)
+      : undefined;
+    this.initialMetadata = snapshot.initialMetadata
+      ? snapshot.initialMetadata.slice()
+      : undefined;
+    this.pendingState = snapshot.pendingState;
+    this.pendingStateVersion = snapshot.pendingStateVersion;
+
+    this.invalidateHistoryCache();
+    this.notify();
+  }
+
   /**
    * Check if patches contain root-level replacement operations
    * Root replacement cannot be done mutably as it changes the type/value of the entire state
@@ -883,6 +969,11 @@ export class Travels<
 
     const previousAutoArchive = this.autoArchive;
     const previousMetadata = this.transactionMetadata;
+    const transactionSnapshot =
+      this.transactionDepth === 0
+        ? this.captureTransactionSnapshot()
+        : undefined;
+    let failed = false;
 
     this.transactionDepth += 1;
     this.transactionMetadata = metadata ?? previousMetadata;
@@ -891,15 +982,21 @@ export class Travels<
     try {
       fn();
     } catch (error) {
+      failed = true;
+      if (transactionSnapshot) {
+        this.restoreTransactionSnapshot(transactionSnapshot);
+      }
       throw this.reportError('TRANSACTION_FAILED', error);
     } finally {
       this.transactionDepth -= 1;
 
       if (this.transactionDepth === 0) {
         this.autoArchive = previousAutoArchive;
-        const committed = this.archivePending(this.transactionMetadata);
-        if (committed) {
-          this.emitDevtools('transaction', this.transactionMetadata);
+        if (!failed) {
+          const committed = this.archivePending(this.transactionMetadata);
+          if (committed) {
+            this.emitDevtools('transaction', this.transactionMetadata);
+          }
         }
         this.transactionMetadata = previousMetadata;
       }

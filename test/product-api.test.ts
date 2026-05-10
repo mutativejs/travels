@@ -139,4 +139,23 @@ describe('Productized history API', () => {
     expect(onError).toHaveBeenCalledWith(expect.any(TravelsError));
     expect(onError.mock.calls[0][0].code).toBe('TRANSACTION_FAILED');
   });
+
+  test('failed transactions roll back partial state and history changes', () => {
+    const travels = createTravels({ count: 0 });
+
+    expect(() =>
+      travels.transaction({ label: 'Broken action' }, () => {
+        travels.setState((draft) => {
+          draft.count = 1;
+        });
+        throw new Error('boom');
+      })
+    ).toThrow(TravelsError);
+
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+    expect(travels.getMetadata()).toEqual([]);
+    expect(travels.canBack()).toBe(false);
+  });
 });
