@@ -182,26 +182,27 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
   }
 
   const metadataInput = snapshot.metadata as unknown;
-  if (metadataInput !== undefined && !Array.isArray(metadataInput)) {
-    throw new TravelsPersistenceError(
-      'INVALID_SCHEMA',
-      "Travels: persisted history 'metadata' must be an array when provided."
+  let metadata: Array<TravelMetadata | undefined> | undefined;
+  if (metadataInput !== undefined) {
+    if (!Array.isArray(metadataInput)) {
+      throw new TravelsPersistenceError(
+        'INVALID_SCHEMA',
+        "Travels: persisted history 'metadata' must be an array when provided."
+      );
+    }
+
+    const metadataEntries: unknown[] = metadataInput;
+    if (!metadataEntries.every(isValidMetadataEntry)) {
+      throw new TravelsPersistenceError(
+        'INVALID_SCHEMA',
+        "Travels: persisted history 'metadata' entries must be objects, null, or undefined."
+      );
+    }
+
+    metadata = metadataEntries.map((entry) =>
+      entry == null ? undefined : (entry as TravelMetadata)
     );
   }
-
-  if (
-    metadataInput !== undefined &&
-    !metadataInput.every(isValidMetadataEntry)
-  ) {
-    throw new TravelsPersistenceError(
-      'INVALID_SCHEMA',
-      "Travels: persisted history 'metadata' entries must be objects, null, or undefined."
-    );
-  }
-
-  const metadata = metadataInput?.map((entry) =>
-    entry == null ? undefined : (entry as TravelMetadata)
-  );
 
   if (metadata !== undefined && metadata.length !== patches!.patches.length) {
     throw new TravelsPersistenceError(
