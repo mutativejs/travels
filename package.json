@@ -33,6 +33,9 @@
   "scripts": {
     "test": "vitest run",
     "test:core": "vitest run --dir test",
+    "test:browser": "vitest run --dir test test/browser-environment.test.ts --environment jsdom",
+    "test:types": "tsc --noEmit --skipLibCheck",
+    "coverage": "vitest run --dir test --coverage",
     "benchmark:matrix": "node --expose-gc benchmarks/matrix-benchmark.js",
     "benchmark:full": "node --expose-gc benchmarks/matrix-benchmark.js --full",
     "benchmark:ci": "node --expose-gc benchmarks/matrix-benchmark.js --ci",
@@ -71,6 +74,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.1.3",
+    "fast-check": "^4.7.0",
     "jsdom": "^27.0.0",
     "mobx": "^6.15.0",
     "mutative": "^1.3.0",

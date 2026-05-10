@@ -21,7 +21,10 @@ jobs:
       run: |
         yarn install
         yarn build
+        yarn test:types
         yarn test
+        yarn test:browser
+        yarn coverage
         yarn benchmark:ci
       env:
         CI: true
