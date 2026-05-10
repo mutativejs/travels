@@ -592,8 +592,10 @@ export class Travels<
     metadata: Array<TravelMetadata | undefined> = []
   ): TravelHistoryEntry<P>[] {
     return patches.patches.map((patch, index) => ({
-      patches: patch,
-      inversePatches: patches.inversePatches[index],
+      patches: patch.map((operation) => deepCloneValue(operation)) as Patches<P>,
+      inversePatches: patches.inversePatches[index].map((operation) =>
+        deepCloneValue(operation)
+      ) as Patches<P>,
       metadata: cloneTravelMetadata(metadata[index]),
     }));
   }

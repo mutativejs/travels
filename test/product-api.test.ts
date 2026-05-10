@@ -55,6 +55,24 @@ describe('Productized history API', () => {
     });
   });
 
+  test('history entry patches are cloned', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    const [entry] = travels.getHistoryEntries();
+    entry.inversePatches.length = 0;
+    entry.patches.length = 0;
+
+    expect(travels.getPatches().inversePatches[0]).toHaveLength(1);
+    expect(travels.getPatches().patches[0]).toHaveLength(1);
+
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
   test('transaction batches multiple updates into one undo step', () => {
     const travels = createTravels({
       title: 'Draft',
