@@ -43,6 +43,7 @@
     "build": "yarn clean && tsc --skipLibCheck && yarn build:prod",
     "build:prod": "NODE_ENV=production rollup --config --bundleConfigAsCjs",
     "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
+    "build:doc:site": "typedoc --out docs-site src/index.ts",
     "commit": "yarn git-cz"
   },
   "keywords": [

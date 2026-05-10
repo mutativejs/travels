@@ -3,6 +3,8 @@
 ![Node CI](https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg)
 [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
 ![license](https://img.shields.io/npm/l/travels)
+![coverage](https://img.shields.io/badge/coverage-threshold%2075%25-brightgreen)
+![bundle size](https://img.shields.io/bundlephobia/minzip/travels)
 
 **Patch-based undo/redo optimized for large state, small updates, long history, and persistence.**
 
@@ -28,6 +30,7 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
 - [Persistence: Saving History to Storage](#persistence-saving-history-to-storage)
 - [TypeScript Support](#typescript-support)
 - [Advanced: Extending Travels with Custom Logic](#advanced-extending-travels-with-custom-logic)
+- [Maintenance](#maintenance)
 - [Related Projects](#related-projects)
 - [License](#license)
 
@@ -853,6 +856,15 @@ travels.setState = function (updater: any) {
 - Composable wrapper patterns (validation, logging, permissions)
 - Real-world integration patterns
 - TypeScript-safe implementation techniques
+
+## Maintenance
+
+- [Compatibility policy](docs/compatibility.md)
+- [Migration guide](docs/migration-guide.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Release checklist](docs/release-checklist.md)
+- API docs site is built by the [`API Docs`](.github/workflows/docs.yml) workflow.
 
 ## Related Projects
 

@@ -21,6 +21,7 @@ export default defineConfig({
         'examples/**',
         'node_modules/**',
         'dist/**',
+        'docs-site/**',
         'use-travel/**',
         'test/**',
         '**/*.config.*',
