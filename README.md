@@ -4,15 +4,16 @@
 [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
 ![license](https://img.shields.io/npm/l/travels)
 
-**A fast, framework-agnostic undo/redo library that stores only changes, not full snapshots.**
+**Patch-based undo/redo optimized for large state, small updates, long history, and persistence.**
 
-Travels gives your users the power to undo and redo their actions—essential for text editors, drawing apps, form builders, and any interactive application. Unlike traditional undo systems that copy entire state objects for each change, Travels stores only the differences (JSON Patches), making it **10x faster and far more memory-efficient**.
+Travels gives your users the power to undo and redo their actions—essential for text editors, drawing apps, form builders, and any interactive application. Unlike traditional undo systems that copy entire state objects for each change, Travels stores only the differences (JSON Patches), making history much smaller to keep in memory and persist when updates touch a small part of a large state tree.
 
 Works with React, Vue, Zustand, or vanilla JavaScript.
 
 ## Table of Contents
 
 - [Why Travels? Performance That Scales](#why-travels-performance-that-scales)
+- [Choosing the Right Undo Strategy](#choosing-the-right-undo-strategy)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
@@ -34,13 +35,35 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
 
 Traditional undo systems clone your entire state object for each change. If your state is 1MB and the user makes 100 edits, that's 100MB of memory. Travels stores only the differences between states (JSON Patches following [RFC 6902](https://jsonpatch.com/)), so that same 1MB object with 100 small edits might use just a few kilobytes.
 
-**Two key advantages:**
+Travels is not designed to be the fastest possible choice for every hot path. Snapshot-based stacks can be faster for small state, short history, and local-only undo/redo because they avoid patch generation. Travels is designed for apps where history size, persistence cost, and replayable operation logs matter.
+
+**Core advantages:**
 
 - **Memory-efficient history storage** - Stores only differences (patches), not full snapshots. Changing one field in a large object stores only a few bytes.
 
-- **Fast immutable updates** - Built on [Mutative](https://github.com/unadlib/mutative), which is [10x faster than Immer](https://mutative.js.org/docs/getting-started/performance). Write simple mutation code like `draft.count++` while maintaining immutability.
+- **Persistence-friendly history** - Patch histories are much smaller to serialize, store, send, and restore than full snapshot stacks when state is large and each update is small.
+
+- **Fast immutable updates** - Built on [Mutative](https://github.com/unadlib/mutative). Write simple mutation code like `draft.count++` while maintaining immutability.
 
 **Framework-agnostic** - Works with React, Vue, Zustand, MobX, Pinia, or vanilla JavaScript.
+
+## Choosing the Right Undo Strategy
+
+| Scenario | Recommended approach |
+| --- | --- |
+| Small state, short history, local-only undo/redo | Snapshot stack, Redux-undo, or Zundo |
+| Large state, small updates, long history, persistence, or operation logs | Travels |
+| Collaborative editing, conflict merging, or concurrent multi-user state | CRDT/OT system; Travels alone does not solve conflicts |
+
+| Priority | Travels fit | Trade-off |
+| --- | --- | --- |
+| Minimize serialized history size | Strong | Patch history is compact for small changes to large state |
+| Persist history to localStorage, IndexedDB, worker messages, or cloud sync | Strong | You still need a storage and migration strategy |
+| Lowest setState/undo/redo latency for tiny state | Usually not the best fit | Patch generation and patch application add overhead |
+| Large replace-everything updates | Scenario-dependent | Large patches can approach snapshot costs |
+| Framework integration | Strong | Use immutable mode by default; use mutable mode for reactive stores that require identity stability |
+
+For current benchmark numbers and caveats, see [`benchmarks/README.md`](benchmarks/README.md). The benchmark results intentionally separate hot-path latency from persistence costs because those trade-offs decide whether patch-based history is the right tool.
 
 ## Installation
 
