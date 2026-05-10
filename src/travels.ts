@@ -135,6 +135,12 @@ const cloneTravelPatches = <P extends PatchesOption = {}>(
     : [],
 });
 
+const alignMetadataToPatchCount = (
+  metadata: Array<TravelMetadata | undefined> | undefined,
+  count: number
+): Array<TravelMetadata | undefined> =>
+  Array.from({ length: count }, (_, index) => metadata?.[index]);
+
 const deepClone = <T>(source: T, target?: any): T => {
   if (target && source && typeof source === 'object') {
     for (const key in source as any) {
@@ -439,8 +445,8 @@ export class Travels<
     metadata: Array<TravelMetadata | undefined>;
   } {
     const cloned = cloneTravelPatches(initialPatches);
-    const clonedMetadata = metadata ? metadata.slice() : [];
     const total = cloned.patches.length;
+    const alignedMetadata = alignMetadataToPatchCount(metadata, total);
     const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
     const invalidInitialPosition =
       typeof initialPosition !== 'number' ||
@@ -479,7 +485,7 @@ export class Travels<
       return {
         patches: cloned,
         position,
-        metadata: clonedMetadata.slice(0, total),
+        metadata: alignedMetadata,
       };
     }
 
@@ -505,7 +511,7 @@ export class Travels<
     return {
       patches: trimmed,
       position: adjustedPosition,
-      metadata: clonedMetadata.slice(-historyLimit),
+      metadata: alignedMetadata.slice(-historyLimit),
     };
   }
 
@@ -1233,7 +1239,16 @@ export class Travels<
   }
 
   public getMetadata(): Array<TravelMetadata | undefined> {
-    return this.allMetadata.slice();
+    const metadata = alignMetadataToPatchCount(
+      this.allMetadata,
+      this.allPatches.patches.length
+    );
+
+    if (!this.autoArchive && this.tempPatches.patches.length) {
+      metadata.push(undefined);
+    }
+
+    return metadata;
   }
 
   public getHistoryEntries(): TravelHistoryEntry<P>[] {

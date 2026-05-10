@@ -410,6 +410,49 @@ describe('Persistence Example - State Persistence', () => {
     expect(reloadedTravels.getState().notes).toHaveLength(1);
   });
 
+  test('serialize() should include metadata placeholders for pending manual patches', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { autoArchive: false, maxHistory: 10 }
+    );
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    const snapshot = travels.serialize();
+    expect(snapshot.patches.patches).toHaveLength(1);
+    expect(snapshot.metadata).toHaveLength(snapshot.patches.patches.length);
+
+    const history = Travels.deserialize<typeof snapshot.state>(snapshot);
+    const reloadedTravels = createTravels(history.state, {
+      autoArchive: false,
+      history,
+    });
+
+    expect(reloadedTravels.getState()).toEqual({ count: 1 });
+    reloadedTravels.back();
+    expect(reloadedTravels.getState()).toEqual({ count: 0 });
+  });
+
+  test('serialize() should align metadata for history restored without metadata', () => {
+    const initialTravels = createTravels({ count: 0 });
+    initialTravels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    const reloadedTravels = createTravels(initialTravels.getState(), {
+      history: {
+        patches: initialTravels.getPatches(),
+        position: initialTravels.getPosition(),
+      },
+    });
+
+    const snapshot = reloadedTravels.serialize();
+    expect(snapshot.metadata).toHaveLength(snapshot.patches.patches.length);
+    expect(() => Travels.deserialize(snapshot)).not.toThrow();
+  });
+
   test('Travels.deserialize() should throw typed errors for corrupted storage', () => {
     expect(() => Travels.deserialize<AppState>('{broken json')).toThrow(
       TravelsPersistenceError
