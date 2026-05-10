@@ -553,11 +553,37 @@ describe('Persistence Example - State Persistence', () => {
     expect(() =>
       Travels.deserialize<AppState>({
         version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 1 },
+        position: 1,
+        patches: {
+          patches: [[{ op: 'replace', path: 'count', value: 1 }]],
+          inversePatches: [[{ op: 'replace', path: 'count', value: 0 }]],
+        },
+        metadata: [undefined],
+      })
+    ).toThrow(TravelsPersistenceError);
+
+    expect(() =>
+      Travels.deserialize<AppState>({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
         state: { count: null },
         position: 1,
         patches: {
           patches: [[{ op: 'replace', path: ['count'], value: null }]],
           inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+        },
+        metadata: [undefined],
+      })
+    ).not.toThrow();
+
+    expect(() =>
+      Travels.deserialize<AppState>({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 1 },
+        position: 1,
+        patches: {
+          patches: [[{ op: 'replace', path: '/count', value: 1 }]],
+          inversePatches: [[{ op: 'replace', path: '/count', value: 0 }]],
         },
         metadata: [undefined],
       })

@@ -37,13 +37,15 @@ const isValidMetadataEntry = (entry: unknown): boolean => {
 };
 
 const isValidPatchPath = (path: unknown): boolean => {
+  if (typeof path === 'string') {
+    return path === '' || path.startsWith('/');
+  }
+
   return (
-    typeof path === 'string' ||
-    (Array.isArray(path) &&
-      path.every(
-        (segment) =>
-          typeof segment === 'string' || typeof segment === 'number'
-      ))
+    Array.isArray(path) &&
+    path.every(
+      (segment) => typeof segment === 'string' || typeof segment === 'number'
+    )
   );
 };
 
