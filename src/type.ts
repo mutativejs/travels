@@ -245,7 +245,7 @@ export interface ManualTravelsControls<
   /**
    * Archive the current state
    */
-  archive: () => void;
+  archive: (metadata?: TravelMetadata) => void;
   /**
    * Check if it's possible to archive the current state
    */

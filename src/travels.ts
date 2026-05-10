@@ -1419,7 +1419,7 @@ export class Travels<
 
     if (!this.autoArchive) {
       (controls as RebasableManualTravelsControls<S, F, P>).archive =
-        (): void => self.archive();
+        (metadata?: TravelMetadata): void => self.archive(metadata);
       (controls as RebasableManualTravelsControls<S, F, P>).canArchive =
         (): boolean => self.canArchive();
     }

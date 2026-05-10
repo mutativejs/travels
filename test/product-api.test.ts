@@ -56,6 +56,21 @@ describe('Productized history API', () => {
     expect(travels.getMetadata()[0]?.label).toBe('Move layer');
   });
 
+  test('manual controls archive forwards metadata', () => {
+    const travels = createTravels({ count: 0 }, { autoArchive: false });
+    const controls = travels.getControls();
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    controls.archive({ label: 'Move layer', source: 'controls' });
+
+    expect(travels.getMetadata()[0]).toEqual({
+      label: 'Move layer',
+      source: 'controls',
+    });
+  });
+
   test('history entries include pending manual archive entry', () => {
     const travels = createTravels({ count: 0 }, { autoArchive: false });
 

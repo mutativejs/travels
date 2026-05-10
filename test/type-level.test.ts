@@ -4,6 +4,7 @@ import {
   Travels,
   type JsonValue,
   type PatchableState,
+  type TravelMetadata,
   type TravelsSerializedHistory,
 } from '../src/index';
 
@@ -36,5 +37,13 @@ describe('Type-level API contracts', () => {
 
     const travels = createJsonHistory(jsonState);
     expectTypeOf(travels.getState().blocks[0].text).toEqualTypeOf<string>();
+  });
+
+  test('manual controls archive accepts metadata', () => {
+    const travels = createTravels({ count: 0 }, { autoArchive: false });
+
+    expectTypeOf(travels.getControls().archive)
+      .parameter(0)
+      .toEqualTypeOf<TravelMetadata | undefined>();
   });
 });
