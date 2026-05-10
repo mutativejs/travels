@@ -21,6 +21,41 @@ describe('Productized history API', () => {
     expect(travels.serialize().metadata?.[0]?.source).toBe('toolbar');
   });
 
+  test('manual pending setState metadata survives archive boundaries', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { autoArchive: false, maxHistory: 10 }
+    );
+
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      { label: 'Manual edit', source: 'toolbar' }
+    );
+
+    expect(travels.getMetadata()[0]?.label).toBe('Manual edit');
+    expect(travels.serialize().metadata?.[0]?.source).toBe('toolbar');
+
+    travels.back();
+
+    expect(travels.getHistoryEntries()[0].metadata?.label).toBe('Manual edit');
+  });
+
+  test('archive metadata overrides pending setState metadata', () => {
+    const travels = createTravels({ count: 0 }, { autoArchive: false });
+
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      { label: 'Drag tick' }
+    );
+    travels.archive({ label: 'Move layer' });
+
+    expect(travels.getMetadata()[0]?.label).toBe('Move layer');
+  });
+
   test('metadata inputs and exported metadata are cloned', () => {
     const metadata = {
       label: 'Rename document',

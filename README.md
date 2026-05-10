@@ -272,9 +272,9 @@ Returns `true` if undo is possible (not at the beginning of history).
 
 Returns `true` if redo is possible (not at the end of history).
 
-#### `archive(): void` (Manual archive mode only)
+#### `archive(metadata?): void` (Manual archive mode only)
 
-Saves the current state to history. Only available when `autoArchive: false`. Accepts optional metadata.
+Saves the current state to history. Only available when `autoArchive: false`. Accepts optional metadata. If omitted, Travels uses the latest metadata supplied to pending `setState(...)` calls.
 
 #### `canArchive(): boolean` (Manual archive mode only)
 

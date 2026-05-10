@@ -44,6 +44,7 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   allPatches: TravelPatches<P>;
   allMetadata: Array<TravelMetadata | undefined>;
   tempPatches: TravelPatches<P>;
+  tempMetadata?: TravelMetadata;
   initialState: S;
   initialPosition: number;
   initialPatches?: TravelPatches<P>;
@@ -295,6 +296,7 @@ export class Travels<
   private allPatches: TravelPatches<P>;
   private allMetadata: Array<TravelMetadata | undefined>;
   private tempPatches: TravelPatches<P>;
+  private tempMetadata?: TravelMetadata;
   private maxHistory: number;
   private initialState: S;
   private initialPosition: number;
@@ -433,6 +435,7 @@ export class Travels<
     this.initialPosition = normalizedPosition;
 
     this.tempPatches = cloneTravelPatches();
+    this.tempMetadata = undefined;
   }
 
   private warnAboutStateCompatibility(state: unknown): void {
@@ -659,6 +662,7 @@ export class Travels<
     this.allPatches = cloneTravelPatches();
     this.allMetadata = [];
     this.tempPatches = cloneTravelPatches();
+    this.tempMetadata = undefined;
   }
 
   private restoreStateFromSnapshot(snapshot: S): void {
@@ -697,6 +701,7 @@ export class Travels<
       allPatches: cloneTravelPatches(this.allPatches),
       allMetadata: cloneTravelMetadataList(this.allMetadata),
       tempPatches: cloneTravelPatches(this.tempPatches),
+      tempMetadata: cloneTravelMetadata(this.tempMetadata),
       initialState: cloneInitialSnapshot(this.initialState),
       initialPosition: this.initialPosition,
       initialPatches: this.initialPatches
@@ -718,6 +723,7 @@ export class Travels<
     this.allPatches = cloneTravelPatches(snapshot.allPatches);
     this.allMetadata = cloneTravelMetadataList(snapshot.allMetadata);
     this.tempPatches = cloneTravelPatches(snapshot.tempPatches);
+    this.tempMetadata = cloneTravelMetadata(snapshot.tempMetadata);
     this.initialState = cloneInitialSnapshot(snapshot.initialState);
     this.initialPosition = snapshot.initialPosition;
     this.initialPatches = snapshot.initialPatches
@@ -914,10 +920,14 @@ export class Travels<
       if (notLast) {
         this.tempPatches.patches.length = 0;
         this.tempPatches.inversePatches.length = 0;
+        this.tempMetadata = undefined;
       }
 
       this.tempPatches.patches.push(patches);
       this.tempPatches.inversePatches.push(inversePatches);
+      if (metadata !== undefined || this.tempMetadata === undefined) {
+        this.tempMetadata = cloneTravelMetadata(metadata);
+      }
     }
 
     this.invalidateHistoryCache();
@@ -930,6 +940,8 @@ export class Travels<
    */
   private archivePending(metadata?: TravelMetadata): boolean {
     if (!this.tempPatches.patches.length) return false;
+    const archiveMetadata =
+      metadata === undefined ? this.tempMetadata : metadata;
 
     // Use pendingState if available, otherwise use current state
     const stateToUse = (this.pendingState ?? this.state) as object;
@@ -943,7 +955,7 @@ export class Travels<
 
     this.allPatches.patches.push(inversePatches);
     this.allPatches.inversePatches.push(patches);
-    this.allMetadata.push(cloneTravelMetadata(metadata));
+    this.allMetadata.push(cloneTravelMetadata(archiveMetadata));
 
     // Respect maxHistory limit
     this.trimHistoryToMax();
@@ -951,10 +963,11 @@ export class Travels<
     // Clear temporary patches after archiving
     this.tempPatches.patches.length = 0;
     this.tempPatches.inversePatches.length = 0;
+    this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
     this.notify();
-    this.emitDevtools('archive', metadata);
+    this.emitDevtools('archive', archiveMetadata);
     return true;
   }
 
@@ -1269,6 +1282,7 @@ export class Travels<
       ? cloneTravelMetadataList(this.initialMetadata)
       : [];
     this.tempPatches = cloneTravelPatches();
+    this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
     this.notify();
@@ -1291,6 +1305,7 @@ export class Travels<
     this.allPatches = cloneTravelPatches();
     this.allMetadata = [];
     this.tempPatches = cloneTravelPatches();
+    this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
     this.notify();
@@ -1362,7 +1377,7 @@ export class Travels<
     );
 
     if (!this.autoArchive && this.tempPatches.patches.length) {
-      metadata.push(undefined);
+      metadata.push(cloneTravelMetadata(this.tempMetadata));
     }
 
     return metadata;
