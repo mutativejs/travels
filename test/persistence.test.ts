@@ -458,6 +458,21 @@ describe('Persistence Example - State Persistence', () => {
       TravelsPersistenceError
     );
 
+    for (const patches of [null, undefined]) {
+      try {
+        Travels.deserialize<AppState>({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: {},
+          position: 0,
+          patches,
+        });
+        throw new Error('Expected Travels.deserialize to throw');
+      } catch (error) {
+        expect(error).toBeInstanceOf(TravelsPersistenceError);
+        expect((error as TravelsPersistenceError).code).toBe('INVALID_PATCHES');
+      }
+    }
+
     try {
       Travels.deserialize<AppState>({
         version: TRAVELS_HISTORY_SCHEMA_VERSION,

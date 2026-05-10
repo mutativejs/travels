@@ -79,20 +79,21 @@ const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
 export const getTravelPatchesValidationError = <
   P extends PatchesOption = {},
 >(
-  patches: TravelPatches<P> | undefined
+  patches: unknown
 ): string | null => {
-  if (!patches) {
-    return null;
+  if (!isObjectRecord(patches)) {
+    return `patches must be an object with 'patches' and 'inversePatches' arrays`;
   }
 
+  const patchHistory = patches as TravelPatches<P>;
   if (
-    !isPatchHistoryEntries(patches.patches) ||
-    !isPatchHistoryEntries(patches.inversePatches)
+    !isPatchHistoryEntries(patchHistory.patches) ||
+    !isPatchHistoryEntries(patchHistory.inversePatches)
   ) {
     return `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`;
   }
 
-  if (patches.patches.length !== patches.inversePatches.length) {
+  if (patchHistory.patches.length !== patchHistory.inversePatches.length) {
     return `patches.patches and patches.inversePatches must have the same length`;
   }
 
