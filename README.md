@@ -503,6 +503,16 @@ In development, Travels scans initial state and changed state for known compatib
 
 ## Framework Integration
 
+Runnable and copyable integration examples live in [`examples/`](examples/):
+
+- [`examples/zustand.ts`](examples/zustand.ts)
+- [`examples/vue.ts`](examples/vue.ts)
+- [`examples/pinia.ts`](examples/pinia.ts)
+- [`examples/mobx.ts`](examples/mobx.ts)
+- [`examples/form-builder.ts`](examples/form-builder.ts)
+- [`examples/canvas-editor.ts`](examples/canvas-editor.ts)
+- [`examples/local-first-persistence.ts`](examples/local-first-persistence.ts)
+
 ### React Integration
 
 ```jsx
