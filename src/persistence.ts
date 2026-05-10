@@ -28,6 +28,9 @@ const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;
 };
 
+const hasOwn = (value: object, key: string): boolean =>
+  Object.prototype.hasOwnProperty.call(value, key);
+
 const isValidPatchPath = (path: unknown): boolean => {
   return (
     typeof path === 'string' ||
@@ -57,6 +60,13 @@ const isValidPatchOperation = (operation: unknown): boolean => {
   }
 
   if (!isValidPatchPath(operation.path)) {
+    return false;
+  }
+
+  if (
+    (op === 'add' || op === 'replace' || op === 'test') &&
+    !hasOwn(operation, 'value')
+  ) {
     return false;
   }
 

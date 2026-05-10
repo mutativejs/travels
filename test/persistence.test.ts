@@ -497,6 +497,38 @@ describe('Persistence Example - State Persistence', () => {
       expect(error).toBeInstanceOf(TravelsPersistenceError);
       expect((error as TravelsPersistenceError).code).toBe('INVALID_PATCHES');
     }
+
+    for (const operation of [
+      { op: 'add', path: ['count'] },
+      { op: 'replace', path: ['count'] },
+      { op: 'test', path: ['count'] },
+    ]) {
+      expect(() =>
+        Travels.deserialize<AppState>({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches: {
+            patches: [[operation]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
+          metadata: [undefined],
+        })
+      ).toThrow(TravelsPersistenceError);
+    }
+
+    expect(() =>
+      Travels.deserialize<AppState>({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: null },
+        position: 1,
+        patches: {
+          patches: [[{ op: 'replace', path: ['count'], value: null }]],
+          inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+        },
+        metadata: [undefined],
+      })
+    ).not.toThrow();
   });
 
   test('Travels.deserialize() should support corrupted storage fallback', () => {
