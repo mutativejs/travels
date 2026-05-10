@@ -250,11 +250,11 @@ Returns the stored patches (the differences between states).
 
 #### `getMetadata(): Array<TravelMetadata | undefined>`
 
-Returns metadata aligned with the stored patch entries.
+Returns metadata aligned with `getPatches()` entries, including the pending manual archive entry when one exists.
 
 #### `getHistoryEntries(): TravelHistoryEntry[]`
 
-Returns patch entries with inverse patches and optional metadata. Use this for undo menus, devtools timelines, and audit views.
+Returns patch entries with inverse patches and optional metadata, using the same entry set as `getPatches()`. Use this for undo menus, devtools timelines, and audit views.
 
 #### `serialize(): TravelsSerializedHistory`
 

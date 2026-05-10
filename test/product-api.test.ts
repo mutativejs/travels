@@ -56,6 +56,27 @@ describe('Productized history API', () => {
     expect(travels.getMetadata()[0]?.label).toBe('Move layer');
   });
 
+  test('history entries include pending manual archive entry', () => {
+    const travels = createTravels({ count: 0 }, { autoArchive: false });
+
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      { label: 'Pending edit' }
+    );
+
+    const entries = travels.getHistoryEntries();
+
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(travels.getMetadata()).toHaveLength(1);
+    expect(entries).toHaveLength(1);
+    expect(entries[0].metadata?.label).toBe('Pending edit');
+
+    entries[0].patches.length = 0;
+    expect(travels.getPatches().patches[0]).toHaveLength(1);
+  });
+
   test('metadata inputs and exported metadata are cloned', () => {
     const metadata = {
       label: 'Rename document',

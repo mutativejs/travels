@@ -1384,7 +1384,7 @@ export class Travels<
   }
 
   public getHistoryEntries(): TravelHistoryEntry<P>[] {
-    return this.toEntries(this.allPatches, this.allMetadata);
+    return this.toEntries(this.getPatches(), this.getMetadata());
   }
 
   /**
