@@ -515,28 +515,28 @@ export class Travels<
     }
 
     const trim = total - historyLimit;
+    const windowStart = Math.min(position, trim);
+    const windowEnd = windowStart + historyLimit;
     const trimmedBase = {
-      patches: cloned.patches.slice(-historyLimit),
-      inversePatches: cloned.inversePatches.slice(-historyLimit),
+      patches: cloned.patches.slice(windowStart, windowEnd),
+      inversePatches: cloned.inversePatches.slice(windowStart, windowEnd),
     } as TravelPatches<P>;
 
     const trimmed = cloneTravelPatches(trimmedBase);
-    const adjustedPosition = Math.max(
-      0,
-      Math.min(historyLimit, position - trim)
-    );
+    const adjustedPosition = position - windowStart;
 
     if (process.env.NODE_ENV !== 'production') {
       console.warn(
         `Travels: initialPatches length (${total}) exceeds maxHistory (${historyLimit}). ` +
-          `Trimmed to last ${historyLimit} steps. Position adjusted to ${adjustedPosition}.`
+          `Retained ${historyLimit} steps from position ${windowStart}. ` +
+          `Position adjusted to ${adjustedPosition}.`
       );
     }
 
     return {
       patches: trimmed,
       position: adjustedPosition,
-      metadata: alignedMetadata.slice(-historyLimit),
+      metadata: alignedMetadata.slice(windowStart, windowEnd),
     };
   }
 

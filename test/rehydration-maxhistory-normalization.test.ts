@@ -101,7 +101,7 @@ describe('Rehydration maxHistory normalization', () => {
     expect(travels.getState().count).toBe(11);
   });
 
-  test('positions outside the retained window clamp to zero', () => {
+  test('positions before the retained tail keep a contiguous future window', () => {
     const travels = rehydrateCountHistory({
       totalSteps: 12,
       maxHistory: 5,
@@ -112,5 +112,31 @@ describe('Rehydration maxHistory normalization', () => {
     expect(travels.getPatches().patches.length).toBe(5);
     expect(travels.getPosition()).toBe(0);
     expect(travels.getState().count).toBe(6);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([
+      6, 7, 8, 9, 10, 11,
+    ]);
+
+    travels.forward();
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getState().count).toBe(7);
+  });
+
+  test('restored undone snapshots do not jump across trimmed gaps', () => {
+    const travels = rehydrateCountHistory({
+      totalSteps: 10,
+      maxHistory: 5,
+      position: 2,
+      current: 2,
+    });
+
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getState().count).toBe(2);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([
+      2, 3, 4, 5, 6, 7,
+    ]);
+
+    travels.forward();
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getState().count).toBe(3);
   });
 });
