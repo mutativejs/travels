@@ -473,6 +473,16 @@ describe('Persistence Example - State Persistence', () => {
       }
     }
 
+    expect(() =>
+      Travels.deserialize<AppState>({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: {},
+        position: 0,
+        patches: { patches: [], inversePatches: [] },
+        metadata: null,
+      })
+    ).toThrow(TravelsPersistenceError);
+
     try {
       Travels.deserialize<AppState>({
         version: TRAVELS_HISTORY_SCHEMA_VERSION,

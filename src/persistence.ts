@@ -177,14 +177,14 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
   const metadata = snapshot.metadata as
     | TravelsSerializedHistory<S, P>['metadata']
     | undefined;
-  if (metadata && !Array.isArray(metadata)) {
+  if (metadata !== undefined && !Array.isArray(metadata)) {
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
       "Travels: persisted history 'metadata' must be an array when provided."
     );
   }
 
-  if (metadata && metadata.length !== patches!.patches.length) {
+  if (metadata !== undefined && metadata.length !== patches!.patches.length) {
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
       "Travels: persisted history 'metadata' length must match patches length."
