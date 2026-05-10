@@ -32,6 +32,10 @@
   ],
   "scripts": {
     "test": "vitest run",
+    "test:core": "vitest run --dir test",
+    "benchmark:matrix": "node --expose-gc benchmarks/matrix-benchmark.js",
+    "benchmark:full": "node --expose-gc benchmarks/matrix-benchmark.js --full",
+    "benchmark:ci": "node --expose-gc benchmarks/matrix-benchmark.js --ci",
     "clean": "rimraf dist",
     "build": "yarn clean && tsc --skipLibCheck && yarn build:prod",
     "build:prod": "NODE_ENV=production rollup --config --bundleConfigAsCjs",

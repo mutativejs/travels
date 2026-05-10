@@ -22,5 +22,6 @@ jobs:
         yarn install
         yarn build
         yarn test
+        yarn benchmark:ci
       env:
         CI: true

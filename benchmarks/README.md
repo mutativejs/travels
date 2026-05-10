@@ -43,9 +43,26 @@ npm run test:real
 node --expose-gc real-library-benchmark.js
 ```
 
+### 3. `matrix-benchmark.js` - Scenario matrix
+
+Runs a multi-scenario synthetic benchmark that compares a full-snapshot history stack with Travels. It covers different state sizes, update shapes, and repeated rounds, then reports `median/p95` for every metric.
+
+**Run:**
+
+```bash
+# Default matrix: 10KB, 100KB, 1MB states; 5 rounds
+npm run test:matrix
+
+# Full matrix: includes 5MB state and 7 rounds
+npm run test:full
+
+# Lightweight CI smoke guard
+npm run test:ci
+```
+
 ## Test Scenarios
 
-All tests use the same scenario:
+The original simulated and real-library scripts use the same fixed scenario:
 
 - **Initial object size**: ~100 KB (nested objects, arrays)
 - **Number of operations**: 100 updates
@@ -57,6 +74,17 @@ All tests use the same scenario:
   - Redo performance
   - Serialized size (persistence)
   - Serialization/deserialization performance
+
+The matrix benchmark expands coverage:
+
+| Dimension | Default matrix | Full matrix |
+| --- | --- | --- |
+| State sizes | 10KB, 100KB, 1MB | 10KB, 100KB, 1MB, 5MB |
+| Update types | small patch, large patch, array insert/delete, deep object, Map/Set runtime | same |
+| Rounds | 5 | 7 |
+| Reported statistics | median, p95 | median, p95 |
+
+The CI mode is intentionally smaller: 10KB and 100KB states, 20 updates, 3 rounds, and a persistence smoke guard for compact patch-history scenarios. It should catch obvious regressions without pretending that CI runners provide lab-quality latency numbers.
 
 ## Why `--expose-gc`?
 
@@ -152,6 +180,7 @@ This will run in order:
 
 1. Simulated implementations
 2. Real libraries
+3. Scenario matrix
 
 ## Latest Results (Node v22.21.1)
 

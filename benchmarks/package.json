@@ -7,7 +7,10 @@
   "scripts": {
     "test:memory": "node --expose-gc memory-performance-test.js",
     "test:real": "node --expose-gc real-library-benchmark.js",
-    "test:all": "npm run test:memory && npm run test:real"
+    "test:matrix": "node --expose-gc matrix-benchmark.js",
+    "test:full": "node --expose-gc matrix-benchmark.js --full",
+    "test:ci": "node --expose-gc matrix-benchmark.js --ci",
+    "test:all": "npm run test:memory && npm run test:real && npm run test:matrix"
   },
   "dependencies": {
     "redux": "^4.2.1",
