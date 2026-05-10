@@ -21,6 +21,40 @@ describe('Productized history API', () => {
     expect(travels.serialize().metadata?.[0]?.source).toBe('toolbar');
   });
 
+  test('metadata inputs and exported metadata are cloned', () => {
+    const metadata = {
+      label: 'Rename document',
+      nested: { source: 'toolbar' },
+    };
+    const travels = createTravels({ title: 'Draft' });
+
+    travels.setState((draft) => {
+      draft.title = 'Published';
+    }, metadata);
+
+    metadata.label = 'Mutated input';
+    metadata.nested.source = 'mutated-input';
+
+    expect(travels.getMetadata()[0]).toEqual({
+      label: 'Rename document',
+      nested: { source: 'toolbar' },
+    });
+
+    const serializedMetadata = travels.serialize().metadata![0]!;
+    serializedMetadata.label = 'Mutated serialized';
+    (serializedMetadata.nested as { source: string }).source =
+      'mutated-serialized';
+
+    const entryMetadata = travels.getHistoryEntries()[0].metadata!;
+    entryMetadata.label = 'Mutated entry';
+    (entryMetadata.nested as { source: string }).source = 'mutated-entry';
+
+    expect(travels.getMetadata()[0]).toEqual({
+      label: 'Rename document',
+      nested: { source: 'toolbar' },
+    });
+  });
+
   test('transaction batches multiple updates into one undo step', () => {
     const travels = createTravels({
       title: 'Draft',

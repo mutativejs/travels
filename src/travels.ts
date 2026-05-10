@@ -149,11 +149,22 @@ const cloneTravelPatches = <P extends PatchesOption = {}>(
     : [],
 });
 
+const cloneTravelMetadata = (
+  metadata: TravelMetadata | undefined
+): TravelMetadata | undefined =>
+  metadata ? (deepCloneValue(metadata) as TravelMetadata) : undefined;
+
+const cloneTravelMetadataList = (
+  metadata: Array<TravelMetadata | undefined>
+): Array<TravelMetadata | undefined> => metadata.map(cloneTravelMetadata);
+
 const alignMetadataToPatchCount = (
   metadata: Array<TravelMetadata | undefined> | undefined,
   count: number
 ): Array<TravelMetadata | undefined> =>
-  Array.from({ length: count }, (_, index) => metadata?.[index]);
+  Array.from({ length: count }, (_, index) =>
+    cloneTravelMetadata(metadata?.[index])
+  );
 
 const deepClone = <T>(source: T, target?: any): T => {
   if (target && source && typeof source === 'object') {
@@ -583,7 +594,7 @@ export class Travels<
     return patches.patches.map((patch, index) => ({
       patches: patch,
       inversePatches: patches.inversePatches[index],
-      metadata: metadata[index],
+      metadata: cloneTravelMetadata(metadata[index]),
     }));
   }
 
@@ -596,7 +607,9 @@ export class Travels<
       patches: this.allPatches.patches.slice(position),
       inversePatches: this.allPatches.inversePatches.slice(position),
     } as TravelPatches<P>;
-    const discardedMetadata = this.allMetadata.slice(position);
+    const discardedMetadata = cloneTravelMetadataList(
+      this.allMetadata.slice(position)
+    );
 
     this.allPatches.patches.splice(
       position,
@@ -630,7 +643,9 @@ export class Travels<
     this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
       -this.maxHistory
     );
-    this.allMetadata = this.allMetadata.slice(-this.maxHistory);
+    this.allMetadata = cloneTravelMetadataList(
+      this.allMetadata.slice(-this.maxHistory)
+    );
   }
 
   private resetHistoryToCurrentState(): void {
@@ -678,7 +693,7 @@ export class Travels<
           : this.state,
       position: this.position,
       allPatches: cloneTravelPatches(this.allPatches),
-      allMetadata: this.allMetadata.slice(),
+      allMetadata: cloneTravelMetadataList(this.allMetadata),
       tempPatches: cloneTravelPatches(this.tempPatches),
       initialState: cloneInitialSnapshot(this.initialState),
       initialPosition: this.initialPosition,
@@ -686,7 +701,7 @@ export class Travels<
         ? cloneTravelPatches(this.initialPatches)
         : undefined,
       initialMetadata: this.initialMetadata
-        ? this.initialMetadata.slice()
+        ? cloneTravelMetadataList(this.initialMetadata)
         : undefined,
       pendingState: this.pendingState,
       pendingStateVersion: this.pendingStateVersion,
@@ -699,7 +714,7 @@ export class Travels<
     this.restoreStateFromSnapshot(snapshot.state);
     this.position = snapshot.position;
     this.allPatches = cloneTravelPatches(snapshot.allPatches);
-    this.allMetadata = snapshot.allMetadata.slice();
+    this.allMetadata = cloneTravelMetadataList(snapshot.allMetadata);
     this.tempPatches = cloneTravelPatches(snapshot.tempPatches);
     this.initialState = cloneInitialSnapshot(snapshot.initialState);
     this.initialPosition = snapshot.initialPosition;
@@ -707,7 +722,7 @@ export class Travels<
       ? cloneTravelPatches(snapshot.initialPatches)
       : undefined;
     this.initialMetadata = snapshot.initialMetadata
-      ? snapshot.initialMetadata.slice()
+      ? cloneTravelMetadataList(snapshot.initialMetadata)
       : undefined;
     this.pendingState = snapshot.pendingState;
     this.pendingStateVersion = snapshot.pendingStateVersion;
@@ -868,7 +883,7 @@ export class Travels<
 
       this.allPatches.patches.push(patches);
       this.allPatches.inversePatches.push(inversePatches);
-      this.allMetadata.push(metadata);
+      this.allMetadata.push(cloneTravelMetadata(metadata));
 
       this.position =
         this.maxHistory < this.allPatches.patches.length
@@ -926,7 +941,7 @@ export class Travels<
 
     this.allPatches.patches.push(inversePatches);
     this.allPatches.inversePatches.push(patches);
-    this.allMetadata.push(metadata);
+    this.allMetadata.push(cloneTravelMetadata(metadata));
 
     // Respect maxHistory limit
     this.trimHistoryToMax();
@@ -960,7 +975,9 @@ export class Travels<
     maybeFn?: () => void
   ): void {
     const metadata =
-      typeof metadataOrFn === 'function' ? undefined : metadataOrFn;
+      typeof metadataOrFn === 'function'
+        ? undefined
+        : cloneTravelMetadata(metadataOrFn);
     const fn = typeof metadataOrFn === 'function' ? metadataOrFn : maybeFn;
 
     if (!fn) {
@@ -1246,7 +1263,7 @@ export class Travels<
     this.position = this.initialPosition;
     this.allPatches = cloneTravelPatches(this.initialPatches);
     this.allMetadata = this.initialMetadata
-      ? this.initialMetadata.slice()
+      ? cloneTravelMetadataList(this.initialMetadata)
       : [];
     this.tempPatches = cloneTravelPatches();
 
