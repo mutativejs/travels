@@ -435,6 +435,35 @@ describe('Persistence Example - State Persistence', () => {
     expect(reloadedTravels.getState()).toEqual({ count: 0 });
   });
 
+  test('serialize() should persist multi-update pending manual patches in replayable order', () => {
+    const travels = createTravels(
+      { items: [] as string[] },
+      { autoArchive: false, maxHistory: 10 }
+    );
+
+    travels.setState((draft) => {
+      draft.items.push('a');
+    });
+    travels.setState((draft) => {
+      draft.items.push('b');
+    });
+
+    const history = Travels.deserialize<{ items: string[] }>(
+      JSON.stringify(travels.serialize())
+    );
+    const reloadedTravels = createTravels(history.state, {
+      autoArchive: false,
+      history,
+      maxHistory: 10,
+    });
+
+    expect(reloadedTravels.getState()).toEqual({ items: ['a', 'b'] });
+    reloadedTravels.back();
+    expect(reloadedTravels.getState()).toEqual({ items: [] });
+    reloadedTravels.forward();
+    expect(reloadedTravels.getState()).toEqual({ items: ['a', 'b'] });
+  });
+
   test('serialize() should align metadata for history restored without metadata', () => {
     const initialTravels = createTravels({ count: 0 });
     initialTravels.setState((draft) => {

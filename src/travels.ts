@@ -942,19 +942,10 @@ export class Travels<
     if (!this.tempPatches.patches.length) return false;
     const archiveMetadata =
       metadata === undefined ? this.tempMetadata : metadata;
+    const pendingArchive = this.getPendingArchiveEntry();
 
-    // Use pendingState if available, otherwise use current state
-    const stateToUse = (this.pendingState ?? this.state) as object;
-
-    // Merge temp patches
-    const [, patches, inversePatches] = create(
-      stateToUse,
-      (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
-      this.options
-    ) as [S, Patches<P>, Patches<P>];
-
-    this.allPatches.patches.push(inversePatches);
-    this.allPatches.inversePatches.push(patches);
+    this.allPatches.patches.push(pendingArchive.patches);
+    this.allPatches.inversePatches.push(pendingArchive.inversePatches);
     this.allMetadata.push(cloneTravelMetadata(archiveMetadata));
 
     // Respect maxHistory limit
@@ -1065,17 +1056,36 @@ export class Travels<
   /**
    * Get all patches including temporary patches
    */
+  private getPendingArchiveEntry(): {
+    patches: Patches<P>;
+    inversePatches: Patches<P>;
+  } {
+    // Use pendingState if available, otherwise use current state.
+    const stateToUse = (this.pendingState ?? this.state) as object;
+
+    // Merge temp patches into the same entry shape archive() would commit.
+    const [, patches, inversePatches] = create(
+      stateToUse,
+      (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
+      this.options
+    ) as [S, Patches<P>, Patches<P>];
+
+    return {
+      patches: inversePatches,
+      inversePatches: patches,
+    };
+  }
+
   private getAllPatches(): TravelPatches<P> {
     const shouldArchive =
       !this.autoArchive && !!this.tempPatches.patches.length;
 
     if (shouldArchive) {
+      const pendingArchive = this.getPendingArchiveEntry();
       return {
-        patches: this.allPatches.patches.concat([
-          this.tempPatches.patches.flat(),
-        ]),
+        patches: this.allPatches.patches.concat([pendingArchive.patches]),
         inversePatches: this.allPatches.inversePatches.concat([
-          this.tempPatches.inversePatches.flat().reverse(),
+          pendingArchive.inversePatches,
         ]),
       };
     }
