@@ -2,7 +2,7 @@
  * Vue composable integration example.
  */
 
-import { computed, readonly, shallowRef } from 'vue';
+import { readonly, shallowRef } from 'vue';
 import {
   createTravels,
   type TravelMetadata,
@@ -17,17 +17,21 @@ export function useTravelsHistory<S>(
   const travels = createTravels(initialState, options);
   const state = shallowRef(travels.getState());
   const position = shallowRef(travels.getPosition());
+  const canUndo = shallowRef(travels.canBack());
+  const canRedo = shallowRef(travels.canForward());
 
   travels.subscribe((nextState, _patches, nextPosition) => {
     state.value = nextState;
     position.value = nextPosition;
+    canUndo.value = travels.canBack();
+    canRedo.value = travels.canForward();
   });
 
   return {
     state: readonly(state),
     position: readonly(position),
-    canUndo: computed(() => travels.canBack()),
-    canRedo: computed(() => travels.canForward()),
+    canUndo: readonly(canUndo),
+    canRedo: readonly(canRedo),
     setState: (updater: Updater<S>, metadata?: TravelMetadata) =>
       travels.setState(updater, metadata),
     undo: (amount?: number) => travels.back(amount),
