@@ -87,11 +87,14 @@ export async function createLocalFirstDocument(documentId: string) {
     strictInitialPatches: true,
   });
   const channel = new BroadcastChannel(`travels:${documentId}`);
+  let applyingRemoteSnapshot = false;
 
   travels.subscribe(() => {
     const snapshot = travels.serialize();
     saveSnapshot(documentId, snapshot);
-    channel.postMessage(snapshot);
+    if (!applyingRemoteSnapshot) {
+      channel.postMessage(snapshot);
+    }
   });
 
   channel.onmessage = (event: MessageEvent<unknown>) => {
@@ -103,8 +106,12 @@ export async function createLocalFirstDocument(documentId: string) {
       return;
     }
 
-    travels.setState(remote.state);
-    travels.rebase();
+    applyingRemoteSnapshot = true;
+    try {
+      travels.replaceStateWithoutHistory(remote.state);
+    } finally {
+      applyingRemoteSnapshot = false;
+    }
   };
 
   return travels;
