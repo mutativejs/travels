@@ -49,6 +49,10 @@ const isValidPatchPath = (path: unknown): boolean => {
   );
 };
 
+const isRootPatchPath = (path: unknown): boolean => {
+  return path === '' || (Array.isArray(path) && path.length === 0);
+};
+
 const isValidPatchOperation = (operation: unknown): boolean => {
   if (!isObjectRecord(operation)) {
     return false;
@@ -64,6 +68,10 @@ const isValidPatchOperation = (operation: unknown): boolean => {
   }
 
   if (!isValidPatchPath(operation.path)) {
+    return false;
+  }
+
+  if ((op === 'add' || op === 'remove') && isRootPatchPath(operation.path)) {
     return false;
   }
 

@@ -563,6 +563,26 @@ describe('Persistence Example - State Persistence', () => {
       })
     ).toThrow(TravelsPersistenceError);
 
+    for (const operation of [
+      { op: 'add', path: [], value: { count: 1 } },
+      { op: 'add', path: '', value: { count: 1 } },
+      { op: 'remove', path: [] },
+      { op: 'remove', path: '' },
+    ]) {
+      expect(() =>
+        Travels.deserialize<AppState>({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches: {
+            patches: [[operation]],
+            inversePatches: [[{ op: 'replace', path: [], value: {} }]],
+          },
+          metadata: [undefined],
+        })
+      ).toThrow(TravelsPersistenceError);
+    }
+
     expect(() =>
       Travels.deserialize<AppState>({
         version: TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -571,6 +591,19 @@ describe('Persistence Example - State Persistence', () => {
         patches: {
           patches: [[{ op: 'replace', path: ['count'], value: null }]],
           inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+        },
+        metadata: [undefined],
+      })
+    ).not.toThrow();
+
+    expect(() =>
+      Travels.deserialize<AppState>({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 1 },
+        position: 1,
+        patches: {
+          patches: [[{ op: 'replace', path: [], value: { count: 1 } }]],
+          inversePatches: [[{ op: 'replace', path: [], value: {} }]],
         },
         metadata: [undefined],
       })
