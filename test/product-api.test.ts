@@ -246,6 +246,29 @@ describe('Productized history API', () => {
     expect(travels.getPatches().patches).toHaveLength(0);
   });
 
+  test('replaceStateWithoutHistory clears history even when updater is a no-op', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    travels.replaceStateWithoutHistory(() => {
+      // keep the current state as the new baseline
+    });
+
+    expect(travels.getState()).toEqual({ count: 1 });
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+    expect(travels.canBack()).toBe(false);
+
+    travels.setState((draft) => {
+      draft.count = 2;
+    });
+    travels.reset();
+
+    expect(travels.getState()).toEqual({ count: 1 });
+  });
+
   test('onBranchDiscard exposes discarded redo entries', () => {
     const discardedLabels: string[] = [];
     const travels = createTravels(
