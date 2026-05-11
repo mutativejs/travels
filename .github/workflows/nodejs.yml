@@ -22,6 +22,7 @@ jobs:
         yarn install
         yarn build
         yarn test:types
+        yarn test:examples
         yarn test
         yarn test:browser
         yarn coverage

@@ -32,6 +32,27 @@ interface AppState {
 // Storage key
 const STORAGE_KEY = 'travels-app-state';
 
+type LegacyPersistenceSnapshot = {
+  version: '1.0.0';
+  state: AppState;
+  patches: TravelsSerializedHistory<AppState>['patches'];
+  position: number;
+};
+
+function isLegacyPersistenceSnapshot(
+  snapshot: unknown
+): snapshot is LegacyPersistenceSnapshot {
+  return (
+    !!snapshot &&
+    typeof snapshot === 'object' &&
+    'version' in snapshot &&
+    (snapshot as { version: unknown }).version === '1.0.0' &&
+    'state' in snapshot &&
+    'patches' in snapshot &&
+    'position' in snapshot
+  );
+}
+
 /**
  * Save travels state to localStorage
  */
@@ -64,23 +85,12 @@ function loadFromStorage(): TravelsSerializedHistory<AppState> | null {
     const data = Travels.deserialize<AppState>(stored, {
       fallback: createEmptySnapshot,
       migrate(snapshot) {
-        if (
-          snapshot &&
-          typeof snapshot === 'object' &&
-          'version' in snapshot &&
-          (snapshot as { version: unknown }).version === '1.0.0'
-        ) {
-          const legacy = snapshot as {
-            state: AppState;
-            patches: TravelsSerializedHistory<AppState>['patches'];
-            position: number;
-          };
-
+        if (isLegacyPersistenceSnapshot(snapshot)) {
           return {
             version: TRAVELS_HISTORY_SCHEMA_VERSION,
-            state: legacy.state,
-            patches: legacy.patches,
-            position: legacy.position,
+            state: snapshot.state,
+            patches: snapshot.patches,
+            position: snapshot.position,
           };
         }
 

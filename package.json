@@ -34,6 +34,7 @@
     "test": "vitest run",
     "test:core": "vitest run --dir test",
     "test:browser": "vitest run --dir test test/browser-environment.test.ts --environment jsdom",
+    "test:examples": "tsc --project tsconfig.examples.json",
     "test:types": "tsc --noEmit --skipLibCheck",
     "coverage": "vitest run --dir test --coverage",
     "benchmark:matrix": "node --expose-gc benchmarks/matrix-benchmark.js",
