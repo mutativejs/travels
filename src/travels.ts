@@ -665,17 +665,6 @@ export class Travels<
     this.tempMetadata = undefined;
   }
 
-  private hasRecordedHistory(): boolean {
-    return (
-      this.position !== 0 ||
-      this.allPatches.patches.length > 0 ||
-      this.allPatches.inversePatches.length > 0 ||
-      this.tempPatches.patches.length > 0 ||
-      this.tempPatches.inversePatches.length > 0 ||
-      this.allMetadata.length > 0
-    );
-  }
-
   private restoreStateFromSnapshot(snapshot: S): void {
     const canRestoreMutably =
       this.mutable && isObjectLike(this.state) && isObjectLike(snapshot);
@@ -1056,6 +1045,8 @@ export class Travels<
   }
 
   public replaceStateWithoutHistory(updater: Updater<S>): void {
+    const historyVersionBefore = this.historyVersion;
+
     this.pauseTracking();
     try {
       this.setState(updater);
@@ -1063,7 +1054,7 @@ export class Travels<
       this.resumeTracking();
     }
 
-    if (this.hasRecordedHistory()) {
+    if (this.historyVersion === historyVersionBefore) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
       this.notify();

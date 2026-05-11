@@ -269,6 +269,28 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ count: 1 });
   });
 
+  test('replaceStateWithoutHistory can rebase externally mutated state', () => {
+    const state = { count: 0 };
+    const travels = createTravels(state, {
+      mutable: true,
+      warnOnUnsupportedState: false,
+    });
+
+    state.count = 5;
+    travels.replaceStateWithoutHistory(() => {
+      // external mutable store already changed the state reference
+    });
+
+    travels.setState((draft) => {
+      draft.count = 6;
+    });
+    travels.reset();
+
+    expect(travels.getState()).toEqual({ count: 5 });
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+  });
+
   test('onBranchDiscard exposes discarded redo entries', () => {
     const discardedLabels: string[] = [];
     const travels = createTravels(
