@@ -49,7 +49,10 @@ async function saveSnapshot(
   database.close();
 }
 
-async function loadSnapshot(key: string) {
+async function loadSnapshot(
+  key: string,
+  fallback: TravelsSerializedHistory<DocumentState>
+) {
   const database = await openDatabase();
   const snapshot = await new Promise<unknown>((resolve, reject) => {
     const transaction = database.transaction(storeName, 'readonly');
@@ -59,7 +62,9 @@ async function loadSnapshot(key: string) {
   });
   database.close();
 
-  return snapshot ? Travels.deserialize<DocumentState>(snapshot) : null;
+  return snapshot
+    ? Travels.deserialize<DocumentState>(snapshot, { fallback })
+    : null;
 }
 
 export async function createLocalFirstDocument(documentId: string) {
@@ -75,7 +80,7 @@ export async function createLocalFirstDocument(documentId: string) {
     position: 0,
   };
 
-  const persisted = (await loadSnapshot(documentId)) ?? fallback;
+  const persisted = (await loadSnapshot(documentId, fallback)) ?? fallback;
   const travels = createTravels(persisted.state, {
     history: persisted,
     maxHistory: 1000,
