@@ -4,5 +4,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["examples/*.ts"]
+  "include": ["examples/*.ts", "examples/*.tsx"]
 }
