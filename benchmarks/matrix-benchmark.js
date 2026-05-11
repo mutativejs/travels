@@ -227,7 +227,7 @@ function runSnapshotRound({ scenario, stateSizeKB, iterations }) {
 
   const before = collectHeap();
 
-  const setStateTime = measure(() => {
+  const setStateTotalTime = measure(() => {
     for (let iteration = 0; iteration < iterations; iteration += 1) {
       const next = cloneState(stack.present);
       scenario.apply(next, iteration, stateSizeKB);
@@ -267,7 +267,7 @@ function runSnapshotRound({ scenario, stateSizeKB, iterations }) {
 
   return {
     memoryMB: heapDeltaMB(before, afterUpdates),
-    setStateMs: setStateTime,
+    setStateMs: round(setStateTotalTime / iterations),
     undoMs: undoTime,
     redoMs: redoTime,
     serializedSizeKB: round(serialized.length / 1024),
@@ -282,7 +282,7 @@ function runTravelsRound({ scenario, stateSizeKB, iterations }) {
 
   const before = collectHeap();
 
-  const setStateTime = measure(() => {
+  const setStateTotalTime = measure(() => {
     for (let iteration = 0; iteration < iterations; iteration += 1) {
       travels.setState((draft) => {
         scenario.apply(draft, iteration, stateSizeKB);
@@ -318,7 +318,7 @@ function runTravelsRound({ scenario, stateSizeKB, iterations }) {
 
   return {
     memoryMB: heapDeltaMB(before, afterUpdates),
-    setStateMs: setStateTime,
+    setStateMs: round(setStateTotalTime / iterations),
     undoMs: undoTime,
     redoMs: redoTime,
     serializedSizeKB: round(serialized.length / 1024),

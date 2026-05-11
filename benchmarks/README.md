@@ -47,6 +47,8 @@ node --expose-gc real-library-benchmark.js
 
 Runs a multi-scenario synthetic benchmark that compares a full-snapshot history stack with Travels. It covers different state sizes, update shapes, and repeated rounds, then reports `median/p95` for every metric.
 
+The matrix script reports `setState/update (ms)` as average time per update within each round. The older fixed-scenario scripts report total time for their full update loop.
+
 **Run:**
 
 ```bash
@@ -106,6 +108,8 @@ Measure memory growth after 100 operations.
 ### setState performance
 
 Measure total time for 100 state updates.
+
+In the matrix benchmark, `setState/update (ms)` is normalized to average milliseconds per update so scenarios with different iteration counts are easier to compare.
 
 ### Undo/Redo performance
 
