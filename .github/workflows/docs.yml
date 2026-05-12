@@ -24,8 +24,9 @@ jobs:
         with:
           node-version: '22.x'
       - run: yarn install
+      - uses: actions/configure-pages@v6
       - run: yarn build:doc:site
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: docs-site
 
@@ -37,4 +38,4 @@ jobs:
     needs: build
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
