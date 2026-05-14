@@ -4,6 +4,50 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-05-15
+
+### Added
+
+- Add versioned persistence APIs for serializing and restoring state, history, position, metadata, and schema version.
+- Add persistence migration hooks and compatibility checks for safely loading older or unsupported snapshots.
+- Add warnings for unsupported state shapes so applications can detect values that are unsafe for JSON Patch persistence.
+- Add product-oriented history controls for archive metadata, pending history entries, manual pending metadata, and status reporting.
+- Add integration examples for persistence adapters, local-first persistence, form builders, canvas editors, MobX, Pinia, Vue, and Zustand.
+- Add browser, property-based, persistence, product API, Vue example, and type-level test coverage.
+
+### Fixed
+
+- Validate persisted patches, patch paths, metadata entries, patch values, unsupported operations, and root add/remove operations before rehydration.
+- Roll back failed transactions and isolate nested transactions to keep history and state consistent.
+- Preserve, clone, serialize, and forward history metadata and pending manual patches consistently.
+- Retain contiguous rehydrated history while respecting `maxHistory`.
+- Keep Vue history methods and status refs in sync after controls updates.
+- Avoid rebroadcasting remote snapshots and provide safer local-first snapshot fallback behavior.
+- Handle rebase and reset no-op replacements without corrupting baseline history.
+
+### Changed
+
+- GitHub Pages and npm publishing now run only from explicit `v*` release tags.
+- Release tags must match the `package.json` version exactly, with a leading `v`.
+- Tag releases now run the full CI, e2e, coverage, and benchmark gates before npm publishing or GitHub Pages deployment.
+- Ordinary pushes to `main` now run CI only and no longer publish docs, publish npm, or create release PRs.
+- Update release documentation to use manual version and changelog commits followed by explicit tag publishing.
+
+### Documentation
+
+- Clarify README positioning, persistence usage, compatibility guidance, and framework integration paths.
+- Add compatibility, migration, and release checklist documentation.
+
+## [1.2.0] - 2026-04-22
+
+### Added
+
+- Add rebasable history support for reconciling undo/redo history with external state changes.
+
+### Documentation
+
+- Document rebasable controls and form manager integration guidance.
+
 ## [1.1.0] - 2026-02-28
 
 ### Fixed

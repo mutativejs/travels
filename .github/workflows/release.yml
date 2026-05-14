@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install --frozen-lockfile
+      - name: Verify release tag
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version v${version}."
+            exit 1
+          fi
+      - run: yarn playwright install --with-deps chromium
+      - run: yarn build
+      - run: yarn test:types
+      - run: yarn test:examples
+      - run: yarn test
+      - run: yarn test:browser
+      - run: yarn test:e2e:types
+      - run: yarn test:e2e:ci
+      - run: yarn coverage
+      - run: yarn benchmark:ci
+
+  publish-npm:
+    runs-on: ubuntu-latest
+    needs: [test, build-pages]
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          CI: true
+
+  build-pages:
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - run: yarn install --frozen-lockfile
+      - uses: actions/configure-pages@v6
+      - run: yarn build:doc:site
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs-site
+
+  deploy-pages:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: publish-npm
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

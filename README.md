@@ -3,8 +3,6 @@
 ![Node CI](https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg)
 [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
 ![license](https://img.shields.io/npm/l/travels)
-![coverage](https://img.shields.io/badge/coverage-threshold%2075%25-brightgreen)
-![bundle size](https://img.shields.io/bundlephobia/minzip/travels)
 
 **Patch-based undo/redo optimized for large state, small updates, long history, and persistence.**
 
@@ -796,6 +794,8 @@ const history = Travels.deserialize(stored, {
 
 For larger histories, store `JSON.stringify(travels.serialize())` in IndexedDB instead of localStorage. If storage size matters, compress the serialized string with a library such as `lz-string` before writing it, then decompress before calling `Travels.deserialize(...)`.
 
+For Dexie.js, idb, localForage, and localspace adapters, see the [Persistence Integrations Guide](docs/persistence-integrations.md).
+
 ## TypeScript Support
 
 `travels` is written in TypeScript and provides full type definitions.
@@ -860,6 +860,7 @@ travels.setState = function (updater: any) {
 ## Maintenance
 
 - [Compatibility policy](docs/compatibility.md)
+- [Persistence integrations](docs/persistence-integrations.md)
 - [Migration guide](docs/migration-guide.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)

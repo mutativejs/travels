@@ -1,6 +1,9 @@
 name: Node CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'
 
 jobs:
   build:
@@ -19,12 +22,15 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: yarn install, build, and test
       run: |
-        yarn install
+        yarn install --frozen-lockfile
+        yarn playwright install --with-deps chromium
         yarn build
         yarn test:types
         yarn test:examples
         yarn test
         yarn test:browser
+        yarn test:e2e:types
+        yarn test:e2e:ci
         yarn coverage
         yarn benchmark:ci
       env:

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travels E2E Fixture</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1>Travels E2E Fixture</h1>
+      </header>
+
+      <section class="panel" aria-labelledby="package-heading">
+        <h2 id="package-heading">Package Entry</h2>
+        <p data-testid="package-ready">loading</p>
+      </section>
+
+      <section class="panel" aria-labelledby="react-heading">
+        <h2 id="react-heading">React Immutable</h2>
+        <div id="react-root"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="pinia-heading">
+        <h2 id="pinia-heading">Vue Pinia Mutable</h2>
+        <div id="pinia-root"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="mobx-heading">
+        <h2 id="mobx-heading">MobX Mutable</h2>
+        <div id="mobx-root"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="persistence-heading">
+        <h2 id="persistence-heading">Browser Persistence</h2>
+        <div id="persistence-root"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="persistence-adapters-heading">
+        <h2 id="persistence-adapters-heading">Persistence Adapters</h2>
+        <div id="persistence-adapters-root"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="max-history-heading">
+        <h2 id="max-history-heading">maxHistory Branch</h2>
+        <div id="max-history-root"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
