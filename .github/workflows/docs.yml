@@ -2,9 +2,8 @@ name: API Docs
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
@@ -24,6 +23,13 @@ jobs:
         with:
           node-version: '22.x'
       - run: yarn install
+      - name: Verify release tag
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version v${version}."
+            exit 1
+          fi
       - uses: actions/configure-pages@v6
       - run: yarn build:doc:site
       - uses: actions/upload-pages-artifact@v4

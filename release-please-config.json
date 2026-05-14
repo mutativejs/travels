@@ -1,9 +1,0 @@
-{
-  "packages": {
-    ".": {
-      "release-type": "node",
-      "package-name": "travels",
-      "changelog-path": "CHANGELOG.md"
-    }
-  }
-}
