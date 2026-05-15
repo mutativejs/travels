@@ -237,9 +237,9 @@ Remove all past and future history and make the current state as the new initial
 
 Returns the complete history of states as an array.
 
-> **IMPORTANT**: Do not modify the returned array. It is cached internally.
-> In development mode, the array is frozen
-> In production mode, modifications will corrupt the cache
+> **IMPORTANT**: Treat the returned array and every state entry as read-only. They are cached internally.
+> In development mode, only the array container is frozen; the state entries are shared cached snapshots and are not deep-frozen.
+> In production mode, modifying the array or any entry will corrupt the cache.
 
 #### `getPosition(): number`
 
@@ -410,7 +410,7 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 - Root array time-travel in mutable mode can have ordering limitations; if you rely on array root navigation, prefer immutable mode or wrap the array in an object.
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
-- `getHistory()` reconstructs new objects from the stored patches. Treat them as read-only snapshots—they are not reactive proxies.
+- `getHistory()` reconstructs and caches snapshots from the stored patches. Treat the returned array and every entry as read-only; they are not reactive proxies.
 - `subscribe` listeners always receive the live mutable object, so `state === travels.getState()` stays true.
 
 ### Example: Pinia/Vue Store

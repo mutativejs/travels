@@ -1206,9 +1206,11 @@ export class Travels<
    * @returns The history array. Reference equality indicates cache hit.
    *
    * @remarks
-   * **IMPORTANT**: Do not modify the returned array. It is cached internally.
-   * - In development mode, the array is frozen
-   * - In production mode, modifications will corrupt the cache
+   * **IMPORTANT**: Treat the returned array and every state entry as read-only.
+   * They are cached internally.
+   * - In development mode, only the array container is frozen.
+   * - State entries are shared cached snapshots and are not deep-frozen.
+   * - In production mode, modifying the array or its entries will corrupt the cache.
    */
   public getHistory(): readonly S[] {
     if (
@@ -1257,7 +1259,8 @@ export class Travels<
       history,
     };
 
-    // In development mode, freeze the history array to prevent accidental mutations
+    // In development mode, freeze the history container to catch push/splice.
+    // Entries remain shared cached snapshots and should be treated as read-only.
     if (process.env.NODE_ENV !== 'production') {
       Object.freeze(history);
     }

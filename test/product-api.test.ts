@@ -384,6 +384,23 @@ describe('Productized history API', () => {
     expect(snapshots[1]).toBe(snapshots[2]);
   });
 
+  test('getHistory returns a frozen cached array with shared entries', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    const history = travels.getHistory();
+    const cachedHistory = travels.getHistory();
+
+    if (process.env.NODE_ENV !== 'production') {
+      expect(Object.isFrozen(history)).toBe(true);
+    }
+    expect(cachedHistory).toBe(history);
+    expect(cachedHistory[0]).toBe(history[0]);
+  });
+
   test('onError receives typed transaction errors', () => {
     const onError = vi.fn();
     const travels = createTravels(
