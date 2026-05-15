@@ -340,6 +340,30 @@ describe('Productized history API', () => {
     expect(events).toEqual(['setState', 'go', 'reset']);
   });
 
+  test('subscribers and devtools share one patches snapshot per event', () => {
+    const snapshots: unknown[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          snapshots.push(event.patches);
+        },
+      }
+    );
+    const getPatchesSpy = vi.spyOn(travels, 'getPatches');
+
+    travels.subscribe((_state, patches) => snapshots.push(patches));
+    travels.subscribe((_state, patches) => snapshots.push(patches));
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    expect(getPatchesSpy).toHaveBeenCalledTimes(1);
+    expect(snapshots).toHaveLength(3);
+    expect(snapshots[0]).toBe(snapshots[1]);
+    expect(snapshots[1]).toBe(snapshots[2]);
+  });
+
   test('onError receives typed transaction errors', () => {
     const onError = vi.fn();
     const travels = createTravels(

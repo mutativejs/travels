@@ -607,23 +607,48 @@ export class Travels<
   /**
    * Notify all listeners of state changes
    */
-  private notify(): void {
+  private getEventPatches(): TravelPatches<P> | undefined {
+    if (!this.listeners.size && !this.devtools) {
+      return undefined;
+    }
+    return this.getPatches();
+  }
+
+  private notify(patches?: TravelPatches<P>): void {
+    if (!this.listeners.size) {
+      return;
+    }
+    const eventPatches = patches ?? this.getPatches();
     this.listeners.forEach((listener) =>
-      listener(this.state, this.getPatches(), this.position)
+      listener(this.state, eventPatches, this.position)
     );
   }
 
   private emitDevtools(
     type: TravelsDevtoolsEvent<S, P>['type'],
-    metadata?: TravelMetadata
+    metadata?: TravelMetadata,
+    patches?: TravelPatches<P>
   ): void {
+    if (!this.devtools) {
+      return;
+    }
+    const eventPatches = patches ?? this.getPatches();
     this.devtools?.({
       type,
       state: this.state,
       position: this.position,
-      patches: this.getPatches(),
+      patches: eventPatches,
       metadata,
     });
+  }
+
+  private emitChange(
+    type: TravelsDevtoolsEvent<S, P>['type'],
+    metadata?: TravelMetadata
+  ): void {
+    const patches = this.getEventPatches();
+    this.notify(patches);
+    this.emitDevtools(type, metadata, patches);
   }
 
   private reportError(code: 'TRANSACTION_FAILED', error: unknown): TravelsError {
@@ -931,8 +956,7 @@ export class Travels<
     if (this.trackingPauseDepth > 0) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
-      this.notify();
-      this.emitDevtools('replaceStateWithoutHistory', metadata);
+      this.emitChange('replaceStateWithoutHistory', metadata);
       return;
     }
 
@@ -986,8 +1010,7 @@ export class Travels<
     }
 
     this.invalidateHistoryCache();
-    this.notify();
-    this.emitDevtools('setState', metadata);
+    this.emitChange('setState', metadata);
   }
 
   /**
@@ -1012,8 +1035,7 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
-    this.notify();
-    this.emitDevtools('archive', archiveMetadata);
+    this.emitChange('archive', archiveMetadata);
     return true;
   }
 
@@ -1112,8 +1134,7 @@ export class Travels<
     if (this.historyVersion === historyVersionBefore) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
-      this.notify();
-      this.emitDevtools('replaceStateWithoutHistory');
+      this.emitChange('replaceStateWithoutHistory');
     }
   }
 
@@ -1298,8 +1319,7 @@ export class Travels<
 
     this.position = nextPosition;
     this.invalidateHistoryCache();
-    this.notify();
-    this.emitDevtools('go');
+    this.emitChange('go');
   }
 
   /**
@@ -1359,8 +1379,7 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
-    this.notify();
-    this.emitDevtools('reset');
+    this.emitChange('reset');
   }
 
   /**
@@ -1382,8 +1401,7 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
-    this.notify();
-    this.emitDevtools('rebase');
+    this.emitChange('rebase');
   }
 
   /**

@@ -200,6 +200,9 @@ travels.setState(
 
 Subscribe to state changes. Returns an unsubscribe function.
 
+The `patches` argument is a shared per-event snapshot. Treat it as read-only;
+mutating it can affect other listeners or devtools hooks handling the same event.
+
 **Parameters:**
 
 - `listener`: Callback function called on state changes
