@@ -125,13 +125,11 @@ jobs:
                 candidate.created_at >= process.env.REQUESTED_AT
               );
               if (run) {
-                console.log([run.id, run.status, run.conclusion || "", run.html_url].join("\t"));
+                console.log([run.id, run.status, run.conclusion || "", run.html_url].join("\u001f"));
               }
             ')"
             if [ -n "${run_info}" ]; then
-              IFS=$'\t' read -r run_id status conclusion html_url <<EOF
-          ${run_info}
-          EOF
+              IFS=$'\037' read -r run_id status conclusion html_url <<< "${run_info}"
               echo "API Docs run ${run_id}: ${html_url} (${status}${conclusion:+/${conclusion}})"
               if [ "${status}" = "completed" ]; then
                 if [ "${conclusion}" = "success" ]; then
