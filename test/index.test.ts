@@ -355,8 +355,38 @@ describe('Travels - Edge Cases', () => {
 
   test('should handle setState with function returning value', () => {
     const travels = createTravels({ count: 0 });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
     travels.setState(() => ({ count: 5 }));
+
     expect(travels.getState()).toEqual({ count: 5 });
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  test('should preserve function updater draft returns', () => {
+    const travels = createTravels({ count: 0 });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    travels.setState((draft) => {
+      draft.count = 5;
+      return draft;
+    });
+
+    expect(travels.getState()).toEqual({ count: 5 });
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  test('should preserve function updater returns containing drafts', () => {
+    const travels = createTravels({ nested: { count: 0 }, other: true });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    travels.setState((draft) => ({ nested: draft.nested }));
+
+    expect(travels.getState()).toEqual({ nested: { count: 0 } });
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
   });
 
   test('should support multiple subscribers', () => {

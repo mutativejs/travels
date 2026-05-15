@@ -4,6 +4,7 @@ import {
   type Draft,
   apply,
   create,
+  isDraft,
   rawReturn,
 } from 'mutative';
 import type {
@@ -191,6 +192,50 @@ const cloneInitialSnapshot = <T>(value: T): T => {
   }
 
   return deepClone(value);
+};
+
+const containsDraft = (
+  value: unknown,
+  seen = new WeakSet<object>()
+): boolean => {
+  if (!isObjectLike(value)) {
+    return false;
+  }
+  if (isDraft(value)) {
+    return true;
+  }
+
+  const objectValue = value as object;
+  if (seen.has(objectValue)) {
+    return false;
+  }
+  seen.add(objectValue);
+
+  if (value instanceof Map) {
+    for (const [key, item] of value) {
+      if (containsDraft(key, seen) || containsDraft(item, seen)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (value instanceof Set) {
+    for (const item of value) {
+      if (containsDraft(item, seen)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  for (const key of Reflect.ownKeys(objectValue)) {
+    if (containsDraft((objectValue as any)[key], seen)) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 const hasOnlyArrayIndices = (value: unknown): value is any[] => {
@@ -837,7 +882,17 @@ export class Travels<
         typeof updater === 'function'
           ? create(
               this.state,
-              updater as (draft: Draft<S>) => void,
+              (draft: Draft<S>) => {
+                const result = (updater as (draft: Draft<S>) => S | void)(
+                  draft
+                );
+                if (result === draft) {
+                  return result as S;
+                }
+                return isObjectLike(result) && !containsDraft(result)
+                  ? (rawReturn(result as object) as S)
+                  : (result as S);
+              },
               this.options
             )
           : create(
@@ -848,7 +903,7 @@ export class Travels<
                   : (updater as S),
               this.options
             )
-      ) as [S, Patches<P>, Patches<P>];
+      ) as unknown as [S, Patches<P>, Patches<P>];
 
       patches = p;
       inversePatches = ip;
