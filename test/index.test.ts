@@ -244,6 +244,7 @@ describe('Travels - Manual Archive Mode', () => {
 
   test('should archive manually', () => {
     const travels = createTravels({ count: 0 }, { autoArchive: false });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     travels.setState({ count: 1 });
     travels.setState({ count: 2 });
@@ -251,6 +252,8 @@ describe('Travels - Manual Archive Mode', () => {
 
     expect(travels.canArchive()).toBe(false);
     expect(travels.getPatches().patches.length).toBe(1);
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
   });
 
   test('should batch multiple changes into one history entry', () => {

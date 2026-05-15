@@ -1170,10 +1170,18 @@ export class Travels<
     // Use pendingState if available, otherwise use current state.
     const stateToUse = (this.pendingState ?? this.state) as object;
 
+    const archivedState = apply(
+      stateToUse,
+      this.tempPatches.inversePatches.flat().reverse()
+    ) as S;
+
     // Merge temp patches into the same entry shape archive() would commit.
     const [, patches, inversePatches] = create(
       stateToUse,
-      (draft) => apply(draft, this.tempPatches.inversePatches.flat().reverse()),
+      (): object =>
+        isObjectLike(archivedState)
+          ? (rawReturn(archivedState as object) as object)
+          : (archivedState as object),
       this.options
     ) as [S, Patches<P>, Patches<P>];
 
