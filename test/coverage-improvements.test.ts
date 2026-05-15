@@ -280,6 +280,20 @@ describe('Coverage Improvements', () => {
       expect(observed).toEqual([2]);
       expect((travels as any).pendingState).toBeNull();
     });
+
+    test('no-op updates do not populate pendingState', async () => {
+      const travels = createTravels({ value: 0 }, { autoArchive: false });
+
+      travels.setState(() => {
+        // noop
+      });
+
+      expect((travels as any).pendingState).toBeNull();
+
+      await Promise.resolve();
+
+      expect((travels as any).pendingState).toBeNull();
+    });
   });
 
   describe('reset() in mutable mode with extra properties', () => {

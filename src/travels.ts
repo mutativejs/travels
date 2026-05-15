@@ -833,6 +833,7 @@ export class Travels<
   public setState(updater: Updater<S>, metadata?: TravelMetadata): void {
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
+    let nextPendingState: S;
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
@@ -893,13 +894,13 @@ export class Travels<
 
         // Root replacement cannot be applied mutably; fall back to immutable assignment.
         this.state = nextState;
-        this.pendingState = nextState;
+        nextPendingState = nextState;
       } else {
         // Apply patches to mutate the existing state object
         apply(this.state as object, patches, { mutable: true });
 
         // Keep the same reference
-        this.pendingState = this.state;
+        nextPendingState = this.state;
       }
     } else {
       // For immutable state: create new object
@@ -933,9 +934,16 @@ export class Travels<
       patches = p;
       inversePatches = ip;
       this.state = nextState;
-      this.pendingState = nextState;
+      nextPendingState = nextState;
     }
 
+    const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
+
+    if (hasNoChanges) {
+      return;
+    }
+
+    this.pendingState = nextPendingState;
     const pendingStateVersion = ++this.pendingStateVersion;
 
     // Reset pendingState asynchronously, but only if no newer update landed.
@@ -944,12 +952,6 @@ export class Travels<
         this.pendingState = null;
       }
     });
-
-    const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
-
-    if (hasNoChanges) {
-      return;
-    }
 
     this.warnAboutStateCompatibility(this.state);
 
