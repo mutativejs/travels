@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-05-16
+
+### Fixed
+
+- Wrap object values returned from `setState(() => value)` only when they do not contain Mutative drafts, removing noisy Mutative warnings while preserving draft-returning updater behavior.
+- Avoid Mutative warnings when manual `archive()` merges pending patches.
+- Avoid scheduling pending-state cleanup microtasks for no-op updates.
+- Avoid duplicate subscriber and devtools notifications for clean `replaceStateWithoutHistory` no-ops while preserving mutable external-state rebasing.
+- Fix release workflow polling for dispatched API Docs runs, including empty run conclusions while the deployment is still in progress.
+
+### Changed
+
+- Reuse a single cloned patches snapshot for subscribers and devtools callbacks during each change event.
+- Build API docs before npm publish, then deploy GitHub Pages from the validated release tag after npm publishing succeeds.
+
+### Documentation
+
+- Clarify that `subscribe` patch snapshots and `getHistory()` arrays and entries are shared read-only data.
+- Clarify the release checklist for tag-driven npm publishing and GitHub Pages deployment.
+
 ## [1.3.0] - 2026-05-15
 
 ### Added
