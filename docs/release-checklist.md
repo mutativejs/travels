@@ -24,17 +24,17 @@
 7. Push `main`, then create and push a matching release tag:
 
    ```bash
-   git tag v1.3.0
    git push origin main
+   git tag v1.3.0
    git push origin v1.3.0
    ```
 
    The tag must match the `package.json` version exactly, with a leading `v`.
 
-8. Confirm the tag-triggered workflows completed:
+8. Confirm the tag-triggered release flow completed:
 
-   - `Publish Package to npmjs`
-   - `API Docs`
+   - `Release`
+   - `API Docs`, dispatched by `Release` with the release tag
 
 9. Smoke test the published package:
 

@@ -1,0 +1,67 @@
+name: API Docs
+run-name: API Docs for ${{ inputs.release_ref }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Release tag or ref to build API docs from.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - name: Validate release ref
+        env:
+          RELEASE_REF: ${{ inputs.release_ref }}
+        run: |
+          if ! printf '%s' "${RELEASE_REF}" | grep -Eq '^v[0-9]+[.][0-9]+[.][0-9]+(-[0-9A-Za-z.-]+)?([+][0-9A-Za-z.-]+)?$'; then
+            echo "release_ref must be a release tag like v1.3.0."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.release_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Verify release tag
+        env:
+          RELEASE_REF: ${{ inputs.release_ref }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${RELEASE_REF}" != "v${version}" ]; then
+            echo "Tag ${RELEASE_REF} does not match package version v${version}."
+            exit 1
+          fi
+      - run: yarn install --frozen-lockfile
+      - uses: actions/configure-pages@v6
+      - run: yarn build:doc:site
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs-site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
