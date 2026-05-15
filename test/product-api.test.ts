@@ -269,6 +269,26 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ count: 1 });
   });
 
+  test('replaceStateWithoutHistory skips notifications for clean no-ops', () => {
+    const listener = vi.fn();
+    const devtools = vi.fn();
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools,
+      }
+    );
+    travels.subscribe(listener);
+
+    travels.replaceStateWithoutHistory(() => {
+      // no state or history to replace
+    });
+
+    expect(listener).not.toHaveBeenCalled();
+    expect(devtools).not.toHaveBeenCalled();
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+  });
+
   test('replaceStateWithoutHistory can rebase externally mutated state', () => {
     const state = { count: 0 };
     const travels = createTravels(state, {

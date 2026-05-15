@@ -735,6 +735,22 @@ export class Travels<
     this.tempMetadata = undefined;
   }
 
+  private hasRecordedHistory(): boolean {
+    return (
+      this.position !== 0 ||
+      this.initialPosition !== 0 ||
+      !!this.initialPatches?.patches.length ||
+      !!this.initialPatches?.inversePatches.length ||
+      !!this.initialMetadata?.length ||
+      this.allPatches.patches.length > 0 ||
+      this.allPatches.inversePatches.length > 0 ||
+      this.allMetadata.length > 0 ||
+      this.tempPatches.patches.length > 0 ||
+      this.tempPatches.inversePatches.length > 0 ||
+      this.tempMetadata !== undefined
+    );
+  }
+
   private restoreStateFromSnapshot(snapshot: S): void {
     const canRestoreMutably =
       this.mutable && isObjectLike(this.state) && isObjectLike(snapshot);
@@ -1133,7 +1149,11 @@ export class Travels<
       this.resumeTracking();
     }
 
-    if (this.historyVersion === historyVersionBefore) {
+    if (
+      this.historyVersion === historyVersionBefore &&
+      // Mutable stores can change externally before this no-op updater rebases the baseline.
+      (this.hasRecordedHistory() || this.mutable)
+    ) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
       this.emitChange('replaceStateWithoutHistory');
