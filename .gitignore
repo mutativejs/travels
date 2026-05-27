@@ -140,3 +140,6 @@ docs-site
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+zustand-travel/
+use-travel/
