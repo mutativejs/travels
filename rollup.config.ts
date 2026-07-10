@@ -38,7 +38,7 @@ export default {
     resolve(),
     commonjs(),
     replace({
-      __DEV__: JSON.stringify(false),
+      'process.env.NODE_ENV': JSON.stringify('production'),
       preventAssignment: true,
     }),
     terser(),

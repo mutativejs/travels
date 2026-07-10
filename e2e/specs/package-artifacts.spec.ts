@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -26,6 +27,13 @@ test('the built package exposes a working CommonJS entry', () => {
     cwd: repoRoot,
     stdio: 'pipe',
   });
+});
+
+test('browser bundles do not depend on a Node process global', () => {
+  for (const artifact of ['dist/index.esm.js', 'dist/index.umd.js']) {
+    const source = readFileSync(resolve(repoRoot, artifact), 'utf8');
+    expect(source).not.toContain('process.env');
+  }
 });
 
 test('npm pack includes publishable artifacts and excludes test sources', () => {
