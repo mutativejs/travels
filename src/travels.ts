@@ -396,6 +396,13 @@ export class Travels<
       patchesOptions,
       ...mutativeOptions
     } = options;
+
+    if ((patchesOptions as unknown) === false) {
+      throw new TypeError(
+        'Travels: patchesOptions cannot be false because history requires patches.'
+      );
+    }
+
     let initialPatches = history?.patches ?? inputInitialPatches;
     let initialPosition = history?.position ?? inputInitialPosition;
 

@@ -14,6 +14,17 @@ describe('PatchesOptions Configuration', () => {
     };
   }
 
+  test('rejects attempts to disable the required patch stream', () => {
+    expect(() =>
+      createTravels(
+        { count: 0 },
+        { patchesOptions: false } as any
+      )
+    ).toThrow(
+      'Travels: patchesOptions cannot be false because history requires patches.'
+    );
+  });
+
   describe('pathAsArray option', () => {
     test('should use array paths when pathAsArray is true (default)', () => {
       const travels = createTravels<AppState>(

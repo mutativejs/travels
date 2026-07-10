@@ -164,6 +164,10 @@ export type TravelsOptions<
    */
   devtools?: (event: TravelsDevtoolsEvent<any, P>) => void;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
+    /**
+     * Configure patch formatting. Patches cannot be disabled because Travels
+     * uses them to implement history, navigation, and persistence.
+     */
     patchesOptions?: P;
   };
 
