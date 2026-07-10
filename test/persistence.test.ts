@@ -464,6 +464,44 @@ describe('Persistence Example - State Persistence', () => {
     expect(reloadedTravels.getState()).toEqual({ items: ['a', 'b'] });
   });
 
+  test('serialize() keeps a pending manual entry aligned at maxHistory capacity', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { autoArchive: false, maxHistory: 2 }
+    );
+
+    for (const count of [1, 2]) {
+      travels.setState((draft) => {
+        draft.count = count;
+      });
+      travels.archive();
+    }
+
+    travels.setState((draft) => {
+      draft.count = 3;
+    });
+
+    const snapshot = travels.serialize();
+    expect(snapshot.position).toBe(2);
+    expect(snapshot.patches.patches).toHaveLength(2);
+    expect(snapshot.metadata).toHaveLength(2);
+
+    const history = Travels.deserialize<{ count: number }>(
+      JSON.stringify(snapshot)
+    );
+    const restored = createTravels(history.state, {
+      autoArchive: false,
+      history,
+      maxHistory: 2,
+    });
+
+    expect(restored.getHistory().map((state) => state.count)).toEqual([1, 2, 3]);
+    restored.back();
+    expect(restored.getState()).toEqual({ count: 2 });
+    restored.forward();
+    expect(restored.getState()).toEqual({ count: 3 });
+  });
+
   test('serialize() should align metadata for history restored without metadata', () => {
     const initialTravels = createTravels({ count: 0 });
     initialTravels.setState((draft) => {

@@ -195,6 +195,32 @@ describe('Manual Archive Example - Batch Operations', () => {
     expect(travels.getPatches().patches).toHaveLength(2);
   });
 
+  test('keeps every pending update in one archive at maxHistory capacity', () => {
+    const capped = createTravels(
+      { count: 0 },
+      { autoArchive: false, maxHistory: 2 }
+    );
+
+    for (const count of [1, 2]) {
+      capped.setState((draft) => {
+        draft.count = count;
+      });
+      capped.archive();
+    }
+
+    capped.setState((draft) => {
+      draft.count = 3;
+    });
+    capped.setState((draft) => {
+      draft.count = 4;
+    });
+    capped.archive();
+
+    expect(capped.getHistory().map((state) => state.count)).toEqual([1, 2, 4]);
+    capped.back();
+    expect(capped.getState()).toEqual({ count: 2 });
+  });
+
   test('should handle complex todo operations', () => {
     // Add multiple todos
     travels.setState((draft) => {
@@ -666,7 +692,7 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
     travels.setState(5);
 
     expect(travels.getPosition()).toBe(3);
-    expect(travels.getPatches().patches.length).toBe(4);
+    expect(travels.getPatches().patches.length).toBe(3);
     expect(travels.getHistory()).toEqual([2, 3, 4, 5]);
     expect(travels.canBack()).toBe(true);
     expect(travels.canForward()).toBe(false);

@@ -173,6 +173,29 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ title: 'Draft', blocks: [] });
   });
 
+  test('transaction remains one undo step at maxHistory capacity', () => {
+    const travels = createTravels({ count: 0 }, { maxHistory: 2 });
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    travels.setState((draft) => {
+      draft.count = 2;
+    });
+
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.count = 3;
+      });
+      travels.setState((draft) => {
+        draft.count = 4;
+      });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([1, 2, 4]);
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 2 });
+  });
+
   test('nested transactions keep outer metadata', () => {
     const travels = createTravels({ count: 0 });
 

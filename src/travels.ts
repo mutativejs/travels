@@ -997,24 +997,22 @@ export class Travels<
 
       this.trimHistoryToMax();
     } else {
-      const notLast =
-        this.position <
-        this.allPatches.patches.length +
-          Number(!!this.tempPatches.patches.length);
+      const hasPendingArchive = this.tempPatches.patches.length > 0;
+      const hasFuture = this.position < this.allPatches.patches.length;
 
       // Remove all patches after the current position
-      if (notLast) {
+      if (hasFuture) {
         this.discardFutureFrom(this.position);
       }
 
-      if (!this.tempPatches.patches.length || notLast) {
+      if (!hasPendingArchive || hasFuture) {
         this.position =
           this.maxHistory < this.allPatches.patches.length + 1
             ? this.maxHistory
             : this.position + 1;
       }
 
-      if (notLast) {
+      if (hasFuture) {
         this.tempPatches.patches.length = 0;
         this.tempPatches.inversePatches.length = 0;
         this.tempMetadata = undefined;
@@ -1197,12 +1195,25 @@ export class Travels<
 
     if (shouldArchive) {
       const pendingArchive = this.getPendingArchiveEntry();
-      return {
+      const combined = {
         patches: this.allPatches.patches.concat([pendingArchive.patches]),
         inversePatches: this.allPatches.inversePatches.concat([
           pendingArchive.inversePatches,
         ]),
       };
+
+      if (this.maxHistory === 0) {
+        return cloneTravelPatches();
+      }
+
+      if (combined.patches.length > this.maxHistory) {
+        return {
+          patches: combined.patches.slice(-this.maxHistory),
+          inversePatches: combined.inversePatches.slice(-this.maxHistory),
+        };
+      }
+
+      return combined;
     }
 
     return this.allPatches;
@@ -1505,7 +1516,13 @@ export class Travels<
       metadata.push(cloneTravelMetadata(this.tempMetadata));
     }
 
-    return metadata;
+    if (this.maxHistory === 0) {
+      return [];
+    }
+
+    return metadata.length > this.maxHistory
+      ? metadata.slice(-this.maxHistory)
+      : metadata;
   }
 
   public getHistoryEntries(): TravelHistoryEntry<P>[] {
