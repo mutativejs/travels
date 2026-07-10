@@ -461,4 +461,26 @@ describe('Productized history API', () => {
     expect(travels.getMetadata()).toEqual([]);
     expect(travels.canBack()).toBe(false);
   });
+
+  test('failed mutable transactions restore the original root reference', () => {
+    const original = { count: 0 };
+    const replacement = [1, 2];
+    const travels = createTravels<any>(original, {
+      mutable: true,
+      warnOnUnsupportedState: false,
+    });
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.setState(() => replacement);
+        throw new Error('boom');
+      })
+    ).toThrow(TravelsError);
+
+    expect(travels.getState()).toBe(original);
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(replacement).toEqual([1, 2]);
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+  });
 });

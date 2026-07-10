@@ -41,6 +41,7 @@ type Listener<S, P extends PatchesOption = {}> = (
 
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   state: S;
+  stateReference: S;
   position: number;
   allPatches: TravelPatches<P>;
   allMetadata: Array<TravelMetadata | undefined>;
@@ -263,6 +264,14 @@ const hasOnlyArrayIndices = (value: unknown): value is any[] => {
 
   // Sparse arrays cannot be safely synchronized with in-place patches.
   return Object.keys(value).length === value.length;
+};
+
+const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
+  if (Array.isArray(current) || Array.isArray(snapshot)) {
+    return Array.isArray(current) && Array.isArray(snapshot);
+  }
+
+  return isPlainObject(current) && isPlainObject(snapshot);
 };
 
 const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
@@ -751,13 +760,13 @@ export class Travels<
     );
   }
 
-  private restoreStateFromSnapshot(snapshot: S): void {
+  private restoreStateFromSnapshot(snapshot: S, stateReference: S): void {
     const canRestoreMutably =
-      this.mutable && isObjectLike(this.state) && isObjectLike(snapshot);
+      this.mutable && canSynchronizeMutableRoots(stateReference, snapshot);
 
     if (canRestoreMutably) {
       const [, patches] = create(
-        this.state,
+        stateReference,
         (draft) => {
           for (const key of Object.keys(draft as object)) {
             delete (draft as any)[key];
@@ -770,7 +779,8 @@ export class Travels<
         this.options
       );
 
-      apply(this.state as object, patches, { mutable: true });
+      apply(stateReference as object, patches, { mutable: true });
+      this.state = stateReference;
       return;
     }
 
@@ -783,6 +793,7 @@ export class Travels<
         this.mutable && isObjectLike(this.state)
           ? cloneInitialSnapshot(this.state)
           : this.state,
+      stateReference: this.state,
       position: this.position,
       allPatches: cloneTravelPatches(this.allPatches),
       allMetadata: cloneTravelMetadataList(this.allMetadata),
@@ -804,7 +815,7 @@ export class Travels<
   private restoreTransactionSnapshot(
     snapshot: TransactionSnapshot<S, P>
   ): void {
-    this.restoreStateFromSnapshot(snapshot.state);
+    this.restoreStateFromSnapshot(snapshot.state, snapshot.stateReference);
     this.position = snapshot.position;
     this.allPatches = cloneTravelPatches(snapshot.allPatches);
     this.allMetadata = cloneTravelMetadataList(snapshot.allMetadata);
@@ -1385,9 +1396,7 @@ export class Travels<
    */
   public reset(): void {
     const canResetMutably =
-      this.mutable &&
-      isObjectLike(this.state) &&
-      isObjectLike(this.initialState);
+      this.mutable && canSynchronizeMutableRoots(this.state, this.initialState);
 
     if (canResetMutably) {
       // For observable state: use patch system to reset to initial state

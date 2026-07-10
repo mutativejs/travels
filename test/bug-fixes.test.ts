@@ -1075,3 +1075,29 @@ describe('Bug #14: go() should not mutate archived inverse patches', () => {
     expect(navigationArchive.getPatches()).toEqual(archivedPatches);
   });
 });
+describe('Bug #16: mutable reset should respect root container types', () => {
+  test('reset restores an object after an array root replacement', () => {
+    const travels = createTravels<any>(
+      { count: 0 },
+      { mutable: true, warnOnUnsupportedState: false }
+    );
+
+    travels.setState(() => [1, 2]);
+    expect(() => travels.reset()).not.toThrow();
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(Array.isArray(travels.getState())).toBe(false);
+  });
+
+  test('reset restores an array after an object root replacement', () => {
+    const travels = createTravels<any>([1, 2], {
+      mutable: true,
+      warnOnUnsupportedState: false,
+    });
+
+    travels.setState(() => ({ count: 1 }));
+    travels.reset();
+
+    expect(travels.getState()).toEqual([1, 2]);
+    expect(Array.isArray(travels.getState())).toBe(true);
+  });
+});
