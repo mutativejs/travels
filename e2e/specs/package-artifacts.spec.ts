@@ -36,6 +36,13 @@ test('browser bundles do not depend on a Node process global', () => {
   }
 });
 
+test('declarations resolve for a NodeNext package consumer', () => {
+  execFileSync('yarn', ['tsc', '--project', 'tsconfig.nodenext.json'], {
+    cwd: repoRoot,
+    stdio: 'pipe',
+  });
+});
+
 test('npm pack includes publishable artifacts and excludes test sources', () => {
   const output = execFileSync('npm', ['pack', '--dry-run', '--json'], {
     cwd: repoRoot,

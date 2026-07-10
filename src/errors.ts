@@ -1,4 +1,4 @@
-import type { TravelsErrorCode } from './type';
+import type { TravelsErrorCode } from './type.js';
 
 export class TravelsError extends Error {
   public readonly code: TravelsErrorCode;

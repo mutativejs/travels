@@ -1,5 +1,5 @@
-import type { PatchesOption, TravelsOptions } from './type';
-import { Travels } from './travels';
+import type { PatchesOption, TravelsOptions } from './type.js';
+import { Travels } from './travels.js';
 
 
 /**

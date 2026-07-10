@@ -21,15 +21,15 @@ import type {
   TravelsSerializedHistory,
   Updater,
   Value,
-} from './type';
+} from './type.js';
 import {
   deserializeTravelsHistory,
   getTravelPatchesValidationError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
-} from './persistence';
-import { findStateCompatibilityIssues } from './compatibility';
-import { TravelsError } from './errors';
-import { isObjectLike, isPlainObject } from './utils';
+} from './persistence.js';
+import { findStateCompatibilityIssues } from './compatibility.js';
+import { TravelsError } from './errors.js';
+import { isObjectLike, isPlainObject } from './utils.js';
 
 /**
  * Listener callback for state changes

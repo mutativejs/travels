@@ -5,7 +5,7 @@ import type {
   TravelsDeserializeOptions,
   TravelsPersistenceErrorCode,
   TravelsSerializedHistory,
-} from './type';
+} from './type.js';
 
 export const TRAVELS_HISTORY_SCHEMA_VERSION = 1 as const;
 
