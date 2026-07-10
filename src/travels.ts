@@ -53,6 +53,7 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialMetadata?: Array<TravelMetadata | undefined>;
   pendingState: S | null;
   pendingStateVersion: number;
+  trackingPauseDepth: number;
 };
 
 const tryStructuredClone = <T>(value: T): T | undefined => {
@@ -809,6 +810,7 @@ export class Travels<
         : undefined,
       pendingState: this.pendingState,
       pendingStateVersion: this.pendingStateVersion,
+      trackingPauseDepth: this.trackingPauseDepth,
     };
   }
 
@@ -831,6 +833,7 @@ export class Travels<
       : undefined;
     this.pendingState = snapshot.pendingState;
     this.pendingStateVersion = snapshot.pendingStateVersion;
+    this.trackingPauseDepth = snapshot.trackingPauseDepth;
 
     this.invalidateHistoryCache();
     this.notify();

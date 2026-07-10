@@ -483,4 +483,22 @@ describe('Productized history API', () => {
     expect(travels.getPosition()).toBe(0);
     expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
   });
+  test('failed transactions restore the tracking pause depth', () => {
+    const travels = createTravels({ count: 0 });
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.pauseTracking();
+        throw new Error('boom');
+      })
+    ).toThrow(TravelsError);
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    expect(travels.getState()).toEqual({ count: 1 });
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getPatches().patches).toHaveLength(1);
+  });
 });
