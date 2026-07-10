@@ -358,6 +358,7 @@ export class Travels<
   private initialPatches?: TravelPatches<P>;
   private initialMetadata?: Array<TravelMetadata | undefined>;
   private autoArchive: A;
+  private configuredAutoArchive: A;
   private options: MutativeOptions<PatchesOption | true, F>;
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
@@ -455,6 +456,7 @@ export class Travels<
     this.initialState = cloneInitialSnapshot(initialState);
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
+    this.configuredAutoArchive = autoArchive;
     this.mutable = mutable;
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
@@ -1079,7 +1081,7 @@ export class Travels<
   }
 
   public archive(metadata?: TravelMetadata): void {
-    if (this.autoArchive) {
+    if (this.configuredAutoArchive) {
       console.warn('Auto archive is enabled, no need to archive manually');
       return;
     }
@@ -1331,7 +1333,7 @@ export class Travels<
       !this.autoArchive && !!this.tempPatches.patches.length;
 
     if (shouldArchive) {
-      this.archive();
+      this.archivePending();
     }
 
     const _allPatches = this.getAllPatches();
@@ -1497,7 +1499,9 @@ export class Travels<
    * Check if it's possible to archive the current state
    */
   public canArchive(): boolean {
-    return !this.autoArchive && !!this.tempPatches.patches.length;
+    return (
+      !this.configuredAutoArchive && !!this.tempPatches.patches.length
+    );
   }
 
   /**
@@ -1583,7 +1587,7 @@ export class Travels<
       rebase: (): void => self.rebase(),
     };
 
-    if (!this.autoArchive) {
+    if (!this.configuredAutoArchive) {
       (controls as RebasableManualTravelsControls<S, F, P>).archive =
         (metadata?: TravelMetadata): void => self.archive(metadata);
       (controls as RebasableManualTravelsControls<S, F, P>).canArchive =

@@ -196,6 +196,57 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ count: 2 });
   });
 
+  test('transaction buffering does not expose manual archive controls', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ count: 0 });
+    let controls: ReturnType<typeof travels.getControls> | undefined;
+
+    travels.transaction(() => {
+      controls = travels.getControls();
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+      travels.archive();
+      travels.setState((draft) => {
+        draft.count = 2;
+      });
+    });
+
+    expect('archive' in controls!).toBe(false);
+    expect('canArchive' in controls!).toBe(false);
+    expect(warn).toHaveBeenCalledWith(
+      'Auto archive is enabled, no need to archive manually'
+    );
+    expect(travels.getPatches().patches).toHaveLength(1);
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 0 });
+
+    warn.mockRestore();
+  });
+
+  test('transaction navigation keeps state, position, and history aligned', () => {
+    const travels = createTravels({ count: 0 });
+
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+      travels.back();
+      travels.setState((draft) => {
+        draft.count = 2;
+      });
+    });
+
+    expect(travels.getState()).toEqual({ count: 2 });
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 2]);
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(travels.canForward()).toBe(false);
+
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
   test('nested transactions keep outer metadata', () => {
     const travels = createTravels({ count: 0 });
 
