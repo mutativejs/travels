@@ -12,6 +12,7 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
       'use-travel/**',
+      'zustand-travel/**',
     ],
     coverage: {
       provider: 'v8',
@@ -25,6 +26,7 @@ export default defineConfig({
         'docs-site/**',
         'e2e/**',
         'use-travel/**',
+        'zustand-travel/**',
         'test/**',
         '**/*.config.*',
         '**/*.d.ts',
