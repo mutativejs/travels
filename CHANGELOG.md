@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-07-12
+
 ### Fixed
 
 - Preserve pending manual changes when enforcing `maxHistory`, including at the smallest capacities.
@@ -18,7 +20,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Ship only the documented CJS, ESM, and UMD JavaScript bundles instead of intermediate compiler output, and validate source maps and package size budgets in CI and release workflows.
-- Run CI for fork pull requests and use a supported Node/npm combination for trusted publishing.
+- Run CI for fork pull requests and complete npm trusted publishing with a supported Node/npm combination and no long-lived publish token.
 - Build and load the current package artifact explicitly before running performance benchmarks.
 - Derive documented release tags from the package version.
 
