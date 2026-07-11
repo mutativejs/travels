@@ -5,7 +5,7 @@
  */
 
 import { describe, test, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import React, { useSyncExternalStore, useMemo } from 'react';
 import { createTravels } from '../src/index';
 
@@ -322,21 +322,17 @@ describe('Controls Reactive Problem', () => {
       return <div data-testid="custom-hook">{controls.position}</div>;
     }
 
-    const { rerender: rerender1 } = render(<CorrectUsage />);
-    const { rerender: rerender2 } = render(<WithCustomHook />);
+    render(<CorrectUsage />);
+    render(<WithCustomHook />);
 
     expect(screen.getByTestId('correct').textContent).toBe('0');
     expect(screen.getByTestId('custom-hook').textContent).toBe('0');
 
-    travels.setState({ count: 1 });
-
-    // Force re-render to trigger useEffect
-    rerender1(<CorrectUsage />);
-    rerender2(<WithCustomHook />);
+    await act(async () => {
+      travels.setState({ count: 1 });
+    });
 
     // ✅ These solutions can correctly update
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
     expect(screen.getByTestId('correct').textContent).toBe('1');
     expect(screen.getByTestId('custom-hook').textContent).toBe('1');
   });
