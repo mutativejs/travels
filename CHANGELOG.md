@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - Run CI for fork pull requests and complete npm trusted publishing with a supported Node/npm combination and no long-lived publish token.
 - Build and load the current package artifact explicitly before running performance benchmarks.
 - Derive documented release tags from the package version.
+- Standardize reproducible local development, benchmarks, CI, and release builds on pnpm.
 
 ## [1.3.1] - 2026-05-16
 

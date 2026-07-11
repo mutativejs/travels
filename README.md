@@ -71,8 +71,6 @@ For current benchmark numbers and caveats, see [`benchmarks/README.md`](benchmar
 ```bash
 npm install travels mutative
 # or
-yarn add travels mutative
-# or
 pnpm add travels mutative
 ```
 

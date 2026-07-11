@@ -5,18 +5,19 @@ Thanks for improving Travels. This project values correctness, clear trade-offs,
 ## Development Setup
 
 ```bash
-yarn install
-yarn build
-yarn test
+corepack enable
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm run test
 ```
 
 Useful checks:
 
 ```bash
-yarn test:types
-yarn test:browser
-yarn coverage
-yarn benchmark:ci
+pnpm run test:types
+pnpm run test:browser
+pnpm run coverage
+pnpm run benchmark:ci
 ```
 
 ## Pull Request Expectations

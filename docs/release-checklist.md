@@ -8,13 +8,14 @@
 2. Run local verification before tagging:
 
    ```bash
-   yarn install
-   yarn size:ci
-   yarn test
-   yarn test:types
-   yarn test:browser
-   yarn coverage
-   yarn benchmark:ci
+   corepack enable
+   pnpm install --frozen-lockfile
+   pnpm run size:ci
+   pnpm run test
+   pnpm run test:types
+   pnpm run test:browser
+   pnpm run coverage
+   pnpm run benchmark:ci
    ```
 
 3. Review README performance claims against `benchmarks/README.md`.

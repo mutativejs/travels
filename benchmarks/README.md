@@ -34,10 +34,10 @@ Uses real npm packages to reflect real-world scenarios.
 
 ```bash
 # Install dependencies
-npm install
+pnpm install --frozen-lockfile
 
 # Run benchmark
-npm run test:real
+pnpm run test:real
 
 # Or run manually
 node --expose-gc real-library-benchmark.js
@@ -53,13 +53,13 @@ The matrix script reports `setState/update (ms)` as average time per update with
 
 ```bash
 # Default matrix: 10KB, 100KB, 1MB states; 5 rounds
-npm run test:matrix
+pnpm run test:matrix
 
 # Full matrix: includes 5MB state and 7 rounds
-npm run test:full
+pnpm run test:full
 
 # Lightweight CI smoke guard
-npm run test:ci
+pnpm run test:ci
 ```
 
 The benchmark commands build the current checkout first and load its explicit
@@ -181,7 +181,7 @@ Travels has clear advantages in:
 ## Run all tests
 
 ```bash
-npm run test:all
+pnpm run test:all
 ```
 
 This will run in order:
@@ -192,7 +192,7 @@ This will run in order:
 
 ## Latest Results (Node v22.21.1)
 
-The tables below capture the output from running `yarn test:all` (which executes both benchmark scripts with `node --expose-gc`) on the current machine.
+The tables below capture the output from running `pnpm run test:all` (which executes both benchmark scripts with `node --expose-gc`) on the current machine.
 
 ### Simulated implementations (`memory-performance-test.js`)
 
@@ -262,19 +262,19 @@ To get accurate results:
 # 1. Ensure consistent Node.js version
 node --version
 
-# 2. Clear npm cache
-npm cache clean --force
+# 2. Prune unused packages from the pnpm store
+pnpm store prune
 
 # 3. Reinstall dependencies
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules
+pnpm install --frozen-lockfile
 
 # 4. Restart terminal before running
 # 5. Close other apps
 # 6. Run multiple times and average
 for i in {1..3}; do
   echo "=== Run $i ==="
-  npm run test:real
+  pnpm run test:real
   sleep 5
 done
 ```
