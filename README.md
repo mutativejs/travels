@@ -774,7 +774,7 @@ function loadFromStorage() {
 - JSON Patch operation names and paths
 - position bounds
 
-It throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, or `MIGRATION_FAILED`. Provide `fallback` when corrupted storage should recover to a known-safe snapshot instead of failing startup.
+It throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, `MIGRATION_FAILED`, or `FALLBACK_FAILED`. Provide `fallback` when corrupted storage should recover to a known-safe snapshot instead of failing startup. Fallback snapshots are validated too; a throwing or invalid fallback reports `FALLBACK_FAILED`.
 
 Use `migrate` to upgrade older snapshots before validation:
 

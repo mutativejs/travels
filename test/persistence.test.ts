@@ -824,6 +824,45 @@ describe('Persistence Example - State Persistence', () => {
     expect(history.state.user.name).toBe('Fallback');
   });
 
+  test('Travels.deserialize() reports invalid and throwing fallbacks', () => {
+    const errors: string[] = [];
+
+    expect(() =>
+      Travels.deserialize('not-json', {
+        fallback: () => {
+          throw new Error('fallback failed');
+        },
+        onError(error) {
+          errors.push((error as TravelsPersistenceError).code);
+        },
+      })
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'FALLBACK_FAILED',
+      })
+    );
+
+    expect(errors).toEqual(['PARSE_ERROR', 'FALLBACK_FAILED']);
+  });
+
+  test('persistence observers cannot block a valid fallback', () => {
+    const fallback: TravelsSerializedHistory<{ count: number }> = {
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: { count: 0 },
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+    };
+
+    const history = Travels.deserialize<{ count: number }>('not-json', {
+      fallback,
+      onError() {
+        throw new Error('observer failed');
+      },
+    });
+
+    expect(history).toEqual(fallback);
+  });
+
   test('Travels.deserialize() should run migration before validation', () => {
     const oldSnapshot = {
       version: 0,

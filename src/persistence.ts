@@ -308,13 +308,28 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
 };
 
 const resolveFallback = <S, P extends PatchesOption = {}>(
-  fallback: TravelsDeserializeOptions<S, P>['fallback']
-): TravelsSerializedHistory<S, P> | undefined => {
-  if (!fallback) {
-    return undefined;
-  }
+  fallback: NonNullable<TravelsDeserializeOptions<S, P>['fallback']>
+): TravelsSerializedHistory<S, P> =>
+  typeof fallback === 'function' ? fallback() : fallback;
 
-  return typeof fallback === 'function' ? fallback() : fallback;
+const toPersistenceError = (
+  error: unknown,
+  code: TravelsPersistenceErrorCode,
+  message: string
+): TravelsPersistenceError =>
+  error instanceof TravelsPersistenceError
+    ? error
+    : new TravelsPersistenceError(code, message, { cause: error });
+
+const notifyPersistenceError = (
+  onError: TravelsDeserializeOptions<unknown>['onError'],
+  error: TravelsPersistenceError
+): void => {
+  try {
+    onError?.(error);
+  } catch {
+    // Error observers must not replace the persistence failure or block recovery.
+  }
 };
 
 export const deserializeTravelsHistory = <
@@ -342,22 +357,28 @@ export const deserializeTravelsHistory = <
 
     return normalizeSnapshot<S, P>(migrated);
   } catch (error) {
-    const persistenceError =
-      error instanceof TravelsPersistenceError
-        ? error
-        : new TravelsPersistenceError(
-            'INVALID_SCHEMA',
-            'Travels: persisted history could not be deserialized.',
-            { cause: error }
-          );
+    const persistenceError = toPersistenceError(
+      error,
+      'INVALID_SCHEMA',
+      'Travels: persisted history could not be deserialized.'
+    );
 
-    options.onError?.(persistenceError);
+    notifyPersistenceError(options.onError, persistenceError);
 
-    const fallback = resolveFallback(options.fallback);
-    if (fallback) {
-      return normalizeSnapshot<S, P>(fallback);
+    if (options.fallback === undefined) {
+      throw persistenceError;
     }
 
-    throw persistenceError;
+    try {
+      return normalizeSnapshot<S, P>(resolveFallback(options.fallback));
+    } catch (fallbackCause) {
+      const fallbackError = new TravelsPersistenceError(
+        'FALLBACK_FAILED',
+        'Travels: persisted history fallback could not be deserialized.',
+        { cause: fallbackCause }
+      );
+      notifyPersistenceError(options.onError, fallbackError);
+      throw fallbackError;
+    }
   }
 };

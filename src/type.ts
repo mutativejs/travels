@@ -55,7 +55,8 @@ export type TravelsPersistenceErrorCode =
   | 'INVALID_SCHEMA'
   | 'UNSUPPORTED_VERSION'
   | 'INVALID_PATCHES'
-  | 'MIGRATION_FAILED';
+  | 'MIGRATION_FAILED'
+  | 'FALLBACK_FAILED';
 
 export type TravelsMigration<
   S,
