@@ -37,7 +37,7 @@ test('browser bundles do not depend on a Node process global', () => {
 });
 
 test('declarations resolve for a NodeNext package consumer', () => {
-  execFileSync('yarn', ['tsc', '--project', 'tsconfig.nodenext.json'], {
+  execFileSync('pnpm', ['exec', 'tsc', '--project', 'tsconfig.nodenext.json'], {
     cwd: repoRoot,
     stdio: 'pipe',
   });

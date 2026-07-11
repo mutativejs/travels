@@ -1,16 +1,17 @@
 {
   "name": "travels-benchmarks",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.34.5",
   "private": true,
   "type": "commonjs",
   "description": "Performance benchmarks for undo/redo libraries",
   "scripts": {
     "test:memory": "node --expose-gc memory-performance-test.js",
-    "test:real": "yarn --cwd .. build && NODE_ENV=production node --expose-gc real-library-benchmark.js",
-    "test:matrix": "yarn --cwd .. build && NODE_ENV=production node --expose-gc matrix-benchmark.js",
-    "test:full": "yarn --cwd .. build && NODE_ENV=production node --expose-gc matrix-benchmark.js --full",
-    "test:ci": "yarn --cwd .. build && NODE_ENV=production node --expose-gc matrix-benchmark.js --ci",
-    "test:all": "npm run test:memory && npm run test:real && npm run test:matrix"
+    "test:real": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc real-library-benchmark.js",
+    "test:matrix": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc matrix-benchmark.js",
+    "test:full": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc matrix-benchmark.js --full",
+    "test:ci": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc matrix-benchmark.js --ci",
+    "test:all": "pnpm run test:memory && pnpm run test:real && pnpm run test:matrix"
   },
   "dependencies": {
     "redux": "^4.2.1",

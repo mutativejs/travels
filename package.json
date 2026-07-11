@@ -2,6 +2,7 @@
   "name": "travels",
   "description": "A fast, framework-agnostic undo/redo core library powered by Mutative JSON Patch",
   "version": "1.4.0",
+  "packageManager": "pnpm@10.34.5",
   "type": "module",
   "author": "unadlib",
   "repository": {
@@ -36,22 +37,22 @@
     "test:core": "vitest run --dir test",
     "test:browser": "vitest run --dir test test/browser-environment.test.ts --environment jsdom",
     "test:e2e:types": "tsc --project tsconfig.e2e.json",
-    "test:e2e": "yarn build && playwright test",
+    "test:e2e": "pnpm run build && playwright test",
     "test:e2e:ci": "playwright test",
     "e2e:serve": "vite e2e/fixtures/travels-app",
     "test:examples": "tsc --project tsconfig.examples.json",
     "test:types": "tsc --noEmit --skipLibCheck",
     "coverage": "vitest run --dir test --coverage",
-    "benchmark:matrix": "yarn build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js",
-    "benchmark:full": "yarn build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js --full",
-    "benchmark:ci": "yarn build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js --ci",
-    "size:ci": "yarn build && node benchmarks/package-size-check.js",
+    "benchmark:matrix": "pnpm run build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js",
+    "benchmark:full": "pnpm run build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js --full",
+    "benchmark:ci": "pnpm run build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js --ci",
+    "size:ci": "pnpm run build && node benchmarks/package-size-check.js",
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc --project tsconfig.build.json --skipLibCheck && yarn build:prod",
+    "build": "pnpm run clean && tsc --project tsconfig.build.json --skipLibCheck && pnpm run build:prod",
     "build:prod": "NODE_ENV=production rollup --config --bundleConfigAsCjs",
     "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
     "build:doc:site": "typedoc --out docs-site src/index.ts",
-    "commit": "yarn git-cz"
+    "commit": "git-cz"
   },
   "keywords": [
     "undo",
@@ -110,6 +111,11 @@
   },
   "peerDependencies": {
     "mutative": ">=1.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "config": {
     "commitizen": {
