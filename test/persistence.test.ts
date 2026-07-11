@@ -708,6 +708,96 @@ describe('Persistence Example - State Persistence', () => {
     expect(travels.getMetadata()).toEqual([undefined]);
   });
 
+  test('Travels.deserialize() rejects malformed and unsafe patch paths', () => {
+    const sparseHistory: unknown[] = [];
+    sparseHistory.length = 1;
+    const sparsePath: unknown[] = [];
+    sparsePath.length = 1;
+
+    const invalidPaths = [
+      sparsePath,
+      [-1],
+      [1.5],
+      [Number.NaN],
+      ['__proto__'],
+      ['constructor', 'prototype'],
+      '/count/~2',
+      '/__proto__',
+      '/constructor/prototype',
+    ];
+    const histories = [
+      { patches: sparseHistory, inversePatches: sparseHistory },
+      ...invalidPaths.map((path) => ({
+        patches: [[{ op: 'replace', path, value: 1 }]],
+        inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+      })),
+    ];
+
+    for (const patches of histories) {
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 0 },
+          position: 0,
+          patches,
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+    }
+  });
+
+  test('Travels.deserialize() round-trips terminal reserved-looking data keys', () => {
+    const initialState = JSON.parse(
+      '{"constructor":"document","prototype":"example"}'
+    ) as { constructor: string; prototype: string };
+    const travels = createTravels(initialState);
+
+    travels.setState((draft) => {
+      draft.constructor = 'updated-document';
+      draft.prototype = 'updated-example';
+    });
+
+    const history = Travels.deserialize<{
+      constructor: string;
+      prototype: string;
+    }>(JSON.stringify(travels.serialize()));
+    const restored = createTravels(history.state, { history });
+
+    expect(restored.getState()).toEqual({
+      constructor: 'updated-document',
+      prototype: 'updated-example',
+    });
+    restored.back();
+    expect(restored.getState()).toEqual(initialState);
+    restored.forward();
+    expect(restored.getState()).toEqual({
+      constructor: 'updated-document',
+      prototype: 'updated-example',
+    });
+  });
+
+  test('Travels.deserialize() permits terminal reserved-looking patch paths', () => {
+    const paths = [['constructor'], ['prototype'], '/constructor', '/prototype'];
+
+    for (const path of paths) {
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { constructor: 'value', prototype: 'value' },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path, value: 'value' }]],
+            inversePatches: [[{ op: 'replace', path, value: 'previous' }]],
+          },
+          metadata: [undefined],
+        })
+      ).not.toThrow();
+    }
+  });
+
   test('Travels.deserialize() should support corrupted storage fallback', () => {
     const errors: string[] = [];
     const fallback: TravelsSerializedHistory<AppState> = {

@@ -34,10 +34,11 @@ describe('Coverage Improvements', () => {
       expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
       expect(travels.getPosition()).toBe(0);
       expect(
-        warnSpy.mock.calls.some(([message]) =>
-          String(message).includes(
-            "initialPatches must have 'patches' and 'inversePatches' arrays. Falling back to empty history."
-          )
+        warnSpy.mock.calls.some(
+          ([message]) =>
+            String(message).includes(
+              "initialPatches must have 'patches' and 'inversePatches' arrays"
+            ) && String(message).includes('Falling back to empty history.')
         )
       ).toBe(true);
 

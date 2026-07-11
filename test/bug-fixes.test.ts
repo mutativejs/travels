@@ -1122,3 +1122,51 @@ describe('Replay options', () => {
     expect(Object.isFrozen(travels.getState())).toBe(true);
   });
 });
+
+describe('Initial patch validation', () => {
+  const invalidPatches = {
+    patches: [[{ op: 'explode', path: ['count'], value: 1 }]],
+    inversePatches: [[{ op: 'explode', path: ['count'], value: 0 }]],
+  } as any;
+
+  test('strict mode rejects malformed patch operations', () => {
+    expect(() =>
+      createTravels(
+        { count: 0 },
+        {
+          initialPatches: invalidPatches,
+          strictInitialPatches: true,
+        }
+      )
+    ).toThrow(/initialPatches/);
+  });
+
+  test('non-strict mode discards malformed patch operations', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { initialPatches: invalidPatches, initialPosition: 1 }
+    );
+
+    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
+    expect(travels.getPosition()).toBe(0);
+  });
+
+  test('strict mode permits runtime-only terminal path keys', () => {
+    const key = Symbol('runtime-key');
+    const travels = createTravels<Record<PropertyKey, unknown>>(
+      {},
+      {
+        initialPatches: {
+          patches: [[{ op: 'add', path: [key], value: 1 } as any]],
+          inversePatches: [[{ op: 'remove', path: [key] } as any]],
+        },
+        strictInitialPatches: true,
+      }
+    );
+
+    travels.forward();
+    expect(travels.getState()[key]).toBe(1);
+    travels.back();
+    expect(key in travels.getState()).toBe(false);
+  });
+});

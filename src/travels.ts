@@ -24,6 +24,7 @@ import type {
 } from './type';
 import {
   deserializeTravelsHistory,
+  getTravelPatchesValidationError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
 } from './persistence';
 import { findStateCompatibilityIssues } from './compatibility';
@@ -275,10 +276,6 @@ const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
   return isPlainObject(current) && isPlainObject(snapshot);
 };
 
-const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
-  return Array.isArray(value) && value.every((entry) => Array.isArray(entry));
-};
-
 const getInitialPatchesValidationError = <P extends PatchesOption = {}>(
   initialPatches: TravelPatches<P> | undefined
 ): string | null => {
@@ -286,18 +283,11 @@ const getInitialPatchesValidationError = <P extends PatchesOption = {}>(
     return null;
   }
 
-  if (
-    !isPatchHistoryEntries(initialPatches.patches) ||
-    !isPatchHistoryEntries(initialPatches.inversePatches)
-  ) {
-    return `initialPatches must have 'patches' and 'inversePatches' arrays`;
-  }
-
-  if (initialPatches.patches.length !== initialPatches.inversePatches.length) {
-    return `initialPatches.patches and initialPatches.inversePatches must have the same length`;
-  }
-
-  return null;
+  return (
+    getTravelPatchesValidationError(initialPatches, {
+      allowNonJsonPathSegments: true,
+    })?.replace(/(^|\s)patches(?=\.| must)/g, '$1initialPatches') ?? null
+  );
 };
 
 // Align mutable value updates with immutable replacements by syncing objects

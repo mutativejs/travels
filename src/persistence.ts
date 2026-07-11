@@ -36,42 +36,105 @@ const isValidMetadataEntry = (entry: unknown): boolean => {
   return entry == null || (isObjectRecord(entry) && !Array.isArray(entry));
 };
 
-const isValidPatchPath = (path: unknown): boolean => {
+const isUnsafePatchPathSegment = (
+  segment: unknown,
+  index: number,
+  length: number
+): boolean =>
+  segment === '__proto__' ||
+  (segment === 'constructor' && index < length - 1);
+
+const isValidPatchPath = (
+  path: unknown,
+  allowNonJsonPathSegments: boolean
+): boolean => {
   if (typeof path === 'string') {
-    return path === '' || path.startsWith('/');
+    if (path === '') {
+      return true;
+    }
+    if (!path.startsWith('/') || /~(?:[^01]|$)/.test(path)) {
+      return false;
+    }
+
+    const segments = path
+      .split('/')
+      .slice(1)
+      .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
+    return segments.every(
+      (segment, index) =>
+        !isUnsafePatchPathSegment(segment, index, segments.length)
+    );
   }
 
   return (
     Array.isArray(path) &&
-    path.every(
-      (segment) => typeof segment === 'string' || typeof segment === 'number'
-    )
+    Array.from({ length: path.length }, (_, index) => index).every((index) => {
+      if (!hasOwn(path, String(index))) {
+        return false;
+      }
+
+      const segment = path[index];
+      const isJsonPathSegment =
+        typeof segment === 'string' ||
+        (typeof segment === 'number' &&
+          Number.isFinite(segment) &&
+          Number.isInteger(segment) &&
+          segment >= 0);
+      const isRuntimeTerminalSegment =
+        allowNonJsonPathSegments && index === path.length - 1;
+      return (
+        (isJsonPathSegment || isRuntimeTerminalSegment) &&
+        !isUnsafePatchPathSegment(segment, index, path.length)
+      );
+    })
   );
 };
+
+const getPatchOperationFields = (
+  operation: Record<string, unknown>
+): { op: unknown; path: unknown } | null => {
+  const op = Object.getOwnPropertyDescriptor(operation, 'op');
+  const path = Object.getOwnPropertyDescriptor(operation, 'path');
+  if (!op || !path || !('value' in op) || !('value' in path)) {
+    return null;
+  }
+
+  return { op: op.value, path: path.value };
+};
+
+const isDenseArray = (value: unknown): value is unknown[] =>
+  Array.isArray(value) &&
+  Array.from({ length: value.length }, (_, index) => index).every((index) =>
+    hasOwn(value, String(index))
+  );
 
 const isRootPatchPath = (path: unknown): boolean => {
   return path === '' || (Array.isArray(path) && path.length === 0);
 };
 
-const isValidPatchOperation = (operation: unknown): boolean => {
-  if (!isObjectRecord(operation)) {
+const isValidPatchOperation = (
+  operation: unknown,
+  allowNonJsonPathSegments: boolean
+): boolean => {
+  if (!isObjectRecord(operation) || Array.isArray(operation)) {
     return false;
   }
 
-  const op = operation.op;
-  if (
-    op !== 'add' &&
-    op !== 'remove' &&
-    op !== 'replace'
-  ) {
+  const fields = getPatchOperationFields(operation);
+  if (!fields) {
     return false;
   }
 
-  if (!isValidPatchPath(operation.path)) {
+  const { op, path } = fields;
+  if (op !== 'add' && op !== 'remove' && op !== 'replace') {
     return false;
   }
 
-  if ((op === 'add' || op === 'remove') && isRootPatchPath(operation.path)) {
+  if (!isValidPatchPath(path, allowNonJsonPathSegments)) {
+    return false;
+  }
+
+  if ((op === 'add' || op === 'remove') && isRootPatchPath(path)) {
     return false;
   }
 
@@ -82,11 +145,18 @@ const isValidPatchOperation = (operation: unknown): boolean => {
   return true;
 };
 
-const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
+const isPatchHistoryEntries = (
+  value: unknown,
+  allowNonJsonPathSegments: boolean
+): value is unknown[][] => {
   return (
-    Array.isArray(value) &&
+    isDenseArray(value) &&
     value.every(
-      (entry) => Array.isArray(entry) && entry.every(isValidPatchOperation)
+      (entry) =>
+        isDenseArray(entry) &&
+        entry.every((operation) =>
+          isValidPatchOperation(operation, allowNonJsonPathSegments)
+        )
     )
   );
 };
@@ -94,16 +164,25 @@ const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
 export const getTravelPatchesValidationError = <
   P extends PatchesOption = {},
 >(
-  patches: unknown
+  patches: unknown,
+  options: { allowNonJsonPathSegments?: boolean } = {}
 ): string | null => {
-  if (!isObjectRecord(patches)) {
+  if (!isObjectRecord(patches) || Array.isArray(patches)) {
     return `patches must be an object with 'patches' and 'inversePatches' arrays`;
   }
 
   const patchHistory = patches as TravelPatches<P>;
+  const allowNonJsonPathSegments =
+    options.allowNonJsonPathSegments === true;
   if (
-    !isPatchHistoryEntries(patchHistory.patches) ||
-    !isPatchHistoryEntries(patchHistory.inversePatches)
+    !isPatchHistoryEntries(
+      patchHistory.patches,
+      allowNonJsonPathSegments
+    ) ||
+    !isPatchHistoryEntries(
+      patchHistory.inversePatches,
+      allowNonJsonPathSegments
+    )
   ) {
     return `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`;
   }
