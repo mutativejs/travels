@@ -24,9 +24,10 @@
 7. Push `main`, then create and push a matching release tag:
 
    ```bash
+   VERSION=$(node -p "require('./package.json').version")
    git push origin main
-   git tag v1.3.0
-   git push origin v1.3.0
+   git tag "v$VERSION"
+   git push origin "v$VERSION"
    ```
 
    The tag must match the `package.json` version exactly, with a leading `v`.
