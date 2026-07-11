@@ -20,22 +20,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install pnpm
+      uses: pnpm/action-setup@v6
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-    - name: yarn install, build, and test
+        cache: 'pnpm'
+        cache-dependency-path: pnpm-lock.yaml
+    - name: pnpm install, build, and test
       run: |
-        yarn install --frozen-lockfile
-        yarn playwright install --with-deps chromium
-        yarn size:ci
-        yarn test:types
-        yarn test:examples
-        yarn test
-        yarn test:browser
-        yarn test:e2e:types
-        yarn test:e2e:ci
-        yarn coverage
-        yarn benchmark:ci
+        pnpm install --frozen-lockfile
+        pnpm exec playwright install --with-deps chromium
+        pnpm run size:ci
+        pnpm run test:types
+        pnpm run test:examples
+        pnpm run test
+        pnpm run test:browser
+        pnpm run test:e2e:types
+        pnpm run test:e2e:ci
+        pnpm run coverage
+        pnpm run benchmark:ci
       env:
         CI: true

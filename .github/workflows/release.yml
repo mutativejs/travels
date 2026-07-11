@@ -23,10 +23,11 @@ jobs:
       CI: true
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
       - name: Verify release tag
         run: |
           version="$(node -p "require('./package.json').version")"
@@ -34,16 +35,16 @@ jobs:
             echo "Tag ${GITHUB_REF_NAME} does not match package version v${version}."
             exit 1
           fi
-      - run: yarn playwright install --with-deps chromium
-      - run: yarn size:ci
-      - run: yarn test:types
-      - run: yarn test:examples
-      - run: yarn test
-      - run: yarn test:browser
-      - run: yarn test:e2e:types
-      - run: yarn test:e2e:ci
-      - run: yarn coverage
-      - run: yarn benchmark:ci
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run size:ci
+      - run: pnpm run test:types
+      - run: pnpm run test:examples
+      - run: pnpm run test
+      - run: pnpm run test:browser
+      - run: pnpm run test:e2e:types
+      - run: pnpm run test:e2e:ci
+      - run: pnpm run coverage
+      - run: pnpm run benchmark:ci
 
   build-pages:
     runs-on: ubuntu-latest
@@ -52,11 +53,12 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
-      - run: yarn install --frozen-lockfile
-      - run: yarn build:doc:site
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build:doc:site
 
   publish-npm:
     runs-on: ubuntu-latest
@@ -66,13 +68,14 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm install --global npm@11.5.1
-      - run: yarn install --frozen-lockfile
-      - run: yarn build
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
       - run: npm publish
         env:
           CI: true

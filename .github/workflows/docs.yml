@@ -34,9 +34,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: refs/tags/${{ inputs.release_ref }}
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
       - name: Verify release tag
         env:
           RELEASE_REF: ${{ inputs.release_ref }}
@@ -46,9 +49,9 @@ jobs:
             echo "Tag ${RELEASE_REF} does not match package version v${version}."
             exit 1
           fi
-      - run: yarn install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
       - uses: actions/configure-pages@v6
-      - run: yarn build:doc:site
+      - run: pnpm run build:doc:site
       - uses: actions/upload-pages-artifact@v4
         with:
           path: docs-site
