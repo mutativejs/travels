@@ -552,4 +552,90 @@ describe('Productized history API', () => {
     expect(travels.getPosition()).toBe(1);
     expect(travels.getPatches().patches).toHaveLength(1);
   });
+
+  test('rejects known async state updaters before invocation', () => {
+    const travels = createTravels({ count: 0 });
+    let calls = 0;
+    const updater = async (draft: { count: number }) => {
+      calls += 1;
+      draft.count = 1;
+    };
+
+    for (const candidate of [
+      updater,
+      updater.bind(undefined),
+      new Proxy(updater, {}),
+      async function* generator() {
+        calls += 1;
+      },
+    ]) {
+      expect(() => travels.setState(candidate as any)).toThrow(
+        'setState callback must be synchronous'
+      );
+    }
+
+    expect(calls).toBe(0);
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(travels.getPosition()).toBe(0);
+  });
+
+  test('rolls back Promise-like results without assimilating thenables', async () => {
+    let thenCalls = 0;
+    const thenable = {
+      then() {
+        thenCalls += 1;
+      },
+    };
+
+    for (const result of [Promise.resolve(), thenable]) {
+      const travels = createTravels({ count: 0 });
+
+      expect(() =>
+        travels.setState(((draft: { count: number }) => {
+          draft.count = 1;
+          return result;
+        }) as any)
+      ).toThrow('setState callback must be synchronous');
+
+      expect(travels.getState()).toEqual({ count: 0 });
+      expect(travels.getPosition()).toBe(0);
+    }
+
+    await Promise.resolve();
+    expect(thenCalls).toBe(0);
+  });
+
+  test('rejects async transactions before invocation', () => {
+    const onError = vi.fn();
+    const travels = createTravels({ count: 0 }, { onError });
+    let called = false;
+    const transaction = async () => {
+      called = true;
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+    };
+
+    expect(() => travels.transaction(transaction as any)).toThrow(TravelsError);
+    expect(called).toBe(false);
+    expect(onError).toHaveBeenCalledOnce();
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(travels.getPatches().patches).toHaveLength(0);
+  });
+
+  test('rolls back transactions that return Promise-like values', () => {
+    const travels = createTravels({ count: 0 });
+
+    expect(() =>
+      travels.transaction((() => {
+        travels.setState((draft) => {
+          draft.count = 1;
+        });
+        return { then() {} };
+      }) as any)
+    ).toThrow(TravelsError);
+
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(travels.getPatches().patches).toHaveLength(0);
+  });
 });

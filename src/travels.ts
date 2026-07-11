@@ -40,6 +40,54 @@ type Listener<S, P extends PatchesOption = {}> = (
   position: number
 ) => void;
 
+type SynchronousFunction<F> = F extends (...args: never[]) => infer R
+  ? Extract<R, PromiseLike<unknown>> extends never
+    ? F
+    : never
+  : F;
+
+type SynchronousUpdater<S, U extends Updater<S>> = Updater<S> extends U
+  ? U
+  : SynchronousFunction<U>;
+
+const asyncFunctionTags = new Set([
+  '[object AsyncFunction]',
+  '[object AsyncGeneratorFunction]',
+]);
+
+const isKnownAsyncFunction = (value: unknown): boolean =>
+  typeof value === 'function' &&
+  asyncFunctionTags.has(Object.prototype.toString.call(value));
+
+const isPromiseLike = (value: unknown): value is PromiseLike<unknown> =>
+  value !== null &&
+  (typeof value === 'object' || typeof value === 'function') &&
+  typeof (value as { then?: unknown }).then === 'function';
+
+const silenceNativePromiseRejection = (value: PromiseLike<unknown>): void => {
+  if (
+    !(value instanceof Promise) &&
+    Object.prototype.toString.call(value) !== '[object Promise]'
+  ) {
+    return;
+  }
+
+  try {
+    void (value as Promise<unknown>).catch(() => undefined);
+  } catch {
+    // Promise-like objects are rejected without invoking arbitrary `then` code.
+  }
+};
+
+const assertSynchronousResult = <T>(value: T, api: string): T => {
+  if (!isPromiseLike(value)) {
+    return value;
+  }
+
+  silenceNativePromiseRejection(value);
+  throw new TypeError(`Travels: ${api} callback must be synchronous.`);
+};
+
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   state: S;
   stateReference: S;
@@ -868,6 +916,10 @@ export class Travels<
   /**
    * Update the state
    */
+  public setState<U extends Updater<S>>(
+    updater: SynchronousUpdater<S, U>,
+    metadata?: TravelMetadata
+  ): void;
   public setState(updater: Updater<S>, metadata?: TravelMetadata): void {
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
@@ -875,6 +927,9 @@ export class Travels<
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
+    if (isFunctionUpdater && isKnownAsyncFunction(updater)) {
+      throw new TypeError('Travels: setState callback must be synchronous.');
+    }
     const stateIsArray = Array.isArray(this.state);
     const updaterIsArray = Array.isArray(updater);
     const canMutatePlainObjects =
@@ -909,7 +964,11 @@ export class Travels<
       const [nextState, p, ip] = create(
         this.state,
         isFunctionUpdater
-          ? (updater as (draft: Draft<S>) => void)
+          ? (draft: Draft<S>) =>
+              assertSynchronousResult(
+                (updater as (draft: Draft<S>) => S | void)(draft),
+                'setState'
+              )
           : (draft: Draft<S>) => {
               overwriteDraftWith(draft!, updater);
             },
@@ -950,6 +1009,7 @@ export class Travels<
                 const result = (updater as (draft: Draft<S>) => S | void)(
                   draft
                 );
+                assertSynchronousResult(result, 'setState');
                 if (result === draft) {
                   return result as S;
                 }
@@ -1086,11 +1146,13 @@ export class Travels<
     this.archivePending(metadata);
   }
 
-  public transaction(
+  public transaction<FN extends () => unknown>(
     metadata: TravelMetadata,
-    fn: () => void
+    fn: FN & SynchronousFunction<FN>
   ): void;
-  public transaction(fn: () => void): void;
+  public transaction<FN extends () => unknown>(
+    fn: FN & SynchronousFunction<FN>
+  ): void;
   public transaction(
     metadataOrFn: TravelMetadata | (() => void),
     maybeFn?: () => void
@@ -1103,6 +1165,13 @@ export class Travels<
 
     if (!fn) {
       return;
+    }
+
+    if (isKnownAsyncFunction(fn)) {
+      throw this.reportError(
+        'TRANSACTION_FAILED',
+        new TypeError('Travels: transaction callback must be synchronous.')
+      );
     }
 
     const previousAutoArchive = this.autoArchive;
@@ -1120,7 +1189,7 @@ export class Travels<
     this.autoArchive = false as A;
 
     try {
-      fn();
+      assertSynchronousResult(fn(), 'transaction');
     } catch (error) {
       failed = true;
       this.restoreTransactionSnapshot(transactionSnapshot);
@@ -1142,8 +1211,13 @@ export class Travels<
     }
   }
 
-  public batch(metadata: TravelMetadata, fn: () => void): void;
-  public batch(fn: () => void): void;
+  public batch<FN extends () => unknown>(
+    metadata: TravelMetadata,
+    fn: FN & SynchronousFunction<FN>
+  ): void;
+  public batch<FN extends () => unknown>(
+    fn: FN & SynchronousFunction<FN>
+  ): void;
   public batch(
     metadataOrFn: TravelMetadata | (() => void),
     maybeFn?: () => void

@@ -6,6 +6,7 @@ import {
   type PatchableState,
   type TravelMetadata,
   type TravelsSerializedHistory,
+  type Updater,
 } from '../src/index';
 
 describe('Type-level API contracts', () => {
@@ -45,5 +46,42 @@ describe('Type-level API contracts', () => {
     expectTypeOf(travels.getControls().archive)
       .parameter(0)
       .toEqualTypeOf<TravelMetadata | undefined>();
+  });
+
+  test('async callbacks are rejected while typed updaters remain forwardable', () => {
+    type State = { count: number };
+    const travels = createTravels<State>({ count: 0 });
+    const update = (updater: Updater<State>) => travels.setState(updater);
+
+    update((draft) => {
+      draft.count = 1;
+    });
+    expectTypeOf(update).parameter(0).toEqualTypeOf<Updater<State>>();
+
+    if (false) {
+      // @ts-expect-error state callbacks must be synchronous
+      travels.setState(async (draft) => {
+        draft.count = 1;
+      });
+
+      // @ts-expect-error transactions must be synchronous
+      travels.transaction(async () => {
+        travels.setState((draft) => {
+          draft.count = 1;
+        });
+      });
+
+      const maybeAsyncUpdater = (
+        draft: State
+      ): void | Promise<void> => {
+        draft.count = 2;
+      };
+      // @ts-expect-error Promise unions must also be rejected
+      travels.setState(maybeAsyncUpdater);
+
+      const maybeAsyncTransaction = (): void | Promise<void> => undefined;
+      // @ts-expect-error Promise unions must also be rejected
+      travels.transaction(maybeAsyncTransaction);
+    }
   });
 });
