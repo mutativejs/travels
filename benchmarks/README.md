@@ -62,6 +62,10 @@ npm run test:full
 npm run test:ci
 ```
 
+The benchmark commands build the current checkout first and load its explicit
+CommonJS artifact, so results cannot accidentally come from stale `dist`
+output or a separately installed package.
+
 ## Test Scenarios
 
 The original simulated and real-library scripts use the same fixed scenario:

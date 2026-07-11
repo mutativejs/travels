@@ -8,7 +8,7 @@ const { createStore } = require('redux');
 const undoable = require('redux-undo').default;
 const { createStore: create } = require('zustand/vanilla');
 const { temporal } = require('zundo');
-const { createTravels } = require('../');
+const { createTravels } = require('../dist/index.cjs');
 const { performance } = require('perf_hooks');
 
 // ============ Utilities ============

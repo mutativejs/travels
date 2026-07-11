@@ -8,7 +8,7 @@
  */
 
 const { performance } = require('perf_hooks');
-const { createTravels } = require('../');
+const { createTravels } = require('../dist/index.cjs');
 
 const args = new Set(process.argv.slice(2));
 const isCi = args.has('--ci');

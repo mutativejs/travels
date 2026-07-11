@@ -6,10 +6,10 @@
   "description": "Performance benchmarks for undo/redo libraries",
   "scripts": {
     "test:memory": "node --expose-gc memory-performance-test.js",
-    "test:real": "node --expose-gc real-library-benchmark.js",
-    "test:matrix": "node --expose-gc matrix-benchmark.js",
-    "test:full": "node --expose-gc matrix-benchmark.js --full",
-    "test:ci": "node --expose-gc matrix-benchmark.js --ci",
+    "test:real": "yarn --cwd .. build && NODE_ENV=production node --expose-gc real-library-benchmark.js",
+    "test:matrix": "yarn --cwd .. build && NODE_ENV=production node --expose-gc matrix-benchmark.js",
+    "test:full": "yarn --cwd .. build && NODE_ENV=production node --expose-gc matrix-benchmark.js --full",
+    "test:ci": "yarn --cwd .. build && NODE_ENV=production node --expose-gc matrix-benchmark.js --ci",
     "test:all": "npm run test:memory && npm run test:real && npm run test:matrix"
   },
   "dependencies": {
