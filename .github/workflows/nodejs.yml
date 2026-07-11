@@ -28,7 +28,7 @@ jobs:
       run: |
         yarn install --frozen-lockfile
         yarn playwright install --with-deps chromium
-        yarn build
+        yarn size:ci
         yarn test:types
         yarn test:examples
         yarn test

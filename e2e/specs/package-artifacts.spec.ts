@@ -58,6 +58,15 @@ test('npm pack includes publishable artifacts and excludes test sources', () => 
   expect(files).toContain('dist/index.d.ts');
   expect(files).toContain('docs/persistence-integrations.md');
   expect(files).toContain('src/index.ts');
+  expect(
+    files
+      .filter(
+        (file) =>
+          file.startsWith('dist/') &&
+          (file.endsWith('.js') || file.endsWith('.cjs'))
+      )
+      .sort()
+  ).toEqual(['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js']);
   expect(files).not.toContain('test/index.test.ts');
   expect(files).not.toContain('e2e/specs/package-artifacts.spec.ts');
 });

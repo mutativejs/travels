@@ -35,7 +35,7 @@ jobs:
             exit 1
           fi
       - run: yarn playwright install --with-deps chromium
-      - run: yarn build
+      - run: yarn size:ci
       - run: yarn test:types
       - run: yarn test:examples
       - run: yarn test

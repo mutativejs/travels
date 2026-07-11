@@ -9,7 +9,7 @@
 
    ```bash
    yarn install
-   yarn build
+   yarn size:ci
    yarn test
    yarn test:types
    yarn test:browser
