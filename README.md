@@ -183,6 +183,8 @@ Update the state. Supports three styles:
 - **Function returning value:** `setState(() => ({ count: 1 }))` - Compute new state
 - **Draft mutation (recommended):** `setState((draft) => { draft.count = 1 })` - Mutate a draft copy
 
+Updater callbacks must be synchronous. Async functions and Promise-like results are rejected so state changes cannot escape the history boundary.
+
 > **Performance Optimization:** Updates that produce no actual changes (empty patches) won't create history entries or trigger subscribers. For example, `setState(state => state)` or conditional updates that don't modify any fields. This prevents memory bloat from no-op operations.
 
 Pass optional metadata to label history entries for product UI:
@@ -301,6 +303,8 @@ travels.transaction({ label: 'Move Selection' }, () => {
 ```
 
 `batch(...)` is an alias for `transaction(...)`.
+
+Transaction callbacks must also be synchronous. A rejected asynchronous callback rolls the transaction back and reports a `TravelsError` through `onError` when configured.
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 

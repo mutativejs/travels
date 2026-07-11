@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Preserve pending manual changes when enforcing `maxHistory`, including at the smallest capacities.
+- Keep mutable-mode root references stable when failed updates roll back or `reset()` restores a compatible object or array root.
+- Preserve configured Mutative options while replaying history, and restore tracking state after failed transactions.
+- Isolate transaction archive behavior from the configured manual or automatic archive mode.
+- Reject asynchronous state updaters and transaction callbacks instead of allowing changes to escape the synchronous history boundary.
+- Reject disabled patch generation and malformed or unsafe persisted patch structures before replay.
+- Validate persistence fallbacks and report throwing or invalid fallbacks as `FALLBACK_FAILED` without allowing observers to block recovery.
+- Remove Node-only `process` references from browser bundles and make declarations resolve under TypeScript `NodeNext`.
+
+### Changed
+
+- Ship only the documented CJS, ESM, and UMD JavaScript bundles instead of intermediate compiler output, and validate source maps and package size budgets in CI and release workflows.
+- Run CI for fork pull requests and use a supported Node/npm combination for trusted publishing.
+- Build and load the current package artifact explicitly before running performance benchmarks.
+- Derive documented release tags from the package version.
+
 ## [1.3.1] - 2026-05-16
 
 ### Fixed
