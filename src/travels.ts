@@ -849,6 +849,15 @@ export class Travels<
     );
   }
 
+  private applyImmutably<T>(state: T, patches: Patches<P>): T {
+    const { enablePatches: _enablePatches, ...replayOptions } = this.options;
+    return apply(
+      state as object,
+      patches,
+      replayOptions as Parameters<typeof apply>[2]
+    ) as T;
+  }
+
   /**
    * Get the current state
    */
@@ -1179,7 +1188,7 @@ export class Travels<
     // Use pendingState if available, otherwise use current state.
     const stateToUse = (this.pendingState ?? this.state) as object;
 
-    const archivedState = apply(
+    const archivedState = this.applyImmutably(
       stateToUse,
       this.tempPatches.inversePatches.flat().reverse()
     ) as S;
@@ -1269,7 +1278,7 @@ export class Travels<
     // Build future history
     const futureHistory: S[] = [];
     for (let i = this.position; i < patches.length; i++) {
-      currentState = apply(currentState as object, patches[i]) as S;
+      currentState = this.applyImmutably(currentState, patches[i]);
       futureHistory.push(currentState);
     }
 
@@ -1277,7 +1286,7 @@ export class Travels<
     currentState = this.state;
     const pastHistory: S[] = [];
     for (let i = this.position - 1; i > -1; i--) {
-      currentState = apply(currentState as object, inversePatches[i]) as S;
+      currentState = this.applyImmutably(currentState, inversePatches[i]);
       pastHistory.push(currentState);
     }
     pastHistory.reverse();
@@ -1369,7 +1378,7 @@ export class Travels<
       apply(this.state as object, patchesToApply, { mutable: true });
     } else {
       // For immutable state or primitive types: create new state
-      this.state = apply(this.state as object, patchesToApply) as S;
+      this.state = this.applyImmutably(this.state, patchesToApply);
     }
 
     this.position = nextPosition;
@@ -1420,7 +1429,10 @@ export class Travels<
       apply(this.state as object, patches, { mutable: true });
     } else {
       // For immutable state: restore from a snapshot clone.
-      this.state = cloneInitialSnapshot(this.initialState);
+      this.state = this.applyImmutably(
+        cloneInitialSnapshot(this.initialState),
+        []
+      );
     }
 
     this.position = this.initialPosition;

@@ -1101,3 +1101,24 @@ describe('Bug #16: mutable reset should respect root container types', () => {
     expect(Array.isArray(travels.getState())).toBe(true);
   });
 });
+
+describe('Replay options', () => {
+  test('keeps auto-freeze active across history navigation and reset', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { enableAutoFreeze: true }
+    );
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    expect(Object.isFrozen(travels.getState())).toBe(true);
+
+    travels.back();
+    expect(Object.isFrozen(travels.getState())).toBe(true);
+    travels.forward();
+    expect(Object.isFrozen(travels.getState())).toBe(true);
+    travels.reset();
+    expect(Object.isFrozen(travels.getState())).toBe(true);
+  });
+});
