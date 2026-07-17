@@ -398,17 +398,26 @@ describe('Productized history API', () => {
       }
     );
 
-    travels.setState((draft) => {
-      draft.count = 1;
-    }, { label: 'one' });
-    travels.setState((draft) => {
-      draft.count = 2;
-    }, { label: 'two' });
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      { label: 'one' }
+    );
+    travels.setState(
+      (draft) => {
+        draft.count = 2;
+      },
+      { label: 'two' }
+    );
 
     travels.back();
-    travels.setState((draft) => {
-      draft.count = 3;
-    }, { label: 'three' });
+    travels.setState(
+      (draft) => {
+        draft.count = 3;
+      },
+      { label: 'three' }
+    );
 
     expect(discardedLabels).toEqual(['two']);
     expect(travels.canForward()).toBe(false);
@@ -452,10 +461,13 @@ describe('Productized history API', () => {
       draft.count = 1;
     });
 
-    expect(getPatchesSpy).toHaveBeenCalledTimes(1);
+    expect(getPatchesSpy).not.toHaveBeenCalled();
     expect(snapshots).toHaveLength(3);
     expect(snapshots[0]).toBe(snapshots[1]);
     expect(snapshots[1]).toBe(snapshots[2]);
+    expect(
+      (snapshots[0] as ReturnType<typeof travels.getPatches>).patches
+    ).toHaveLength(1);
   });
 
   test('getHistory returns a frozen cached array with shared entries', () => {

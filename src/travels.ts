@@ -49,9 +49,8 @@ type SynchronousFunction<F> = F extends (...args: never[]) => infer R
     : never
   : F;
 
-type SynchronousUpdater<S, U extends Updater<S>> = Updater<S> extends U
-  ? U
-  : SynchronousFunction<U>;
+type SynchronousUpdater<S, U extends Updater<S>> =
+  Updater<S> extends U ? U : SynchronousFunction<U>;
 
 const asyncFunctionTags = new Set([
   '[object AsyncFunction]',
@@ -513,7 +512,8 @@ export class Travels<
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
     this.onObserverError = onObserverError;
-    this.devtools = devtools as ((event: TravelsDevtoolsEvent<S, P>) => void)
+    this.devtools = devtools as
+      | ((event: TravelsDevtoolsEvent<S, P>) => void)
       | undefined;
     this.options = {
       ...mutativeOptions,
@@ -548,10 +548,7 @@ export class Travels<
   }
 
   private warnAboutStateCompatibility(state: unknown): void {
-    if (
-      !this.warnOnUnsupportedState ||
-      process.env.NODE_ENV === 'production'
-    ) {
+    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
       return;
     }
 
@@ -742,7 +739,38 @@ export class Travels<
     if (!this.listeners.size && !this.devtools) {
       return undefined;
     }
-    return this.getPatches();
+
+    const shouldArchive =
+      !this.isAutoArchiving() && !!this.tempPatches.patches.length;
+    const source = shouldArchive ? this.getAllPatches() : this.allPatches;
+    const patchGroups = source.patches;
+    const inversePatchGroups = source.inversePatches;
+    const patchCount = patchGroups.length;
+    const inversePatchCount = inversePatchGroups.length;
+    let materialized: TravelPatches<P> | undefined;
+
+    const materialize = (): TravelPatches<P> => {
+      if (!materialized) {
+        materialized = cloneTravelPatches({
+          patches: patchGroups.slice(0, patchCount),
+          inversePatches: inversePatchGroups.slice(0, inversePatchCount),
+        });
+      }
+      return materialized;
+    };
+
+    const snapshot = {} as TravelPatches<P>;
+    Object.defineProperties(snapshot, {
+      patches: {
+        enumerable: true,
+        get: () => materialize().patches,
+      },
+      inversePatches: {
+        enumerable: true,
+        get: () => materialize().inversePatches,
+      },
+    });
+    return snapshot;
   }
 
   private notify(patches?: TravelPatches<P>): void {
@@ -837,7 +865,10 @@ export class Travels<
     });
   }
 
-  private reportError(code: 'TRANSACTION_FAILED', error: unknown): TravelsError {
+  private reportError(
+    code: 'TRANSACTION_FAILED',
+    error: unknown
+  ): TravelsError {
     const travelsError =
       error instanceof TravelsError
         ? error
@@ -856,7 +887,9 @@ export class Travels<
     metadata: Array<TravelMetadata | undefined> = []
   ): TravelHistoryEntry<P>[] {
     return patches.patches.map((patch, index) => ({
-      patches: patch.map((operation) => deepCloneValue(operation)) as Patches<P>,
+      patches: patch.map((operation) =>
+        deepCloneValue(operation)
+      ) as Patches<P>,
       inversePatches: patches.inversePatches[index].map((operation) =>
         deepCloneValue(operation)
       ) as Patches<P>,
@@ -877,15 +910,14 @@ export class Travels<
     } as TravelPatches<P>;
     const discardedMetadata = this.allMetadata.slice(position);
 
-    this.allPatches.patches.splice(
-      position,
-      this.allPatches.patches.length - position
+    // Replace the outer arrays instead of mutating them so lazy event snapshots
+    // can retain an exact view of the discarded branch.
+    this.allPatches.patches = this.allPatches.patches.slice(0, position);
+    this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
+      0,
+      position
     );
-    this.allPatches.inversePatches.splice(
-      position,
-      this.allPatches.inversePatches.length - position
-    );
-    this.allMetadata.splice(position, this.allMetadata.length - position);
+    this.allMetadata = this.allMetadata.slice(0, position);
 
     return {
       position,
@@ -1130,33 +1162,29 @@ export class Travels<
       }
     } else {
       // For immutable state: create new object
-      const [nextState, p, ip] = (
-        typeof updater === 'function'
-          ? create(
-              this.state,
-              (draft: Draft<S>) => {
-                const result = (updater as (draft: Draft<S>) => S | void)(
-                  draft
-                );
-                assertSynchronousResult(result, 'setState');
-                if (result === draft) {
-                  return result as S;
-                }
-                return isObjectLike(result) && !containsDraft(result)
-                  ? (rawReturn(result as object) as S)
-                  : (result as S);
-              },
-              this.options
-            )
-          : create(
-              this.state,
-              () =>
-                isObjectLike(updater)
-                  ? (rawReturn(updater as object) as S)
-                  : (updater as S),
-              this.options
-            )
-      ) as unknown as [S, Patches<P>, Patches<P>];
+      const [nextState, p, ip] = (typeof updater === 'function'
+        ? create(
+            this.state,
+            (draft: Draft<S>) => {
+              const result = (updater as (draft: Draft<S>) => S | void)(draft);
+              assertSynchronousResult(result, 'setState');
+              if (result === draft) {
+                return result as S;
+              }
+              return isObjectLike(result) && !containsDraft(result)
+                ? (rawReturn(result as object) as S)
+                : (result as S);
+            },
+            this.options
+          )
+        : create(
+            this.state,
+            () =>
+              isObjectLike(updater)
+                ? (rawReturn(updater as object) as S)
+                : (updater as S),
+            this.options
+          )) as unknown as [S, Patches<P>, Patches<P>];
 
       patches = p;
       inversePatches = ip;
@@ -1687,9 +1715,7 @@ export class Travels<
    * Check if it's possible to archive the current state
    */
   public canArchive(): boolean {
-    return (
-      !this.autoArchive && !!this.tempPatches.patches.length
-    );
+    return !this.autoArchive && !!this.tempPatches.patches.length;
   }
 
   /**
@@ -1776,8 +1802,9 @@ export class Travels<
     };
 
     if (!this.autoArchive) {
-      (controls as RebasableManualTravelsControls<S, F, P>).archive =
-        (metadata?: TravelMetadata): void => self.archive(metadata);
+      (controls as RebasableManualTravelsControls<S, F, P>).archive = (
+        metadata?: TravelMetadata
+      ): void => self.archive(metadata);
       (controls as RebasableManualTravelsControls<S, F, P>).canArchive =
         (): boolean => self.canArchive();
     }

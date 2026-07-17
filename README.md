@@ -50,19 +50,19 @@ Travels is not designed to be the fastest possible choice for every hot path. Sn
 
 ## Choosing the Right Undo Strategy
 
-| Scenario | Recommended approach |
-| --- | --- |
-| Small state, short history, local-only undo/redo | Snapshot stack, Redux-undo, or Zundo |
-| Large state, small updates, long history, persistence, or operation logs | Travels |
-| Collaborative editing, conflict merging, or concurrent multi-user state | CRDT/OT system; Travels alone does not solve conflicts |
+| Scenario                                                                 | Recommended approach                                   |
+| ------------------------------------------------------------------------ | ------------------------------------------------------ |
+| Small state, short history, local-only undo/redo                         | Snapshot stack, Redux-undo, or Zundo                   |
+| Large state, small updates, long history, persistence, or operation logs | Travels                                                |
+| Collaborative editing, conflict merging, or concurrent multi-user state  | CRDT/OT system; Travels alone does not solve conflicts |
 
-| Priority | Travels fit | Trade-off |
-| --- | --- | --- |
-| Minimize serialized history size | Strong | Patch history is compact for small changes to large state |
-| Persist history to localStorage, IndexedDB, worker messages, or cloud sync | Strong | You still need a storage and migration strategy |
-| Lowest setState/undo/redo latency for tiny state | Usually not the best fit | Patch generation and patch application add overhead |
-| Large replace-everything updates | Scenario-dependent | Large patches can approach snapshot costs |
-| Framework integration | Strong | Use immutable mode by default; use mutable mode for reactive stores that require identity stability |
+| Priority                                                                   | Travels fit              | Trade-off                                                                                           |
+| -------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------- |
+| Minimize serialized history size                                           | Strong                   | Patch history is compact for small changes to large state                                           |
+| Persist history to localStorage, IndexedDB, worker messages, or cloud sync | Strong                   | You still need a storage and migration strategy                                                     |
+| Lowest setState/undo/redo latency for tiny state                           | Usually not the best fit | Patch generation and patch application add overhead                                                 |
+| Large replace-everything updates                                           | Scenario-dependent       | Large patches can approach snapshot costs                                                           |
+| Framework integration                                                      | Strong                   | Use immutable mode by default; use mutable mode for reactive stores that require identity stability |
 
 For current benchmark numbers and caveats, see [`benchmarks/README.md`](benchmarks/README.md). The benchmark results intentionally separate hot-path latency from persistence costs because those trade-offs decide whether patch-based history is the right tool.
 
@@ -146,25 +146,25 @@ Creates a new Travels instance.
 
 **Parameters:**
 
-| Parameter          | Type                      | Description                                                                                                                                                                     | Default                          |
-| ------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `initialState`     | S                         | Your application's starting state (see [state compatibility](#state-requirements-and-compatibility))                                                                            | (required)                       |
-| `maxHistory`       | number                    | Maximum number of history entries to keep. Older entries are dropped. Must be a non-negative integer (`NaN`, `Infinity`, decimals are rejected).                               | 10                               |
-| `initialPatches`   | TravelPatches             | Restore saved patches when loading from storage                                                                                                                                 | {patches: [],inversePatches: []} |
-| `strictInitialPatches` | boolean               | Whether invalid `initialPatches` should throw. When `false`, invalid patches are discarded and history starts empty                                                            | false                            |
-| `initialPosition`  | number                    | Restore position when loading from storage                                                                                                                                      | 0                                |
-| `history`          | TravelsHistory            | Restore validated history returned by `Travels.deserialize(...)`; overrides `initialPatches` and `initialPosition`                                                             | undefined                        |
-| `autoArchive`      | boolean                   | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                    | true                             |
-| `mutable`          | boolean                   | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                               | false                            |
-| `warnOnUnsupportedState` | boolean             | Development warning for state values with weak patch/persistence semantics                                                                                                      | true in development              |
-| `onError`          | function                  | Receives typed `TravelsError` failures from core helper APIs                                                                                                                    | undefined                        |
-| `onBranchDiscard`  | function                  | Called when a new edit after undo discards redo entries                                                                                                                         | undefined                        |
-| `onObserverError`  | function                  | Receives errors thrown by listeners, devtools, and lifecycle hooks after the transition has committed                                                                          | undefined                        |
-| `devtools`         | function                  | Receives timeline events for external devtools integrations                                                                                                                     | undefined                        |
-| `patchesOptions`   | PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `{}` |
-| `enableAutoFreeze` | boolean                   | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                               | false                            |
-| `strict`           | boolean                   | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                               | false                            |
-| `mark`             | Mark<O, F>[]              | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                 | () => void                       |
+| Parameter                | Type           | Description                                                                                                                                                                                                                              | Default                          |
+| ------------------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `initialState`           | S              | Your application's starting state (see [state compatibility](#state-requirements-and-compatibility))                                                                                                                                     | (required)                       |
+| `maxHistory`             | number         | Maximum number of history entries to keep. Older entries are dropped. Must be a non-negative integer (`NaN`, `Infinity`, decimals are rejected).                                                                                         | 10                               |
+| `initialPatches`         | TravelPatches  | Restore saved patches when loading from storage                                                                                                                                                                                          | {patches: [],inversePatches: []} |
+| `strictInitialPatches`   | boolean        | Whether invalid `initialPatches` should throw. When `false`, invalid patches are discarded and history starts empty                                                                                                                      | false                            |
+| `initialPosition`        | number         | Restore position when loading from storage                                                                                                                                                                                               | 0                                |
+| `history`                | TravelsHistory | Restore validated history returned by `Travels.deserialize(...)`; overrides `initialPatches` and `initialPosition`                                                                                                                       | undefined                        |
+| `autoArchive`            | boolean        | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                                                                             | true                             |
+| `mutable`                | boolean        | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                                                                                        | false                            |
+| `warnOnUnsupportedState` | boolean        | Development warning for state values with weak patch/persistence semantics                                                                                                                                                               | true in development              |
+| `onError`                | function       | Receives typed `TravelsError` failures from core helper APIs                                                                                                                                                                             | undefined                        |
+| `onBranchDiscard`        | function       | Called when a new edit after undo discards redo entries                                                                                                                                                                                  | undefined                        |
+| `onObserverError`        | function       | Receives errors thrown by listeners, devtools, and lifecycle hooks after the transition has committed                                                                                                                                    | undefined                        |
+| `devtools`               | function       | Receives timeline events for external devtools integrations                                                                                                                                                                              | undefined                        |
+| `patchesOptions`         | PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `{}`                             |
+| `enableAutoFreeze`       | boolean        | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                                                        | false                            |
+| `strict`                 | boolean        | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                                                                        | false                            |
+| `mark`                   | Mark<O, F>[]   | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                                                                          | () => void                       |
 
 **Returns:** `Travels<S, F, A>` - A Travels instance
 
@@ -201,8 +201,11 @@ travels.setState(
 
 Subscribe to state changes. Returns an unsubscribe function.
 
-The `patches` argument is a shared per-event snapshot. Treat it as read-only;
-mutating it can affect other listeners or devtools hooks handling the same event.
+The `patches` argument is a shared per-event snapshot. It is materialized lazily,
+so state-only subscribers do not copy the complete history on every update.
+Treat it as read-only; mutating it can affect other listeners or devtools hooks
+handling the same event. Once accessed, the snapshot remains stable even after
+later history updates.
 
 Notifications run only after state, position, and history have committed. An
 observer exception is isolated from other observers and is reported through
@@ -476,11 +479,12 @@ travels.setState({ count: 2 }); // History: [0, 1, 2], position: 2
 travels.setState({ count: 3 }); // History: [0, 1, 2, 3], position: 3
 
 // No-op update - position stays the same (optimization)
-travels.setState(state => state); // History: [0, 1, 2, 3], position: 3
+travels.setState((state) => state); // History: [0, 1, 2, 3], position: 3
 
 // Conditional update that changes nothing
-travels.setState(draft => {
-  if (draft.count > 10) {  // false, so no changes
+travels.setState((draft) => {
+  if (draft.count > 10) {
+    // false, so no changes
     draft.count = 0;
   }
 }); // History: [0, 1, 2, 3], position: 3
@@ -529,19 +533,19 @@ function handleSave() {
 
 Travels works best when state is durable data: plain objects, arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data.
 
-| Value | Immutable runtime | Mutable runtime | JSON persistence | Recommendation |
-| --- | --- | --- | --- | --- |
-| Plain object | Supported | Supported | Supported | Preferred |
-| Array | Supported | Supported, except sparse root array edge cases | Supported | Preferred |
-| string, number, boolean, `null` | Supported | Falls back to immutable for primitive roots | Supported | Preferred |
-| `undefined` | Patchable in memory | Patchable in memory | Removed from JSON objects | Use `null` |
-| `Date` | Cloneable, but not durable | Cloneable, but not durable | Restored as a string through JSON | Store timestamp or ISO string |
-| `Map` / `Set` | Runtime support in immutable mode | Not supported | Requires custom codec | Store arrays, or provide a codec |
-| Class instance / custom prototype | Not durable | Not durable | Loses prototype/methods | Store plain data or IDs |
-| Function | Not supported | Not supported | Dropped by JSON | Keep behavior outside state |
-| Circular reference | Not supported for JSON persistence | Not supported for JSON persistence | `JSON.stringify` fails | Normalize graph to IDs |
-| DOM node, ref, observable instance body | Not supported as durable state | Not supported as durable state | Not serializable | Store outside Travels state |
-| WeakMap / WeakSet | Not supported | Not supported | Not serializable | Store outside Travels state |
+| Value                                   | Immutable runtime                  | Mutable runtime                                | JSON persistence                  | Recommendation                   |
+| --------------------------------------- | ---------------------------------- | ---------------------------------------------- | --------------------------------- | -------------------------------- |
+| Plain object                            | Supported                          | Supported                                      | Supported                         | Preferred                        |
+| Array                                   | Supported                          | Supported, except sparse root array edge cases | Supported                         | Preferred                        |
+| string, number, boolean, `null`         | Supported                          | Falls back to immutable for primitive roots    | Supported                         | Preferred                        |
+| `undefined`                             | Patchable in memory                | Patchable in memory                            | Removed from JSON objects         | Use `null`                       |
+| `Date`                                  | Cloneable, but not durable         | Cloneable, but not durable                     | Restored as a string through JSON | Store timestamp or ISO string    |
+| `Map` / `Set`                           | Runtime support in immutable mode  | Not supported                                  | Requires custom codec             | Store arrays, or provide a codec |
+| Class instance / custom prototype       | Not durable                        | Not durable                                    | Loses prototype/methods           | Store plain data or IDs          |
+| Function                                | Not supported                      | Not supported                                  | Dropped by JSON                   | Keep behavior outside state      |
+| Circular reference                      | Not supported for JSON persistence | Not supported for JSON persistence             | `JSON.stringify` fails            | Normalize graph to IDs           |
+| DOM node, ref, observable instance body | Not supported as durable state     | Not supported as durable state                 | Not serializable                  | Store outside Travels state      |
+| WeakMap / WeakSet                       | Not supported                      | Not supported                                  | Not serializable                  | Store outside Travels state      |
 
 TypeScript helpers are exported for users who want to enforce the durable subset in their own app code:
 
@@ -739,11 +743,7 @@ export function useTravel(initialState, options) {
 To persist state across browser sessions or page reloads, use the versioned snapshot API. A snapshot contains the current state, patch history, position, and schema version.
 
 ```typescript
-import {
-  createTravels,
-  Travels,
-  TravelsPersistenceError,
-} from 'travels';
+import { createTravels, Travels, TravelsPersistenceError } from 'travels';
 
 function saveToStorage(travels) {
   localStorage.setItem('travels:document', JSON.stringify(travels.serialize()));
