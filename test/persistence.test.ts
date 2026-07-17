@@ -798,6 +798,136 @@ describe('Persistence Example - State Persistence', () => {
     }
   });
 
+  test('Travels.deserialize() rejects extended history arrays without invoking their methods', () => {
+    const createPatches = () => ({
+      patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+      inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+    });
+    const cases = [
+      (patches: ReturnType<typeof createPatches>) => patches.patches,
+      (patches: ReturnType<typeof createPatches>) => patches.patches[0],
+      (patches: ReturnType<typeof createPatches>) => patches.inversePatches,
+      (patches: ReturnType<typeof createPatches>) => patches.inversePatches[0],
+    ];
+
+    for (const [index, selectArray] of cases.entries()) {
+      const patches = createPatches();
+      Object.defineProperty(selectArray(patches), index % 2 ? 'every' : 'map', {
+        value: undefined,
+        configurable: true,
+      });
+
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches,
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+    }
+  });
+
+  test('Travels.deserialize() rejects non-plain patch paths and metadata arrays', () => {
+    const extendedPath = ['count'];
+    Object.defineProperty(extendedPath, 'slice', {
+      value: undefined,
+      configurable: true,
+    });
+    const customPrototypePath = ['count'];
+    Object.setPrototypeOf(customPrototypePath, Object.create(Array.prototype));
+
+    for (const path of [extendedPath, customPrototypePath]) {
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path, value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+    }
+
+    for (const method of ['every', 'map'] as const) {
+      const metadata = [{}];
+      Object.defineProperty(metadata, method, {
+        value: undefined,
+        configurable: true,
+      });
+
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
+          metadata,
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_SCHEMA',
+          message:
+            "Travels: persisted history 'metadata' must be a plain dense array when provided.",
+        })
+      );
+    }
+  });
+
+  test('plain frozen history arrays remain valid object-form input', () => {
+    const history = Travels.deserialize<{ count: number }>(
+      Object.freeze({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: Object.freeze({ count: 1 }),
+        position: 1,
+        patches: Object.freeze({
+          patches: Object.freeze([
+            Object.freeze([
+              Object.freeze({
+                op: 'replace' as const,
+                path: Object.freeze(['count']),
+                value: 1,
+              }),
+            ]),
+          ]),
+          inversePatches: Object.freeze([
+            Object.freeze([
+              Object.freeze({
+                op: 'replace' as const,
+                path: Object.freeze(['count']),
+                value: 0,
+              }),
+            ]),
+          ]),
+        }),
+        metadata: Object.freeze([undefined]),
+      }) as unknown
+    );
+    const travels = createTravels(history.state, {
+      history,
+      strictInitialPatches: true,
+      warnOnUnsupportedState: false,
+    });
+
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 0 });
+    travels.forward();
+    expect(travels.getState()).toEqual({ count: 1 });
+  });
+
   test('Travels.deserialize() round-trips terminal reserved-looking data keys', () => {
     const initialState = JSON.parse(
       '{"constructor":"document","prototype":"example"}'

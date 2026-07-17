@@ -14,6 +14,7 @@ import {
   consumePromiseLikeRejection,
   isArrayIndex,
   isPlainObject,
+  isStandardDenseArray,
   isValidPatchPath,
 } from './utils.js';
 
@@ -83,12 +84,6 @@ const getPatchOperationFields = (
   return { op: op.value, path: path.value };
 };
 
-const isDenseArray = (value: unknown): value is unknown[] =>
-  Array.isArray(value) &&
-  Array.from({ length: value.length }, (_, index) => index).every((index) =>
-    hasOwn(value, String(index))
-  );
-
 const isRootPatchPath = (path: unknown): boolean => {
   return path === '' || (Array.isArray(path) && path.length === 0);
 };
@@ -124,14 +119,28 @@ const isValidPatchOperation = (operation: unknown): boolean => {
 };
 
 const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
-  return (
-    isDenseArray(value) &&
-    value.every(
-      (entry) =>
-        isDenseArray(entry) &&
-        entry.every((operation) => isValidPatchOperation(operation))
-    )
-  );
+  if (!isStandardDenseArray(value)) {
+    return false;
+  }
+
+  for (let entryIndex = 0; entryIndex < value.length; entryIndex += 1) {
+    const entry = value[entryIndex];
+    if (!isStandardDenseArray(entry)) {
+      return false;
+    }
+
+    for (
+      let operationIndex = 0;
+      operationIndex < entry.length;
+      operationIndex += 1
+    ) {
+      if (!isValidPatchOperation(entry[operationIndex])) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 };
 
 export const getTravelPatchesValidationError = <P extends PatchesOption = {}>(
@@ -244,24 +253,25 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
   const metadataInput = snapshot.metadata as unknown;
   let metadata: Array<TravelMetadata | undefined> | undefined;
   if (metadataInput !== undefined) {
-    if (!Array.isArray(metadataInput)) {
+    if (!isStandardDenseArray(metadataInput)) {
       throw new TravelsPersistenceError(
         'INVALID_SCHEMA',
-        "Travels: persisted history 'metadata' must be an array when provided."
+        "Travels: persisted history 'metadata' must be a plain dense array when provided."
       );
     }
 
     const metadataEntries: unknown[] = metadataInput;
-    if (!metadataEntries.every(isValidMetadataEntry)) {
-      throw new TravelsPersistenceError(
-        'INVALID_SCHEMA',
-        "Travels: persisted history 'metadata' entries must be objects, null, or undefined."
-      );
+    metadata = new Array(metadataEntries.length);
+    for (let index = 0; index < metadataEntries.length; index += 1) {
+      const entry = metadataEntries[index];
+      if (!isValidMetadataEntry(entry)) {
+        throw new TravelsPersistenceError(
+          'INVALID_SCHEMA',
+          "Travels: persisted history 'metadata' entries must be objects, null, or undefined."
+        );
+      }
+      metadata[index] = entry == null ? undefined : (entry as TravelMetadata);
     }
-
-    metadata = metadataEntries.map((entry) =>
-      entry == null ? undefined : (entry as TravelMetadata)
-    );
   }
 
   if (metadata !== undefined && metadata.length !== patches!.patches.length) {

@@ -811,6 +811,13 @@ Every `Travels.deserialize(...)` call validates:
 - JSON Patch operation names and paths
 - position bounds
 
+Object-form snapshots follow the same shape produced by JSON: patch-history
+containers, patch groups, array paths, and metadata lists must be plain dense
+arrays with `Array.prototype`, indexed data properties, and no custom own
+properties. Frozen plain arrays are accepted. Invalid arrays produce
+`INVALID_PATCHES` (or `INVALID_SCHEMA` for metadata) without invoking methods
+defined on the input.
+
 This structural validation is the default so the synchronous restore API keeps
 its historical low-latency behavior. Select semantic validation for snapshots
 that have not already crossed a trusted verification boundary:

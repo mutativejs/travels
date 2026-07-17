@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Diagnose non-durable state, patch values/paths, and history metadata before JSON persistence rejects or changes a snapshot.
 - Restore unverified storage and cross-tab snapshots with semantic validation in the official persistence examples, including fallback E2E coverage for unreplayable histories.
 - Reject Promise-like migration and function-fallback results with `MIGRATION_FAILED` or `FALLBACK_FAILED`, enforce synchronous migration returns in TypeScript, and consume rejected results without leaking unhandled Promise rejections.
+- Reject sparse, extended, or custom-prototype history/path arrays during structural validation, and copy accepted patch groups without invoking caller-overridable array instance methods.
 
 ### Changed
 

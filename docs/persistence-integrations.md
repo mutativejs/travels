@@ -538,6 +538,13 @@ trigger `fallback`.
 This boundary is covered by
 [`test/persistence-semantics.test.ts`](../test/persistence-semantics.test.ts).
 
+For object-form input, structural validation requires patch-history containers,
+patch groups, array paths, and metadata lists to be plain dense arrays with no
+custom own properties or prototypes. Frozen plain arrays are valid. Validation
+and history cloning use indexed data-property access rather than input-defined
+array methods, so malformed arrays are rejected through the stable persistence
+error codes.
+
 When integrity or provenance matters, verification MUST happen outside Travels
 and before deserialization:
 

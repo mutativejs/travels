@@ -204,9 +204,10 @@ const getHistoryEntryIdentity = (entry: object): object => {
 const clonePatchGroup = <P extends PatchesOption = {}>(
   patch: Patches<P>
 ): Patches<P> => {
-  const cloned = patch.map((operation) =>
-    deepCloneValue(operation)
-  ) as Patches<P>;
+  const cloned = new Array(patch.length) as Patches<P>;
+  for (let index = 0; index < patch.length; index += 1) {
+    cloned[index] = deepCloneValue(patch[index]);
+  }
   const identity = historyEntryIdentities.get(patch);
   if (identity) {
     historyEntryIdentities.set(cloned, identity);
@@ -223,11 +224,21 @@ const detachMutablePatchValues = <P extends PatchesOption = {}>(
     ? clonePatchGroup(patch)
     : patch;
 
+const clonePatchGroups = <P extends PatchesOption = {}>(
+  groups: Patches<P>[]
+): Patches<P>[] => {
+  const cloned = new Array(groups.length) as Patches<P>[];
+  for (let index = 0; index < groups.length; index += 1) {
+    cloned[index] = clonePatchGroup(groups[index]);
+  }
+  return cloned;
+};
+
 const cloneTravelPatches = <P extends PatchesOption = {}>(
   base?: TravelPatches<P>
 ): TravelPatches<P> => ({
-  patches: base ? base.patches.map(clonePatchGroup) : [],
-  inversePatches: base ? base.inversePatches.map(clonePatchGroup) : [],
+  patches: base ? clonePatchGroups(base.patches) : [],
+  inversePatches: base ? clonePatchGroups(base.inversePatches) : [],
 });
 
 const filterBranchDiscardEffect = <P extends PatchesOption = {}>(
@@ -1308,8 +1319,7 @@ export class Travels<
         this.options
       ) as [S, Patches<P>, Patches<P>];
 
-      assertSupportedRuntimeState(p);
-      assertSupportedRuntimeState(ip);
+      assertSupportedRuntimeState([p, ip]);
 
       const replacesRoot = p.some(isRootReplacement);
       // Mutable state and removed values can remain reachable through reactive
@@ -1363,8 +1373,7 @@ export class Travels<
             this.options
           )) as unknown as [S, Patches<P>, Patches<P>];
 
-      assertSupportedRuntimeState(p);
-      assertSupportedRuntimeState(ip);
+      assertSupportedRuntimeState([p, ip]);
 
       patches = p;
       inversePatches = ip;

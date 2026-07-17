@@ -1075,4 +1075,88 @@ describe('Initial patch validation', () => {
       )
     ).toThrow(/initialPatches/);
   });
+
+  test('array method overrides are rejected instead of invoked', () => {
+    const createValidPatches = () => ({
+      patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+      inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+    });
+    const cases = [
+      (patches: ReturnType<typeof createValidPatches>) => patches.patches,
+      (patches: ReturnType<typeof createValidPatches>) => patches.patches[0],
+      (patches: ReturnType<typeof createValidPatches>) =>
+        patches.inversePatches,
+      (patches: ReturnType<typeof createValidPatches>) =>
+        patches.inversePatches[0],
+    ];
+
+    for (const [index, selectArray] of cases.entries()) {
+      const patches = createValidPatches();
+      Object.defineProperty(selectArray(patches), index % 2 ? 'every' : 'map', {
+        value: undefined,
+        configurable: true,
+      });
+
+      expect(() =>
+        createTravels(
+          { count: 1 },
+          {
+            initialPatches: patches as any,
+            initialPosition: 1,
+            strictInitialPatches: true,
+          }
+        )
+      ).toThrow(/initialPatches.*arrays of JSON Patch operations/);
+    }
+  });
+
+  test('non-strict mode safely discards an extended patch array', () => {
+    const patches = {
+      patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+      inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+    };
+    Object.defineProperty(patches.patches, 'map', {
+      value: undefined,
+      configurable: true,
+    });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    const travels = createTravels(
+      { count: 1 },
+      { initialPatches: patches as any, initialPosition: 1 }
+    );
+
+    expect(travels.getPatches()).toEqual({
+      patches: [],
+      inversePatches: [],
+    });
+    expect(travels.getPosition()).toBe(0);
+    warn.mockRestore();
+  });
+
+  test('strict mode rejects extended and custom-prototype path arrays', () => {
+    const extendedPath = ['count'];
+    Object.defineProperty(extendedPath, 'slice', {
+      value: undefined,
+      configurable: true,
+    });
+    const customPrototypePath = ['count'];
+    Object.setPrototypeOf(customPrototypePath, Object.create(Array.prototype));
+
+    for (const path of [extendedPath, customPrototypePath]) {
+      expect(() =>
+        createTravels(
+          { count: 1 },
+          {
+            initialPatches: {
+              patches: [[{ op: 'replace', path, value: 1 }]],
+              inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+            } as any,
+            initialPosition: 1,
+            strictInitialPatches: true,
+          }
+        )
+      ).toThrow(/initialPatches.*arrays of JSON Patch operations/);
+    }
+  });
 });

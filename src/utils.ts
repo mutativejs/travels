@@ -33,6 +33,41 @@ export const isArrayIndex = (key: PropertyKey, length: number): boolean => {
   );
 };
 
+export const isStandardDenseArray = (value: unknown): value is unknown[] => {
+  if (!Array.isArray(value)) {
+    return false;
+  }
+
+  try {
+    if (Object.getPrototypeOf(value) !== Array.prototype) {
+      return false;
+    }
+
+    const length = value.length;
+    const keys = Reflect.ownKeys(value);
+    return (
+      keys.length === length + 1 &&
+      keys.every((key) => {
+        if (key === 'length') {
+          return true;
+        }
+        if (!isArrayIndex(key, length)) {
+          return false;
+        }
+
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        return !!(
+          descriptor &&
+          'value' in descriptor &&
+          descriptor.enumerable
+        );
+      })
+    );
+  } catch {
+    return false;
+  }
+};
+
 export const containsMapOrSet = (
   value: unknown,
   seen = new WeakSet<object>()
@@ -41,34 +76,22 @@ export const containsMapOrSet = (
     return true;
   }
 
-  if (
-    value === null ||
-    (typeof value !== 'object' && typeof value !== 'function')
-  ) {
+  if (!isObjectLike(value) || seen.has(value)) {
     return false;
   }
-
-  const object = value as object;
-  if (seen.has(object)) {
-    return false;
-  }
-  seen.add(object);
+  seen.add(value);
 
   // Follow only enumerable string data properties: these are the fields that
   // Travels can patch and JSON can retain. Framework objects may keep Maps in
   // hidden or symbol-keyed bookkeeping that is outside the state data graph.
-  for (const key of Object.keys(object)) {
-    const descriptor = Object.getOwnPropertyDescriptor(object, key);
-    if (
+  return Object.keys(value).some((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return !!(
       descriptor &&
       'value' in descriptor &&
       containsMapOrSet(descriptor.value, seen)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+    );
+  });
 };
 
 const isUnsafePatchPathSegment = (
@@ -97,27 +120,32 @@ export const isValidPatchPath = (path: unknown): boolean => {
     );
   }
 
-  return (
-    Array.isArray(path) &&
-    Array.from({ length: path.length }, (_, index) => index).every((index) => {
-      const descriptor = Object.getOwnPropertyDescriptor(path, String(index));
-      if (!descriptor || !('value' in descriptor)) {
-        return false;
-      }
+  if (!isStandardDenseArray(path)) {
+    return false;
+  }
 
-      const segment = descriptor.value;
-      const isJsonPathSegment =
-        typeof segment === 'string' ||
-        (typeof segment === 'number' &&
-          Number.isFinite(segment) &&
-          Number.isInteger(segment) &&
-          segment >= 0);
-      return (
-        isJsonPathSegment &&
-        !isUnsafePatchPathSegment(segment, index, path.length)
-      );
-    })
-  );
+  for (let index = 0; index < path.length; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(path, String(index));
+    if (!descriptor || !('value' in descriptor)) {
+      return false;
+    }
+
+    const segment = descriptor.value;
+    const isJsonPathSegment =
+      typeof segment === 'string' ||
+      (typeof segment === 'number' &&
+        Number.isFinite(segment) &&
+        Number.isInteger(segment) &&
+        segment >= 0);
+    if (
+      !isJsonPathSegment ||
+      isUnsafePatchPathSegment(segment, index, path.length)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 /**
