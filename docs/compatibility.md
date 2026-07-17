@@ -20,7 +20,7 @@ Travels targets modern browsers that support standard JavaScript collections and
 
 ## State Compatibility
 
-The durable persistence subset is JSON-compatible data: plain objects, dense arrays, strings, numbers, booleans, and `null`. Array holes and custom properties are not durable across patch replay and JSON persistence; fill empty slots with `null` and store array metadata in surrounding objects.
+The durable persistence subset is JSON-compatible data: plain objects, dense arrays, strings, numbers, booleans, and `null`. Array holes, custom properties, and custom prototypes are not durable across patch replay and JSON persistence; fill empty slots with `null`, use plain arrays, and store metadata in surrounding objects.
 
 Map and Set are runtime-supported only in immutable mode and require a custom codec for JSON persistence. Mutable mode is intended for plain object and array reactive stores.
 

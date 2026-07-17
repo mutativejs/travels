@@ -56,6 +56,7 @@ const hasNonDurableArrayShape = (value: unknown[]): boolean => {
   // Dense array keys are ordered indices. The only additional own key is the
   // built-in non-enumerable `length`; snapshot cloning can drop anything else.
   return (
+    Object.getPrototypeOf(value) !== Array.prototype ||
     keys.length !== value.length ||
     keys.some((key, index) => key !== String(index)) ||
     Reflect.ownKeys(value).length !== keys.length + 1

@@ -108,6 +108,32 @@ describe('State compatibility warnings', () => {
     expect(JSON.stringify(travels.serialize().state)).toBe('{"items":["a"]}');
   });
 
+  test('flags array subclasses whose prototypes are lost by snapshots', () => {
+    class Items extends Array<string> {
+      first(): string | undefined {
+        return this[0];
+      }
+    }
+
+    const items = new Items('a');
+    expect(findStateCompatibilityIssues({ items })).toEqual([
+      expect.objectContaining({
+        code: 'ARRAY_SHAPE',
+        path: '$.items',
+      }),
+    ]);
+
+    const snapshot = createTravels(
+      { items },
+      { warnOnUnsupportedState: false }
+    ).serialize();
+    expect(snapshot.state.items).toEqual(['a']);
+    expect(Object.getPrototypeOf(snapshot.state.items)).toBe(Array.prototype);
+    expect(
+      (snapshot.state.items as unknown as { first?: unknown }).first
+    ).toBeUndefined();
+  });
+
   test('createTravels warns once per incompatible state path in development', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
