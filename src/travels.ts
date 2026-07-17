@@ -873,11 +873,7 @@ export class Travels<
   }
 
   private emitBranchDiscard(effect: BranchDiscardEffect<P>): void {
-    if (!this.onBranchDiscard) {
-      return;
-    }
-
-    const onBranchDiscard = this.onBranchDiscard;
+    const onBranchDiscard = this.onBranchDiscard!;
     this.invokeObserver('onBranchDiscard', () =>
       onBranchDiscard({
         position: effect.position,
@@ -887,6 +883,10 @@ export class Travels<
   }
 
   private publishBranchDiscard(effect: BranchDiscardEffect<P>): void {
+    if (!this.onBranchDiscard) {
+      return;
+    }
+
     if (this.transactionDepth > 0) {
       this.transactionBranchDiscards.push(effect);
       return;
@@ -902,26 +902,24 @@ export class Travels<
 
     const queuedEffects = this.transactionBranchDiscards;
     this.transactionBranchDiscards = [];
-    const visibleEntries = this.transactionEntries;
-    const effects = visibleEntries
-      ? queuedEffects.flatMap((effect) =>
-          filterBranchDiscardEffect(effect, (entryId) =>
-            visibleEntries.has(entryId)
-          ).map((filteredEffect) => {
-            const entries = filteredEffect.patches.patches.map(
-              (patches) => visibleEntries.get(getHistoryEntryIdentity(patches))!
-            );
-            return {
-              position: filteredEffect.position,
-              patches: {
-                patches: entries.map((entry) => entry[0]),
-                inversePatches: entries.map((entry) => entry[1]),
-              } as TravelPatches<P>,
-              metadata: entries.map((entry) => entry[2]),
-            };
-          })
-        )
-      : queuedEffects;
+    const visibleEntries = this.transactionEntries!;
+    const effects = queuedEffects.flatMap((effect) =>
+      filterBranchDiscardEffect(effect, (entryId) =>
+        visibleEntries.has(entryId)
+      ).map((filteredEffect) => {
+        const entries = filteredEffect.patches.patches.map(
+          (patches) => visibleEntries.get(getHistoryEntryIdentity(patches))!
+        );
+        return {
+          position: filteredEffect.position,
+          patches: {
+            patches: entries.map((entry) => entry[0]),
+            inversePatches: entries.map((entry) => entry[1]),
+          } as TravelPatches<P>,
+          metadata: entries.map((entry) => entry[2]),
+        };
+      })
+    );
 
     this.publishEffects(() => {
       for (const effect of effects) {
@@ -1453,18 +1451,20 @@ export class Travels<
     if (isRootTransaction) {
       this.transactionMeta = metadata;
       this.transactionErrors = undefined;
-      const visiblePatches = this.getAllPatches();
-      const visibleMetadata = this.getMetadata();
-      this.transactionEntries = new Map(
-        visiblePatches.patches.map((patches, index) => [
-          getHistoryEntryIdentity(patches),
-          [
-            patches,
-            visiblePatches.inversePatches[index],
-            visibleMetadata[index],
-          ],
-        ])
-      );
+      if (this.onBranchDiscard) {
+        const visiblePatches = this.getAllPatches();
+        const visibleMetadata = this.getMetadata();
+        this.transactionEntries = new Map(
+          visiblePatches.patches.map((patches, index) => [
+            getHistoryEntryIdentity(patches),
+            [
+              patches,
+              visiblePatches.inversePatches[index],
+              visibleMetadata[index],
+            ],
+          ])
+        );
+      }
       this.transactionHasEffects = false;
       this.transactionNeedsStateCheck = false;
     } else if (!this.transactionMeta && metadata) {

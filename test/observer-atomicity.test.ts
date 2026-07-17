@@ -139,6 +139,31 @@ describe('observer publication atomicity', () => {
     ]);
   });
 
+  test('skips branch snapshots when no discard observer is configured', () => {
+    const withoutObserver = createTravels({ count: 0 });
+    withoutObserver.setState({ count: 1 });
+    const unusedMetadata = vi.spyOn(withoutObserver, 'getMetadata');
+
+    withoutObserver.transaction(() => {
+      withoutObserver.setState({ count: 2 });
+    });
+
+    expect(unusedMetadata).not.toHaveBeenCalled();
+
+    const withObserver = createTravels(
+      { count: 0 },
+      { onBranchDiscard() {} }
+    );
+    withObserver.setState({ count: 1 });
+    const visibleMetadata = vi.spyOn(withObserver, 'getMetadata');
+
+    withObserver.transaction(() => {
+      withObserver.setState({ count: 2 });
+    });
+
+    expect(visibleMetadata).toHaveBeenCalledOnce();
+  });
+
   test('does not publish provisional or rollback events for failed transactions', () => {
     const listener = vi.fn();
     const devtools = vi.fn();

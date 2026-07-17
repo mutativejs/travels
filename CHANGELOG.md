@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Keep structural persistence validation as the synchronous default for backward-compatible restore latency; applications should explicitly select semantic validation for unverified or potentially corrupted snapshots.
-- Materialize observer patch-history snapshots lazily and discard superseded root-replacement patches to avoid copying or retaining history that no observer or replay can use.
+- Materialize observer patch-history snapshots lazily, skip branch snapshots when no discard hook is configured, and discard superseded root-replacement patches to avoid copying or retaining history that no observer or replay can use.
 
 ### Documentation
 
