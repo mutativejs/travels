@@ -844,6 +844,13 @@ not change patch interpretation. `Travels.deserialize(...)` therefore does not
 mutate or freeze caller-owned snapshot objects; configure those policies on the
 restored Travels instance instead.
 
+Replay comparison is deliberately conservative for non-JSON values. Exact
+`Date`, `RegExp`, `Map`, and `Set` instances are compared by their supported
+intrinsic state; built-in subclasses, custom own properties, accessors,
+non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex`
+values are rejected as unverifiable. Normalize those values in a codec before
+semantic validation.
+
 Semantic validation proves replay consistency only: the stored anchor and patch
 pairs can be applied and reversed. It does not authenticate the snapshot's
 origin or prove that the reconstructed past is the history originally recorded.

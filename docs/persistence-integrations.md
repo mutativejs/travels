@@ -579,6 +579,7 @@ Recovery rules:
 - Select `validation: 'semantic'` for unverified snapshots. Use the default structural mode only when schema validation is sufficient or a trusted application boundary has already verified the snapshot.
 - Use `onError` to log the stable `TravelsPersistenceError.code`; `INVALID_HISTORY` also identifies the failing `entryIndex` and replay `direction`.
 - When recording uses custom Mutative `strict` or `mark` settings, pass the same values through `replayOptions` so semantic validation uses identical replay rules.
+- Normalize built-in subclasses, custom own properties, accessors, non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex` values in the application codec; semantic comparison rejects those shapes as unverifiable.
 - Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.
 - Keep storage keys namespaced, for example `travels:<app>:<documentId>`.
 - If persistence size matters, compress the serialized snapshot before storage and decompress before `Travels.deserialize(...)`.

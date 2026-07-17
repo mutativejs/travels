@@ -13,6 +13,18 @@ const emptySnapshot = <S>(state: S): TravelsSerializedHistory<S> => ({
   position: 0,
 });
 
+const singleValueSnapshot = <S>(state: S, forward: S, inverse: S) => ({
+  version: 1 as const,
+  state: { value: state },
+  position: 1,
+  patches: {
+    patches: [[{ op: 'replace' as const, path: ['value'], value: forward }]],
+    inversePatches: [
+      [{ op: 'replace' as const, path: ['value'], value: inverse }],
+    ],
+  },
+});
+
 const semanticValidation = { validation: 'semantic' as const };
 
 describe('persisted history semantic validation', () => {
@@ -195,9 +207,7 @@ describe('persisted history semantic validation', () => {
           state: { data: buffer(2) },
           position: 1,
           patches: {
-            patches: [
-              [{ op: 'replace', path: ['data'], value: buffer(9) }],
-            ],
+            patches: [[{ op: 'replace', path: ['data'], value: buffer(9) }]],
             inversePatches: [
               [{ op: 'replace', path: ['data'], value: buffer(0) }],
             ],
@@ -213,6 +223,146 @@ describe('persisted history semantic validation', () => {
       })
     );
   });
+
+  test('rejects RegExp cursors that snapshot cloning cannot preserve', () => {
+    const pattern = (lastIndex: number) => {
+      const value = /a/g;
+      value.lastIndex = lastIndex;
+      return value;
+    };
+
+    expect(() =>
+      Travels.deserialize(
+        singleValueSnapshot(pattern(2), pattern(9), pattern(0)),
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  test('rejects hidden state on subclasses of supported built-ins', () => {
+    class TaggedMap extends Map<string, number> {
+      readonly #tag: string;
+
+      constructor(tag: string) {
+        super([['value', 1]]);
+        this.#tag = tag;
+      }
+
+      get tag(): string {
+        return this.#tag;
+      }
+    }
+
+    expect(() =>
+      Travels.deserialize(
+        singleValueSnapshot(
+          new TaggedMap('expected'),
+          new TaggedMap('corrupt'),
+          new TaggedMap('before')
+        ),
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  const accessorValues = new WeakMap<object, number>();
+  const readAccessorValue = function (this: object) {
+    return accessorValues.get(this);
+  };
+  const createAccessorValue = (value: number) => {
+    const result = {};
+    accessorValues.set(result, value);
+    Object.defineProperty(result, 'value', {
+      enumerable: true,
+      get: readAccessorValue,
+    });
+    return result;
+  };
+  class TaggedArray extends Array<number> {
+    readonly #tag: number;
+
+    constructor(tag: number) {
+      super();
+      this.#tag = tag;
+    }
+
+    get tag(): number {
+      return this.#tag;
+    }
+  }
+
+  test.each([
+    [
+      'non-enumerable plain-object property',
+      (value: number) => {
+        const result = {} as { hidden: number };
+        Object.defineProperty(result, 'hidden', { value, enumerable: false });
+        return result;
+      },
+    ],
+    [
+      'non-enumerable array property',
+      (value: number) => {
+        const result = [0] as number[] & { hidden: number };
+        Object.defineProperty(result, 'hidden', { value, enumerable: false });
+        return result;
+      },
+    ],
+    ['accessor-backed plain-object property', createAccessorValue],
+    [
+      'custom own property on an exact built-in',
+      (value: number) => {
+        const result = new Map([['value', 1]]) as Map<string, number> & {
+          tag: number;
+        };
+        result.tag = value;
+        return result;
+      },
+    ],
+    ['private state on an Array subclass', (value) => new TaggedArray(value)],
+  ] as const)('rejects unverifiable %s', (_name, createValue) => {
+    expect(() =>
+      Travels.deserialize(
+        singleValueSnapshot(createValue(2), createValue(9), createValue(0)),
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  test.each([
+    ['Date', () => new Date(1), () => new Date(0)],
+    ['RegExp', () => /after/g, () => /before/g],
+    ['Map', () => new Map([['value', 1]]), () => new Map([['value', 0]])],
+    ['Set', () => new Set([1]), () => new Set([0])],
+  ] as const)(
+    'continues to compare exact %s instances by their intrinsic state',
+    (_name, createAfter, createBefore) => {
+      expect(() =>
+        Travels.deserialize(
+          singleValueSnapshot(createAfter(), createAfter(), createBefore()),
+          semanticValidation
+        )
+      ).not.toThrow();
+    }
+  );
 
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>
