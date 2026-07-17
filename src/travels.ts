@@ -1478,9 +1478,6 @@ export class Travels<
     this.emitChange('setState', metadata, branchDiscard);
   }
 
-  /**
-   * Archive the current state (only for manual archive mode)
-   */
   private archivePending(
     metadata?: TravelMetadata,
     publishChange = true
@@ -1496,10 +1493,8 @@ export class Travels<
     this.allPatches.inversePatches.push(pendingArchive.inversePatches);
     this.allMetadata.push(storedMetadata);
 
-    // Respect maxHistory limit
     this.trimHistoryToMax();
 
-    // Clear temporary patches after archiving
     this.tempPatches.patches.length = 0;
     this.tempPatches.inversePatches.length = 0;
     this.tempMetadata = undefined;
@@ -1569,6 +1564,9 @@ export class Travels<
 
     const previousMetadata = this.transactionMeta;
     const isRootTransaction = this.transactionDepth === 0;
+    const previousFullScan =
+      process.env.NODE_ENV !== 'production' &&
+      this.transactionRequiresFullCompatibilityScan;
     const transactionSnapshot = this.captureTransactionSnapshot();
     let failed = false;
 
@@ -1603,6 +1601,9 @@ export class Travels<
     } catch (error) {
       failed = true;
       this.restoreTransactionSnapshot(transactionSnapshot);
+      if (process.env.NODE_ENV !== 'production') {
+        this.transactionRequiresFullCompatibilityScan = previousFullScan;
+      }
       this.transactionMeta = previousMetadata;
       throw this.reportError('TRANSACTION_FAILED', error);
     } finally {

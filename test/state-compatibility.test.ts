@@ -595,6 +595,39 @@ describe('State compatibility warnings', () => {
     warnSpy.mockRestore();
   });
 
+  test('does not retain a full-scan request from a rolled-back nested transaction', () => {
+    const travels = createTravels(
+      { marker: 0, value: null as bigint | null },
+      { autoArchive: false }
+    );
+    const fullScanSpy = vi.spyOn(
+      travels as any,
+      'warnAboutPersistenceCompatibility'
+    );
+
+    travels.transaction(() => {
+      try {
+        travels.transaction(() => {
+          travels.setState((draft) => {
+            draft.value = 1n;
+          });
+          travels.archive();
+          throw new Error('rollback nested archive');
+        });
+      } catch {
+        // The root transaction remains active after the nested rollback.
+      }
+
+      travels.setState((draft) => {
+        draft.marker = 1;
+      });
+    });
+
+    expect(travels.getState()).toEqual({ marker: 1, value: null });
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(fullScanSpy).not.toHaveBeenCalled();
+  });
+
   test('warnOnUnsupportedState disables runtime compatibility warnings', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
