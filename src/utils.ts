@@ -33,6 +33,60 @@ export const isArrayIndex = (key: PropertyKey, length: number): boolean => {
   );
 };
 
+const isUnsafePatchPathSegment = (
+  segment: unknown,
+  index: number,
+  length: number
+): boolean =>
+  segment === '__proto__' || (segment === 'constructor' && index < length - 1);
+
+export const isValidPatchPath = (
+  path: unknown,
+  allowNonJsonPathSegments: boolean
+): boolean => {
+  if (typeof path === 'string') {
+    if (path === '') {
+      return true;
+    }
+    if (!path.startsWith('/') || /~(?:[^01]|$)/.test(path)) {
+      return false;
+    }
+
+    const segments = path
+      .split('/')
+      .slice(1)
+      .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
+    return segments.every(
+      (segment, index) =>
+        !isUnsafePatchPathSegment(segment, index, segments.length)
+    );
+  }
+
+  return (
+    Array.isArray(path) &&
+    Array.from({ length: path.length }, (_, index) => index).every((index) => {
+      const descriptor = Object.getOwnPropertyDescriptor(path, String(index));
+      if (!descriptor || !('value' in descriptor)) {
+        return false;
+      }
+
+      const segment = descriptor.value;
+      const isJsonPathSegment =
+        typeof segment === 'string' ||
+        (typeof segment === 'number' &&
+          Number.isFinite(segment) &&
+          Number.isInteger(segment) &&
+          segment >= 0);
+      const isRuntimeTerminalSegment =
+        allowNonJsonPathSegments && index === path.length - 1;
+      return (
+        (isJsonPathSegment || isRuntimeTerminalSegment) &&
+        !isUnsafePatchPathSegment(segment, index, path.length)
+      );
+    })
+  );
+};
+
 export const consumePromiseLikeRejection = (
   value: unknown,
   onRejected: (error: unknown) => void

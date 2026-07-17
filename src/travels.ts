@@ -37,6 +37,7 @@ import {
   isArrayIndex,
   isObjectLike,
   isPlainObject,
+  isValidPatchPath,
 } from './utils.js';
 
 /**
@@ -636,11 +637,25 @@ export class Travels<
 
     this.publishEffects(() => {
       try {
-        const issues = findStateCompatibilityIssues(value, {
+        const invalidPatchPath =
+          subject === 'patch' &&
+          isObjectLike(value) &&
+          !isValidPatchPath(value.path, false);
+        const inspectedValue = invalidPatchPath
+          ? { ...value, path: [] }
+          : value;
+        const issues = findStateCompatibilityIssues(inspectedValue, {
           allowFrozen:
             subject !== 'metadata' && this.options.enableAutoFreeze === true,
           mutable: subject === 'state' && this.mutable,
         });
+        if (invalidPatchPath) {
+          issues.unshift({
+            code: 'PATCH_PATH',
+            path: '$.path',
+            message: 'use a durable patch path for persistence.',
+          });
+        }
 
         for (const issue of issues) {
           const issuePath =
@@ -667,6 +682,10 @@ export class Travels<
     patches: TravelPatches<P>,
     entryOffset = 0
   ): void {
+    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
+      return;
+    }
+
     for (const direction of ['patches', 'inversePatches'] as const) {
       patches[direction].forEach((patchGroup, entryIndex) => {
         patchGroup.forEach((operation, operationIndex) => {

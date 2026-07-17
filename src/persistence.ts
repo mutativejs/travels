@@ -13,6 +13,7 @@ import {
   consumePromiseLikeRejection,
   isArrayIndex,
   isPlainObject,
+  isValidPatchPath,
 } from './utils.js';
 
 export const TRAVELS_HISTORY_SCHEMA_VERSION = 1 as const;
@@ -50,60 +51,6 @@ const hasOwn = (value: object, key: string): boolean =>
 
 const isValidMetadataEntry = (entry: unknown): boolean => {
   return entry == null || (isObjectRecord(entry) && !Array.isArray(entry));
-};
-
-const isUnsafePatchPathSegment = (
-  segment: unknown,
-  index: number,
-  length: number
-): boolean =>
-  segment === '__proto__' ||
-  (segment === 'constructor' && index < length - 1);
-
-const isValidPatchPath = (
-  path: unknown,
-  allowNonJsonPathSegments: boolean
-): boolean => {
-  if (typeof path === 'string') {
-    if (path === '') {
-      return true;
-    }
-    if (!path.startsWith('/') || /~(?:[^01]|$)/.test(path)) {
-      return false;
-    }
-
-    const segments = path
-      .split('/')
-      .slice(1)
-      .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
-    return segments.every(
-      (segment, index) =>
-        !isUnsafePatchPathSegment(segment, index, segments.length)
-    );
-  }
-
-  return (
-    Array.isArray(path) &&
-    Array.from({ length: path.length }, (_, index) => index).every((index) => {
-      if (!hasOwn(path, String(index))) {
-        return false;
-      }
-
-      const segment = path[index];
-      const isJsonPathSegment =
-        typeof segment === 'string' ||
-        (typeof segment === 'number' &&
-          Number.isFinite(segment) &&
-          Number.isInteger(segment) &&
-          segment >= 0);
-      const isRuntimeTerminalSegment =
-        allowNonJsonPathSegments && index === path.length - 1;
-      return (
-        (isJsonPathSegment || isRuntimeTerminalSegment) &&
-        !isUnsafePatchPathSegment(segment, index, path.length)
-      );
-    })
-  );
 };
 
 const getPatchOperationFields = (

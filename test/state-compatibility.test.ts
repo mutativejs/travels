@@ -378,6 +378,45 @@ describe('State compatibility warnings', () => {
     warnSpy.mockRestore();
   });
 
+  test.each([
+    ['boolean', false],
+    ['null', null],
+    ['negative integer', -1],
+    ['fractional number', 1.5],
+    ['plain object', { key: 'x' }],
+    ['symbol', Symbol('runtime-key')],
+  ] as const)(
+    'diagnoses a JSON-encodable but non-durable %s terminal patch path',
+    (_label, terminalSegment) => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const path = [terminalSegment] as unknown as string[];
+      const travels = createTravels<Record<PropertyKey, unknown>>(
+        {},
+        {
+          initialPatches: {
+            patches: [[{ op: 'replace', path, value: 1 }]],
+            inversePatches: [[{ op: 'replace', path, value: 0 }]],
+          },
+          strictInitialPatches: true,
+        }
+      );
+
+      const encoded = JSON.stringify(travels.serialize());
+
+      expect(warnSpy).toHaveBeenCalledOnce();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'patch compatibility warning at $.patches.patches[0][0].path'
+        )
+      );
+      expect(() => Travels.deserialize(encoded)).toThrowError(
+        expect.objectContaining({ code: 'INVALID_PATCHES' })
+      );
+
+      warnSpy.mockRestore();
+    }
+  );
+
   test('diagnoses patch-only values that JSON would silently change', () => {
     type Payload = {
       missing: undefined;
