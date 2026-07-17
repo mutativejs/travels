@@ -739,6 +739,55 @@ describe('Persistence Example - State Persistence', () => {
     }
   });
 
+  test.each(['Map', 'Set'] as const)(
+    'structural deserialization rejects cross-realm %s in state and patches',
+    (kind) => {
+      const iframe = document.createElement('iframe');
+      document.body.appendChild(iframe);
+      const foreignGlobal = iframe.contentWindow as
+        | (Window & typeof globalThis)
+        | null;
+      if (!foreignGlobal) {
+        iframe.remove();
+        throw new Error('Expected iframe realm to be available');
+      }
+      const value =
+        kind === 'Map'
+          ? new foreignGlobal.Map([['a', 1]])
+          : new foreignGlobal.Set([1]);
+      iframe.remove();
+
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { value },
+          position: 0,
+          patches: { patches: [], inversePatches: [] },
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_SCHEMA',
+        })
+      );
+
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { value: null },
+          position: 0,
+          patches: {
+            patches: [[{ op: 'replace', path: ['value'], value }]],
+            inversePatches: [[{ op: 'replace', path: ['value'], value: null }]],
+          },
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+    }
+  );
+
   test('Travels.deserialize() should normalize null metadata placeholders', () => {
     const history = Travels.deserialize<{ count: number }>({
       version: TRAVELS_HISTORY_SCHEMA_VERSION,

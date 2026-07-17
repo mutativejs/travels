@@ -68,17 +68,41 @@ export const isStandardDenseArray = (value: unknown): value is unknown[] => {
   }
 };
 
+export const getMapOrSetKind = (
+  value: object
+): 'Map' | 'Set' | undefined => {
+  let prototype = Object.getPrototypeOf(value);
+  while (prototype) {
+    const tag = Object.getOwnPropertyDescriptor(prototype, Symbol.toStringTag);
+    if (tag && 'value' in tag && (tag.value === 'Map' || tag.value === 'Set')) {
+      const Collection = tag.value === 'Map' ? Map : Set;
+      try {
+        Collection.prototype.has.call(value, value);
+        return tag.value;
+      } catch {
+        if (value instanceof Collection) {
+          return tag.value;
+        }
+      }
+    }
+    prototype = Object.getPrototypeOf(prototype);
+  }
+  return undefined;
+};
+
 export const containsMapOrSet = (
   value: unknown,
   seen = new WeakSet<object>()
 ): boolean => {
-  if (value instanceof Map || value instanceof Set) {
-    return true;
-  }
-
   if (!isObjectLike(value) || seen.has(value)) {
     return false;
   }
+
+  // Confirm cross-realm collections without invoking instance accessors.
+  if (getMapOrSetKind(value)) {
+    return true;
+  }
+
   seen.add(value);
 
   // Follow only enumerable string data properties: these are the fields that

@@ -9,6 +9,27 @@ import {
   type TravelMetadata,
 } from '../src/index';
 
+const createCrossRealmCollection = (
+  kind: 'Map' | 'Set'
+): Map<unknown, unknown> | Set<unknown> => {
+  const iframe = document.createElement('iframe');
+  document.body.appendChild(iframe);
+  const foreignGlobal = iframe.contentWindow as
+    | (Window & typeof globalThis)
+    | null;
+  if (!foreignGlobal) {
+    iframe.remove();
+    throw new Error('Expected iframe realm to be available');
+  }
+
+  const collection =
+    kind === 'Map'
+      ? new foreignGlobal.Map([['a', { id: 1 }]])
+      : new foreignGlobal.Set([{ id: 1 }]);
+  iframe.remove();
+  return collection;
+};
+
 describe('State compatibility warnings', () => {
   test('findStateCompatibilityIssues reports unsupported durable-state values', () => {
     class User {
@@ -664,6 +685,114 @@ describe('State compatibility warnings', () => {
     }
   );
 
+  test.each(['Map', 'Set'] as const)(
+    'rejects cross-realm %s instances throughout runtime boundaries',
+    (kind) => {
+      const collection = createCrossRealmCollection(kind);
+      expect(collection instanceof Map).toBe(false);
+      expect(collection instanceof Set).toBe(false);
+      expect(findStateCompatibilityIssues({ value: collection })).toEqual([
+        expect.objectContaining({
+          code: 'MAP_SET',
+          path: '$.value',
+        }),
+      ]);
+
+      for (const mutable of [false, true]) {
+        expect(() =>
+          createTravels(
+            { value: collection },
+            { mutable, warnOnUnsupportedState: false }
+          )
+        ).toThrow('Travels: Map and Set are not supported in state.');
+
+        const travels = createTravels<{ count: number; value: unknown }>(
+          { count: 0, value: null },
+          { mutable, warnOnUnsupportedState: false }
+        );
+        expect(() =>
+          travels.setState((draft) => {
+            draft.count = 1;
+            draft.value = collection;
+          })
+        ).toThrow('Travels: Map and Set are not supported in state.');
+        expect(travels.getState()).toEqual({ count: 0, value: null });
+        expect(travels.getPosition()).toBe(0);
+      }
+    }
+  );
+
+  test.each(['Map', 'Set'] as const)(
+    'rejects cross-realm %s patches before forward replay',
+    (kind) => {
+      const collection = createCrossRealmCollection(kind);
+
+      expect(() =>
+        createTravels(
+          { value: null as unknown },
+          {
+            initialPatches: {
+              patches: [
+                [{ op: 'replace', path: ['value'], value: collection }],
+              ],
+              inversePatches: [
+                [{ op: 'replace', path: ['value'], value: null }],
+              ],
+            },
+            initialPosition: 0,
+            strictInitialPatches: true,
+            warnOnUnsupportedState: false,
+          }
+        )
+      ).toThrow('Travels: initialPatches must not contain Map or Set values');
+    }
+  );
+
+  test('does not reject plain objects with spoofed collection tags', () => {
+    const taggedPrototype = {};
+    Object.defineProperty(taggedPrototype, Symbol.toStringTag, {
+      value: 'Map',
+    });
+    const values = [
+      { [Symbol.toStringTag]: 'Set', label: 'own tag' },
+      Object.assign(Object.create(taggedPrototype), {
+        label: 'prototype tag',
+      }),
+    ];
+
+    for (const value of values) {
+      expect(() =>
+        createTravels({ value }, { warnOnUnsupportedState: false })
+      ).not.toThrow();
+    }
+  });
+
+  test('does not invoke collection-tag accessors while checking state', () => {
+    const tagGetter = vi.fn(() => 'Set');
+    const prototype = {};
+    Object.defineProperty(prototype, Symbol.toStringTag, {
+      get: tagGetter,
+    });
+    const value = Object.create(prototype);
+
+    expect(() =>
+      createTravels({ value }, { warnOnUnsupportedState: false })
+    ).not.toThrow();
+    expect(tagGetter).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['Map', () => new Proxy(new Map(), {})],
+    ['Set', () => new Proxy(new Set(), {})],
+  ] as const)('rejects a same-realm proxy around %s', (_kind, createValue) => {
+    expect(() =>
+      createTravels(
+        { value: createValue() },
+        { warnOnUnsupportedState: false }
+      )
+    ).toThrow('Travels: Map and Set are not supported in state.');
+  });
+
   test.each([
     ['Map', false, () => new Map([['a', { id: 1 }]])],
     ['Set', false, () => new Set([{ id: 1 }])],
@@ -731,6 +860,21 @@ describe('State compatibility warnings', () => {
       'Travels: Map and Set are not supported in state.'
     );
   });
+
+  test.each(['Map', 'Set'] as const)(
+    'rejects externally introduced cross-realm %s during serialization',
+    (kind) => {
+      const state: { value: unknown } = { value: null };
+      const travels = createTravels(state, {
+        warnOnUnsupportedState: false,
+      });
+      state.value = createCrossRealmCollection(kind);
+
+      expect(() => travels.serialize()).toThrow(
+        'Travels: Map and Set are not supported in state.'
+      );
+    }
+  );
 
   test('JsonValue and PatchableState helpers can constrain user APIs', () => {
     const jsonState = {

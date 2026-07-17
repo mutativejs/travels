@@ -1,4 +1,4 @@
-import { isArrayIndex } from './utils.js';
+import { getMapOrSetKind, isArrayIndex } from './utils.js';
 
 export type StateCompatibilityIssueCode =
   | 'CIRCULAR_REFERENCE'
@@ -196,20 +196,14 @@ export const findStateCompatibilityIssues = (
       return;
     }
 
-    if (current instanceof Map) {
+    const collectionKind = getMapOrSetKind(current);
+    if (collectionKind) {
       addIssue(
         'MAP_SET',
         path,
-        'Map is unsupported; store entries in a plain object or dense array.'
-      );
-      return;
-    }
-
-    if (current instanceof Set) {
-      addIssue(
-        'MAP_SET',
-        path,
-        'Set is unsupported; store values in a dense array.'
+        collectionKind === 'Map'
+          ? 'Map is unsupported; store entries in a plain object or dense array.'
+          : 'Set is unsupported; store values in a dense array.'
       );
       return;
     }
