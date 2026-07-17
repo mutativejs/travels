@@ -120,7 +120,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-Persistence requires JSON-compatible state, retained patch values, and history metadata: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Patch paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/non-negative integers. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map/Set have limited runtime support in immutable state, but need a custom codec for JSON persistence. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable data. See [State Requirements](#state-requirements-and-compatibility) for details.
+Persistence requires JSON-compatible state, retained patch values, and history metadata: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Patch paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/non-negative integers. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map and Set are not supported in either runtime mode; normalize them to plain objects or dense arrays before passing state to Travels. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable data. See [State Requirements](#state-requirements-and-compatibility) for details.
 
 ---
 
@@ -470,7 +470,7 @@ Vue components keep using the original `state` reference while Travels tracks hi
 
 **Compatibility Requirements:**
 
-Mutable mode has the same durable-state requirements as immutable mode, plus a stricter rule for Map/Set: Map and Set are not supported in mutable mode because in-place patch application cannot reliably preserve their reactive semantics. See [State Requirements and Compatibility](#state-requirements-and-compatibility) for the full matrix.
+Mutable mode has the same supported-state contract as immutable mode. Map and Set are not supported in either mode; keep reactive collections outside Travels state or normalize them to plain objects and dense arrays. See [State Requirements and Compatibility](#state-requirements-and-compatibility) for the full matrix.
 
 **Other Tips:**
 
@@ -548,27 +548,27 @@ function handleSave() {
 
 ## State Requirements and Compatibility
 
-Travels works best when state, retained patch values, and metadata use durable data: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Persisted paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; booleans, `null`, fractional or negative numbers, and objects are invalid segments. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for this subset. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are runtime-only representations: normalize them before persisting history. Null-prototype dictionaries are not drafted by Mutative by default, so nested state writes may not produce undoable patches; convert them to plain objects before storing them in Travels.
+Travels supports durable state: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. This contract applies to immutable and mutable runtime modes as well as persisted history. Patch paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; booleans, `null`, fractional or negative numbers, objects, and symbols are invalid segments. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are outside the durable contract; normalize them before storing them in Travels. Null-prototype dictionaries are not drafted by Mutative by default, so nested state writes may not produce undoable patches; convert them to plain objects first.
 
 When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
-| Value                                     | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                   |
-| ----------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | -------------------------------- |
-| Plain object                              | Supported                          | Supported                                     | Supported                         | Preferred                        |
-| Dense array                               | Supported                          | Supported                                     | Supported                         | Preferred                        |
-| Sparse, extended, or subclassed array     | Limited runtime support            | Array roots have additional shape limitations | Not preserved by JSON/JSON Patch  | Use a plain dense array          |
-| string, boolean, `null`                   | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                        |
-| Finite number other than `-0`             | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                        |
-| `NaN`, infinity, `-0`                     | Supported in memory                | Falls back to immutable for primitive roots   | Converted to `null` or `0`        | Normalize to a finite number     |
-| `bigint`                                  | Supported in memory                | Falls back to immutable for primitive roots   | `JSON.stringify` throws           | Encode as a string               |
-| `undefined`                               | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                       |
-| `Date`                                    | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string    |
-| `Map` / `Set`                             | Runtime support in immutable mode  | Not supported                                 | Requires custom codec             | Store arrays, or provide a codec |
-| Class instance / custom or null prototype | Not durable                        | Not durable                                   | Loses prototype/methods           | Store plain data or IDs          |
-| Function                                  | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state      |
-| Circular reference                        | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs           |
-| DOM node, ref, observable instance body   | Not supported as durable state     | Not supported as durable state                | Not serializable                  | Store outside Travels state      |
-| WeakMap / WeakSet                         | Not supported                      | Not supported                                 | Not serializable                  | Store outside Travels state      |
+| Value                                     | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                                  |
+| ----------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | ----------------------------------------------- |
+| Plain object                              | Supported                          | Supported                                     | Supported                         | Preferred                                       |
+| Dense array                               | Supported                          | Supported                                     | Supported                         | Preferred                                       |
+| Sparse, extended, or subclassed array     | Limited runtime support            | Array roots have additional shape limitations | Not preserved by JSON/JSON Patch  | Use a plain dense array                         |
+| string, boolean, `null`                   | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                                       |
+| Finite number other than `-0`             | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                                       |
+| `NaN`, infinity, `-0`                     | Supported in memory                | Falls back to immutable for primitive roots   | Converted to `null` or `0`        | Normalize to a finite number                    |
+| `bigint`                                  | Supported in memory                | Falls back to immutable for primitive roots   | `JSON.stringify` throws           | Encode as a string                              |
+| `undefined`                               | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                                      |
+| `Date`                                    | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string                   |
+| `Map` / `Set`                             | Not supported                      | Not supported                                 | Not represented by JSON           | Store entries/values as records or dense arrays |
+| Class instance / custom or null prototype | Not durable                        | Not durable                                   | Loses prototype/methods           | Store plain data or IDs                         |
+| Function                                  | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state                     |
+| Circular reference                        | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs                          |
+| DOM node, ref, observable instance body   | Not supported as durable state     | Not supported as durable state                | Not serializable                  | Store outside Travels state                     |
+| WeakMap / WeakSet                         | Not supported                      | Not supported                                 | Not serializable                  | Store outside Travels state                     |
 
 TypeScript helpers are exported for users who want to enforce the durable subset in their own app code:
 
@@ -587,9 +587,11 @@ function createHistoryFor<S extends PatchableState>(state: S) {
 }
 ```
 
+`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set.
+
 These value requirements cover retained patch payloads and custom metadata included by `serialize()`; paths independently obey the structural contract above. An old runtime-only value or path therefore remains relevant after it leaves current state. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses them.
 
-In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Disable those warnings with `warnOnUnsupportedState: false` when you intentionally provide custom codecs or non-persistent runtime-only values.
+In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Disable those warnings with `warnOnUnsupportedState: false` only when you deliberately accept responsibility for values outside the supported contract.
 
 ## Framework Integration
 
@@ -857,12 +859,12 @@ Travels instance instead. Semantic validation requires native
 `structuredClone`, which is available in the supported runtimes.
 
 Replay comparison is deliberately conservative for non-JSON values. Exact
-`Date`, `RegExp`, `Map`, and `Set` instances are compared by their supported
-intrinsic state; built-in subclasses, custom own properties, accessors,
-non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex`
-values are rejected as unverifiable. Property descriptor flags, array length
-descriptors, and object extensibility must also survive replay unchanged.
-Normalize unsupported values in a codec before semantic validation.
+`Date` and `RegExp` instances are compared by their intrinsic state. Map, Set,
+built-in subclasses, custom own properties, accessors, non-enumerable data,
+custom array prototypes, and non-zero `RegExp.lastIndex` values are rejected as
+unverifiable. Property descriptor flags, array length descriptors, and object
+extensibility must also survive replay unchanged. Normalize unsupported values
+into the supported state contract before semantic validation.
 
 Semantic validation proves replay consistency only: the stored anchor and patch
 pairs can be applied and reversed. It does not authenticate the snapshot's

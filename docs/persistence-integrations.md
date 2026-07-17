@@ -72,7 +72,7 @@ function restoreTravels(raw: unknown) {
 }
 ```
 
-For durable persistence, state, retained patch values, and history metadata must use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other JSON values are invalid segments. Encode `bigint`; normalize `NaN`, infinities, and `-0` because JSON rejects or changes them. Array holes and custom properties/prototypes are not preserved by snapshots or JSON/JSON Patch; fill holes with `null` and use plain arrays and objects. IndexedDB can store richer values, but replay and cross-environment migrations are easiest with the same durable subset. A runtime-only value or path in old history remains part of the storage record.
+For durable persistence, state, retained patch values, and history metadata must use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other values are invalid segments. Encode `bigint`; normalize `NaN`, infinities, and `-0` because JSON rejects or changes them. Array holes and custom properties/prototypes are not preserved by snapshots or JSON/JSON Patch; fill holes with `null` and use plain arrays and objects. Map and Set are unsupported as Travels state even when IndexedDB or another adapter can store them. A runtime-only value or path in old history remains part of the storage record.
 
 The adapter examples below reuse the `DocumentState`, `restoreTravels(...)`, and `attachAutoSave(...)` definitions from this section.
 
@@ -581,11 +581,11 @@ Recovery rules:
 - Select `validation: 'semantic'` for unverified snapshots. Use the default structural mode only when schema validation is sufficient or a trusted application boundary has already verified the snapshot.
 - Use `onError` to log the stable `TravelsPersistenceError.code`; `INVALID_HISTORY` also identifies the failing `entryIndex` and replay `direction`.
 - When recording uses custom Mutative `strict` or `mark` settings, pass the same values through `replayOptions` so semantic validation uses identical replay rules.
-- Normalize built-in subclasses, custom own properties, accessors, non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex` values in the application codec; semantic comparison rejects those shapes as unverifiable.
+- Normalize Map, Set, built-in subclasses, custom own properties, accessors, non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex` values at the application boundary; semantic comparison rejects those shapes as unverifiable.
 - Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.
 - Keep storage keys namespaced, for example `travels:<app>:<documentId>`.
 - If persistence size matters, compress the serialized snapshot before storage and decompress before `Travels.deserialize(...)`.
-- If state contains non-JSON values such as `bigint`, `Date`, `Map`, or `Set`, add an application codec before writing and after reading. Normalize `NaN`, infinities, and `-0`; prefer finite numbers, timestamps, records, and arrays for durable state.
+- If application data contains `bigint`, Date, Map, or Set values, normalize them before creating or updating Travels state. A persistence codec may restore application-domain collections outside Travels, but the state passed to `createTravels(...)` must remain finite numbers, timestamps, records, dense arrays, and the other supported JSON-shaped values.
 
 ## External References
 

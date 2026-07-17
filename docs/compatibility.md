@@ -12,7 +12,7 @@ The package is distributed as ESM, CJS, UMD, and TypeScript declarations.
 
 ## Browser Support
 
-Travels targets modern browsers that support standard JavaScript collections and JSON APIs. Persistence examples use `localStorage`, IndexedDB, and BroadcastChannel when available.
+Travels targets modern browsers that support the required standard JavaScript and JSON APIs. Persistence examples use `localStorage`, IndexedDB, and BroadcastChannel when available.
 
 ## Peer Dependencies
 
@@ -20,9 +20,9 @@ Travels targets modern browsers that support standard JavaScript collections and
 
 ## State Compatibility
 
-State, retained patch values, and history metadata are durable when they use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Persisted paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other JSON values are invalid segments. `bigint` makes `JSON.stringify` throw; `NaN` and infinities become `null`, while `-0` becomes `0`. Normalize those values or use an application codec. Array holes, custom properties, and custom or null prototypes are not durable across patch replay and JSON persistence; fill holes with `null` and use plain arrays and objects. Mutative does not draft null-prototype state dictionaries by default, so nested writes may not produce undoable patches. An incompatible value or path retained only in an older patch still makes the snapshot unsafe.
+State, retained patch values, and history metadata are supported when they use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other values are invalid segments. `bigint` makes `JSON.stringify` throw; `NaN` and infinities become `null`, while `-0` becomes `0`. Normalize those values at the application boundary. Array holes, custom properties, and custom or null prototypes are not durable across patch replay and JSON persistence; fill holes with `null` and use plain arrays and objects. Mutative does not draft null-prototype state dictionaries by default, so nested writes may not produce undoable patches. An incompatible value or path retained only in an older patch still makes the snapshot unsafe.
 
-Map and Set are runtime-supported only in immutable mode and require a custom codec for JSON persistence. Mutable mode is intended for plain object and array reactive stores.
+Map and Set are unsupported in both immutable and mutable runtime modes. Convert Map entries to a plain record or dense entry array and Set values to a dense array before passing them to Travels; a persistence codec must produce those supported shapes rather than decode collections back into Travels state.
 
 ## Versioning
 
