@@ -260,6 +260,29 @@ describe('observer publication atomicity', () => {
     ]);
   });
 
+  test('publishes a bubbling nested transaction failure only once', () => {
+    const onError = vi.fn();
+    const travels = createTravels({ count: 0 }, { onError });
+    let thrown: unknown;
+
+    try {
+      travels.transaction(() => {
+        travels.setState({ count: 1 });
+        travels.transaction(() => {
+          travels.setState({ count: 2 });
+          throw new Error('nested rollback');
+        });
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(TravelsError);
+    expect(onError).toHaveBeenCalledOnce();
+    expect(onError).toHaveBeenCalledWith(thrown);
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
   test('publishes committed non-archive transaction changes once', () => {
     const listener = vi.fn();
     const eventTypes: string[] = [];

@@ -326,7 +326,8 @@ Nested changes remain private until the root transaction commits, so listeners
 and devtools never observe states that are later rolled back. Branch-discard
 hooks also omit redo entries created only by provisional transaction steps.
 Nested transaction errors are likewise deferred until the root transaction
-commits or rolls back, so `onError` always observes the settled root state.
+commits or rolls back, so `onError` always observes the settled root state. A
+single failure that bubbles through multiple nested scopes is reported once.
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 

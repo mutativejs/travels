@@ -491,7 +491,7 @@ export class Travels<
   private transactionMeta?: TravelMetadata;
   private transactionBranchDiscards: BranchDiscardEffect<P>[] = [];
   // Errors survive nested rollbacks but remain private until the root settles.
-  private transactionErrors?: TravelsError[];
+  private transactionErrors?: Set<TravelsError>;
   // Root-visible entries retain their pre-transaction payload for effects.
   private transactionEntries?: Map<
     object,
@@ -985,7 +985,7 @@ export class Travels<
         : new TravelsError(code, `Travels: ${code}`, { cause: error });
     if (this.onError) {
       if (this.transactionDepth > 0) {
-        (this.transactionErrors ??= []).push(travelsError);
+        (this.transactionErrors ??= new Set()).add(travelsError);
       } else {
         const onError = this.onError;
         this.publishEffects(() => {
