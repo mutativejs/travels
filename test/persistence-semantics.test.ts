@@ -598,6 +598,34 @@ describe('persisted history semantic validation', () => {
     expect(Object.isFrozen(metadata.nested)).toBe(false);
   });
 
+  test('rejects a round trip that changes plain-object own-key order', () => {
+    const reorderA = () => [
+      { op: 'remove' as const, path: ['a'] },
+      { op: 'add' as const, path: ['a'], value: 1 },
+    ];
+
+    expect(() =>
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { a: 1, b: 2 },
+          position: 0,
+          patches: {
+            patches: [reorderA()],
+            inversePatches: [reorderA()],
+          },
+        },
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'inverse',
+      })
+    );
+  });
+
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>
       Travels.deserialize(

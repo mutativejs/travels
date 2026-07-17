@@ -305,8 +305,12 @@ const areReplayStatesEqual = (
   rightValues.add(rightObject);
 
   const leftKeys = Reflect.ownKeys(leftObject);
+  const rightKeys = Reflect.ownKeys(rightObject);
   const keyCount = leftKeys.length;
-  if (keyCount !== Reflect.ownKeys(rightObject).length) {
+  if (
+    keyCount !== rightKeys.length ||
+    leftKeys.some((key, index) => key !== rightKeys[index])
+  ) {
     return false;
   }
   const leftIsArray = Array.isArray(left);

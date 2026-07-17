@@ -869,8 +869,10 @@ Replay comparison is deliberately conservative for non-JSON values. Exact
 built-in subclasses, custom own properties, accessors, non-enumerable data,
 custom array prototypes, and non-zero `RegExp.lastIndex` values are rejected as
 unverifiable. Property descriptor flags, array length descriptors, and object
-extensibility must also survive replay unchanged. Normalize unsupported values
-into the supported state contract before semantic validation.
+extensibility must also survive replay unchanged. Plain-object own-key order is
+treated as observable, so enumeration and JSON serialization order must
+round-trip unchanged. Normalize unsupported values into the supported state
+contract before semantic validation.
 
 Semantic validation proves replay consistency only: the stored anchor and patch
 pairs can be applied and reversed. It does not authenticate the snapshot's
