@@ -919,6 +919,59 @@ describe('Bug #10: getPatches() should not expose internal mutable history', () 
     expect(travels.getState().count).toBe(0);
     expect(travels.getPosition()).toBe(0);
   });
+
+  test('cloned patches retain object Map key identity', () => {
+    const key = {};
+    const travels = createTravels(
+      { values: new Map([[key, 0]]) },
+      { warnOnUnsupportedState: false }
+    );
+
+    travels.setState((draft) => {
+      draft.values.set(key, 1);
+    });
+
+    const patches = travels.getPatches();
+    expect(patches.patches[0][0].path.at(-1)).toBe(key);
+    expect(patches.inversePatches[0][0].path.at(-1)).toBe(key);
+
+    const restored = createTravels(travels.getState(), {
+      initialPatches: patches,
+      initialPosition: 1,
+      strictInitialPatches: true,
+      warnOnUnsupportedState: false,
+    });
+
+    restored.back();
+    expect(restored.getState().values.get(key)).toBe(0);
+    expect(restored.getState().values).toHaveLength(1);
+  });
+
+  test('failed transactions retain object Map key identity in history', () => {
+    const key = {};
+    const travels = createTravels(
+      { values: new Map([[key, 0]]) },
+      { warnOnUnsupportedState: false }
+    );
+
+    travels.setState((draft) => {
+      draft.values.set(key, 1);
+    });
+
+    expect(() =>
+      travels.transaction(() => {
+        throw new Error('rollback');
+      })
+    ).toThrow();
+
+    travels.back();
+    expect(travels.getState().values.get(key)).toBe(0);
+    expect(travels.getState().values).toHaveLength(1);
+
+    travels.forward();
+    expect(travels.getState().values.get(key)).toBe(1);
+    expect(travels.getState().values).toHaveLength(1);
+  });
 });
 
 describe('Bug #11: patch cloning should preserve Map/Set values', () => {

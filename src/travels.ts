@@ -202,9 +202,6 @@ const deepCloneValue = (value: any, seen = new WeakMap<object, any>()): any => {
   return cloned;
 };
 
-// Patch groups are immutable once archived. A weak identity follows their
-// internal clones so transaction effects can distinguish pre-existing history
-// from provisional entries without adding IDs to the public persistence shape.
 const historyEntryIdentities = new WeakMap<object, object>();
 
 const getHistoryEntryIdentity = (entry: object): object => {
@@ -219,9 +216,13 @@ const getHistoryEntryIdentity = (entry: object): object => {
 const clonePatchGroup = <P extends PatchesOption = {}>(
   patch: Patches<P>
 ): Patches<P> => {
-  const cloned = patch.map((operation) =>
-    deepCloneValue(operation)
-  ) as Patches<P>;
+  const cloned = patch.map((operation) => {
+    const copy = deepCloneValue(operation);
+    if (Array.isArray(operation.path)) {
+      copy.path = operation.path.slice();
+    }
+    return copy;
+  }) as Patches<P>;
   const identity = historyEntryIdentities.get(patch);
   if (identity) {
     historyEntryIdentities.set(cloned, identity);
