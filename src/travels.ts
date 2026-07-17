@@ -29,6 +29,7 @@ import {
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError } from './errors.js';
+import { composePatchGroups } from './replay.js';
 import { isObjectLike, isPlainObject } from './utils.js';
 
 /**
@@ -1422,23 +1423,19 @@ export class Travels<
 
     if (nextPosition === this.position) return;
 
-    const inversePatchesForNavigation =
-      shouldArchive && _allPatches.inversePatches.length > 0
-        ? _allPatches.inversePatches.map((patch, index, allPatches) =>
-            index === allPatches.length - 1 ? [...patch].reverse() : patch
-          )
-        : _allPatches.inversePatches;
-
     const patchesToApply = back
-      ? inversePatchesForNavigation
-          .slice(-this.maxHistory)
-          .slice(nextPosition, this.position)
-          .flat()
-          .reverse()
-      : _allPatches.patches
-          .slice(-this.maxHistory)
-          .slice(this.position, nextPosition)
-          .flat();
+      ? composePatchGroups(
+          _allPatches.inversePatches
+            .slice(-this.maxHistory)
+            .slice(nextPosition, this.position),
+          'backward'
+        )
+      : composePatchGroups(
+          _allPatches.patches
+            .slice(-this.maxHistory)
+            .slice(this.position, nextPosition),
+          'forward'
+        );
 
     // Can only use mutable mode if:
     // 1. mutable mode is enabled
