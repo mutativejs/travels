@@ -8,6 +8,8 @@ export type StateCompatibilityIssueCode =
   | 'DOM_NODE'
   | 'MAP_SET_MUTABLE'
   | 'MAP_SET_PERSISTENCE'
+  | 'BIGINT'
+  | 'NON_JSON_NUMBER'
   | 'ARRAY_SHAPE'
   | 'OBJECT_SHAPE'
   | 'WEAK_COLLECTION'
@@ -143,6 +145,27 @@ export const findStateCompatibilityIssues = (
 
     if (typeof current === 'symbol') {
       addIssue('SYMBOL', path, 'symbols are not durable state.');
+      return;
+    }
+
+    if (typeof current === 'bigint') {
+      addIssue(
+        'BIGINT',
+        path,
+        'encode bigint as a string before JSON persistence.'
+      );
+      return;
+    }
+
+    if (
+      typeof current === 'number' &&
+      (!Number.isFinite(current) || Object.is(current, -0))
+    ) {
+      addIssue(
+        'NON_JSON_NUMBER',
+        path,
+        'JSON does not preserve NaN, Infinity, or -0.'
+      );
       return;
     }
 

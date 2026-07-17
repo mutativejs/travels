@@ -26,6 +26,10 @@ export type TravelHistoryEntry<P extends PatchesOption = {}> = {
 
 export type PatchesOption = Exclude<PatchesOptions, boolean>;
 
+/**
+ * A JSON primitive by TypeScript shape. `number` cannot statically exclude
+ * `NaN`, infinities, or `-0`; use `findStateCompatibilityIssues` at runtime.
+ */
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonObject = { [key: string]: JsonValue };
 export type JsonArray = JsonValue[];

@@ -72,7 +72,7 @@ function restoreTravels(raw: unknown) {
 }
 ```
 
-For durable persistence, keep Travels state JSON-compatible: plain objects, dense arrays, strings, numbers, booleans, and `null`. Array holes, custom properties, and custom or null prototypes are not preserved by snapshots or JSON/JSON Patch; fill empty slots with `null`, use plain arrays and objects, and store metadata in surrounding objects. IndexedDB can store richer values, but JSON Patch replay and cross-environment migrations are easiest when state uses the same durable subset.
+For durable persistence, keep Travels state JSON-compatible: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Encode `bigint` explicitly; normalize `NaN`, infinities, and `-0` because JSON either rejects or changes them. Array holes, custom properties, and custom or null prototypes are not preserved by snapshots or JSON/JSON Patch; fill empty slots with `null`, use plain arrays and objects, and store metadata in surrounding objects. IndexedDB can store richer values, but JSON Patch replay and cross-environment migrations are easiest when state uses the same durable subset.
 
 The adapter examples below reuse the `DocumentState`, `restoreTravels(...)`, and `attachAutoSave(...)` definitions from this section.
 
@@ -585,7 +585,7 @@ Recovery rules:
 - Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.
 - Keep storage keys namespaced, for example `travels:<app>:<documentId>`.
 - If persistence size matters, compress the serialized snapshot before storage and decompress before `Travels.deserialize(...)`.
-- If state contains non-JSON values such as `Date`, `Map`, or `Set`, add an application codec before writing and after reading. Prefer timestamps, records, and arrays for durable state.
+- If state contains non-JSON values such as `bigint`, `Date`, `Map`, or `Set`, add an application codec before writing and after reading. Normalize `NaN`, infinities, and `-0`; prefer finite numbers, timestamps, records, and arrays for durable state.
 
 ## External References
 

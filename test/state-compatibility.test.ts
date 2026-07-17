@@ -55,6 +55,26 @@ describe('State compatibility warnings', () => {
     ).toEqual(['UNDEFINED', 'UNDEFINED']);
   });
 
+  test('flags primitive values that JSON cannot preserve', () => {
+    const issues = findStateCompatibilityIssues({
+      bigint: 1n,
+      nan: NaN,
+      positiveInfinity: Infinity,
+      negativeInfinity: -Infinity,
+      negativeZero: -0,
+      finite: Number.MAX_VALUE,
+      zero: 0,
+    });
+
+    expect(issues.map(({ code, path }) => ({ code, path }))).toEqual([
+      { code: 'BIGINT', path: '$.bigint' },
+      { code: 'NON_JSON_NUMBER', path: '$.nan' },
+      { code: 'NON_JSON_NUMBER', path: '$.positiveInfinity' },
+      { code: 'NON_JSON_NUMBER', path: '$.negativeInfinity' },
+      { code: 'NON_JSON_NUMBER', path: '$.negativeZero' },
+    ]);
+  });
+
   test('flags non-enumerable array indices lost by snapshot cloning', () => {
     const items: string[] = [];
     Object.defineProperty(items, '0', {

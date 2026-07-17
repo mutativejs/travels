@@ -20,7 +20,7 @@ Travels targets modern browsers that support standard JavaScript collections and
 
 ## State Compatibility
 
-The durable persistence subset is JSON-compatible data: plain objects, dense arrays, strings, numbers, booleans, and `null`. Array holes, custom properties, and custom or null prototypes are not durable across patch replay and JSON persistence; fill empty slots with `null`, use plain arrays and objects, and store metadata in surrounding objects. In particular, Mutative does not draft null-prototype dictionaries by default, so their nested writes may not produce undoable patches.
+The durable persistence subset is JSON-compatible data: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. `bigint` makes `JSON.stringify` throw; `NaN` and infinities become `null`, while `-0` becomes `0`. Normalize those values or encode them with an application codec. Array holes, custom properties, and custom or null prototypes are not durable across patch replay and JSON persistence; fill empty slots with `null`, use plain arrays and objects, and store metadata in surrounding objects. In particular, Mutative does not draft null-prototype dictionaries by default, so their nested writes may not produce undoable patches.
 
 Map and Set are runtime-supported only in immutable mode and require a custom codec for JSON persistence. Mutable mode is intended for plain object and array reactive stores.
 

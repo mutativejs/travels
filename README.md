@@ -120,7 +120,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-For persistence-safe history, keep state **JSON-compatible**: plain objects, arrays, strings, numbers, booleans, and `null`. Map/Set have limited runtime support in immutable mode, but need a custom codec for JSON persistence. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable state. See [State Requirements](#state-requirements-and-compatibility) for details.
+For persistence-safe history, keep state **JSON-compatible**: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map/Set have limited runtime support in immutable mode, but need a custom codec for JSON persistence. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable state. See [State Requirements](#state-requirements-and-compatibility) for details.
 
 ---
 
@@ -278,7 +278,7 @@ Returns patch entries with inverse patches and optional metadata, using the same
 
 #### `serialize(): TravelsSerializedHistory`
 
-Returns a versioned persistence snapshot containing the current state, patch history, and position. The returned state and patches are cloned so callers can safely pass the value to `JSON.stringify`, storage adapters, or compression.
+Returns a versioned persistence snapshot containing the current state, patch history, and position. The returned state and patches are cloned. When state follows the durable-state requirements below, callers can safely pass the value to `JSON.stringify`, storage adapters, or compression; `serialize()` does not itself encode or normalize runtime-only values.
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 
@@ -546,24 +546,27 @@ function handleSave() {
 
 ## State Requirements and Compatibility
 
-Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are runtime-only representations: normalize them before persisting history. Null-prototype dictionaries are not drafted by Mutative by default, so nested writes may not produce undoable patches; convert them to plain objects before storing them in Travels.
+Travels works best when state is durable data: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are runtime-only representations: normalize them before persisting history. Null-prototype dictionaries are not drafted by Mutative by default, so nested writes may not produce undoable patches; convert them to plain objects before storing them in Travels.
 
 When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
-| Value                                   | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                   |
-| --------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | -------------------------------- |
-| Plain object                            | Supported                          | Supported                                     | Supported                         | Preferred                        |
-| Dense array                             | Supported                          | Supported                                     | Supported                         | Preferred                        |
-| Sparse, extended, or subclassed array   | Limited runtime support            | Array roots have additional shape limitations | Not preserved by JSON/JSON Patch  | Use a plain dense array          |
-| string, number, boolean, `null`         | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                        |
-| `undefined`                             | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                       |
-| `Date`                                  | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string    |
-| `Map` / `Set`                           | Runtime support in immutable mode  | Not supported                                 | Requires custom codec             | Store arrays, or provide a codec |
-| Class instance / custom or null prototype | Not durable                      | Not durable                                   | Loses prototype/methods           | Store plain data or IDs          |
-| Function                                | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state      |
-| Circular reference                      | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs           |
-| DOM node, ref, observable instance body | Not supported as durable state     | Not supported as durable state                | Not serializable                  | Store outside Travels state      |
-| WeakMap / WeakSet                       | Not supported                      | Not supported                                 | Not serializable                  | Store outside Travels state      |
+| Value                                     | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                   |
+| ----------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | -------------------------------- |
+| Plain object                              | Supported                          | Supported                                     | Supported                         | Preferred                        |
+| Dense array                               | Supported                          | Supported                                     | Supported                         | Preferred                        |
+| Sparse, extended, or subclassed array     | Limited runtime support            | Array roots have additional shape limitations | Not preserved by JSON/JSON Patch  | Use a plain dense array          |
+| string, boolean, `null`                   | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                        |
+| Finite number other than `-0`             | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                        |
+| `NaN`, infinity, `-0`                     | Supported in memory                | Falls back to immutable for primitive roots   | Converted to `null` or `0`        | Normalize to a finite number     |
+| `bigint`                                  | Supported in memory                | Falls back to immutable for primitive roots   | `JSON.stringify` throws           | Encode as a string               |
+| `undefined`                               | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                       |
+| `Date`                                    | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string    |
+| `Map` / `Set`                             | Runtime support in immutable mode  | Not supported                                 | Requires custom codec             | Store arrays, or provide a codec |
+| Class instance / custom or null prototype | Not durable                        | Not durable                                   | Loses prototype/methods           | Store plain data or IDs          |
+| Function                                  | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state      |
+| Circular reference                        | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs           |
+| DOM node, ref, observable instance body   | Not supported as durable state     | Not supported as durable state                | Not serializable                  | Store outside Travels state      |
+| WeakMap / WeakSet                         | Not supported                      | Not supported                                 | Not serializable                  | Store outside Travels state      |
 
 TypeScript helpers are exported for users who want to enforce the durable subset in their own app code:
 
@@ -581,6 +584,8 @@ function createHistoryFor<S extends PatchableState>(state: S) {
   return createTravels(state);
 }
 ```
+
+TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses those values.
 
 In development, Travels scans initial state and changed state for known compatibility hazards and logs warnings once per path. Disable those warnings with `warnOnUnsupportedState: false` when you intentionally provide custom codecs or non-persistent runtime-only values.
 
