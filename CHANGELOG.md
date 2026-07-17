@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Add opt-in persisted-history semantic validation with `validation: 'semantic'`, configurable Mutative `replayOptions`, and `INVALID_HISTORY` diagnostics that identify the failing entry and replay direction.
+- Add `SPARSE_ARRAY` state-compatibility diagnostics and a dedicated structural/semantic restore benchmark guard.
+
+### Fixed
+
+- Preserve inverse patch operation order for compound history entries and compose pending manual changes without rediffing the full state.
+- Publish listeners, devtools, and branch-discard hooks only after their transitions commit; failed transactions no longer leak provisional observer effects.
+- Report rejected listener, devtools, and lifecycle-hook promises through `onObserverError` instead of leaving unhandled rejections.
+- Keep `onBranchDiscard` aligned with the committed root-transaction timeline, including reset, rebase, nested rollback, and branches created only by provisional transaction steps.
+- Compare array length and hole topology during semantic replay, and avoid freezing caller-owned snapshots while validating histories recorded with auto-freeze.
+
+### Changed
+
+- Keep structural persistence validation as the synchronous default for backward-compatible restore latency; applications should explicitly select semantic validation for unverified or potentially corrupted snapshots.
+- Materialize observer patch-history snapshots lazily and discard superseded root-replacement patches to avoid copying or retaining history that no observer or replay can use.
+
+### Documentation
+
+- Define dense arrays as the durable persistence contract; sparse array holes remain usable at runtime but cannot round-trip faithfully through JSON and JSON Patch.
+- Document the provenance boundary: replay validation can detect malformed or inconsistent patches, but only an external trusted checksum, signature, revision, or authoritative log can distinguish a self-consistent alternative history.
+
 ## [1.4.0] - 2026-07-12
 
 ### Fixed
