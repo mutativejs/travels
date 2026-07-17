@@ -519,7 +519,8 @@ const history = Travels.deserialize<DocumentState>(stored, {
 ## Integrity and Provenance
 
 `Travels.deserialize(...)` verifies that a snapshot is structurally valid and
-that its history can replay consistently in both directions. It does not prove
+by default verifies that its history can replay consistently in both
+directions. It does not prove
 where the snapshot came from or that a reconstructed past is the history that
 was originally recorded. Version 1 has no independent trusted history anchor,
 so an internally reversible alternative history is accepted and does not
@@ -536,6 +537,22 @@ stored bytes -> verify envelope -> decode snapshot -> Travels.deserialize -> cre
 If external verification fails, discard the unverified snapshot and restore a
 trusted default or last-known-good generation. Do not rely on `fallback` to
 discover an internally consistent alternative history.
+
+Full semantic replay is intentionally the default because it detects
+applicability and reversibility failures before the restored history is used.
+Its work grows with the reachable history and the containers copied by each
+patch. After an application has independently verified a trusted snapshot, it
+may skip replay when restore latency is more important:
+
+```ts
+const history = Travels.deserialize(verifiedSnapshot, {
+  validation: 'structural',
+});
+```
+
+Structural mode still rejects malformed schemas and patch encodings. It does
+not prove that navigation will apply successfully, so never use it as the only
+check for unverified or potentially corrupted storage.
 
 Choose the integrity mechanism according to the application's trust model:
 
@@ -556,6 +573,7 @@ the snapshot it protects.
 Recovery rules:
 
 - Always provide `fallback` for browser startup paths. It recovers detected parsing, migration, and validation failures; external integrity failures must select a trusted snapshot before deserialization.
+- Use the default `semantic` validation for unverified snapshots. Reserve `structural` mode for snapshots already verified by a trusted application boundary.
 - Use `onError` to log the stable `TravelsPersistenceError.code`; `INVALID_HISTORY` also identifies the failing `entryIndex` and replay `direction`.
 - When recording uses custom Mutative `strict` or `mark` settings, pass the same values through `replayOptions` so semantic validation uses identical replay rules.
 - Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.

@@ -66,6 +66,8 @@ export type TravelsReplayOptions = {
   mark?: MutativeOptions<false, boolean>['mark'];
 };
 
+export type TravelsHistoryValidationMode = 'semantic' | 'structural';
+
 export type TravelsMigration<
   S,
   P extends PatchesOption = {},
@@ -89,6 +91,12 @@ export type TravelsDeserializeOptions<
    * Receive typed persistence errors before a fallback is returned or the error is thrown.
    */
   onError?: (error: Error) => void;
+  /**
+   * `semantic` replays and reverses every entry (default). `structural` only
+   * validates the encoded schema and patch shapes and is intended for trusted,
+   * already-verified snapshots where restore latency is critical.
+   */
+  validation?: TravelsHistoryValidationMode;
   /**
    * Mutative options used while semantically replaying every history entry.
    * Supply the same strict/mark settings that were used to record the history.

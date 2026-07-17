@@ -24,7 +24,10 @@ describe('Type-level API contracts', () => {
     const history = Travels.deserialize<State>(snapshot);
     expectTypeOf(history.state).toEqualTypeOf<State>();
 
+    Travels.deserialize<State>(snapshot, { validation: 'structural' });
     if (false) {
+      // @ts-expect-error validation modes are a closed public contract
+      Travels.deserialize<State>(snapshot, { validation: 'unknown' });
       Travels.deserialize<State>(snapshot, {
         // @ts-expect-error auto-freeze is an instance output policy, not replay behavior
         replayOptions: { enableAutoFreeze: true },

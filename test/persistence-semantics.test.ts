@@ -88,6 +88,67 @@ describe('persisted history semantic validation', () => {
     );
   });
 
+  test('allows trusted callers to select structural-only validation', () => {
+    const snapshot = {
+      version: 1 as const,
+      state: { count: 0 },
+      position: 0,
+      patches: {
+        patches: [
+          [{ op: 'replace' as const, path: ['missing', 'value'], value: 1 }],
+        ],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['missing', 'value'], value: 0 }],
+        ],
+      },
+    };
+
+    expect(Travels.deserialize(snapshot, { validation: 'structural' })).toEqual(
+      snapshot
+    );
+    expect(() => Travels.deserialize(snapshot)).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+      })
+    );
+  });
+
+  test('uses the selected validation mode for fallback snapshots', () => {
+    const structurallyValidFallback = {
+      version: 1 as const,
+      state: { count: 0 },
+      position: 0,
+      patches: {
+        patches: [
+          [{ op: 'replace' as const, path: ['missing', 'value'], value: 1 }],
+        ],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['missing', 'value'], value: 0 }],
+        ],
+      },
+    };
+
+    expect(
+      Travels.deserialize('not-json', {
+        fallback: structurallyValidFallback,
+        validation: 'structural',
+      })
+    ).toEqual(structurallyValidFallback);
+  });
+
+  test('rejects unknown validation modes as configuration errors', () => {
+    const onError = vi.fn();
+
+    expect(() =>
+      Travels.deserialize(emptySnapshot({ count: 0 }), {
+        fallback: emptySnapshot({ count: -1 }),
+        onError,
+        validation: 'unknown' as 'semantic',
+      })
+    ).toThrow(TypeError);
+    expect(onError).not.toHaveBeenCalled();
+  });
+
   test('rejects state anchors that do not match their patch history', () => {
     expect(() =>
       Travels.deserialize({

@@ -797,7 +797,29 @@ function loadFromStorage() {
 - semantic replay from the stored position to both ends of history
 - forward/inverse reversibility for every reachable entry
 
-It throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, `INVALID_HISTORY`, `MIGRATION_FAILED`, or `FALLBACK_FAILED`. Semantic failures also expose `entryIndex` and `direction` (`forward` or `inverse`). Provide `fallback` when detected parsing, migration, or validation failures should recover to a known-safe snapshot instead of failing startup. Fallback snapshots pass through the same structural and semantic validation; a throwing or invalid fallback reports `FALLBACK_FAILED`.
+`semantic` validation is the default. It provides the complete list of checks
+above, but its cost grows with both state shape and reachable history length.
+Applications that have already authenticated or otherwise verified a trusted
+snapshot can select the low-latency structural path:
+
+```typescript
+const history = Travels.deserialize(verifiedSnapshot, {
+  validation: 'structural',
+});
+```
+
+Structural mode still validates the schema, operation names, paths, and
+position bounds, but deliberately does not apply or reverse the patches. Do
+not use it as a corruption detector for unverified storage.
+
+`Travels.deserialize(...)` throws `TravelsPersistenceError` with a stable
+`code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`,
+`INVALID_PATCHES`, `INVALID_HISTORY`, `MIGRATION_FAILED`, or
+`FALLBACK_FAILED`. Semantic failures also expose `entryIndex` and `direction`
+(`forward` or `inverse`). Provide `fallback` when detected parsing, migration,
+or validation failures should recover to a known-safe snapshot instead of
+failing startup. Fallback snapshots pass through the selected validation mode;
+a throwing or invalid fallback reports `FALLBACK_FAILED`.
 
 If history was recorded with custom Mutative replay behavior, provide the same
 settings during validation:

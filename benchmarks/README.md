@@ -53,18 +53,30 @@ The matrix script reports `setState/update (ms)` as average time per update with
 
 ```bash
 # Default matrix: 10KB, 100KB, 1MB states; 5 rounds
-pnpm run test:matrix
+pnpm run benchmark:matrix
 
 # Full matrix: includes 5MB state and 7 rounds
-pnpm run test:full
+pnpm run benchmark:full
 
 # Lightweight CI smoke guard
-pnpm run test:ci
+pnpm run benchmark:ci
 ```
 
 The benchmark commands build the current checkout first and load its explicit
 CommonJS artifact, so results cannot accidentally come from stale `dist`
 output or a separately installed package.
+
+### 4. `persistence-validation-benchmark.js` - Restore validation cost
+
+Measures the real `Travels.deserialize(...)` structural and semantic paths
+against a wide-array history. Unlike the legacy JSON parsing metrics, this
+includes schema normalization, patch replay, and round-trip comparison.
+
+```bash
+pnpm run benchmark:persistence
+```
+
+`benchmark:ci` runs both the scenario matrix and this validation guard.
 
 ## Test Scenarios
 
@@ -79,7 +91,7 @@ The original simulated and real-library scripts use the same fixed scenario:
   - Undo performance
   - Redo performance
   - Serialized size (persistence)
-  - Serialization/deserialization performance
+  - Serialization and JSON parsing performance
 
 The matrix benchmark expands coverage:
 
@@ -90,7 +102,7 @@ The matrix benchmark expands coverage:
 | Rounds | 5 | 7 |
 | Reported statistics | median, p95 | median, p95 |
 
-The CI mode is intentionally smaller: 10KB and 100KB states, 20 updates, 3 rounds, and a persistence smoke guard for compact patch-history scenarios. It should catch obvious regressions without pretending that CI runners provide lab-quality latency numbers.
+The CI mode is intentionally smaller: 10KB and 100KB states, 20 updates, 3 rounds, a compact-history size guard, and a real persistence validation guard. It should catch obvious regressions without pretending that CI runners provide lab-quality latency numbers.
 
 ## Why `--expose-gc`?
 
@@ -119,9 +131,12 @@ In the matrix benchmark, `setState/update (ms)` is normalized to average millise
 
 Measure the time to perform 50 consecutive undos and redos.
 
-### Serialization
+### Serialization and restore validation
 
-Measure serialized history size and serialization/deserialization times.
+The legacy comparison scripts measure serialized history size, serialization,
+and JSON parsing. JSON parsing alone is not equivalent to restoring a Travels
+history. `persistence-validation-benchmark.js` separately measures structural
+and semantic `Travels.deserialize(...)` latency.
 
 **Important when:**
 
@@ -178,21 +193,23 @@ Travels has clear advantages in:
    - Debugging
    - User behavior analysis
 
-## Run all tests
+## Run the CI benchmark suite
 
 ```bash
-pnpm run test:all
+pnpm run benchmark:ci
 ```
 
-This will run in order:
+This builds the current checkout and runs:
 
-1. Simulated implementations
-2. Real libraries
-3. Scenario matrix
+1. The reduced scenario matrix
+2. The real structural/semantic persistence validation guard
 
 ## Latest Results (Node v22.21.1)
 
-The tables below capture the output from running `pnpm run test:all` (which executes both benchmark scripts with `node --expose-gc`) on the current machine.
+The tables below capture a previous run of the simulated and real-library
+comparison scripts with `node --expose-gc`. Their persistence read metric is
+JSON parsing, not `Travels.deserialize(...)`; use the dedicated validation
+benchmark for current restore costs.
 
 ### Simulated implementations (`memory-performance-test.js`)
 
@@ -204,7 +221,7 @@ The tables below capture the output from running `pnpm run test:all` (which exec
 | Redo (ms)            | 0.12       | **0.02**  | 20.34    |
 | Serialized size (KB) | 11,626.66  | 11,626.46 | **20.6** |
 | Serialize (ms)       | 12.86      | 11.88     | **0.06** |
-| Deserialize (ms)     | 23.6       | 23.55     | **0.14** |
+| JSON parse (ms)      | 23.6       | 23.55     | **0.14** |
 
 - Travels keeps simulated history sizes tiny (20.6 KB vs ~11 MB snapshots) and serializes >200x faster, while snapshot stores remain unbeatable for undo/redo latency.
 - The Travels simulated setState cost (88 ms for 100 updates) is roughly 2x the snapshot stores, which matches expectations for generating JSON Patch.
@@ -219,9 +236,9 @@ The tables below capture the output from running `pnpm run test:all` (which exec
 | Redo (ms)            | **0.07**   | 0.15      | 0.27       |
 | Serialized size (KB) | 11,742.03  | 11,510.59 | **116.26** |
 | Serialize (ms)       | 12.63      | 11.59     | **0.61**   |
-| Deserialize (ms)     | 28.87      | 22.66     | **0.42**   |
+| JSON parse (ms)      | 28.87      | 22.66     | **0.42**   |
 
-- Even with real packages, Travels shrinks serialized history by roughly 100x and finishes (de)serialization in well under a millisecond.
+- Even with real packages, Travels shrinks serialized history by roughly 100x and finishes serialization and JSON parsing in well under a millisecond. Full restore validation is reported by the dedicated persistence benchmark.
 - Snapshot-based stacks still win the hot-path operations (setState/undo/redo), so use cases prioritizing raw speed over persistence will still prefer Redux-undo/Zundo.
 
 ## Customize parameters

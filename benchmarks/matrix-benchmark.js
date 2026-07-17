@@ -261,7 +261,7 @@ function runSnapshotRound({ scenario, stateSizeKB, iterations }) {
     serialized = stringifyForPersistence(stack);
   }).ms;
 
-  const deserializeTime = measure(() => {
+  const jsonParseTime = measure(() => {
     JSON.parse(serialized);
   }).ms;
 
@@ -272,7 +272,7 @@ function runSnapshotRound({ scenario, stateSizeKB, iterations }) {
     redoMs: redoTime,
     serializedSizeKB: round(serialized.length / 1024),
     serializeMs: serializeTime,
-    deserializeMs: deserializeTime,
+    jsonParseMs: jsonParseTime,
   };
 }
 
@@ -312,7 +312,7 @@ function runTravelsRound({ scenario, stateSizeKB, iterations }) {
     serialized = stringifyForPersistence(history);
   }).ms;
 
-  const deserializeTime = measure(() => {
+  const jsonParseTime = measure(() => {
     JSON.parse(serialized);
   }).ms;
 
@@ -323,7 +323,7 @@ function runTravelsRound({ scenario, stateSizeKB, iterations }) {
     redoMs: redoTime,
     serializedSizeKB: round(serialized.length / 1024),
     serializeMs: serializeTime,
-    deserializeMs: deserializeTime,
+    jsonParseMs: jsonParseTime,
   };
 }
 
@@ -353,7 +353,7 @@ function printScenarioSummary(summary) {
     ['Redo 20 steps (ms)', 'redoMs'],
     ['Serialized size (KB)', 'serializedSizeKB'],
     ['Serialize (ms)', 'serializeMs'],
-    ['Deserialize (ms)', 'deserializeMs'],
+    ['JSON parse (ms)', 'jsonParseMs'],
   ];
 
   for (const [label, key] of rows) {

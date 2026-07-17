@@ -621,6 +621,14 @@ const resolveFallback = <S, P extends PatchesOption = {}>(
 ): TravelsSerializedHistory<S, P> =>
   typeof fallback === 'function' ? fallback() : fallback;
 
+const validateNormalizedSnapshot = <S, P extends PatchesOption = {}>(
+  snapshot: TravelsSerializedHistory<S, P>,
+  options: TravelsDeserializeOptions<S, P>
+): TravelsSerializedHistory<S, P> =>
+  options.validation === 'structural'
+    ? snapshot
+    : validateTravelsHistorySemantics(snapshot, options.replayOptions);
+
 const toPersistenceError = (
   error: unknown,
   code: TravelsPersistenceErrorCode,
@@ -649,6 +657,16 @@ export const deserializeTravelsHistory = <
   input: unknown,
   options: TravelsDeserializeOptions<S, P> = {}
 ): TravelsSerializedHistory<S, P> => {
+  if (
+    options.validation !== undefined &&
+    options.validation !== 'semantic' &&
+    options.validation !== 'structural'
+  ) {
+    throw new TypeError(
+      "Travels: validation must be either 'semantic' or 'structural'."
+    );
+  }
+
   try {
     const parsed = parseSnapshotInput(input);
     let migrated = parsed;
@@ -665,9 +683,9 @@ export const deserializeTravelsHistory = <
       }
     }
 
-    return validateTravelsHistorySemantics(
+    return validateNormalizedSnapshot(
       normalizeSnapshot<S, P>(migrated),
-      options.replayOptions
+      options
     );
   } catch (error) {
     const persistenceError = toPersistenceError(
@@ -683,9 +701,9 @@ export const deserializeTravelsHistory = <
     }
 
     try {
-      return validateTravelsHistorySemantics(
+      return validateNormalizedSnapshot(
         normalizeSnapshot<S, P>(resolveFallback(options.fallback)),
-        options.replayOptions
+        options
       );
     } catch (fallbackCause) {
       const fallbackError = new TravelsPersistenceError(
