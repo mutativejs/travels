@@ -95,7 +95,8 @@ function loadFromStorage(): TravelsSerializedHistory<AppState> | null {
           };
         }
 
-        return snapshot;
+        // Current-schema input still goes through Travels' validation.
+        return snapshot as TravelsSerializedHistory<AppState>;
       },
       onError(error) {
         if (error instanceof TravelsPersistenceError) {

@@ -284,7 +284,7 @@ Returns a versioned persistence snapshot containing the current state, patch his
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 
-Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Structural validation is the low-latency default; select `validation: 'semantic'` to replay every entry in both directions and reject patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied.
+Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Structural validation is the low-latency default; select `validation: 'semantic'` to replay every entry in both directions and reject patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied. `migrate` and function-valued `fallback` callbacks must return synchronously.
 
 #### `canBack(): boolean`
 
@@ -836,6 +836,12 @@ or validation failures should recover to a known-safe snapshot instead of
 failing startup. Fallback snapshots pass through the selected validation mode;
 a throwing or invalid fallback reports `FALLBACK_FAILED`.
 
+`migrate` and function-valued `fallback` callbacks are synchronous extension
+points. Complete storage reads, network requests, or other asynchronous work
+before calling `Travels.deserialize(...)`. A Promise-like result is rejected as
+`MIGRATION_FAILED` or `FALLBACK_FAILED`, and its rejection is consumed so it
+cannot escape as an unhandled Promise rejection.
+
 If history was recorded with custom Mutative replay behavior, provide the same
 settings during validation:
 
@@ -882,19 +888,32 @@ snapshot when that external verification fails.
 Use `migrate` to upgrade older snapshots before validation:
 
 ```typescript
-const history = Travels.deserialize(stored, {
+import type { TravelsSerializedHistory } from 'travels';
+
+const history = Travels.deserialize<typeof defaultState>(stored, {
   validation: 'semantic',
   migrate(snapshot) {
-    if (snapshot && typeof snapshot === 'object' && snapshot.version === 0) {
+    if (
+      snapshot &&
+      typeof snapshot === 'object' &&
+      (snapshot as { version?: unknown }).version === 0
+    ) {
+      const legacy = snapshot as {
+        state: typeof defaultState;
+        history: TravelsSerializedHistory<typeof defaultState>['patches'];
+        cursor: number;
+      };
+
       return {
         version: 1,
-        state: snapshot.state,
-        patches: snapshot.history,
-        position: snapshot.cursor,
+        state: legacy.state,
+        patches: legacy.history,
+        position: legacy.cursor,
       };
     }
 
-    return snapshot;
+    // Pass current-schema input through to Travels' built-in validation.
+    return snapshot as TravelsSerializedHistory<typeof defaultState>;
   },
 });
 ```

@@ -884,6 +884,125 @@ describe('Persistence Example - State Persistence', () => {
     await Promise.resolve();
   });
 
+  test('rejects Promise-like migrations without unhandled rejections', async () => {
+    type State = { count: number };
+    const snapshot: TravelsSerializedHistory<State> = {
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: { count: 0 },
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+    };
+    const unhandledRejections: unknown[] = [];
+    const recordUnhandledRejection = (reason: unknown) => {
+      unhandledRejections.push(reason);
+    };
+    const promiseWithOverriddenThen = () => {
+      const promise = Promise.reject(new Error('overridden then'));
+      Object.defineProperty(promise, 'then', { value: undefined });
+      return promise;
+    };
+    const results: Array<{ name: string; create: () => unknown }> = [
+      {
+        name: 'resolved Promise',
+        create: () => Promise.resolve(snapshot),
+      },
+      {
+        name: 'rejected Promise',
+        create: () => Promise.reject(new Error('migration rejected')),
+      },
+      {
+        name: 'Promise with an overridden then property',
+        create: promiseWithOverriddenThen,
+      },
+      {
+        name: 'rejecting thenable',
+        create: () => ({
+          then(
+            _resolve: (value: unknown) => void,
+            reject: (reason: unknown) => void
+          ) {
+            reject(new Error('migration thenable rejected'));
+          },
+        }),
+      },
+    ];
+
+    process.on('unhandledRejection', recordUnhandledRejection);
+    try {
+      for (const result of results) {
+        const onError = vi.fn();
+        const migrate = (() => result.create()) as (
+          input: unknown
+        ) => TravelsSerializedHistory<State>;
+
+        expect(
+          () =>
+            Travels.deserialize<State>(snapshot, {
+              migrate,
+              onError,
+            }),
+          result.name
+        ).toThrowError(
+          expect.objectContaining<Partial<TravelsPersistenceError>>({
+            code: 'MIGRATION_FAILED',
+            message:
+              'Travels: persisted history migrate callback must return synchronously.',
+          })
+        );
+        expect(onError, result.name).toHaveBeenCalledWith(
+          expect.objectContaining<Partial<TravelsPersistenceError>>({
+            code: 'MIGRATION_FAILED',
+          })
+        );
+      }
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      expect(unhandledRejections).toEqual([]);
+    } finally {
+      process.off('unhandledRejection', recordUnhandledRejection);
+    }
+  });
+
+  test('rejects Promise-like fallback results as FALLBACK_FAILED', async () => {
+    type State = { count: number };
+    const unhandledRejections: unknown[] = [];
+    const recordUnhandledRejection = (reason: unknown) => {
+      unhandledRejections.push(reason);
+    };
+    const errors: TravelsPersistenceError[] = [];
+    const fallback = (() =>
+      Promise.reject(
+        new Error('fallback rejected')
+      )) as unknown as () => TravelsSerializedHistory<State>;
+
+    process.on('unhandledRejection', recordUnhandledRejection);
+    try {
+      expect(() =>
+        Travels.deserialize<State>('not-json', {
+          fallback,
+          onError(error) {
+            errors.push(error as TravelsPersistenceError);
+          },
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'FALLBACK_FAILED',
+          message:
+            'Travels: persisted history fallback callback must return synchronously.',
+        })
+      );
+
+      expect(errors).toEqual([
+        expect.objectContaining({ code: 'PARSE_ERROR' }),
+        expect.objectContaining({ code: 'FALLBACK_FAILED' }),
+      ]);
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      expect(unhandledRejections).toEqual([]);
+    } finally {
+      process.off('unhandledRejection', recordUnhandledRejection);
+    }
+  });
+
   test('Travels.deserialize() should run migration before validation', () => {
     const oldSnapshot = {
       version: 0,

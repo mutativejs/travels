@@ -34,6 +34,23 @@ describe('Type-level API contracts', () => {
         // @ts-expect-error auto-freeze is an instance output policy, not replay behavior
         replayOptions: { enableAutoFreeze: true },
       });
+      Travels.deserialize<State>(snapshot, {
+        // @ts-expect-error migration callbacks must return synchronously
+        migrate: async () => snapshot,
+      });
+      Travels.deserialize<State>('invalid', {
+        // @ts-expect-error function fallbacks must return synchronously
+        fallback: async () => snapshot,
+      });
+
+      const maybeAsyncMigration = (
+        _input: unknown
+      ): TravelsSerializedHistory<State> |
+        Promise<TravelsSerializedHistory<State>> => snapshot;
+      Travels.deserialize<State>(snapshot, {
+        // @ts-expect-error Promise unions must also be rejected
+        migrate: maybeAsyncMigration,
+      });
     }
 
     createTravels(history.state, { history });

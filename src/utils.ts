@@ -82,10 +82,14 @@ export const isValidPatchPath = (path: unknown): boolean => {
   );
 };
 
+/**
+ * Observe a Promise-like rejection without allowing the rejection handler to
+ * create another unhandled failure. Returns whether the value is Promise-like.
+ */
 export const consumePromiseLikeRejection = (
   value: unknown,
   onRejected: (error: unknown) => void
-): void => {
+): boolean => {
   const rejectSafely = (error: unknown): void => {
     try {
       onRejected(error);
@@ -94,19 +98,34 @@ export const consumePromiseLikeRejection = (
     }
   };
 
-  let isThenable = false;
+  const isPromiseCandidate =
+    value !== null &&
+    (typeof value === 'object' || typeof value === 'function');
+  if (!isPromiseCandidate) {
+    return false;
+  }
+
   try {
-    isThenable =
-      value !== null &&
-      (typeof value === 'object' || typeof value === 'function') &&
-      typeof (value as { then?: unknown }).then === 'function';
+    void Promise.prototype.then.call(
+      value as Promise<unknown>,
+      undefined,
+      rejectSafely
+    );
+    return true;
+  } catch {
+    // Non-native thenables need to be assimilated through Promise.resolve().
+  }
+
+  let isThenable: boolean;
+  try {
+    isThenable = typeof (value as { then?: unknown }).then === 'function';
   } catch (error) {
     rejectSafely(error);
-    return;
+    return true;
   }
 
   if (!isThenable) {
-    return;
+    return false;
   }
 
   try {
@@ -115,4 +134,6 @@ export const consumePromiseLikeRejection = (
   } catch (error) {
     rejectSafely(error);
   }
+
+  return true;
 };

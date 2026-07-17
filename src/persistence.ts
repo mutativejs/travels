@@ -42,6 +42,23 @@ export class TravelsPersistenceError extends Error {
   }
 }
 
+type SynchronousPersistenceCallback = 'migrate' | 'fallback';
+
+const assertSynchronousPersistenceResult = <T>(
+  callback: SynchronousPersistenceCallback,
+  value: T
+): T => {
+  if (!consumePromiseLikeRejection(value, () => undefined)) {
+    return value;
+  }
+
+  const code = callback === 'migrate' ? 'MIGRATION_FAILED' : 'FALLBACK_FAILED';
+  throw new TravelsPersistenceError(
+    code,
+    `Travels: persisted history ${callback} callback must return synchronously.`
+  );
+};
+
 const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;
 };
@@ -501,8 +518,10 @@ const validateTravelsHistorySemantics = <
 
 const resolveFallback = <S, P extends PatchesOption = {}>(
   fallback: NonNullable<TravelsDeserializeOptions<S, P>['fallback']>
-): TravelsSerializedHistory<S, P> =>
-  typeof fallback === 'function' ? fallback() : fallback;
+): TravelsSerializedHistory<S, P> => {
+  const resolved = typeof fallback === 'function' ? fallback() : fallback;
+  return assertSynchronousPersistenceResult('fallback', resolved);
+};
 
 const validateNormalizedSnapshot = <S, P extends PatchesOption = {}>(
   snapshot: TravelsSerializedHistory<S, P>,
@@ -555,8 +574,9 @@ export const deserializeTravelsHistory = <
     let migrated = parsed;
 
     if (options.migrate) {
+      let migrationResult: TravelsSerializedHistory<S, P>;
       try {
-        migrated = options.migrate(parsed);
+        migrationResult = options.migrate(parsed);
       } catch (error) {
         throw new TravelsPersistenceError(
           'MIGRATION_FAILED',
@@ -564,6 +584,8 @@ export const deserializeTravelsHistory = <
           { cause: error }
         );
       }
+
+      migrated = assertSynchronousPersistenceResult('migrate', migrationResult);
     }
 
     return validateNormalizedSnapshot(
@@ -589,11 +611,15 @@ export const deserializeTravelsHistory = <
         options
       );
     } catch (fallbackCause) {
-      const fallbackError = new TravelsPersistenceError(
-        'FALLBACK_FAILED',
-        'Travels: persisted history fallback could not be deserialized.',
-        { cause: fallbackCause }
-      );
+      const fallbackError =
+        fallbackCause instanceof TravelsPersistenceError &&
+        fallbackCause.code === 'FALLBACK_FAILED'
+          ? fallbackCause
+          : new TravelsPersistenceError(
+              'FALLBACK_FAILED',
+              'Travels: persisted history fallback could not be deserialized.',
+              { cause: fallbackCause }
+            );
       notifyPersistenceError(options.onError, fallbackError);
       throw fallbackError;
     }

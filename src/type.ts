@@ -81,7 +81,7 @@ export type TravelsHistoryValidationMode = 'semantic' | 'structural';
 export type TravelsMigration<
   S,
   P extends PatchesOption = {},
-> = (snapshot: unknown) => TravelsSerializedHistory<S, P> | unknown;
+> = (snapshot: unknown) => TravelsSerializedHistory<S, P>;
 
 export type TravelsDeserializeOptions<
   S,
@@ -89,10 +89,13 @@ export type TravelsDeserializeOptions<
 > = {
   /**
    * Migrate old persisted snapshots into the current schema before validation.
+   * The callback must return synchronously; perform asynchronous I/O before
+   * calling `deserialize()`.
    */
   migrate?: TravelsMigration<S, P>;
   /**
    * Fallback snapshot used when parsing, migration, or validation fails.
+   * Function fallbacks must return synchronously.
    */
   fallback?:
     | TravelsSerializedHistory<S, P>

@@ -69,20 +69,29 @@ Do not replay old patch history generated from Map/Set mutations. Such history c
 
 Older hand-rolled persistence usually saved `{ state, patches, position }`. Convert it with `migrate`:
 
+Migration and function-valued fallback callbacks must return synchronously.
+Complete asynchronous storage or network work before calling
+`Travels.deserialize(...)`; Promise-like callback results are rejected as
+`MIGRATION_FAILED` or `FALLBACK_FAILED` without leaking an unhandled rejection.
+
 ```ts
-const history = Travels.deserialize(stored, {
+type CurrentSnapshot = TravelsSerializedHistory<TravelsState>;
+
+const history = Travels.deserialize<TravelsState>(stored, {
   validation: 'semantic',
   migrate(snapshot) {
     if (snapshot && typeof snapshot === 'object' && !('version' in snapshot)) {
+      const legacy = snapshot as Omit<CurrentSnapshot, 'version'>;
+
       return {
         version: 1,
-        state: snapshot.state,
-        patches: snapshot.patches,
-        position: snapshot.position,
+        state: legacy.state,
+        patches: legacy.patches,
+        position: legacy.position,
       };
     }
 
-    return snapshot;
+    return snapshot as CurrentSnapshot;
   },
 });
 ```

@@ -486,6 +486,12 @@ localspace-specific notes:
 
 Use `migrate` when the stored shape predates Travels' current serialized history schema:
 
+`migrate` and function-valued `fallback` are synchronous callbacks. Await
+storage, network, or other asynchronous work before calling
+`Travels.deserialize(...)`. Promise-like callback results fail with
+`MIGRATION_FAILED` or `FALLBACK_FAILED`, and Travels observes their rejection
+to prevent an unhandled Promise rejection.
+
 ```ts
 type LegacyDocumentSnapshot = {
   version: 0;
@@ -512,7 +518,8 @@ const history = Travels.deserialize<DocumentState>(stored, {
       };
     }
 
-    return snapshot;
+    // Current-schema input still goes through Travels' validation below.
+    return snapshot as TravelsSerializedHistory<DocumentState>;
   },
   fallback: createEmptySnapshot,
 });
