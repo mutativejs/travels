@@ -92,10 +92,44 @@ describe('pending patch composition', () => {
       initial,
       { items: [4], label: 'final' },
     ]);
+    expect(
+      travels.getPatches().patches[0].filter(isRootReplacement)
+    ).toHaveLength(1);
+    expect(travels.getPatches().inversePatches[0]).toHaveLength(1);
 
     travels.back();
     expect(travels.getState()).toEqual(initial);
     travels.forward();
     expect(travels.getState()).toEqual({ items: [4], label: 'final' });
   });
+
+  test.each([true, false])(
+    'drops superseded root replacements with pathAsArray=%s',
+    (pathAsArray) => {
+      const payloadSize = 100_000;
+      const makePayload = (index: number) =>
+        String(index).padStart(4, '0') + 'x'.repeat(payloadSize - 4);
+      const initial = { payload: makePayload(0) };
+      const travels = createTravels(initial, {
+        maxHistory: 10,
+        patchesOptions: { pathAsArray },
+      });
+
+      travels.transaction(() => {
+        for (let index = 1; index <= 20; index += 1) {
+          travels.setState({ payload: makePayload(index) });
+        }
+      });
+
+      const patches = travels.getPatches();
+      expect(patches.patches[0]).toHaveLength(1);
+      expect(patches.inversePatches[0]).toHaveLength(1);
+      expect(JSON.stringify(travels.serialize()).length).toBeLessThan(400_000);
+
+      travels.back();
+      expect(travels.getState()).toEqual(initial);
+      travels.forward();
+      expect(travels.getState()).toEqual({ payload: makePayload(20) });
+    }
+  );
 });

@@ -587,11 +587,6 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
             {
               "op": "replace",
               "path": [],
-              "value": 7,
-            },
-            {
-              "op": "replace",
-              "path": [],
               "value": 5,
             },
           ],
@@ -612,11 +607,6 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
             },
           ],
           [
-            {
-              "op": "replace",
-              "path": [],
-              "value": 7,
-            },
             {
               "op": "replace",
               "path": [],
@@ -654,11 +644,6 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
             {
               "op": "replace",
               "path": [],
-              "value": 7,
-            },
-            {
-              "op": "replace",
-              "path": [],
               "value": 5,
             },
           ],
@@ -679,11 +664,6 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
             },
           ],
           [
-            {
-              "op": "replace",
-              "path": [],
-              "value": 7,
-            },
             {
               "op": "replace",
               "path": [],
