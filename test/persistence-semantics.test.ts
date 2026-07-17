@@ -185,6 +185,35 @@ describe('persisted history semantic validation', () => {
     );
   });
 
+  test('rejects opaque internal-slot values that cannot be compared safely', () => {
+    const buffer = (value: number) => Uint8Array.of(value).buffer;
+
+    expect(() =>
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { data: buffer(2) },
+          position: 1,
+          patches: {
+            patches: [
+              [{ op: 'replace', path: ['data'], value: buffer(9) }],
+            ],
+            inversePatches: [
+              [{ op: 'replace', path: ['data'], value: buffer(0) }],
+            ],
+          },
+        },
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>
       Travels.deserialize(

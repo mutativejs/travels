@@ -349,7 +349,8 @@ const areReplayStatesEqual = (
     return knownLeft === leftObject;
   }
 
-  if (Object.getPrototypeOf(leftObject) !== Object.getPrototypeOf(rightObject)) {
+  const prototype = Object.getPrototypeOf(leftObject);
+  if (prototype !== Object.getPrototypeOf(rightObject)) {
     return false;
   }
 
@@ -432,13 +433,12 @@ const areReplayStatesEqual = (
     );
   }
 
+  // Unknown prototypes can hide observable data in internal slots. Treat them
+  // as unverifiable instead of accepting two empty enumerable surfaces.
   if (
-    left instanceof WeakMap ||
-    right instanceof WeakMap ||
-    left instanceof WeakSet ||
-    right instanceof WeakSet ||
-    left instanceof Promise ||
-    right instanceof Promise
+    !Array.isArray(left) &&
+    prototype !== Object.prototype &&
+    prototype !== null
   ) {
     return false;
   }
