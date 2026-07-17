@@ -107,9 +107,9 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialPatches?: TravelPatches<P>;
   initialMetadata?: Array<TravelMetadata | undefined>;
   trackingPauseDepth: number;
-  branchDiscardEffects: BranchDiscardEffect<P>[];
-  hasObserverEffects: boolean;
-  needsCompatibilityCheck: boolean;
+  branchDiscards: BranchDiscardEffect<P>[];
+  hasEffects: boolean;
+  needsStateCheck: boolean;
 };
 
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
@@ -492,12 +492,14 @@ export class Travels<
   private stateCompatibilityWarningKeys = new Set<string>();
   private trackingPauseDepth = 0;
   private transactionDepth = 0;
-  private transactionMetadata?: TravelMetadata;
-  private transactionBranchDiscardEffects: BranchDiscardEffect<P>[] = [];
-  private transactionVisibleEntryIds?: Set<object>;
-  private transactionHasObserverEffects = false;
-  private transactionNeedsCompatibilityCheck = false;
-  private isPublishingEffects = false;
+  private transactionMeta?: TravelMetadata;
+  private transactionBranchDiscards: BranchDiscardEffect<P>[] = [];
+  // Errors survive nested rollbacks but remain private until the root settles.
+  private transactionErrors?: TravelsError[];
+  private transactionEntryIds?: Set<object>;
+  private transactionHasEffects = false;
+  private transactionNeedsStateCheck = false;
+  private publishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
@@ -658,7 +660,7 @@ export class Travels<
 
   private checkStateCompatibilityAfterCommit(): void {
     if (this.transactionDepth > 0) {
-      this.transactionNeedsCompatibilityCheck = true;
+      this.transactionNeedsStateCheck = true;
       return;
     }
 
@@ -755,7 +757,7 @@ export class Travels<
   }
 
   private assertCanMutate(api: string): void {
-    if (this.isPublishingEffects) {
+    if (this.publishingEffects) {
       throw new Error(
         `Travels: ${api} cannot be called while observers are being notified.`
       );
@@ -763,16 +765,16 @@ export class Travels<
   }
 
   private publishEffects(effect: () => void): void {
-    const isRootPublication = !this.isPublishingEffects;
+    const isRootPublication = !this.publishingEffects;
     if (isRootPublication) {
-      this.isPublishingEffects = true;
+      this.publishingEffects = true;
     }
 
     try {
       effect();
     } finally {
       if (isRootPublication) {
-        this.isPublishingEffects = false;
+        this.publishingEffects = false;
       }
     }
   }
@@ -794,7 +796,7 @@ export class Travels<
       }
     };
 
-    if (this.isPublishingEffects) {
+    if (this.publishingEffects) {
       notify();
     } else {
       this.publishEffects(notify);
@@ -886,7 +888,7 @@ export class Travels<
 
   private publishBranchDiscard(effect: BranchDiscardEffect<P>): void {
     if (this.transactionDepth > 0) {
-      this.transactionBranchDiscardEffects.push(effect);
+      this.transactionBranchDiscards.push(effect);
       return;
     }
 
@@ -894,13 +896,13 @@ export class Travels<
   }
 
   private flushTransactionBranchDiscards(): void {
-    if (!this.transactionBranchDiscardEffects.length) {
+    if (!this.transactionBranchDiscards.length) {
       return;
     }
 
-    const queuedEffects = this.transactionBranchDiscardEffects;
-    this.transactionBranchDiscardEffects = [];
-    const visibleEntryIds = this.transactionVisibleEntryIds;
+    const queuedEffects = this.transactionBranchDiscards;
+    this.transactionBranchDiscards = [];
+    const visibleEntryIds = this.transactionEntryIds;
     const effects = visibleEntryIds
       ? queuedEffects.flatMap((effect) =>
           filterBranchDiscardEffect(effect, (entryId) =>
@@ -922,7 +924,7 @@ export class Travels<
     branchDiscard?: BranchDiscardEffect<P>
   ): void {
     if (this.transactionDepth > 0) {
-      this.transactionHasObserverEffects = true;
+      this.transactionHasEffects = true;
       if (branchDiscard) {
         this.publishBranchDiscard(branchDiscard);
       }
@@ -970,10 +972,14 @@ export class Travels<
         ? error
         : new TravelsError(code, `Travels: ${code}`, { cause: error });
     if (this.onError) {
-      const onError = this.onError;
-      this.publishEffects(() => {
-        this.invokeObserver('onError', () => onError(travelsError));
-      });
+      if (this.transactionDepth > 0) {
+        (this.transactionErrors ??= []).push(travelsError);
+      } else {
+        const onError = this.onError;
+        this.publishEffects(() => {
+          this.invokeObserver('onError', () => onError(travelsError));
+        });
+      }
     }
     return travelsError;
   }
@@ -1119,9 +1125,9 @@ export class Travels<
         ? cloneTravelMetadataList(this.initialMetadata)
         : undefined,
       trackingPauseDepth: this.trackingPauseDepth,
-      branchDiscardEffects: this.transactionBranchDiscardEffects.slice(),
-      hasObserverEffects: this.transactionHasObserverEffects,
-      needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
+      branchDiscards: this.transactionBranchDiscards.slice(),
+      hasEffects: this.transactionHasEffects,
+      needsStateCheck: this.transactionNeedsStateCheck,
     };
   }
 
@@ -1143,10 +1149,9 @@ export class Travels<
       ? cloneTravelMetadataList(snapshot.initialMetadata)
       : undefined;
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
-    this.transactionBranchDiscardEffects =
-      snapshot.branchDiscardEffects.slice();
-    this.transactionHasObserverEffects = snapshot.hasObserverEffects;
-    this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
+    this.transactionBranchDiscards = snapshot.branchDiscards.slice();
+    this.transactionHasEffects = snapshot.hasEffects;
+    this.transactionNeedsStateCheck = snapshot.needsStateCheck;
 
     this.invalidateHistoryCache();
   }
@@ -1444,58 +1449,61 @@ export class Travels<
       );
     }
 
-    const previousMetadata = this.transactionMetadata;
+    const previousMetadata = this.transactionMeta;
     const isRootTransaction = this.transactionDepth === 0;
     const transactionSnapshot = this.captureTransactionSnapshot();
-    let failure: { error: unknown } | undefined;
+    let failed = false;
 
     this.transactionDepth += 1;
     if (isRootTransaction) {
-      this.transactionMetadata = metadata;
+      this.transactionMeta = metadata;
+      this.transactionErrors = undefined;
       const visiblePatches = this.getAllPatches();
-      this.transactionVisibleEntryIds = new Set(
+      this.transactionEntryIds = new Set(
         visiblePatches.patches.map(getHistoryEntryIdentity)
       );
-      this.transactionHasObserverEffects = false;
-      this.transactionNeedsCompatibilityCheck = false;
-    } else if (!this.transactionMetadata && metadata) {
-      this.transactionMetadata = metadata;
+      this.transactionHasEffects = false;
+      this.transactionNeedsStateCheck = false;
+    } else if (!this.transactionMeta && metadata) {
+      this.transactionMeta = metadata;
     }
     try {
       assertSynchronousResult(fn(), 'transaction');
     } catch (error) {
-      failure = { error };
+      failed = true;
       this.restoreTransactionSnapshot(transactionSnapshot);
-      this.transactionMetadata = previousMetadata;
+      this.transactionMeta = previousMetadata;
+      throw this.reportError('TRANSACTION_FAILED', error);
     } finally {
       this.transactionDepth -= 1;
 
       if (this.transactionDepth === 0) {
-        if (!failure) {
+        if (!failed) {
           const committed = this.archivePending(
-            this.transactionMetadata,
+            this.transactionMeta,
             false
           );
-          const shouldPublish = committed || this.transactionHasObserverEffects;
-          if (this.transactionNeedsCompatibilityCheck) {
+          const shouldPublish = committed || this.transactionHasEffects;
+          if (this.transactionNeedsStateCheck) {
             this.warnAboutStateCompatibility(this.state);
           }
           if (shouldPublish) {
-            this.emitChange('transaction', this.transactionMetadata);
+            this.emitChange('transaction', this.transactionMeta);
           }
           this.flushTransactionBranchDiscards();
         }
-        this.transactionVisibleEntryIds = undefined;
-        this.transactionMetadata = previousMetadata;
-        this.transactionHasObserverEffects =
-          transactionSnapshot.hasObserverEffects;
-        this.transactionNeedsCompatibilityCheck =
-          transactionSnapshot.needsCompatibilityCheck;
+        this.transactionEntryIds = undefined;
+        this.transactionMeta = previousMetadata;
+        this.transactionHasEffects = transactionSnapshot.hasEffects;
+        this.transactionNeedsStateCheck = transactionSnapshot.needsStateCheck;
+        const errors = this.transactionErrors;
+        this.transactionErrors = undefined;
+        if (errors) {
+          for (const error of errors) {
+            this.reportError('TRANSACTION_FAILED', error);
+          }
+        }
       }
-    }
-
-    if (failure) {
-      throw this.reportError('TRANSACTION_FAILED', failure.error);
     }
   }
 
@@ -1811,8 +1819,8 @@ export class Travels<
       const restoredEntryIds = new Set(
         this.allPatches.patches.map(getHistoryEntryIdentity)
       );
-      this.transactionBranchDiscardEffects =
-        this.transactionBranchDiscardEffects.flatMap((effect) =>
+      this.transactionBranchDiscards = this.transactionBranchDiscards.flatMap(
+        (effect) =>
           filterBranchDiscardEffect(
             effect,
             (entryId) => !restoredEntryIds.has(entryId)

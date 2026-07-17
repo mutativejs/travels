@@ -325,6 +325,8 @@ Transaction callbacks must also be synchronous. A rejected asynchronous callback
 Nested changes remain private until the root transaction commits, so listeners
 and devtools never observe states that are later rolled back. Branch-discard
 hooks also omit redo entries created only by provisional transaction steps.
+Nested transaction errors are likewise deferred until the root transaction
+commits or rolls back, so `onError` always observes the settled root state.
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 

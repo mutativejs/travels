@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - Preserve inverse patch operation order for compound history entries and compose pending manual changes without rediffing the full state.
 - Publish listeners, devtools, and branch-discard hooks only after their transitions commit; failed transactions no longer leak provisional observer effects.
+- Defer nested transaction `onError` hooks until the root transaction commits or rolls back.
 - Report rejected listener, devtools, and lifecycle-hook promises through `onObserverError` instead of leaving unhandled rejections.
 - Keep `onBranchDiscard` aligned with the committed root-transaction timeline, including reset, rebase, nested rollback, and branches created only by provisional transaction steps.
 - Compare array length and hole topology during semantic replay, and avoid freezing caller-owned snapshots while validating histories recorded with auto-freeze.

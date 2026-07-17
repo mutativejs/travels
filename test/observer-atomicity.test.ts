@@ -191,6 +191,75 @@ describe('observer publication atomicity', () => {
     expect(eventTypes).toEqual(['transaction']);
   });
 
+  test('defers nested transaction errors until the root transaction commits', () => {
+    const snapshots: Array<{ count: number; position: number }> = [];
+    let travels: ReturnType<typeof createTravels<{ count: number }>>;
+    travels = createTravels(
+      { count: 0 },
+      {
+        onError() {
+          snapshots.push({
+            count: travels.getState().count,
+            position: travels.getPosition(),
+          });
+        },
+      }
+    );
+
+    travels.transaction(() => {
+      travels.setState({ count: 1 });
+      try {
+        travels.transaction(() => {
+          travels.setState({ count: 2 });
+          throw new Error('nested rollback');
+        });
+      } catch {
+        // Keep the root transaction alive.
+      }
+      expect(snapshots).toEqual([]);
+      travels.setState({ count: 3 });
+    });
+
+    expect(snapshots).toEqual([{ count: 3, position: 1 }]);
+  });
+
+  test('publishes nested transaction errors only after root rollback', () => {
+    const snapshots: Array<{ count: number; position: number }> = [];
+    let travels: ReturnType<typeof createTravels<{ count: number }>>;
+    travels = createTravels(
+      { count: 0 },
+      {
+        onError() {
+          snapshots.push({
+            count: travels.getState().count,
+            position: travels.getPosition(),
+          });
+        },
+      }
+    );
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.setState({ count: 1 });
+        try {
+          travels.transaction(() => {
+            travels.setState({ count: 2 });
+            throw new Error('nested rollback');
+          });
+        } catch {
+          // The root transaction later fails independently.
+        }
+        expect(snapshots).toEqual([]);
+        throw new Error('root rollback');
+      })
+    ).toThrow(TravelsError);
+
+    expect(snapshots).toEqual([
+      { count: 0, position: 0 },
+      { count: 0, position: 0 },
+    ]);
+  });
+
   test('publishes committed non-archive transaction changes once', () => {
     const listener = vi.fn();
     const eventTypes: string[] = [];

@@ -186,7 +186,8 @@ export type TravelsOptions<
    */
   warnOnUnsupportedState?: boolean;
   /**
-   * Called when Travels wraps a thrown core operation error.
+   * Called when Travels wraps a thrown core operation error. Errors raised by
+   * nested transactions are published after the root transaction settles.
    */
   onError?: (error: Error) => void;
   /**
