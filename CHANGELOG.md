@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Compare array length and hole topology on a detached semantic replay graph, preventing opaque values from mutating caller-owned snapshots or hiding irreversible patches through shared identity.
 - Reject semantic comparisons for unsupported prototypes, built-in subclasses, changed property descriptors or object extensibility, non-durable own-property shapes, and RegExp cursors whose observable state cannot be preserved safely.
 - Keep semantic state-key comparison linear so wide untrusted snapshots cannot trigger quadratic replay validation.
+- Scan restored compatibility data once and inspect only the newly committed history entry on ordinary updates, avoiding quadratic development-mode diagnostics as retained history grows.
 - Diagnose null-prototype objects whose nested writes are not drafted into undoable history by default.
 - Diagnose non-durable values in current state, retained forward/inverse patch operations, and history metadata before JSON persistence can reject or silently change the complete snapshot.
 - Restore unverified storage and cross-tab snapshots with semantic validation in the official persistence examples, including fallback E2E coverage for unreplayable histories.

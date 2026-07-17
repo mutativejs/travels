@@ -491,6 +491,7 @@ export class Travels<
   >;
   private transactionHasEffects = false;
   private transactionNeedsCompatibilityCheck = false;
+  private transactionRequiresFullCompatibilityScan?: boolean;
   private publishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
@@ -619,7 +620,9 @@ export class Travels<
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
 
-    this.warnAboutPersistenceCompatibility();
+    if (process.env.NODE_ENV !== 'production') {
+      this.warnAboutPersistenceCompatibility();
+    }
   }
 
   private warnAboutCompatibility(
@@ -660,14 +663,19 @@ export class Travels<
     });
   }
 
-  private warnAboutPatchCompatibility(patches: TravelPatches<P>): void {
+  private warnAboutPatchCompatibility(
+    patches: TravelPatches<P>,
+    entryOffset = 0
+  ): void {
     for (const direction of ['patches', 'inversePatches'] as const) {
       patches[direction].forEach((patchGroup, entryIndex) => {
         patchGroup.forEach((operation, operationIndex) => {
           this.warnAboutCompatibility(
             'patch',
             operation,
-            `$.patches.${direction}[${entryIndex}][${operationIndex}]`
+            `$.patches.${direction}[${
+              entryOffset + entryIndex
+            }][${operationIndex}]`
           );
         });
       });
@@ -708,13 +716,34 @@ export class Travels<
     }
   }
 
-  private checkPersistenceCompatibilityAfterCommit(): void {
+  private checkPersistenceCompatibilityAfterCommit(
+    patches?: Patches<P>,
+    inversePatches?: Patches<P>,
+    metadata?: TravelMetadata,
+    entryIndex = 0
+  ): void {
+    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
+      return;
+    }
+
     if (this.transactionDepth > 0) {
       this.transactionNeedsCompatibilityCheck = true;
       return;
     }
 
-    this.warnAboutPersistenceCompatibility();
+    this.warnAboutCompatibility('state', this.state);
+    if (this.maxHistory === 0) {
+      return;
+    }
+    if (patches && inversePatches) {
+      this.warnAboutPatchCompatibility(
+        { patches: [patches], inversePatches: [inversePatches] },
+        entryIndex
+      );
+    }
+    if (metadata !== undefined) {
+      this.warnAboutCompatibility('metadata', metadata);
+    }
   }
 
   private normalizeInitialHistory(
@@ -1361,7 +1390,9 @@ export class Travels<
     if (this.trackingPauseDepth > 0) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
-      this.checkPersistenceCompatibilityAfterCommit();
+      if (process.env.NODE_ENV !== 'production') {
+        this.checkPersistenceCompatibilityAfterCommit();
+      }
       this.emitChange('replaceStateWithoutHistory', metadata);
       return;
     }
@@ -1415,7 +1446,15 @@ export class Travels<
     }
 
     this.invalidateHistoryCache();
-    this.checkPersistenceCompatibilityAfterCommit();
+    if (process.env.NODE_ENV !== 'production') {
+      const archivedImmediately = this.isAutoArchiving();
+      this.checkPersistenceCompatibilityAfterCommit(
+        archivedImmediately ? patches : undefined,
+        archivedImmediately ? inversePatches : undefined,
+        storedMetadata,
+        Math.max(0, this.allPatches.patches.length - 1)
+      );
+    }
     this.emitChange('setState', metadata, branchDiscard);
   }
 
@@ -1427,6 +1466,7 @@ export class Travels<
     publishChange = true
   ): boolean {
     if (!this.tempPatches.patches.length) return false;
+    const archivedInsideTransaction = this.transactionDepth > 0;
     const archiveMetadata =
       metadata === undefined ? this.tempMetadata : metadata;
     const storedMetadata = cloneTravelMetadata(archiveMetadata);
@@ -1445,7 +1485,21 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
-    this.checkPersistenceCompatibilityAfterCommit();
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      archivedInsideTransaction &&
+      this.warnOnUnsupportedState
+    ) {
+      this.transactionRequiresFullCompatibilityScan = true;
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      this.checkPersistenceCompatibilityAfterCommit(
+        pendingArchive.patches,
+        pendingArchive.inversePatches,
+        storedMetadata,
+        Math.max(0, this.allPatches.patches.length - 1)
+      );
+    }
     if (publishChange) {
       this.emitChange('archive', archiveMetadata);
     }
@@ -1518,6 +1572,9 @@ export class Travels<
       }
       this.transactionHasEffects = false;
       this.transactionNeedsCompatibilityCheck = false;
+      if (process.env.NODE_ENV !== 'production') {
+        this.transactionRequiresFullCompatibilityScan = false;
+      }
     } else if (!this.transactionMeta && metadata) {
       this.transactionMeta = metadata;
     }
@@ -1535,7 +1592,11 @@ export class Travels<
         if (!failed) {
           const committed = this.archivePending(this.transactionMeta, false);
           const shouldPublish = committed || this.transactionHasEffects;
-          if (this.transactionNeedsCompatibilityCheck && !committed) {
+          if (
+            process.env.NODE_ENV !== 'production' &&
+            this.transactionNeedsCompatibilityCheck &&
+            (!committed || this.transactionRequiresFullCompatibilityScan)
+          ) {
             this.warnAboutPersistenceCompatibility();
           }
           if (shouldPublish) {
@@ -1548,6 +1609,9 @@ export class Travels<
         this.transactionHasEffects = transactionSnapshot.hasEffects;
         this.transactionNeedsCompatibilityCheck =
           transactionSnapshot.needsCompatibilityCheck;
+        if (process.env.NODE_ENV !== 'production') {
+          this.transactionRequiresFullCompatibilityScan = false;
+        }
         const errors = this.transactionErrors;
         this.transactionErrors = undefined;
         if (errors) {
@@ -1957,7 +2021,13 @@ export class Travels<
    * Serialize the current state, patch history, and position for persistence.
    */
   public serialize(): TravelsSerializedHistory<S, P> {
-    this.checkPersistenceCompatibilityAfterCommit();
+    if (process.env.NODE_ENV !== 'production') {
+      if (this.transactionDepth > 0) {
+        this.checkPersistenceCompatibilityAfterCommit();
+      } else {
+        this.warnAboutPersistenceCompatibility();
+      }
+    }
     return {
       version: TRAVELS_HISTORY_SCHEMA_VERSION,
       state: cloneInitialSnapshot(this.state),

@@ -6,6 +6,7 @@ import {
   TravelsError,
   type JsonValue,
   type PatchableState,
+  type TravelMetadata,
 } from '../src/index';
 
 describe('State compatibility warnings', () => {
@@ -455,6 +456,98 @@ describe('State compatibility warnings', () => {
       });
     });
 
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('patch compatibility warning')
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  test('does not rescan retained patch payloads or metadata after later commits', () => {
+    class RuntimeOnlyValue {
+      callback = () => undefined;
+    }
+
+    const retainedPatchValue = new RuntimeOnlyValue();
+    const retainedMetadata = new RuntimeOnlyValue();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const prototypeSpy = vi.spyOn(Object, 'getPrototypeOf');
+    const travels = createTravels<{
+      count: number;
+      value: RuntimeOnlyValue | null;
+    }>({ count: 0, value: null }, { maxHistory: 100 });
+
+    travels.setState(
+      { count: 0, value: retainedPatchValue },
+      retainedMetadata as unknown as TravelMetadata
+    );
+    travels.setState({ count: 0, value: null });
+
+    const countInspections = (value: object) =>
+      prototypeSpy.mock.calls.filter(([candidate]) => candidate === value)
+        .length;
+    const patchInspections = countInspections(retainedPatchValue);
+    const metadataInspections = countInspections(retainedMetadata);
+
+    for (let count = 1; count <= 20; count += 1) {
+      travels.setState({ count, value: null });
+    }
+
+    const laterPatchInspections = countInspections(retainedPatchValue);
+    const laterMetadataInspections = countInspections(retainedMetadata);
+    prototypeSpy.mockRestore();
+    warnSpy.mockRestore();
+
+    expect(patchInspections).toBeGreaterThan(0);
+    expect(metadataInspections).toBeGreaterThan(0);
+    expect(laterPatchInspections).toBe(patchInspections);
+    expect(laterMetadataInspections).toBe(metadataInspections);
+  });
+
+  test('serialize rechecks retained payloads changed through shared references', () => {
+    const payload = { nested: 0 as number | bigint };
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels<{ payload: typeof payload | null }>({
+      payload: null,
+    });
+
+    travels.setState({ payload });
+    travels.setState({ payload: null });
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    payload.nested = 1n;
+
+    expect(() => JSON.stringify(travels.serialize())).toThrow(TypeError);
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('patch compatibility warning')
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  test('checks entries explicitly archived before a transaction root commits', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels(
+      { marker: 0, value: null as bigint | null },
+      { autoArchive: false }
+    );
+
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.value = 1n;
+      });
+      travels.setState((draft) => {
+        draft.value = null;
+      });
+      travels.archive();
+      travels.setState((draft) => {
+        draft.marker = 1;
+      });
+    });
+
+    expect(travels.getPatches().patches).toHaveLength(2);
     expect(warnSpy).toHaveBeenCalledOnce();
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('patch compatibility warning')
