@@ -546,7 +546,9 @@ function handleSave() {
 
 ## State Requirements and Compatibility
 
-Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Array holes, custom properties, and custom prototypes are runtime-only representations: use explicit `null` entries, plain arrays, and surrounding objects before persisting history.
+Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom prototypes are runtime-only representations: normalize them before persisting history.
+
+When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
 | Value                                   | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                   |
 | --------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | -------------------------------- |

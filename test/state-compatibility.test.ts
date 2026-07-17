@@ -134,6 +134,79 @@ describe('State compatibility warnings', () => {
     ).toBeUndefined();
   });
 
+  test('flags property descriptors and integrity levels lost by persistence', () => {
+    const hidden = {} as { value: number };
+    Object.defineProperty(hidden, 'value', { value: 1 });
+    const readonly = {} as { value: number };
+    Object.defineProperty(readonly, 'value', {
+      configurable: true,
+      enumerable: true,
+      value: 1,
+      writable: false,
+    });
+    const fixedLength = [1];
+    Object.defineProperty(fixedLength, 'length', { writable: false });
+    const readonlyIndex = [1];
+    Object.defineProperty(readonlyIndex, '0', { writable: false });
+
+    expect(
+      [hidden, readonly, Object.preventExtensions({ value: 1 })].map(
+        (value) => findStateCompatibilityIssues(value)[0]?.code
+      )
+    ).toEqual(['OBJECT_SHAPE', 'OBJECT_SHAPE', 'OBJECT_SHAPE']);
+    expect(
+      [fixedLength, readonlyIndex, Object.preventExtensions([1])].map(
+        (value) => findStateCompatibilityIssues(value)[0]?.code
+      )
+    ).toEqual(['ARRAY_SHAPE', 'ARRAY_SHAPE', 'ARRAY_SHAPE']);
+  });
+
+  test('diagnoses accessors without invoking them', () => {
+    const objectGetter = vi.fn(() => {
+      throw new Error('object getter must not run');
+    });
+    const arrayGetter = vi.fn(() => {
+      throw new Error('array getter must not run');
+    });
+    const object = {} as { value: unknown };
+    Object.defineProperty(object, 'value', {
+      configurable: true,
+      enumerable: true,
+      get: objectGetter,
+    });
+    const array: unknown[] = [];
+    Object.defineProperty(array, '0', {
+      configurable: true,
+      enumerable: true,
+      get: arrayGetter,
+    });
+
+    expect(findStateCompatibilityIssues({ object, array })).toEqual([
+      expect.objectContaining({ code: 'OBJECT_SHAPE', path: '$.object' }),
+      expect.objectContaining({ code: 'ARRAY_SHAPE', path: '$.array' }),
+    ]);
+    expect(objectGetter).not.toHaveBeenCalled();
+    expect(arrayGetter).not.toHaveBeenCalled();
+  });
+
+  test('allows intentional auto-frozen durable containers', () => {
+    const frozen = Object.freeze({ items: Object.freeze([1]) });
+    expect(
+      findStateCompatibilityIssues(frozen).map((issue) => issue.code)
+    ).toEqual(['OBJECT_SHAPE', 'ARRAY_SHAPE']);
+    expect(findStateCompatibilityIssues(frozen, { allowFrozen: true })).toEqual(
+      []
+    );
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ items: [1] }, { enableAutoFreeze: true });
+    travels.setState((draft) => {
+      draft.items[0] = 2;
+    });
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
   test('createTravels warns once per incompatible state path in development', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -150,7 +223,7 @@ describe('State compatibility warnings', () => {
     expect(
       warnings.filter((message) => message.includes('$.createdAt'))
     ).toHaveLength(1);
-    expect(warnings[0]).toContain('Date values can be cloned');
+    expect(warnings[0]).toContain('timestamp or ISO string');
 
     warnSpy.mockRestore();
   });

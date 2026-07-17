@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Add opt-in persisted-history semantic validation with `validation: 'semantic'`, configurable Mutative `strict`/`mark` replay options, and `INVALID_HISTORY` diagnostics that identify the failing entry and replay direction.
-- Add `ARRAY_SHAPE` state-compatibility diagnostics and a dedicated structural/semantic restore benchmark guard.
+- Add `ARRAY_SHAPE` and `OBJECT_SHAPE` state-compatibility diagnostics and a dedicated structural/semantic restore benchmark guard; compatibility scans inspect descriptors without invoking accessors and recognize intentional auto-freeze output.
 
 ### Fixed
 

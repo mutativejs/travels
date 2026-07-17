@@ -630,6 +630,7 @@ export class Travels<
     this.publishEffects(() => {
       try {
         const issues = findStateCompatibilityIssues(state, {
+          allowFrozen: this.options.enableAutoFreeze === true,
           mutable: this.mutable,
         });
 

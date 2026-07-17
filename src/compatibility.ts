@@ -1,3 +1,5 @@
+import { isArrayIndex } from './utils.js';
+
 export type StateCompatibilityIssueCode =
   | 'CIRCULAR_REFERENCE'
   | 'DATE'
@@ -7,6 +9,7 @@ export type StateCompatibilityIssueCode =
   | 'MAP_SET_MUTABLE'
   | 'MAP_SET_PERSISTENCE'
   | 'ARRAY_SHAPE'
+  | 'OBJECT_SHAPE'
   | 'WEAK_COLLECTION'
   | 'SYMBOL'
   | 'UNDEFINED';
@@ -19,6 +22,7 @@ export type StateCompatibilityIssue = {
 
 type CompatibilityOptions = {
   mutable?: boolean;
+  allowFrozen?: boolean;
   maxIssues?: number;
 };
 
@@ -50,16 +54,57 @@ const isPlainObjectOrNullProto = (value: object): boolean => {
   return proto === Object.prototype || proto === null;
 };
 
-const hasNonDurableArrayShape = (value: unknown[]): boolean => {
-  const keys = Object.keys(value);
+type DataPropertyDescriptor = PropertyDescriptor & { value: unknown };
+type PropertyDescriptors = Record<PropertyKey, PropertyDescriptor>;
 
-  // Dense array keys are ordered indices. The only additional own key is the
-  // built-in non-enumerable `length`; snapshot cloning can drop anything else.
+const isDataPropertyDescriptor = (
+  descriptor: PropertyDescriptor | undefined
+): descriptor is DataPropertyDescriptor =>
+  descriptor !== undefined && 'value' in descriptor;
+
+const isDurableDataProperty = (
+  descriptor: PropertyDescriptor | undefined,
+  frozen: boolean
+): descriptor is DataPropertyDescriptor =>
+  isDataPropertyDescriptor(descriptor) &&
+  !!descriptor.enumerable &&
+  (frozen || (!!descriptor.writable && !!descriptor.configurable));
+
+const hasNonDurableArrayShape = (
+  value: unknown[],
+  descriptors: PropertyDescriptors,
+  keys: PropertyKey[],
+  allowFrozen: boolean
+): boolean => {
+  const frozen = allowFrozen && Object.isFrozen(value);
   return (
     Object.getPrototypeOf(value) !== Array.prototype ||
-    keys.length !== value.length ||
-    keys.some((key, index) => key !== String(index)) ||
-    Reflect.ownKeys(value).length !== keys.length + 1
+    (!frozen && !Object.isExtensible(value)) ||
+    keys.length !== value.length + 1 ||
+    (!frozen && !descriptors.length.writable) ||
+    keys.some(
+      (key) =>
+        key !== 'length' &&
+        (!isArrayIndex(key, value.length) ||
+          !isDurableDataProperty(descriptors[key], frozen))
+    )
+  );
+};
+
+const hasNonDurableObjectShape = (
+  value: object,
+  descriptors: PropertyDescriptors,
+  keys: PropertyKey[],
+  allowFrozen: boolean
+): boolean => {
+  const frozen = allowFrozen && Object.isFrozen(value);
+  return (
+    (!frozen && !Object.isExtensible(value)) ||
+    keys.some(
+      (key) =>
+        typeof key === 'string' &&
+        !isDurableDataProperty(descriptors[key], frozen)
+    )
   );
 };
 
@@ -92,29 +137,17 @@ export const findStateCompatibilityIssues = (
     }
 
     if (typeof current === 'undefined') {
-      addIssue(
-        'UNDEFINED',
-        path,
-        'undefined is removed by JSON persistence; use null for intentional empty values.'
-      );
+      addIssue('UNDEFINED', path, 'use null; undefined is not durable state.');
       return;
     }
 
     if (typeof current === 'function') {
-      addIssue(
-        'FUNCTION',
-        path,
-        'functions cannot be patched or persisted as state data.'
-      );
+      addIssue('FUNCTION', path, 'functions are not durable state.');
       return;
     }
 
     if (typeof current === 'symbol') {
-      addIssue(
-        'SYMBOL',
-        path,
-        'symbols cannot be represented in JSON Patch persistence.'
-      );
+      addIssue('SYMBOL', path, 'symbols are not durable state.');
       return;
     }
 
@@ -126,7 +159,7 @@ export const findStateCompatibilityIssues = (
       addIssue(
         'CIRCULAR_REFERENCE',
         path,
-        'circular references are not supported by JSON persistence.'
+        'circular references are not durable state.'
       );
       return;
     }
@@ -134,11 +167,7 @@ export const findStateCompatibilityIssues = (
     seen.add(current);
 
     if (current instanceof Date) {
-      addIssue(
-        'DATE',
-        path,
-        'Date values can be cloned, but JSON persistence restores them as strings; store timestamps or ISO strings explicitly.'
-      );
+      addIssue('DATE', path, 'use a timestamp or ISO string for Date.');
       return;
     }
 
@@ -146,7 +175,7 @@ export const findStateCompatibilityIssues = (
       addIssue(
         'WEAK_COLLECTION',
         path,
-        'WeakMap and WeakSet cannot be inspected, patched, or persisted safely.'
+        'WeakMap and WeakSet are not durable state.'
       );
       return;
     }
@@ -156,8 +185,8 @@ export const findStateCompatibilityIssues = (
         options.mutable ? 'MAP_SET_MUTABLE' : 'MAP_SET_PERSISTENCE',
         path,
         options.mutable
-          ? 'Map is not supported in mutable mode; store entries as arrays or use immutable mode.'
-          : 'Map works in immutable runtime mode, but JSON persistence requires a custom codec.'
+          ? 'Map is unsupported in mutable mode; use entries or immutable mode.'
+          : 'Map persistence requires a codec.'
       );
       current.forEach((entryValue, entryKey) => {
         visit(entryKey, path.concat('<map-key>'));
@@ -171,8 +200,8 @@ export const findStateCompatibilityIssues = (
         options.mutable ? 'MAP_SET_MUTABLE' : 'MAP_SET_PERSISTENCE',
         path,
         options.mutable
-          ? 'Set is not supported in mutable mode; store values as arrays or use immutable mode.'
-          : 'Set works in immutable runtime mode, but JSON persistence requires a custom codec.'
+          ? 'Set is unsupported in mutable mode; use values or immutable mode.'
+          : 'Set persistence requires a codec.'
       );
       let index = 0;
       current.forEach((entryValue) => {
@@ -183,23 +212,39 @@ export const findStateCompatibilityIssues = (
     }
 
     if (isDomNode(current)) {
-      addIssue(
-        'DOM_NODE',
-        path,
-        'DOM nodes and refs should be stored outside Travels state.'
-      );
+      addIssue('DOM_NODE', path, 'DOM nodes and refs are not durable state.');
       return;
     }
 
     if (Array.isArray(current)) {
-      if (hasNonDurableArrayShape(current)) {
+      const descriptors = Object.getOwnPropertyDescriptors(
+        current
+      ) as unknown as PropertyDescriptors;
+      const keys = Reflect.ownKeys(descriptors);
+      if (
+        hasNonDurableArrayShape(
+          current,
+          descriptors,
+          keys,
+          options.allowFrozen === true
+        )
+      ) {
         addIssue(
           'ARRAY_SHAPE',
           path,
-          'only plain dense arrays are durable; fill holes with null and move custom properties to objects.'
+          'use a plain dense array with standard data properties.'
         );
       }
-      current.forEach((item, index) => visit(item, path.concat(index)));
+
+      for (const key of keys) {
+        if (!isArrayIndex(key, current.length)) {
+          continue;
+        }
+        const descriptor = descriptors[key];
+        if (isDataPropertyDescriptor(descriptor)) {
+          visit(descriptor.value, path.concat(Number(key)));
+        }
+      }
       return;
     }
 
@@ -207,22 +252,40 @@ export const findStateCompatibilityIssues = (
       addIssue(
         'CLASS_INSTANCE',
         path,
-        'class instances and custom prototypes lose methods/prototypes during JSON persistence.'
+        'class instances and custom prototypes are not durable state.'
       );
       return;
     }
 
-    for (const key of Reflect.ownKeys(current)) {
+    const descriptors = Object.getOwnPropertyDescriptors(
+      current
+    ) as PropertyDescriptors;
+    const keys = Reflect.ownKeys(descriptors);
+    if (
+      hasNonDurableObjectShape(
+        current,
+        descriptors,
+        keys,
+        options.allowFrozen === true
+      )
+    ) {
+      addIssue(
+        'OBJECT_SHAPE',
+        path,
+        'use a plain object with standard data properties.'
+      );
+    }
+
+    for (const key of keys) {
       if (typeof key === 'symbol') {
-        addIssue(
-          'SYMBOL',
-          path,
-          'symbol keys cannot be represented in JSON Patch persistence.'
-        );
+        addIssue('SYMBOL', path, 'symbol keys are not durable state.');
         continue;
       }
 
-      visit((current as Record<string, unknown>)[key], path.concat(key));
+      const descriptor = descriptors[key];
+      if (isDataPropertyDescriptor(descriptor)) {
+        visit(descriptor.value, path.concat(key));
+      }
     }
   };
 
