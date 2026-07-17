@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
   Travels,
@@ -14,6 +14,32 @@ const emptySnapshot = <S>(state: S): TravelsSerializedHistory<S> => ({
 });
 
 describe('persisted history semantic validation', () => {
+  test('v1 accepts an internally consistent alternative past without provenance', () => {
+    const onError = vi.fn();
+    const fallback = emptySnapshot({ count: -1 });
+    const history = Travels.deserialize(
+      {
+        version: 1,
+        state: { count: 1 },
+        position: 1,
+        patches: {
+          patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+          inversePatches: [[{ op: 'replace', path: ['count'], value: 999 }]],
+        },
+      },
+      { fallback, onError }
+    );
+    const restored = createTravels(history.state, { history });
+
+    expect(onError).not.toHaveBeenCalled();
+    expect(history.state).toEqual({ count: 1 });
+
+    restored.back();
+    expect(restored.getState()).toEqual({ count: 999 });
+    restored.forward();
+    expect(restored.getState()).toEqual({ count: 1 });
+  });
+
   test('rejects an inverse patch that cannot be applied at the anchor state', () => {
     expect(() =>
       Travels.deserialize({

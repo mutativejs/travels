@@ -516,9 +516,46 @@ const history = Travels.deserialize<DocumentState>(stored, {
 });
 ```
 
+## Integrity and Provenance
+
+`Travels.deserialize(...)` verifies that a snapshot is structurally valid and
+that its history can replay consistently in both directions. It does not prove
+where the snapshot came from or that a reconstructed past is the history that
+was originally recorded. Version 1 has no independent trusted history anchor,
+so an internally reversible alternative history is accepted and does not
+trigger `fallback`. This boundary is covered by
+[`test/persistence-semantics.test.ts`](../test/persistence-semantics.test.ts).
+
+When integrity or provenance matters, verification MUST happen outside Travels
+and before deserialization:
+
+```text
+stored bytes -> verify envelope -> decode snapshot -> Travels.deserialize -> createTravels
+```
+
+If external verification fails, discard the unverified snapshot and restore a
+trusted default or last-known-good generation. Do not rely on `fallback` to
+discover an internally consistent alternative history.
+
+Choose the integrity mechanism according to the application's trust model:
+
+| Scenario                     | Host-application responsibility                                                                                                                                                                      |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ephemeral UI undo/redo       | Travels replay validation and a known-safe fallback are normally sufficient.                                                                                                                         |
+| Important offline drafts     | Checksum the exact encoded bytes, store a monotonic revision, and retain at least one previously verified generation. A checksum detects accidental corruption; it does not authenticate the writer. |
+| Multi-device synchronization | Bind document and tenant/user identity to a server-controlled revision, and resolve stale or conflicting snapshots before deserialization.                                                           |
+| Tamper-resistant storage     | Verify a server-held HMAC, digital signature, or authenticated-encryption tag. A key stored beside attacker-controlled browser data does not establish trust.                                        |
+| Audit-grade history          | Keep a server-authoritative append-only event log and a trusted signed chain head or equivalent commitment. Treat Travels snapshots as reconstructable client caches.                                |
+
+Hashing every patch, storing extra checkpoints, or embedding a hash chain in the
+same mutable blob adds redundancy but cannot by itself prove historical intent;
+an attacker that can rewrite the blob can rewrite those values too. The trusted
+checksum, signature, revision, or chain commitment must be controlled outside
+the snapshot it protects.
+
 Recovery rules:
 
-- Always provide `fallback` for browser startup paths. A corrupted local snapshot should not make the app unusable.
+- Always provide `fallback` for browser startup paths. It recovers detected parsing, migration, and validation failures; external integrity failures must select a trusted snapshot before deserialization.
 - Use `onError` to log the stable `TravelsPersistenceError.code`; `INVALID_HISTORY` also identifies the failing `entryIndex` and replay `direction`.
 - When recording uses custom Mutative `strict` or `mark` settings, pass the same values through `replayOptions` so semantic validation uses identical replay rules.
 - Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.
