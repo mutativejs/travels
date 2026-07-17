@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Add opt-in persisted-history semantic validation with `validation: 'semantic'`, configurable Mutative `strict`/`mark` replay options, and `INVALID_HISTORY` diagnostics that identify the failing entry and replay direction.
-- Add `SPARSE_ARRAY` state-compatibility diagnostics and a dedicated structural/semantic restore benchmark guard.
+- Add `ARRAY_SHAPE` state-compatibility diagnostics and a dedicated structural/semantic restore benchmark guard.
 
 ### Fixed
 
@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
-- Define dense arrays as the durable persistence contract; sparse array holes remain usable at runtime but cannot round-trip faithfully through JSON and JSON Patch.
+- Define plain dense arrays as the durable persistence contract; holes and custom array properties remain usable only where callers accept their runtime limitations.
 - Document the provenance boundary: replay validation can detect malformed or inconsistent patches, but only an external trusted checksum, signature, revision, or authoritative log can distinguish a self-consistent alternative history.
 
 ## [1.4.0] - 2026-07-12

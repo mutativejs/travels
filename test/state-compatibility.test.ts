@@ -34,7 +34,7 @@ describe('State compatibility warnings', () => {
         'CIRCULAR_REFERENCE',
         'DOM_NODE',
         'UNDEFINED',
-        'SPARSE_ARRAY',
+        'ARRAY_SHAPE',
         'MAP_SET_PERSISTENCE',
       ])
     );
@@ -43,7 +43,7 @@ describe('State compatibility warnings', () => {
   test('flags sparse arrays without treating explicit undefined as a hole', () => {
     expect(findStateCompatibilityIssues({ items: new Array(2) })).toEqual([
       expect.objectContaining({
-        code: 'SPARSE_ARRAY',
+        code: 'ARRAY_SHAPE',
         path: '$.items',
       }),
     ]);
@@ -64,7 +64,7 @@ describe('State compatibility warnings', () => {
 
     expect(findStateCompatibilityIssues({ items })).toEqual([
       expect.objectContaining({
-        code: 'SPARSE_ARRAY',
+        code: 'ARRAY_SHAPE',
         path: '$.items',
       }),
     ]);
@@ -75,6 +75,37 @@ describe('State compatibility warnings', () => {
     ).serialize();
     expect(0 in snapshot.state.items).toBe(false);
     expect(JSON.stringify(snapshot.state)).toBe('{"items":[null]}');
+  });
+
+  test('flags custom array properties lost by updates and persistence', () => {
+    const items = Object.assign(['a'], { note: 'keep' });
+    const hiddenItems = ['a'];
+    Object.defineProperty(hiddenItems, 'note', { value: 'keep' });
+    const symbolItems = ['a'];
+    Object.defineProperty(symbolItems, Symbol('note'), { value: 'keep' });
+
+    expect(findStateCompatibilityIssues({ items })).toEqual([
+      expect.objectContaining({
+        code: 'ARRAY_SHAPE',
+        path: '$.items',
+      }),
+    ]);
+    expect(
+      [hiddenItems, symbolItems].map(
+        (value) => findStateCompatibilityIssues(value)[0]?.code
+      )
+    ).toEqual(['ARRAY_SHAPE', 'ARRAY_SHAPE']);
+
+    const travels = createTravels({ items }, { warnOnUnsupportedState: false });
+    travels.setState((draft) => {
+      draft.items[0] = 'b';
+    });
+    expect(travels.getState().items.note).toBeUndefined();
+
+    travels.back();
+    expect(travels.getState().items).toEqual(['a']);
+    expect(travels.getState().items.note).toBeUndefined();
+    expect(JSON.stringify(travels.serialize().state)).toBe('{"items":["a"]}');
   });
 
   test('createTravels warns once per incompatible state path in development', () => {

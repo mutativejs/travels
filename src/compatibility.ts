@@ -6,7 +6,7 @@ export type StateCompatibilityIssueCode =
   | 'DOM_NODE'
   | 'MAP_SET_MUTABLE'
   | 'MAP_SET_PERSISTENCE'
-  | 'SPARSE_ARRAY'
+  | 'ARRAY_SHAPE'
   | 'WEAK_COLLECTION'
   | 'SYMBOL'
   | 'UNDEFINED';
@@ -50,24 +50,16 @@ const isPlainObjectOrNullProto = (value: object): boolean => {
   return proto === Object.prototype || proto === null;
 };
 
-const hasArrayHoles = (value: unknown[]): boolean => {
-  let presentIndices = 0;
+const hasNonDurableArrayShape = (value: unknown[]): boolean => {
+  const keys = Object.keys(value);
 
-  // Snapshot cloning can drop non-enumerable indices, so only normal enumerable
-  // array elements belong to the durable dense-array contract.
-  for (const key of Object.keys(value)) {
-    const index = Number(key);
-    if (
-      Number.isInteger(index) &&
-      index >= 0 &&
-      index < value.length &&
-      String(index) === key
-    ) {
-      presentIndices += 1;
-    }
-  }
-
-  return presentIndices !== value.length;
+  // Dense array keys are ordered indices. The only additional own key is the
+  // built-in non-enumerable `length`; snapshot cloning can drop anything else.
+  return (
+    keys.length !== value.length ||
+    keys.some((key, index) => key !== String(index)) ||
+    Reflect.ownKeys(value).length !== keys.length + 1
+  );
 };
 
 export const findStateCompatibilityIssues = (
@@ -199,11 +191,11 @@ export const findStateCompatibilityIssues = (
     }
 
     if (Array.isArray(current)) {
-      if (hasArrayHoles(current)) {
+      if (hasNonDurableArrayShape(current)) {
         addIssue(
-          'SPARSE_ARRAY',
+          'ARRAY_SHAPE',
           path,
-          'sparse array holes cannot be represented faithfully by JSON persistence; use null for empty slots.'
+          'only plain dense arrays are durable; fill holes with null and move custom properties to objects.'
         );
       }
       current.forEach((item, index) => visit(item, path.concat(index)));

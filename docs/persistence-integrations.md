@@ -72,7 +72,7 @@ function restoreTravels(raw: unknown) {
 }
 ```
 
-For durable persistence, keep Travels state JSON-compatible: plain objects, dense arrays, strings, numbers, booleans, and `null`. Sparse array holes are not preserved by JSON/JSON Patch; fill empty slots with `null`. IndexedDB can store richer values, but JSON Patch replay and cross-environment migrations are easiest when state uses the same durable subset.
+For durable persistence, keep Travels state JSON-compatible: plain objects, dense arrays, strings, numbers, booleans, and `null`. Array holes and custom properties are not preserved by JSON/JSON Patch; fill empty slots with `null` and store array metadata in surrounding objects. IndexedDB can store richer values, but JSON Patch replay and cross-environment migrations are easiest when state uses the same durable subset.
 
 The adapter examples below reuse the `DocumentState`, `restoreTravels(...)`, and `attachAutoSave(...)` definitions from this section.
 

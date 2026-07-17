@@ -546,13 +546,13 @@ function handleSave() {
 
 ## State Requirements and Compatibility
 
-Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Sparse array holes are a runtime-only representation: use explicit `null` entries before persisting history.
+Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Array holes and custom properties are runtime-only representations: use explicit `null` entries and store array metadata in surrounding objects before persisting history.
 
 | Value                                   | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                   |
 | --------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | -------------------------------- |
 | Plain object                            | Supported                          | Supported                                     | Supported                         | Preferred                        |
 | Dense array                             | Supported                          | Supported                                     | Supported                         | Preferred                        |
-| Sparse array                            | Limited runtime support            | Sparse root arrays have additional edge cases | Not preserved by JSON/JSON Patch  | Fill holes with `null`           |
+| Sparse or property-extended array       | Limited runtime support            | Array roots have additional shape limitations | Not preserved by JSON/JSON Patch  | Use a plain dense array          |
 | string, number, boolean, `null`         | Supported                          | Falls back to immutable for primitive roots   | Supported                         | Preferred                        |
 | `undefined`                             | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                       |
 | `Date`                                  | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string    |
