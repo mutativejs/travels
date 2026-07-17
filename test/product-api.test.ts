@@ -454,6 +454,230 @@ describe('Productized history API', () => {
     expect(callbackCanForward).toBe(false);
   });
 
+  test('does not expose redo branches created and discarded inside a transaction', () => {
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            event.discarded.map((entry) => entry.metadata?.label)
+          );
+        },
+      }
+    );
+
+    travels.setState({ count: 1 }, { label: 'one' });
+
+    travels.transaction(() => {
+      travels.setState({ count: 2 }, { label: 'transaction-only' });
+      travels.back();
+      travels.setState({ count: 3 }, { label: 'committed' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
+    expect(discardedLabels).toEqual([]);
+  });
+
+  test('reports only pre-transaction entries from a mixed discarded branch', () => {
+    const discarded: Array<{
+      position: number;
+      labels: Array<string | undefined>;
+    }> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onBranchDiscard(event) {
+          discarded.push({
+            position: event.position,
+            labels: event.discarded.map((entry) => entry.metadata?.label),
+          });
+        },
+      }
+    );
+
+    travels.setState({ count: 1 }, { label: 'one' });
+    travels.setState({ count: 2 }, { label: 'two' });
+    travels.setState({ count: 3 }, { label: 'three' });
+
+    travels.transaction(() => {
+      travels.setState({ count: 4 }, { label: 'transaction-only' });
+      travels.back(2);
+      travels.setState({ count: 5 }, { label: 'committed' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([
+      0, 1, 2, 5,
+    ]);
+    expect(discarded).toEqual([{ position: 2, labels: ['three'] }]);
+  });
+
+  test('reports visible entries that follow reset-only history', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    const history = source.serialize();
+    const discarded: Array<{
+      position: number;
+      labels: Array<string | undefined>;
+    }> = [];
+    const travels = createTravels(history.state, {
+      history,
+      maxHistory: 2,
+      onBranchDiscard(event) {
+        discarded.push({
+          position: event.position,
+          labels: event.discarded.map((entry) => entry.metadata?.label),
+        });
+      },
+    });
+
+    travels.setState({ count: 3 }, { label: 'three' });
+
+    travels.transaction(() => {
+      travels.reset();
+      travels.go(0);
+      travels.setState({ count: 4 }, { label: 'four' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 4]);
+    expect(discarded).toEqual([{ position: 1, labels: ['two'] }]);
+  });
+
+  test.each([
+    ['live pending history', false],
+    ['serialized pending history', true],
+  ] as const)('reports discarded entries from %s', (_name, restore) => {
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const onBranchDiscard = (event: {
+      discarded: Array<{ metadata?: { label?: string } }>;
+    }) => {
+      discardedLabels.push(
+        event.discarded.map((entry) => entry.metadata?.label)
+      );
+    };
+    const original = createTravels(
+      { count: 0 },
+      { autoArchive: false, onBranchDiscard }
+    );
+    original.setState({ count: 1 }, { label: 'one' });
+    original.archive();
+    original.setState({ count: 2 }, { label: 'two' });
+
+    const serialized = original.serialize();
+    const travels = restore
+      ? createTravels(serialized.state, {
+          history: serialized,
+          autoArchive: false,
+          onBranchDiscard,
+        })
+      : original;
+
+    travels.transaction(() => {
+      travels.back();
+      travels.setState({ count: 3 }, { label: 'three' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
+    expect(discardedLabels).toEqual([['two']]);
+  });
+
+  test('restores pending entry visibility after a nested rollback', () => {
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        autoArchive: false,
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            event.discarded.map((entry) => entry.metadata?.label)
+          );
+        },
+      }
+    );
+    travels.setState({ count: 1 }, { label: 'one' });
+    travels.archive();
+    travels.setState({ count: 2 }, { label: 'two' });
+
+    travels.transaction(() => {
+      try {
+        travels.transaction(() => {
+          travels.reset();
+          throw new Error('nested failure');
+        });
+      } catch {
+        // Continue the root transaction with its pending entry restored.
+      }
+
+      travels.back();
+      travels.setState({ count: 3 }, { label: 'three' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
+    expect(discardedLabels).toEqual([['two']]);
+  });
+
+  test('uses the public manual-history window for transaction effects', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    const history = source.serialize();
+    const discarded: Array<{
+      position: number;
+      labels: Array<string | undefined>;
+    }> = [];
+    const travels = createTravels(history.state, {
+      history,
+      autoArchive: false,
+      maxHistory: 2,
+      onBranchDiscard(event) {
+        discarded.push({
+          position: event.position,
+          labels: event.discarded.map((entry) => entry.metadata?.label),
+        });
+      },
+    });
+
+    travels.setState({ count: 3 }, { label: 'three' });
+
+    travels.transaction(() => {
+      travels.reset();
+      travels.go(0);
+      travels.setState({ count: 4 }, { label: 'four' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 4]);
+    expect(discarded).toEqual([{ position: 1, labels: ['two'] }]);
+  });
+
+  test('does not republish a branch restored only inside a transaction', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    source.back();
+    const history = source.serialize();
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(history.state, {
+      history,
+      onBranchDiscard(event) {
+        discardedLabels.push(
+          event.discarded.map((entry) => entry.metadata?.label)
+        );
+      },
+    });
+
+    travels.setState({ count: 3 }, { label: 'outside transaction' });
+    expect(discardedLabels).toEqual([['two']]);
+
+    travels.transaction(() => {
+      travels.reset();
+      travels.setState({ count: 4 }, { label: 'committed' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 4]);
+    expect(discardedLabels).toEqual([['two']]);
+  });
+
   test('drops branch discard effects when root or nested transactions roll back', () => {
     const discardedLabels: Array<Array<string | undefined>> = [];
     const travels = createTravels(
@@ -534,6 +758,63 @@ describe('Productized history API', () => {
     expect(discardedLabels).toEqual([['two']]);
   });
 
+  test('keeps deferred discards when reset does not restore the branch', () => {
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            event.discarded.map((entry) => entry.metadata?.label)
+          );
+        },
+      }
+    );
+    travels.setState({ count: 1 }, { label: 'one' });
+    travels.setState({ count: 2 }, { label: 'two' });
+    travels.back();
+
+    travels.transaction(() => {
+      travels.setState({ count: 3 }, { label: 'three' });
+      travels.reset();
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0]);
+    expect(travels.canForward()).toBe(false);
+    expect(discardedLabels).toEqual([['two']]);
+  });
+
+  test('cancels only entries actually restored by reset', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    const history = source.serialize();
+    const discarded: Array<{
+      position: number;
+      labels: Array<string | undefined>;
+    }> = [];
+    const travels = createTravels(history.state, {
+      history,
+      onBranchDiscard(event) {
+        discarded.push({
+          position: event.position,
+          labels: event.discarded.map((entry) => entry.metadata?.label),
+        });
+      },
+    });
+    travels.setState({ count: 3 }, { label: 'three' });
+    travels.go(0);
+
+    travels.transaction(() => {
+      travels.setState({ count: 4 }, { label: 'four' });
+      travels.reset();
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 2]);
+    expect(travels.getPosition()).toBe(2);
+    expect(discarded).toEqual([{ position: 2, labels: ['three'] }]);
+  });
+
   test('publishes only the branch discard created after a transaction reset', () => {
     const source = createTravels({ count: 0 });
     source.setState({ count: 1 }, { label: 'one' });
@@ -599,6 +880,76 @@ describe('Productized history API', () => {
 
     expect(discardedLabels).toEqual([['two']]);
     expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
+  });
+
+  test.each([
+    ['rebase', 3],
+    ['replaceStateWithoutHistory', 4],
+  ] as const)(
+    'keeps deferred branch effects when %s changes the reset baseline',
+    (operation, expectedCount) => {
+      const source = createTravels({ count: 0 });
+      source.setState({ count: 1 }, { label: 'one' });
+      source.setState({ count: 2 }, { label: 'two' });
+      source.back();
+      const history = source.serialize();
+      const discardedLabels: Array<Array<string | undefined>> = [];
+      const travels = createTravels(history.state, {
+        history,
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            event.discarded.map((entry) => entry.metadata?.label)
+          );
+        },
+      });
+
+      travels.transaction(() => {
+        travels.setState({ count: 3 }, { label: 'discard old branch' });
+        if (operation === 'rebase') {
+          travels.rebase();
+        } else {
+          travels.replaceStateWithoutHistory({ count: expectedCount });
+        }
+        travels.reset();
+      });
+
+      expect(travels.getState()).toEqual({ count: expectedCount });
+      expect(travels.getHistory().map((state) => state.count)).toEqual([
+        expectedCount,
+      ]);
+      expect(travels.canForward()).toBe(false);
+      expect(discardedLabels).toEqual([['two']]);
+    }
+  );
+
+  test('reset keeps visible effects absent from its restored history', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    source.back();
+    const history = source.serialize();
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(history.state, {
+      history,
+      onBranchDiscard(event) {
+        discardedLabels.push(
+          event.discarded.map((entry) => entry.metadata?.label)
+        );
+      },
+    });
+
+    travels.transaction(() => {
+      travels.setState({ count: 3 }, { label: 'discard old baseline' });
+      travels.rebase();
+      travels.setState({ count: 4 }, { label: 'new future' });
+      travels.back();
+      travels.setState({ count: 5 }, { label: 'discard new baseline' });
+      travels.reset();
+    });
+
+    expect(travels.getState()).toEqual({ count: 3 });
+    expect(travels.getHistory().map((state) => state.count)).toEqual([3]);
+    expect(discardedLabels).toEqual([['two']]);
   });
 
   test('devtools receives timeline events', () => {

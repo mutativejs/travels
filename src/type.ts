@@ -182,7 +182,8 @@ export type TravelsOptions<
    */
   onError?: (error: Error) => void;
   /**
-   * Called when undoing and then making a new edit discards redo history.
+   * Called when undoing and then making a committed edit discards redo history.
+   * Root transactions report only entries that were visible before they began.
    */
   onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
   /**

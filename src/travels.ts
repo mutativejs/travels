@@ -200,20 +200,76 @@ const deepCloneValue = (value: any, seen = new WeakMap<object, any>()): any => {
   return cloned;
 };
 
+// Patch groups are immutable once archived. A weak identity follows their
+// internal clones so transaction effects can distinguish pre-existing history
+// from provisional entries without adding IDs to the public persistence shape.
+const historyEntryIdentities = new WeakMap<object, object>();
+
+const getHistoryEntryIdentity = (entry: object): object => {
+  let identity = historyEntryIdentities.get(entry);
+  if (!identity) {
+    identity = {};
+    historyEntryIdentities.set(entry, identity);
+  }
+  return identity;
+};
+
+const clonePatchGroup = <P extends PatchesOption = {}>(
+  patch: Patches<P>
+): Patches<P> => {
+  const cloned = patch.map((operation) =>
+    deepCloneValue(operation)
+  ) as Patches<P>;
+  const identity = historyEntryIdentities.get(patch);
+  if (identity) {
+    historyEntryIdentities.set(cloned, identity);
+  }
+  return cloned;
+};
+
 const cloneTravelPatches = <P extends PatchesOption = {}>(
   base?: TravelPatches<P>
 ): TravelPatches<P> => ({
-  patches: base
-    ? base.patches.map((patch) =>
-        patch.map((operation) => deepCloneValue(operation))
-      )
-    : [],
+  patches: base ? base.patches.map(clonePatchGroup) : [],
   inversePatches: base
     ? base.inversePatches.map((patch) =>
         patch.map((operation) => deepCloneValue(operation))
       )
     : [],
 });
+
+const filterBranchDiscardEffect = <P extends PatchesOption = {}>(
+  effect: BranchDiscardEffect<P>,
+  shouldInclude: (entryId: object) => boolean
+): BranchDiscardEffect<P>[] => {
+  const filtered: BranchDiscardEffect<P>[] = [];
+  const patchGroups = effect.patches.patches;
+  let runStart = -1;
+
+  for (let index = 0; index <= patchGroups.length; index += 1) {
+    const included =
+      index < patchGroups.length &&
+      shouldInclude(getHistoryEntryIdentity(patchGroups[index]));
+
+    if (included && runStart < 0) {
+      runStart = index;
+    }
+
+    if (!included && runStart >= 0) {
+      filtered.push({
+        position: effect.position + runStart,
+        patches: {
+          patches: effect.patches.patches.slice(runStart, index),
+          inversePatches: effect.patches.inversePatches.slice(runStart, index),
+        } as TravelPatches<P>,
+        metadata: effect.metadata.slice(runStart, index),
+      });
+      runStart = -1;
+    }
+  }
+
+  return filtered;
+};
 
 const cloneTravelMetadata = (
   metadata: TravelMetadata | undefined
@@ -429,6 +485,7 @@ export class Travels<
   private transactionDepth = 0;
   private transactionMetadata?: TravelMetadata;
   private transactionBranchDiscardEffects: BranchDiscardEffect<P>[] = [];
+  private transactionVisibleEntryIds?: Set<object>;
   private transactionHasObserverEffects = false;
   private transactionNeedsCompatibilityCheck = false;
   private isPublishingEffects = false;
@@ -544,6 +601,11 @@ export class Travels<
 
     this.allPatches = normalizedPatches;
     this.allMetadata = normalizedMetadata;
+    if (initialPatches) {
+      normalizedPatches.patches.forEach((patches) => {
+        historyEntryIdentities.set(patches, {});
+      });
+    }
     this.initialPatches = initialPatches
       ? cloneTravelPatches(normalizedPatches)
       : undefined;
@@ -827,8 +889,16 @@ export class Travels<
       return;
     }
 
-    const effects = this.transactionBranchDiscardEffects;
+    const queuedEffects = this.transactionBranchDiscardEffects;
     this.transactionBranchDiscardEffects = [];
+    const visibleEntryIds = this.transactionVisibleEntryIds;
+    const effects = visibleEntryIds
+      ? queuedEffects.flatMap((effect) =>
+          filterBranchDiscardEffect(effect, (entryId) =>
+            visibleEntryIds.has(entryId)
+          )
+        )
+      : queuedEffects;
 
     this.publishEffects(() => {
       for (const effect of effects) {
@@ -1261,6 +1331,7 @@ export class Travels<
           this.maxHistory < this.allPatches.patches.length + 1
             ? this.maxHistory
             : this.position + 1;
+        historyEntryIdentities.set(patches, {});
       }
 
       if (hasFuture) {
@@ -1362,6 +1433,10 @@ export class Travels<
     this.transactionDepth += 1;
     if (isRootTransaction) {
       this.transactionMetadata = metadata;
+      const visiblePatches = this.getAllPatches();
+      this.transactionVisibleEntryIds = new Set(
+        visiblePatches.patches.map(getHistoryEntryIdentity)
+      );
       this.transactionHasObserverEffects = false;
       this.transactionNeedsCompatibilityCheck = false;
     } else if (!this.transactionMetadata && metadata) {
@@ -1391,6 +1466,7 @@ export class Travels<
           }
           this.flushTransactionBranchDiscards();
         }
+        this.transactionVisibleEntryIds = undefined;
         this.transactionMetadata = previousMetadata;
         this.transactionHasObserverEffects =
           transactionSnapshot.hasObserverEffects;
@@ -1458,8 +1534,14 @@ export class Travels<
     patches: Patches<P>;
     inversePatches: Patches<P>;
   } {
+    const patches = composePatchGroups(this.tempPatches.patches, 'forward');
+    historyEntryIdentities.set(
+      patches,
+      getHistoryEntryIdentity(this.tempPatches.patches[0])
+    );
+
     return {
-      patches: composePatchGroups(this.tempPatches.patches, 'forward'),
+      patches,
       inversePatches: composePatchGroups(
         this.tempPatches.inversePatches,
         'backward'
@@ -1705,9 +1787,18 @@ export class Travels<
     this.tempMetadata = undefined;
 
     if (this.transactionDepth > 0) {
-      // Reset supersedes branch changes made earlier in the transaction. A
-      // nested rollback restores this queue from its transaction snapshot.
-      this.transactionBranchDiscardEffects = [];
+      // A reset can restore only part of a queued discarded branch. Reconcile
+      // by entry identity so effects for history that remains absent survive.
+      const restoredEntryIds = new Set(
+        this.allPatches.patches.map(getHistoryEntryIdentity)
+      );
+      this.transactionBranchDiscardEffects =
+        this.transactionBranchDiscardEffects.flatMap((effect) =>
+          filterBranchDiscardEffect(
+            effect,
+            (entryId) => !restoredEntryIds.has(entryId)
+          )
+        );
     }
 
     this.invalidateHistoryCache();

@@ -158,7 +158,7 @@ Creates a new Travels instance.
 | `mutable`                | boolean        | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                                                                                        | false                            |
 | `warnOnUnsupportedState` | boolean        | Development warning for state values with weak patch/persistence semantics                                                                                                                                                               | true in development              |
 | `onError`                | function       | Receives typed `TravelsError` failures from core helper APIs                                                                                                                                                                             | undefined                        |
-| `onBranchDiscard`        | function       | Called when a new edit after undo discards redo entries                                                                                                                                                                                  | undefined                        |
+| `onBranchDiscard`        | function       | Called when a committed edit after undo discards redo entries; root transactions report only entries visible before they began                                                                                                          | undefined                        |
 | `onObserverError`        | function       | Receives errors thrown by listeners, devtools, and lifecycle hooks after the transition has committed                                                                                                                                    | undefined                        |
 | `devtools`               | function       | Receives timeline events for external devtools integrations                                                                                                                                                                              | undefined                        |
 | `patchesOptions`         | PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `{}`                             |
@@ -218,7 +218,9 @@ reported through `onObserverError` with the same source information.
 Root transactions are also atomic at the observer boundary. State listeners
 and devtools receive one final `transaction` event after a successful commit;
 failed transactions publish neither provisional changes nor rollback
-compensation events.
+compensation events. `onBranchDiscard` likewise reports only redo entries that
+were visible before the root transaction and are absent after commit, never
+branches created and discarded entirely inside the transaction.
 
 **Parameters:**
 
@@ -321,7 +323,8 @@ travels.transaction({ label: 'Move Selection' }, () => {
 
 Transaction callbacks must also be synchronous. A rejected asynchronous callback rolls the transaction back and reports a `TravelsError` through `onError` when configured.
 Nested changes remain private until the root transaction commits, so listeners
-and devtools never observe states that are later rolled back.
+and devtools never observe states that are later rolled back. Branch-discard
+hooks also omit redo entries created only by provisional transaction steps.
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 
