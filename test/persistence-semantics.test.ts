@@ -520,6 +520,84 @@ describe('persisted history semantic validation', () => {
     );
   });
 
+  test.each([
+    ['Map', () => new Map([['value', 1]])],
+    ['Set', () => new Set([1])],
+    [
+      'custom prototype',
+      () => Object.create({ inherited: true }) as Record<string, unknown>,
+    ],
+  ] as const)(
+    'rejects unsupported %s values in metadata',
+    (_name, createValue) => {
+      expect(() =>
+        Travels.deserialize(
+          {
+            ...singleValueSnapshot(1, 1, 0),
+            metadata: [{ value: createValue() }],
+          },
+          semanticValidation
+        )
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_HISTORY',
+          entryIndex: 0,
+          direction: 'forward',
+        })
+      );
+    }
+  );
+
+  test('rejects metadata accessors without invoking them and uses fallback', () => {
+    let getterCalls = 0;
+    const value = {} as { unsafe: unknown };
+    Object.defineProperty(value, 'unsafe', {
+      enumerable: true,
+      get() {
+        getterCalls += 1;
+        throw new Error('metadata accessor should not run');
+      },
+    });
+    const fallback = emptySnapshot({ value: -1 });
+    const onError = vi.fn();
+
+    const history = Travels.deserialize(
+      {
+        ...singleValueSnapshot(1, 1, 0),
+        metadata: [{ value }],
+      },
+      { ...semanticValidation, fallback, onError }
+    );
+
+    expect(history).toEqual(fallback);
+    expect(getterCalls).toBe(0);
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  test('keeps valid metadata caller-owned after semantic isolation', () => {
+    const metadata = { label: 'edit', nested: { source: 'test' } };
+    const snapshot = {
+      ...singleValueSnapshot(1, 1, 0),
+      metadata: [metadata],
+    };
+
+    const history = Travels.deserialize(snapshot, semanticValidation);
+
+    expect(history.metadata?.[0]).toBe(metadata);
+    expect(history.metadata?.[0]).toEqual({
+      label: 'edit',
+      nested: { source: 'test' },
+    });
+    expect(Object.isFrozen(metadata)).toBe(false);
+    expect(Object.isFrozen(metadata.nested)).toBe(false);
+  });
+
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>
       Travels.deserialize(

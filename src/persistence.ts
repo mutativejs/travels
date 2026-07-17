@@ -490,6 +490,7 @@ const validateTravelsHistorySemantics = <
   const preparedSnapshot = {
     state: snapshot.state,
     patches: snapshot.patches,
+    metadata: snapshot.metadata,
   } as TravelsSerializedHistory<S, P>;
 
   if (entryCount === 0) {
