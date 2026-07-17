@@ -18,6 +18,8 @@ import type {
   TravelsDeserializeOptions,
   TravelsDevtoolsEvent,
   TravelsOptions,
+  TravelsObserverErrorEvent,
+  TravelsObserverErrorSource,
   TravelsSerializedHistory,
   Updater,
   Value,
@@ -102,6 +104,12 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialPatches?: TravelPatches<P>;
   initialMetadata?: Array<TravelMetadata | undefined>;
   trackingPauseDepth: number;
+};
+
+type BranchDiscardEffect<P extends PatchesOption = {}> = {
+  position: number;
+  patches: TravelPatches<P>;
+  metadata: Array<TravelMetadata | undefined>;
 };
 
 const tryStructuredClone = <T>(value: T): T | undefined => {
@@ -398,6 +406,7 @@ export class Travels<
   private options: MutativeOptions<PatchesOption | true, F>;
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
+  private onObserverError?: (event: TravelsObserverErrorEvent) => void;
   private devtools?: (event: TravelsDevtoolsEvent<S, P>) => void;
   private listeners: Set<Listener<S, P>> = new Set();
   private controlsCache:
@@ -413,6 +422,7 @@ export class Travels<
   private trackingPauseDepth = 0;
   private transactionDepth = 0;
   private transactionMetadata?: TravelMetadata;
+  private isPublishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
@@ -426,6 +436,7 @@ export class Travels<
       warnOnUnsupportedState = process.env.NODE_ENV !== 'production',
       onError,
       onBranchDiscard,
+      onObserverError,
       devtools,
       patchesOptions,
       ...mutativeOptions
@@ -501,6 +512,7 @@ export class Travels<
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
+    this.onObserverError = onObserverError;
     this.devtools = devtools as ((event: TravelsDevtoolsEvent<S, P>) => void)
       | undefined;
     this.options = {
@@ -543,21 +555,27 @@ export class Travels<
       return;
     }
 
-    const issues = findStateCompatibilityIssues(state, {
-      mutable: this.mutable,
-    });
+    this.publishEffects(() => {
+      try {
+        const issues = findStateCompatibilityIssues(state, {
+          mutable: this.mutable,
+        });
 
-    for (const issue of issues) {
-      const key = `${issue.code}:${issue.path}`;
-      if (this.stateCompatibilityWarningKeys.has(key)) {
-        continue;
+        for (const issue of issues) {
+          const key = `${issue.code}:${issue.path}`;
+          if (this.stateCompatibilityWarningKeys.has(key)) {
+            continue;
+          }
+
+          this.stateCompatibilityWarningKeys.add(key);
+          console.warn(
+            `Travels state compatibility warning at ${issue.path}: ${issue.message}`
+          );
+        }
+      } catch (error) {
+        this.reportObserverError('compatibilityCheck', error);
       }
-
-      this.stateCompatibilityWarningKeys.add(key);
-      console.warn(
-        `Travels state compatibility warning at ${issue.path}: ${issue.message}`
-      );
-    }
+    });
   }
 
   private normalizeInitialHistory(
@@ -649,6 +667,63 @@ export class Travels<
     return this.autoArchive && this.transactionDepth === 0;
   }
 
+  private assertCanMutate(api: string): void {
+    if (this.isPublishingEffects) {
+      throw new Error(
+        `Travels: ${api} cannot be called while observers are being notified.`
+      );
+    }
+  }
+
+  private publishEffects(effect: () => void): void {
+    const isRootPublication = !this.isPublishingEffects;
+    if (isRootPublication) {
+      this.isPublishingEffects = true;
+    }
+
+    try {
+      effect();
+    } finally {
+      if (isRootPublication) {
+        this.isPublishingEffects = false;
+      }
+    }
+  }
+
+  private reportObserverError(
+    source: TravelsObserverErrorSource,
+    error: unknown
+  ): void {
+    if (!this.onObserverError) {
+      return;
+    }
+
+    const notify = () => {
+      try {
+        this.onObserverError?.({ source, error });
+      } catch {
+        // Error reporting must never replace the observer failure.
+      }
+    };
+
+    if (this.isPublishingEffects) {
+      notify();
+    } else {
+      this.publishEffects(notify);
+    }
+  }
+
+  private invokeObserver(
+    source: TravelsObserverErrorSource,
+    observer: () => void
+  ): void {
+    try {
+      observer();
+    } catch (error) {
+      this.reportObserverError(source, error);
+    }
+  }
+
   /**
    * Subscribe to state changes
    * @returns Unsubscribe function
@@ -675,9 +750,17 @@ export class Travels<
       return;
     }
     const eventPatches = patches ?? this.getPatches();
-    this.listeners.forEach((listener) =>
-      listener(this.state, eventPatches, this.position)
-    );
+    const state = this.state;
+    const position = this.position;
+    const listeners = Array.from(this.listeners);
+
+    this.publishEffects(() => {
+      for (const listener of listeners) {
+        this.invokeObserver('listener', () =>
+          listener(state, eventPatches, position)
+        );
+      }
+    });
   }
 
   private emitDevtools(
@@ -689,22 +772,69 @@ export class Travels<
       return;
     }
     const eventPatches = patches ?? this.getPatches();
-    this.devtools?.({
+    const devtools = this.devtools;
+    const event = {
       type,
       state: this.state,
       position: this.position,
       patches: eventPatches,
       metadata,
+    } as TravelsDevtoolsEvent<S, P>;
+
+    this.publishEffects(() => {
+      this.invokeObserver('devtools', () => devtools(event));
     });
+  }
+
+  private emitBranchDiscard(effect: BranchDiscardEffect<P>): void {
+    if (!this.onBranchDiscard) {
+      return;
+    }
+
+    const onBranchDiscard = this.onBranchDiscard;
+    this.invokeObserver('onBranchDiscard', () =>
+      onBranchDiscard({
+        position: effect.position,
+        discarded: this.toEntries(effect.patches, effect.metadata),
+      })
+    );
   }
 
   private emitChange(
     type: TravelsDevtoolsEvent<S, P>['type'],
-    metadata?: TravelMetadata
+    metadata?: TravelMetadata,
+    branchDiscard?: BranchDiscardEffect<P>
   ): void {
     const patches = this.getEventPatches();
-    this.notify(patches);
-    this.emitDevtools(type, metadata, patches);
+    const state = this.state;
+    const position = this.position;
+    const listeners = Array.from(this.listeners);
+    const devtools = this.devtools;
+
+    this.publishEffects(() => {
+      if (branchDiscard) {
+        this.emitBranchDiscard(branchDiscard);
+      }
+
+      if (patches) {
+        for (const listener of listeners) {
+          this.invokeObserver('listener', () =>
+            listener(state, patches, position)
+          );
+        }
+
+        if (devtools) {
+          const event = {
+            type,
+            state,
+            position,
+            patches,
+            metadata,
+          } as TravelsDevtoolsEvent<S, P>;
+          this.invokeObserver('devtools', () => devtools(event));
+        }
+      }
+    });
   }
 
   private reportError(code: 'TRANSACTION_FAILED', error: unknown): TravelsError {
@@ -712,7 +842,12 @@ export class Travels<
       error instanceof TravelsError
         ? error
         : new TravelsError(code, `Travels: ${code}`, { cause: error });
-    this.onError?.(travelsError);
+    if (this.onError) {
+      const onError = this.onError;
+      this.publishEffects(() => {
+        this.invokeObserver('onError', () => onError(travelsError));
+      });
+    }
     return travelsError;
   }
 
@@ -729,18 +864,18 @@ export class Travels<
     }));
   }
 
-  private discardFutureFrom(position: number): void {
+  private discardFutureFrom(
+    position: number
+  ): BranchDiscardEffect<P> | undefined {
     if (position >= this.allPatches.patches.length) {
-      return;
+      return undefined;
     }
 
     const discardedPatches = {
       patches: this.allPatches.patches.slice(position),
       inversePatches: this.allPatches.inversePatches.slice(position),
     } as TravelPatches<P>;
-    const discardedMetadata = cloneTravelMetadataList(
-      this.allMetadata.slice(position)
-    );
+    const discardedMetadata = this.allMetadata.slice(position);
 
     this.allPatches.patches.splice(
       position,
@@ -752,10 +887,11 @@ export class Travels<
     );
     this.allMetadata.splice(position, this.allMetadata.length - position);
 
-    this.onBranchDiscard?.({
+    return {
       position,
-      discarded: this.toEntries(discardedPatches, discardedMetadata),
-    });
+      patches: discardedPatches,
+      metadata: discardedMetadata,
+    };
   }
 
   private trimHistoryToMax(): void {
@@ -878,7 +1014,6 @@ export class Travels<
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
 
     this.invalidateHistoryCache();
-    this.notify();
   }
 
   /**
@@ -916,8 +1051,12 @@ export class Travels<
     metadata?: TravelMetadata
   ): void;
   public setState(updater: Updater<S>, metadata?: TravelMetadata): void {
+    this.assertCanMutate('setState');
+
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
+    let branchDiscard: BranchDiscardEffect<P> | undefined;
+    const storedMetadata = cloneTravelMetadata(metadata);
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
@@ -1030,11 +1169,10 @@ export class Travels<
       return;
     }
 
-    this.warnAboutStateCompatibility(this.state);
-
     if (this.trackingPauseDepth > 0) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
+      this.warnAboutStateCompatibility(this.state);
       this.emitChange('replaceStateWithoutHistory', metadata);
       return;
     }
@@ -1044,12 +1182,12 @@ export class Travels<
 
       // Remove all patches after the current position
       if (notLast) {
-        this.discardFutureFrom(this.position);
+        branchDiscard = this.discardFutureFrom(this.position);
       }
 
       this.allPatches.patches.push(patches);
       this.allPatches.inversePatches.push(inversePatches);
-      this.allMetadata.push(cloneTravelMetadata(metadata));
+      this.allMetadata.push(storedMetadata);
 
       this.position =
         this.maxHistory < this.allPatches.patches.length
@@ -1063,7 +1201,7 @@ export class Travels<
 
       // Remove all patches after the current position
       if (hasFuture) {
-        this.discardFutureFrom(this.position);
+        branchDiscard = this.discardFutureFrom(this.position);
       }
 
       if (!hasPendingArchive || hasFuture) {
@@ -1082,12 +1220,13 @@ export class Travels<
       this.tempPatches.patches.push(patches);
       this.tempPatches.inversePatches.push(inversePatches);
       if (metadata !== undefined || this.tempMetadata === undefined) {
-        this.tempMetadata = cloneTravelMetadata(metadata);
+        this.tempMetadata = storedMetadata;
       }
     }
 
     this.invalidateHistoryCache();
-    this.emitChange('setState', metadata);
+    this.warnAboutStateCompatibility(this.state);
+    this.emitChange('setState', metadata, branchDiscard);
   }
 
   /**
@@ -1097,11 +1236,12 @@ export class Travels<
     if (!this.tempPatches.patches.length) return false;
     const archiveMetadata =
       metadata === undefined ? this.tempMetadata : metadata;
+    const storedMetadata = cloneTravelMetadata(archiveMetadata);
     const pendingArchive = this.getPendingArchiveEntry();
 
     this.allPatches.patches.push(pendingArchive.patches);
     this.allPatches.inversePatches.push(pendingArchive.inversePatches);
-    this.allMetadata.push(cloneTravelMetadata(archiveMetadata));
+    this.allMetadata.push(storedMetadata);
 
     // Respect maxHistory limit
     this.trimHistoryToMax();
@@ -1117,6 +1257,8 @@ export class Travels<
   }
 
   public archive(metadata?: TravelMetadata): void {
+    this.assertCanMutate('archive');
+
     if (this.autoArchive) {
       console.warn('Auto archive is enabled, no need to archive manually');
       return;
@@ -1136,6 +1278,8 @@ export class Travels<
     metadataOrFn: TravelMetadata | (() => void),
     maybeFn?: () => void
   ): void {
+    this.assertCanMutate('transaction');
+
     const metadata =
       typeof metadataOrFn === 'function'
         ? undefined
@@ -1156,7 +1300,7 @@ export class Travels<
     const previousMetadata = this.transactionMetadata;
     const isRootTransaction = this.transactionDepth === 0;
     const transactionSnapshot = this.captureTransactionSnapshot();
-    let failed = false;
+    let failure: { error: unknown } | undefined;
 
     this.transactionDepth += 1;
     if (isRootTransaction) {
@@ -1167,15 +1311,14 @@ export class Travels<
     try {
       assertSynchronousResult(fn(), 'transaction');
     } catch (error) {
-      failed = true;
+      failure = { error };
       this.restoreTransactionSnapshot(transactionSnapshot);
       this.transactionMetadata = previousMetadata;
-      throw this.reportError('TRANSACTION_FAILED', error);
     } finally {
       this.transactionDepth -= 1;
 
       if (this.transactionDepth === 0) {
-        if (!failed) {
+        if (!failure) {
           const committed = this.archivePending(this.transactionMetadata);
           if (committed) {
             this.emitDevtools('transaction', this.transactionMetadata);
@@ -1183,6 +1326,11 @@ export class Travels<
         }
         this.transactionMetadata = previousMetadata;
       }
+    }
+
+    if (failure) {
+      this.notify();
+      throw this.reportError('TRANSACTION_FAILED', failure.error);
     }
   }
 
@@ -1197,18 +1345,22 @@ export class Travels<
     metadataOrFn: TravelMetadata | (() => void),
     maybeFn?: () => void
   ): void {
+    this.assertCanMutate('batch');
     this.transaction(metadataOrFn as any, maybeFn as any);
   }
 
   public pauseTracking(): void {
+    this.assertCanMutate('pauseTracking');
     this.trackingPauseDepth += 1;
   }
 
   public resumeTracking(): void {
+    this.assertCanMutate('resumeTracking');
     this.trackingPauseDepth = Math.max(0, this.trackingPauseDepth - 1);
   }
 
   public replaceStateWithoutHistory(updater: Updater<S>): void {
+    this.assertCanMutate('replaceStateWithoutHistory');
     const historyVersionBefore = this.historyVersion;
 
     this.pauseTracking();
@@ -1348,6 +1500,8 @@ export class Travels<
    * Go to a specific position in the history
    */
   public go(nextPosition: number): void {
+    this.assertCanMutate('go');
+
     if (typeof nextPosition !== 'number' || !Number.isFinite(nextPosition)) {
       console.warn(`Can't go to invalid position ${nextPosition}`);
       return;
@@ -1423,6 +1577,7 @@ export class Travels<
    * Go back in the history
    */
   public back(amount: number = 1): void {
+    this.assertCanMutate('back');
     this.go(this.position - amount);
   }
 
@@ -1430,6 +1585,7 @@ export class Travels<
    * Go forward in the history
    */
   public forward(amount: number = 1): void {
+    this.assertCanMutate('forward');
     this.go(this.position + amount);
   }
 
@@ -1437,6 +1593,8 @@ export class Travels<
    * Reset to the initial state
    */
   public reset(): void {
+    this.assertCanMutate('reset');
+
     const canResetMutably =
       this.mutable && canSynchronizeMutableRoots(this.state, this.initialState);
 
@@ -1487,6 +1645,8 @@ export class Travels<
    * the internal baseline. Future `reset()` calls will return to this snapshot.
    */
   public rebase(): void {
+    this.assertCanMutate('rebase');
+
     this.initialState = cloneInitialSnapshot(this.state);
     this.initialPosition = 0;
     this.initialPatches = undefined;

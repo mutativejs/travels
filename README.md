@@ -159,6 +159,7 @@ Creates a new Travels instance.
 | `warnOnUnsupportedState` | boolean             | Development warning for state values with weak patch/persistence semantics                                                                                                      | true in development              |
 | `onError`          | function                  | Receives typed `TravelsError` failures from core helper APIs                                                                                                                    | undefined                        |
 | `onBranchDiscard`  | function                  | Called when a new edit after undo discards redo entries                                                                                                                         | undefined                        |
+| `onObserverError`  | function                  | Receives errors thrown by listeners, devtools, and lifecycle hooks after the transition has committed                                                                          | undefined                        |
 | `devtools`         | function                  | Receives timeline events for external devtools integrations                                                                                                                     | undefined                        |
 | `patchesOptions`   | PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `{}` |
 | `enableAutoFreeze` | boolean                   | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                               | false                            |
@@ -202,6 +203,12 @@ Subscribe to state changes. Returns an unsubscribe function.
 
 The `patches` argument is a shared per-event snapshot. Treat it as read-only;
 mutating it can affect other listeners or devtools hooks handling the same event.
+
+Notifications run only after state, position, and history have committed. An
+observer exception is isolated from other observers and is reported through
+`onObserverError` when configured. Synchronous calls to mutating Travels APIs
+from an observer are rejected to prevent nested transitions from mixing event
+versions; schedule a later task if a follow-up update is required.
 
 **Parameters:**
 

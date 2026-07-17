@@ -88,6 +88,18 @@ export type TravelsBranchDiscardEvent<P extends PatchesOption = {}> = {
   discarded: TravelHistoryEntry<P>[];
 };
 
+export type TravelsObserverErrorSource =
+  | 'listener'
+  | 'devtools'
+  | 'onBranchDiscard'
+  | 'onError'
+  | 'compatibilityCheck';
+
+export type TravelsObserverErrorEvent = {
+  source: TravelsObserverErrorSource;
+  error: unknown;
+};
+
 export type TravelsDevtoolsEvent<
   S,
   P extends PatchesOption = {},
@@ -160,6 +172,11 @@ export type TravelsOptions<
    * Called when undoing and then making a new edit discards redo history.
    */
   onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
+  /**
+   * Receives errors thrown by notification hooks. Observer errors never roll
+   * back or interrupt an already committed state transition.
+   */
+  onObserverError?: (event: TravelsObserverErrorEvent) => void;
   /**
    * Optional hook for external devtools or debugging timelines.
    */
