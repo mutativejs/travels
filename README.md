@@ -120,7 +120,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-For persistence-safe history, keep state and history metadata **JSON-compatible**: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map/Set have limited runtime support in immutable state, but need a custom codec for JSON persistence. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable data. See [State Requirements](#state-requirements-and-compatibility) for details.
+For persistence-safe history, keep the complete snapshot—state, retained forward/inverse patch payloads, and history metadata—**JSON-compatible**: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map/Set have limited runtime support in immutable state, but need a custom codec for JSON persistence. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable data. See [State Requirements](#state-requirements-and-compatibility) for details.
 
 ---
 
@@ -280,7 +280,7 @@ Returns patch entries with inverse patches and optional metadata, using the same
 
 #### `serialize(): TravelsSerializedHistory`
 
-Returns a versioned persistence snapshot containing the current state, patch history, position, and metadata. The returned state, patches, and metadata are cloned. When state and metadata follow the durable-data requirements below, callers can safely pass the value to `JSON.stringify`, storage adapters, or compression; `serialize()` does not itself encode or normalize runtime-only values.
+Returns a versioned persistence snapshot containing the current state, patch history, position, and metadata. The returned state, patches, and metadata are cloned. When state, retained forward/inverse patch paths and values, and metadata follow the durable-data requirements below, callers can safely pass the value to `JSON.stringify`, storage adapters, or compression; `serialize()` does not itself encode or normalize runtime-only values.
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 
@@ -548,7 +548,7 @@ function handleSave() {
 
 ## State Requirements and Compatibility
 
-Travels works best when state and persisted metadata are durable data: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are runtime-only representations: normalize them before persisting history. Null-prototype dictionaries are not drafted by Mutative by default, so nested state writes may not produce undoable patches; convert them to plain objects before storing them in Travels.
+Travels works best when the complete persisted snapshot is durable data: state, retained forward/inverse patch paths and values, and metadata should contain only plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are runtime-only representations: normalize them before persisting history. Null-prototype dictionaries are not drafted by Mutative by default, so nested state writes may not produce undoable patches; convert them to plain objects before storing them in Travels.
 
 When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
@@ -587,9 +587,9 @@ function createHistoryFor<S extends PatchableState>(state: S) {
 }
 ```
 
-These requirements apply to custom history metadata because `serialize()` includes it in the same snapshot. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses those values.
+These requirements also apply to every retained forward/inverse patch payload and to custom history metadata because `serialize()` includes them in the same snapshot. This matters when an older history entry contains a runtime-only value that is no longer present in current state. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses those values.
 
-In development, Travels scans initial and changed state plus retained history metadata for known compatibility hazards and logs warnings once per state or metadata path. `serialize()` performs the same diagnostic check against the current snapshot. Disable those warnings with `warnOnUnsupportedState: false` when you intentionally provide custom codecs or non-persistent runtime-only values.
+In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Disable those warnings with `warnOnUnsupportedState: false` when you intentionally provide custom codecs or non-persistent runtime-only values.
 
 ## Framework Integration
 

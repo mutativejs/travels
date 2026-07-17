@@ -623,8 +623,9 @@ export class Travels<
   }
 
   private warnAboutCompatibility(
-    subject: 'state' | 'metadata',
-    value: unknown
+    subject: 'state' | 'patch' | 'metadata',
+    value: unknown,
+    pathPrefix = '$'
   ): void {
     if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
       return;
@@ -634,11 +635,15 @@ export class Travels<
       try {
         const issues = findStateCompatibilityIssues(value, {
           allowFrozen:
-            subject === 'state' && this.options.enableAutoFreeze === true,
+            subject !== 'metadata' && this.options.enableAutoFreeze === true,
           mutable: subject === 'state' && this.mutable,
         });
 
         for (const issue of issues) {
+          const issuePath =
+            issue.path === '$'
+              ? pathPrefix
+              : `${pathPrefix}${issue.path.slice(1)}`;
           const key = `${subject}:${issue.code}:${issue.path}`;
           if (this.compatibilityWarningKeys.has(key)) {
             continue;
@@ -646,13 +651,27 @@ export class Travels<
 
           this.compatibilityWarningKeys.add(key);
           console.warn(
-            `Travels ${subject} compatibility warning at ${issue.path}: ${issue.message}`
+            `Travels ${subject} compatibility warning at ${issuePath}: ${issue.message}`
           );
         }
       } catch (error) {
         this.reportObserverError('compatibilityCheck', error);
       }
     });
+  }
+
+  private warnAboutPatchCompatibility(patches: TravelPatches<P>): void {
+    for (const direction of ['patches', 'inversePatches'] as const) {
+      patches[direction].forEach((patchGroup, entryIndex) => {
+        patchGroup.forEach((operation, operationIndex) => {
+          this.warnAboutCompatibility(
+            'patch',
+            operation,
+            `$.patches.${direction}[${entryIndex}][${operationIndex}]`
+          );
+        });
+      });
+    }
   }
 
   private warnAboutPersistenceCompatibility(): void {
@@ -665,6 +684,8 @@ export class Travels<
     if (this.maxHistory === 0) {
       return;
     }
+
+    this.warnAboutPatchCompatibility(this.getAllPatches());
 
     const hasPendingMetadata =
       !this.isAutoArchiving() && this.tempPatches.patches.length > 0;

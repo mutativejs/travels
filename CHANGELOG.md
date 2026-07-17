@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
 - Reject semantic comparisons for unsupported prototypes, built-in subclasses, changed property descriptors or object extensibility, non-durable own-property shapes, and RegExp cursors whose observable state cannot be preserved safely.
 - Keep semantic state-key comparison linear so wide untrusted snapshots cannot trigger quadratic replay validation.
 - Diagnose null-prototype objects whose nested writes are not drafted into undoable history by default.
-- Diagnose `bigint`, non-finite numbers, and `-0` in state and retained history metadata before JSON persistence can reject or silently change them.
+- Diagnose non-durable values in current state, retained forward/inverse patch operations, and history metadata before JSON persistence can reject or silently change the complete snapshot.
 - Restore unverified storage and cross-tab snapshots with semantic validation in the official persistence examples, including fallback E2E coverage for unreplayable histories.
 
 ### Changed

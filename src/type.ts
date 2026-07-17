@@ -6,6 +6,10 @@ import type {
   PatchesOptions,
 } from 'mutative';
 
+/**
+ * Retained forward and inverse JSON Patch entries. Keep operation paths and
+ * values JSON-compatible when the history will be persisted with `serialize()`.
+ */
 export type TravelPatches<P extends PatchesOption = {}> = {
   patches: Patches<P>[];
   inversePatches: Patches<P>[];

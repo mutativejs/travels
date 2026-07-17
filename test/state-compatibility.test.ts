@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
   findStateCompatibilityIssues,
+  Travels,
   TravelsError,
   type JsonValue,
   type PatchableState,
@@ -242,6 +243,9 @@ describe('State compatibility warnings', () => {
     travels.setState((draft) => {
       draft.items[0] = 2;
     });
+    travels.setState((draft) => {
+      draft.items = [3];
+    });
     expect(warnSpy).not.toHaveBeenCalled();
     warnSpy.mockRestore();
   });
@@ -344,6 +348,121 @@ describe('State compatibility warnings', () => {
     warnSpy.mockRestore();
   });
 
+  test('checks retained forward and inverse patch payloads', () => {
+    const source = createTravels(
+      { value: 0 as number | bigint | null },
+      { warnOnUnsupportedState: false }
+    );
+    source.setState({ value: 1n });
+    source.setState({ value: null });
+
+    const snapshot = Travels.deserialize(source.serialize(), {
+      validation: 'semantic',
+    });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const restored = createTravels(snapshot.state, { history: snapshot });
+
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'patch compatibility warning at $.patches.patches[0][0].value'
+      )
+    );
+    expect(() => JSON.stringify(restored.serialize())).toThrow(TypeError);
+
+    restored.back();
+    expect(restored.getState().value).toBe(1n);
+    expect(warnSpy).toHaveBeenCalledOnce();
+
+    warnSpy.mockRestore();
+  });
+
+  test('diagnoses patch-only values that JSON would silently change', () => {
+    type Payload = {
+      missing: undefined;
+      nan: number;
+      negativeZero: number;
+      createdAt: Date;
+      tags: Map<string, number>;
+    };
+    const source = createTravels(
+      { payload: null as Payload | null },
+      { warnOnUnsupportedState: false }
+    );
+    source.setState({
+      payload: {
+        missing: undefined,
+        nan: NaN,
+        negativeZero: -0,
+        createdAt: new Date('2025-01-01T00:00:00.000Z'),
+        tags: new Map([['one', 1]]),
+      },
+    });
+    source.setState({ payload: null });
+
+    const snapshot = Travels.deserialize(source.serialize(), {
+      validation: 'semantic',
+    });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const restored = createTravels(snapshot.state, { history: snapshot });
+    const warnings = warnSpy.mock.calls.map(([message]) => String(message));
+
+    expect(warnings).toHaveLength(5);
+    expect(warnings).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('.value.payload.missing'),
+        expect.stringContaining('.value.payload.nan'),
+        expect.stringContaining('.value.payload.negativeZero'),
+        expect.stringContaining('.value.payload.createdAt'),
+        expect.stringContaining('.value.payload.tags'),
+      ])
+    );
+
+    const jsonRoundTrip = JSON.parse(JSON.stringify(restored.serialize()));
+    expect(jsonRoundTrip.patches.patches[0][0].value.payload).toEqual({
+      nan: null,
+      negativeZero: 0,
+      createdAt: '2025-01-01T00:00:00.000Z',
+      tags: {},
+    });
+
+    warnSpy.mockRestore();
+  });
+
+  test('publishes patch compatibility warnings only after root commit', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ value: null as bigint | null });
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.setState((draft) => {
+          draft.value = 1n;
+        });
+        travels.setState((draft) => {
+          draft.value = null;
+        });
+        throw new Error('rollback');
+      })
+    ).toThrow(TravelsError);
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.value = 2n;
+      });
+      travels.setState((draft) => {
+        draft.value = null;
+      });
+    });
+
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('patch compatibility warning')
+    );
+
+    warnSpy.mockRestore();
+  });
+
   test('warnOnUnsupportedState disables runtime compatibility warnings', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -359,6 +478,7 @@ describe('State compatibility warnings', () => {
       { warnOnUnsupportedState: false }
     );
     travels.setState({ count: 1 }, { requestId: 1n });
+    travels.setState({ count: 2n as unknown as number });
     travels.serialize();
 
     expect(warnSpy).not.toHaveBeenCalled();
