@@ -348,6 +348,91 @@ describe('persisted history semantic validation', () => {
   });
 
   test.each([
+    [
+      'non-writable data properties',
+      () => {
+        const value = {} as { restored: number };
+        Object.defineProperty(value, 'restored', {
+          configurable: true,
+          enumerable: true,
+          value: 1,
+          writable: false,
+        });
+        return value;
+      },
+    ],
+    ['non-extensible objects', () => Object.preventExtensions({ restored: 1 })],
+  ] as const)('rejects replay that changes %s', (_name, createValue) => {
+    expect(() =>
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { value: createValue() },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'add', path: ['value', 'restored'], value: 1 }]],
+            inversePatches: [[{ op: 'remove', path: ['value', 'restored'] }]],
+          },
+        },
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  test('rejects replay that changes the array length descriptor', () => {
+    const items = [1];
+    Object.defineProperty(items, 'length', { writable: false });
+
+    expect(() =>
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { items },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path: ['items', 0], value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['items', 0], value: 0 }]],
+          },
+        },
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  test('rejects an observable negative-zero RegExp cursor', () => {
+    const pattern = (lastIndex: number) => {
+      const value = /a/g;
+      value.lastIndex = lastIndex;
+      return value;
+    };
+
+    expect(() =>
+      Travels.deserialize(
+        singleValueSnapshot(pattern(-0), pattern(0), pattern(0)),
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
+
+  test.each([
     ['Date', () => new Date(1), () => new Date(0)],
     ['RegExp', () => /after/g, () => /before/g],
     ['Map', () => new Map([['value', 1]]), () => new Map([['value', 0]])],

@@ -848,8 +848,9 @@ Replay comparison is deliberately conservative for non-JSON values. Exact
 `Date`, `RegExp`, `Map`, and `Set` instances are compared by their supported
 intrinsic state; built-in subclasses, custom own properties, accessors,
 non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex`
-values are rejected as unverifiable. Normalize those values in a codec before
-semantic validation.
+values are rejected as unverifiable. Property descriptor flags, array length
+descriptors, and object extensibility must also survive replay unchanged.
+Normalize unsupported values in a codec before semantic validation.
 
 Semantic validation proves replay consistency only: the stored anchor and patch
 pairs can be applied and reversed. It does not authenticate the snapshot's

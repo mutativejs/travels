@@ -9,7 +9,11 @@ import type {
   TravelsSerializedHistory,
 } from './type.js';
 import { composePatchGroups } from './replay.js';
-import { consumePromiseLikeRejection } from './utils.js';
+import {
+  consumePromiseLikeRejection,
+  isArrayIndex,
+  isPlainObject,
+} from './utils.js';
 
 export const TRAVELS_HISTORY_SCHEMA_VERSION = 1 as const;
 
@@ -319,8 +323,6 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
   };
 };
 
-const ownKeyCount = (value: object): number => Reflect.ownKeys(value).length;
-
 const areReplayStatesEqual = (
   left: unknown,
   right: unknown,
@@ -352,23 +354,41 @@ const areReplayStatesEqual = (
   }
 
   const prototype = Object.getPrototypeOf(leftObject);
-  if (prototype !== Object.getPrototypeOf(rightObject)) {
+  if (
+    prototype !== Object.getPrototypeOf(rightObject) ||
+    Object.isExtensible(leftObject) !== Object.isExtensible(rightObject)
+  ) {
     return false;
   }
 
   leftToRight.set(leftObject, rightObject);
   rightToLeft.set(rightObject, leftObject);
 
-  const ownKeys = ownKeyCount(leftObject) + ownKeyCount(rightObject);
+  const leftKeys = Reflect.ownKeys(leftObject);
+  const keyCount = leftKeys.length;
+  if (keyCount !== Reflect.ownKeys(rightObject).length) {
+    return false;
+  }
+  const leftIsArray = Array.isArray(left);
+  const rightIsArray = Array.isArray(right);
+  const isRegExp = prototype === RegExp.prototype;
 
-  // Array length is non-enumerable. The enumerable key comparison below still
-  // distinguishes holes from present indices, including explicit `undefined`.
-  if (Array.isArray(left) || Array.isArray(right)) {
+  // Array length is compared through its descriptor below. Present indices are
+  // also compared explicitly, so holes remain distinct from `undefined`.
+  if (leftIsArray || rightIsArray) {
     if (
-      !Array.isArray(left) ||
-      !Array.isArray(right) ||
+      !leftIsArray ||
+      !rightIsArray ||
       prototype !== Array.prototype ||
-      left.length !== right.length
+      leftKeys.some((key) => {
+        if (key === 'length') {
+          return false;
+        }
+        return (
+          !isArrayIndex(key, left.length) ||
+          !Object.prototype.propertyIsEnumerable.call(leftObject, key)
+        );
+      })
     ) {
       return false;
     }
@@ -376,26 +396,29 @@ const areReplayStatesEqual = (
 
   if (prototype === Date.prototype) {
     return (
-      ownKeys === 0 &&
+      !keyCount &&
       Object.is((left as Date).getTime(), (right as Date).getTime())
     );
   }
 
-  if (prototype === RegExp.prototype) {
+  if (isRegExp) {
     const leftRegExp = left as RegExp;
     const rightRegExp = right as RegExp;
-    return (
-      ownKeys === 2 &&
-      leftRegExp.lastIndex === 0 &&
-      rightRegExp.lastIndex === 0 &&
-      leftRegExp.source === rightRegExp.source &&
-      leftRegExp.flags === rightRegExp.flags
-    );
+    if (
+      keyCount !== 1 ||
+      leftKeys[0] !== 'lastIndex' ||
+      leftRegExp.lastIndex !== 0 ||
+      rightRegExp.lastIndex !== 0 ||
+      leftRegExp.source !== rightRegExp.source ||
+      leftRegExp.flags !== rightRegExp.flags
+    ) {
+      return false;
+    }
   }
 
   if (prototype === Map.prototype) {
     if (
-      ownKeys !== 0 ||
+      keyCount !== 0 ||
       (left as Map<unknown, unknown>).size !==
         (right as Map<unknown, unknown>).size
     ) {
@@ -423,7 +446,7 @@ const areReplayStatesEqual = (
 
   if (prototype === Set.prototype) {
     if (
-      ownKeys !== 0 ||
+      keyCount !== 0 ||
       (left as Set<unknown>).size !== (right as Set<unknown>).size
     ) {
       return false;
@@ -443,39 +466,7 @@ const areReplayStatesEqual = (
 
   // Unknown prototypes can hide observable data in internal slots. Treat them
   // as unverifiable instead of accepting two empty enumerable surfaces.
-  if (
-    !Array.isArray(left) &&
-    prototype !== Object.prototype &&
-    prototype !== null
-  ) {
-    return false;
-  }
-
-  const leftKeys = Object.keys(leftObject);
-  const rightKeyCount = Object.keys(rightObject).length;
-  const arrayLength = Array.isArray(left) ? left.length : -1;
-  const intrinsicKeyCount = arrayLength < 0 ? 0 : 2;
-
-  if (
-    ownKeys !== leftKeys.length + rightKeyCount + intrinsicKeyCount ||
-    leftKeys.length !== rightKeyCount ||
-    leftKeys.some((key) => {
-      if (!Object.prototype.propertyIsEnumerable.call(rightObject, key)) {
-        return true;
-      }
-      if (arrayLength < 0) {
-        return false;
-      }
-
-      const index = Number(key);
-      return (
-        !Number.isInteger(index) ||
-        index < 0 ||
-        index >= arrayLength ||
-        String(index) !== key
-      );
-    })
-  ) {
+  if (!leftIsArray && !isRegExp && !isPlainObject(left)) {
     return false;
   }
 
@@ -487,8 +478,14 @@ const areReplayStatesEqual = (
     }
 
     return (
+      (leftIsArray ||
+        isRegExp ||
+        (typeof key === 'string' && leftDescriptor.enumerable)) &&
       'value' in leftDescriptor &&
       'value' in rightDescriptor &&
+      leftDescriptor.writable === rightDescriptor.writable &&
+      leftDescriptor.enumerable === rightDescriptor.enumerable &&
+      leftDescriptor.configurable === rightDescriptor.configurable &&
       areReplayStatesEqual(
         leftDescriptor.value,
         rightDescriptor.value,

@@ -34,6 +34,7 @@ import { TravelsError } from './errors.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
   consumePromiseLikeRejection,
+  isArrayIndex,
   isObjectLike,
   isPlainObject,
 } from './utils.js';
@@ -369,18 +370,9 @@ const hasOnlyArrayIndices = (value: unknown): value is any[] => {
   }
 
   const keys = Reflect.ownKeys(value);
-  const hasOnlyIndices = keys.every((key) => {
-    if (key === 'length') {
-      return true;
-    }
-
-    if (typeof key === 'symbol') {
-      return false;
-    }
-
-    const index = Number(key);
-    return Number.isInteger(index) && index >= 0 && String(index) === key;
-  });
+  const hasOnlyIndices = keys.every(
+    (key) => key === 'length' || isArrayIndex(key, value.length)
+  );
 
   if (!hasOnlyIndices) {
     return false;

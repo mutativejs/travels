@@ -19,6 +19,20 @@ export const isPlainObject = (
   return proto === Object.prototype;
 };
 
+export const isArrayIndex = (key: PropertyKey, length: number): boolean => {
+  if (typeof key !== 'string') {
+    return false;
+  }
+
+  const index = Number(key);
+  return (
+    Number.isInteger(index) &&
+    index >= 0 &&
+    index < length &&
+    String(index) === key
+  );
+};
+
 export const consumePromiseLikeRejection = (
   value: unknown,
   onRejected: (error: unknown) => void
