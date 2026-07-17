@@ -7,8 +7,8 @@ import type {
 } from 'mutative';
 
 /**
- * Retained forward and inverse JSON Patch entries. Keep operation paths and
- * values JSON-compatible when the history will be persisted with `serialize()`.
+ * Retained forward/inverse JSON Patch entries. Persisted paths use JSON Pointer
+ * strings or dense arrays of strings/non-negative integers; values are JSON-compatible.
  */
 export type TravelPatches<P extends PatchesOption = {}> = {
   patches: Patches<P>[];
@@ -193,9 +193,8 @@ export type TravelsOptions<
    */
   mutable?: boolean;
   /**
-   * Whether to warn in development when state or persisted history metadata
-   * contains values with weak patch or JSON persistence semantics, by default
-   * `true` in development.
+   * Warn in development about weak patch or JSON persistence semantics in
+   * state, retained patches, or history metadata. Defaults to `true`.
    */
   warnOnUnsupportedState?: boolean;
   /**
