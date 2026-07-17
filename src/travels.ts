@@ -27,6 +27,7 @@ import type {
 import {
   deserializeTravelsHistory,
   getTravelPatchesValidationError,
+  normalizeTravelPatches,
   TRAVELS_HISTORY_SCHEMA_VERSION,
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
@@ -551,6 +552,8 @@ export class Travels<
 
       initialPatches = undefined;
       initialPosition = 0;
+    } else if (initialPatches) {
+      initialPatches = normalizeTravelPatches(initialPatches);
     }
 
     assertSupportedRuntimeState(initialState);

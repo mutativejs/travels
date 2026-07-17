@@ -936,6 +936,105 @@ describe('Persistence Example - State Persistence', () => {
     }
   });
 
+  test.each([
+    ['returns a Set', () => new Set([1])],
+    [
+      'throws',
+      () => {
+        throw new Error('patch value getter executed');
+      },
+    ],
+  ] as const)(
+    'rejects a patch value accessor that %s without invoking it',
+    (_behavior, readValue) => {
+      const operation = { op: 'replace' as const, path: ['value'] } as {
+        op: 'replace';
+        path: string[];
+        value?: unknown;
+      };
+      const getter = vi.fn(readValue);
+      Object.defineProperty(operation, 'value', {
+        enumerable: true,
+        get: getter,
+      });
+      const patches = {
+        patches: [[operation]],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['value'], value: null }],
+        ],
+      };
+
+      expect(() =>
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { value: null },
+          position: 0,
+          patches,
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+      expect(() =>
+        createTravels(
+          { value: null },
+          {
+            initialPatches: patches,
+            strictInitialPatches: true,
+            warnOnUnsupportedState: false,
+          }
+        )
+      ).toThrow(/initialPatches.*JSON Patch operations/);
+      expect(getter).not.toHaveBeenCalled();
+    }
+  );
+
+  test('canonicalizes accepted patch operations without invoking extra accessors', () => {
+    const operation = {
+      op: 'replace' as const,
+      path: ['count'],
+      value: 1,
+    } as Record<string, unknown> & {
+      op: 'replace';
+      path: string[];
+      value: number;
+    };
+    const extraGetter = vi.fn(() => {
+      throw new Error('extra patch getter executed');
+    });
+    Object.defineProperty(operation, 'extra', {
+      enumerable: true,
+      get: extraGetter,
+    });
+
+    const history = Travels.deserialize<{ count: number }>({
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: { count: 0 },
+      position: 0,
+      patches: {
+        patches: [[operation]],
+        inversePatches: [
+          [{ op: 'replace', path: ['count'], value: 0 }],
+        ],
+      },
+    });
+
+    expect(history.patches.patches[0][0]).toEqual({
+      op: 'replace',
+      path: ['count'],
+      value: 1,
+    });
+    const travels = createTravels(history.state, {
+      history,
+      strictInitialPatches: true,
+      warnOnUnsupportedState: false,
+    });
+    travels.forward();
+    expect(travels.getState()).toEqual({ count: 1 });
+    expect(extraGetter).not.toHaveBeenCalled();
+  });
+
   test('plain frozen history arrays remain valid object-form input', () => {
     const history = Travels.deserialize<{ count: number }>(
       Object.freeze({

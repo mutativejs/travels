@@ -65,23 +65,44 @@ const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;
 };
 
-const hasOwn = (value: object, key: string): boolean =>
-  Object.prototype.hasOwnProperty.call(value, key);
-
 const isValidMetadataEntry = (entry: unknown): boolean => {
   return entry == null || (isObjectRecord(entry) && !Array.isArray(entry));
 };
 
+type DataPropertyDescriptor = PropertyDescriptor & { value: unknown };
+
+const getOwnDataProperty = (
+  value: object,
+  key: PropertyKey
+): DataPropertyDescriptor | undefined => {
+  const descriptor = Object.getOwnPropertyDescriptor(value, key);
+  return descriptor && 'value' in descriptor
+    ? (descriptor as DataPropertyDescriptor)
+    : undefined;
+};
+
 const getPatchOperationFields = (
   operation: Record<string, unknown>
-): { op: unknown; path: unknown } | null => {
-  const op = Object.getOwnPropertyDescriptor(operation, 'op');
-  const path = Object.getOwnPropertyDescriptor(operation, 'path');
-  if (!op || !path || !('value' in op) || !('value' in path)) {
+): { op: unknown; path: unknown; value?: unknown } | null => {
+  const op = getOwnDataProperty(operation, 'op');
+  const path = getOwnDataProperty(operation, 'path');
+  const valueDescriptor = Object.getOwnPropertyDescriptor(operation, 'value');
+  if (
+    !op ||
+    !path ||
+    (valueDescriptor !== undefined && !('value' in valueDescriptor))
+  ) {
     return null;
   }
 
-  return { op: op.value, path: path.value };
+  const fields: { op: unknown; path: unknown; value?: unknown } = {
+    op: op.value,
+    path: path.value,
+  };
+  if (valueDescriptor && 'value' in valueDescriptor) {
+    fields.value = valueDescriptor.value;
+  }
+  return fields;
 };
 
 const isRootPatchPath = (path: unknown): boolean => {
@@ -111,12 +132,28 @@ const isValidPatchOperation = (operation: unknown): boolean => {
     return false;
   }
 
-  if ((op === 'add' || op === 'replace') && !hasOwn(operation, 'value')) {
+  if ((op === 'add' || op === 'replace') && !('value' in fields)) {
     return false;
   }
 
   return true;
 };
+
+const normalizePatchHistoryEntries = (entries: unknown[][]): unknown[][] => {
+  return entries.map((entry) =>
+    entry.map((operation) =>
+      getPatchOperationFields(operation as Record<string, unknown>)
+    )
+  ) as unknown[][];
+};
+
+export const normalizeTravelPatches = <P extends PatchesOption = {}>(
+  patches: TravelPatches<P>
+): TravelPatches<P> =>
+  ({
+    patches: normalizePatchHistoryEntries(patches.patches),
+    inversePatches: normalizePatchHistoryEntries(patches.inversePatches),
+  }) as TravelPatches<P>;
 
 const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
   if (!isStandardDenseArray(value)) {
@@ -158,7 +195,7 @@ export const getTravelPatchesValidationError = <P extends PatchesOption = {}>(
     return `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`;
   }
 
-  if (containsMapOrSet(patchHistory)) {
+  if (containsMapOrSet(normalizeTravelPatches(patchHistory))) {
     return `patches must not contain Map or Set values`;
   }
 
@@ -225,14 +262,15 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     );
   }
 
-  const patches = snapshot.patches as TravelPatches<P> | undefined;
-  const patchValidationError = getTravelPatchesValidationError(patches);
+  const patchesInput = snapshot.patches as TravelPatches<P> | undefined;
+  const patchValidationError = getTravelPatchesValidationError(patchesInput);
   if (patchValidationError) {
     throw new TravelsPersistenceError(
       'INVALID_PATCHES',
       `Travels: ${patchValidationError}.`
     );
   }
+  const patches = normalizeTravelPatches(patchesInput!);
 
   const position = snapshot.position;
   if (

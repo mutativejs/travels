@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - Reject Promise-like migration and function-fallback results with `MIGRATION_FAILED` or `FALLBACK_FAILED`, enforce synchronous migration returns in TypeScript, and consume rejected results without leaking unhandled Promise rejections.
 - Reject sparse, extended, or custom-prototype history/path arrays during structural validation, and copy accepted patch groups without invoking caller-overridable array instance methods.
 - Reject Map and Set instances created in another JavaScript realm at runtime and persistence boundaries.
+- Canonicalize object-form patch operations from own data properties so accessors cannot bypass validation or execute during history cloning.
 
 ### Changed
 
