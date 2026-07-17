@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 - Reject sparse, extended, or custom-prototype history/path arrays during structural validation, and copy accepted patch groups without invoking caller-overridable array instance methods.
 - Reject Map and Set instances created in another JavaScript realm at runtime and persistence boundaries.
 - Canonicalize object-form patch operations from own data properties so accessors cannot bypass validation or execute during history cloning.
+- Delay auto-freezing candidate updates until Map/Set validation succeeds so rejected updates leave caller-owned values untouched.
 
 ### Changed
 

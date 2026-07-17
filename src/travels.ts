@@ -106,6 +106,10 @@ const assertSupportedRuntimeState = (value: unknown): void => {
   }
 };
 
+const freezeAcceptedState = (state: unknown): void => {
+  void create([state], () => undefined, { enableAutoFreeze: true });
+};
+
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   state: S;
   stateReference: S;
@@ -1277,6 +1281,9 @@ export class Travels<
     if (isFunctionUpdater && isKnownAsyncFunction(updater)) {
       throw new TypeError('Travels: setState callback must be synchronous.');
     }
+    const createOptions = this.options.enableAutoFreeze
+      ? ({ ...this.options, enableAutoFreeze: false } as typeof this.options)
+      : this.options;
     const stateIsArray = Array.isArray(this.state);
     const updaterIsArray = Array.isArray(updater);
     const canMutatePlainObjects =
@@ -1319,10 +1326,13 @@ export class Travels<
           : (draft: Draft<S>) => {
               overwriteDraftWith(draft!, updater);
             },
-        this.options
+        createOptions
       ) as [S, Patches<P>, Patches<P>];
 
       assertSupportedRuntimeState([p, ip]);
+      if (this.options.enableAutoFreeze) {
+        freezeAcceptedState(nextState);
+      }
 
       const replacesRoot = p.some(isRootReplacement);
       // Mutable state and removed values can remain reachable through reactive
@@ -1365,7 +1375,7 @@ export class Travels<
                 ? (rawReturn(result as object) as S)
                 : (result as S);
             },
-            this.options
+            createOptions
           )
         : create(
             this.state,
@@ -1373,10 +1383,13 @@ export class Travels<
               isObjectLike(updater)
                 ? (rawReturn(updater as object) as S)
                 : (updater as S),
-            this.options
+            createOptions
           )) as unknown as [S, Patches<P>, Patches<P>];
 
       assertSupportedRuntimeState([p, ip]);
+      if (this.options.enableAutoFreeze) {
+        freezeAcceptedState(nextState);
+      }
 
       patches = p;
       inversePatches = ip;
