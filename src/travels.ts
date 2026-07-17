@@ -32,7 +32,11 @@ import {
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError } from './errors.js';
 import { composePatchGroups } from './replay.js';
-import { isObjectLike, isPlainObject } from './utils.js';
+import {
+  consumePromiseLikeRejection,
+  isObjectLike,
+  isPlainObject,
+} from './utils.js';
 
 /**
  * Listener callback for state changes
@@ -699,7 +703,8 @@ export class Travels<
 
     const notify = () => {
       try {
-        this.onObserverError?.({ source, error });
+        const result = this.onObserverError?.({ source, error });
+        consumePromiseLikeRejection(result, () => undefined);
       } catch {
         // Error reporting must never replace the observer failure.
       }
@@ -714,13 +719,19 @@ export class Travels<
 
   private invokeObserver(
     source: TravelsObserverErrorSource,
-    observer: () => void
+    observer: () => unknown
   ): void {
+    let result: unknown;
     try {
-      observer();
+      result = observer();
     } catch (error) {
       this.reportObserverError(source, error);
+      return;
     }
+
+    consumePromiseLikeRejection(result, (error) =>
+      this.reportObserverError(source, error)
+    );
   }
 
   /**

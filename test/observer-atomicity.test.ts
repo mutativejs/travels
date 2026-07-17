@@ -86,6 +86,70 @@ describe('observer publication atomicity', () => {
     expect(travels.getState()).toEqual({ count: 1 });
   });
 
+  test('reports asynchronous observer rejections without leaving them unhandled', async () => {
+    const listenerFailure = new Error('async listener failed');
+    const devtoolsFailure = new Error('async devtools failed');
+    const branchFailure = new Error('async branch observer failed');
+    const operationFailure = new Error('async operation observer failed');
+    const observerErrors: TravelsObserverErrorEvent[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        async devtools(event) {
+          if (event.type === 'setState' && event.state.count === 3) {
+            throw devtoolsFailure;
+          }
+        },
+        async onBranchDiscard() {
+          throw branchFailure;
+        },
+        async onError() {
+          throw operationFailure;
+        },
+        async onObserverError(event) {
+          observerErrors.push(event);
+          throw new Error('async observer reporter failed');
+        },
+      }
+    );
+    const unsubscribe = travels.subscribe(async (state) => {
+      if (state.count === 3) {
+        throw listenerFailure;
+      }
+    });
+
+    travels.setState({ count: 1 });
+    travels.setState({ count: 2 });
+    travels.back();
+    travels.setState({ count: 3 });
+
+    await vi.waitFor(() => {
+      expect(observerErrors).toHaveLength(3);
+    });
+    expect(observerErrors).toEqual(
+      expect.arrayContaining([
+        { source: 'listener', error: listenerFailure },
+        { source: 'devtools', error: devtoolsFailure },
+        { source: 'onBranchDiscard', error: branchFailure },
+      ])
+    );
+
+    unsubscribe();
+    expect(() =>
+      travels.transaction(() => {
+        throw new Error('transaction failed');
+      })
+    ).toThrow(TravelsError);
+
+    await vi.waitFor(() => {
+      expect(observerErrors).toHaveLength(4);
+    });
+    expect(observerErrors[3]).toEqual({
+      source: 'onError',
+      error: operationFailure,
+    });
+  });
+
   test('synchronous writes during publication are rejected without mixing events', () => {
     const observerErrors: TravelsObserverErrorEvent[] = [];
     const snapshots: Array<{

@@ -212,6 +212,8 @@ observer exception is isolated from other observers and is reported through
 `onObserverError` when configured. Synchronous calls to mutating Travels APIs
 from an observer are rejected to prevent nested transitions from mixing event
 versions; schedule a later task if a follow-up update is required.
+Observer promises are not awaited, but rejected promises are isolated and
+reported through `onObserverError` with the same source information.
 
 **Parameters:**
 

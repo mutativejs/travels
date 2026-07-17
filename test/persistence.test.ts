@@ -1,4 +1,4 @@
-import { expect, describe, test, beforeEach, afterEach } from 'vitest';
+import { expect, describe, test, beforeEach, afterEach, vi } from 'vitest';
 import {
   createTravels,
   Travels,
@@ -861,6 +861,27 @@ describe('Persistence Example - State Persistence', () => {
     });
 
     expect(history).toEqual(fallback);
+  });
+
+  test('rejected asynchronous persistence observers cannot block fallback', async () => {
+    const fallback: TravelsSerializedHistory<{ count: number }> = {
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: { count: 0 },
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+    };
+    const observer = vi.fn(async () => {
+      throw new Error('async persistence observer failed');
+    });
+
+    const history = Travels.deserialize<{ count: number }>('not-json', {
+      fallback,
+      onError: observer,
+    });
+
+    expect(history).toEqual(fallback);
+    expect(observer).toHaveBeenCalledOnce();
+    await Promise.resolve();
   });
 
   test('Travels.deserialize() should run migration before validation', () => {

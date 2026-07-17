@@ -9,6 +9,7 @@ import type {
   TravelsSerializedHistory,
 } from './type.js';
 import { composePatchGroups } from './replay.js';
+import { consumePromiseLikeRejection } from './utils.js';
 
 export const TRAVELS_HISTORY_SCHEMA_VERSION = 1 as const;
 
@@ -634,7 +635,8 @@ const notifyPersistenceError = (
   error: TravelsPersistenceError
 ): void => {
   try {
-    onError?.(error);
+    const result = onError?.(error);
+    consumePromiseLikeRejection(result, () => undefined);
   } catch {
     // Error observers must not replace the persistence failure or block recovery.
   }
