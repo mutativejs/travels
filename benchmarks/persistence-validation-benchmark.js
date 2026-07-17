@@ -88,9 +88,9 @@ if (isCi) {
       `default structural validation p95 ${structural.p95.toFixed(2)}ms exceeded the 50ms CI limit`
     );
   }
-  if (semantic.p95 > 2_000) {
+  if (semantic.p95 > 250) {
     failures.push(
-      `explicit semantic validation p95 ${semantic.p95.toFixed(2)}ms exceeded the 2000ms CI smoke limit`
+      `explicit semantic validation p95 ${semantic.p95.toFixed(2)}ms exceeded the 250ms CI limit`
     );
   }
 

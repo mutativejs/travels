@@ -454,7 +454,7 @@ const areReplayStatesEqual = (
 
   if (
     leftKeys.length !== rightKeys.length ||
-    leftKeys.some((key) => !rightKeys.includes(key))
+    leftKeys.some((key) => !isEnumerable(rightObject, key))
   ) {
     return false;
   }
