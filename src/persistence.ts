@@ -563,7 +563,8 @@ const validateTravelsHistorySemantics = <
   replayOptions: TravelsReplayOptions = {}
 ): TravelsSerializedHistory<S, P> => {
   const validationReplayOptions = {
-    ...replayOptions,
+    strict: replayOptions.strict,
+    mark: replayOptions.mark,
     // Freezing is an output policy, not part of patch interpretation. Applying
     // it here can freeze structurally shared objects owned by the caller.
     enableAutoFreeze: false,

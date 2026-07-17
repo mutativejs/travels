@@ -346,6 +346,28 @@ describe('persisted history semantic validation', () => {
     expect(Object.isFrozen(sharedChild.nested)).toBe(false);
   });
 
+  test('ignores unsupported replay options without mutating the snapshot', () => {
+    const travels = createTravels({ nested: { value: 0 } });
+    travels.setState((draft) => {
+      draft.nested.value = 1;
+    });
+    const snapshot = travels.serialize();
+    // Wider option bags remain assignable in TypeScript and are common in JS.
+    const replayOptions = { strict: false, mutable: true };
+
+    const history = Travels.deserialize(snapshot, {
+      validation: 'semantic',
+      replayOptions,
+    });
+    const restored = createTravels(history.state, { history });
+
+    expect(snapshot.state).toEqual({ nested: { value: 1 } });
+    restored.back();
+    expect(restored.getState()).toEqual({ nested: { value: 0 } });
+    restored.forward();
+    expect(restored.getState()).toEqual({ nested: { value: 1 } });
+  });
+
   test('uses the same semantic pipeline for fallback snapshots', () => {
     const errors: string[] = [];
     const fallback = emptySnapshot({ count: 0 });

@@ -838,10 +838,11 @@ const history = Travels.deserialize(stored, {
 });
 ```
 
-Semantic validation never enables auto-freeze because freezing does not change
-patch interpretation. `Travels.deserialize(...)` therefore does not freeze
-caller-owned snapshot objects; configure auto-freeze on the restored Travels
-instance instead.
+Semantic validation uses only the documented `strict` and `mark` replay options.
+It never enables mutable replay or auto-freeze because those output policies do
+not change patch interpretation. `Travels.deserialize(...)` therefore does not
+mutate or freeze caller-owned snapshot objects; configure those policies on the
+restored Travels instance instead.
 
 Semantic validation proves replay consistency only: the stored anchor and patch
 pairs can be applied and reversed. It does not authenticate the snapshot's
