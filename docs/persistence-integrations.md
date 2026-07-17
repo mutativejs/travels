@@ -18,7 +18,7 @@ The API notes below were checked against the current docs and npm package metada
 | localForage | `localforage@1.10.0` | Async key-value API over IndexedDB and localStorage, with a legacy WebSQL driver for old browsers                 | Simple browser key-value persistence with legacy compatibility                             |
 | localspace  | `localspace@1.2.0`   | localForage-compatible async key-value API with IndexedDB/localStorage drivers, batch APIs, transactions, plugins | TypeScript-first key-value persistence, batching, plugin-driven TTL/compression/encryption |
 
-The Playwright e2e suite exercises these adapter patterns against the real browser storage implementations. The fixture uses test-specific database names, but keeps the save, load, transaction, and cleanup semantics aligned with the examples below.
+The Playwright e2e suite exercises these adapter patterns against the real browser storage implementations. It also seeds structurally valid but unreplayable histories to verify semantic validation and fallback recovery. The fixture uses test-specific database names, but keeps the save, load, transaction, and cleanup semantics aligned with the examples below.
 
 ## Snapshot Contract
 

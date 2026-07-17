@@ -69,6 +69,28 @@ for (const adapter of adapters) {
       'Untitled|Block 1'
     );
   });
+
+  test(`${adapter} adapter rejects unreplayable stored history`, async ({
+    page,
+  }) => {
+    await gotoCleanAdapter(page, adapter);
+
+    await page.getByTestId(byTestId(adapter, 'seed-corrupt')).click();
+    await expect(page.getByTestId(byTestId(adapter, 'status'))).toHaveText(
+      'corrupt-seeded'
+    );
+
+    await page.reload();
+    await expect(page.getByTestId(byTestId(adapter, 'status'))).toHaveText(
+      'fallback:INVALID_HISTORY'
+    );
+    await expect(page.getByTestId(byTestId(adapter, 'state'))).toHaveText(
+      'Untitled|'
+    );
+    await expect(page.getByTestId(byTestId(adapter, 'position'))).toHaveText(
+      '0'
+    );
+  });
 }
 
 test('Dexie adapter saves the snapshot and related audit row in one transaction', async ({

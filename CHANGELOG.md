@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Keep semantic state-key comparison linear so wide untrusted snapshots cannot trigger quadratic replay validation.
 - Diagnose null-prototype objects whose nested writes are not drafted into undoable history by default.
 - Diagnose `bigint`, non-finite numbers, and `-0` in state and retained history metadata before JSON persistence can reject or silently change them.
+- Restore unverified storage and cross-tab snapshots with semantic validation in the official persistence examples, including fallback E2E coverage for unreplayable histories.
 
 ### Changed
 

@@ -46,13 +46,18 @@ const createEmptySnapshot = (): Snapshot => ({
   position: 0,
 });
 
-const restoreTravels = (raw: unknown) => {
+const restoreTravels = (
+  raw: unknown,
+  onFallback?: (code: TravelsPersistenceError['code']) => void
+) => {
   const history = Travels.deserialize<DocumentState>(
     raw ?? createEmptySnapshot(),
     {
+      validation: 'semantic',
       fallback: createEmptySnapshot,
       onError(error) {
         if (error instanceof TravelsPersistenceError) {
+          onFallback?.(error.code);
           console.warn('Ignoring invalid persisted history:', error.code);
         }
       },
@@ -66,6 +71,20 @@ const restoreTravels = (raw: unknown) => {
     warnOnUnsupportedState: false,
   });
 };
+
+const createUnreplayableSnapshot = (): Snapshot => ({
+  version: TRAVELS_HISTORY_SCHEMA_VERSION,
+  state: createDefaultDocument(),
+  patches: {
+    patches: [
+      [{ op: 'replace', path: ['missing', 'value'], value: 'corrupted' }],
+    ],
+    inversePatches: [
+      [{ op: 'replace', path: ['missing', 'value'], value: 'previous' }],
+    ],
+  },
+  position: 0,
+});
 
 const attachAutoSave = (
   travels: ReturnType<typeof restoreTravels>,
@@ -410,6 +429,7 @@ const initAdapterPanel = async (root: HTMLElement, name: AdapterName) => {
           <button data-testid="${name}-adapter-flush">Flush</button>
           <button data-testid="${name}-adapter-transaction">Transaction Save</button>
           <button data-testid="${name}-adapter-seed-old">Seed Old</button>
+          <button data-testid="${name}-adapter-seed-corrupt">Seed Corrupt</button>
           <button data-testid="${name}-adapter-prune-old">Prune Old</button>
           <button data-testid="${name}-adapter-back">Back</button>
           <button data-testid="${name}-adapter-forward">Forward</button>
@@ -420,7 +440,10 @@ const initAdapterPanel = async (root: HTMLElement, name: AdapterName) => {
   );
 
   const panel = root.querySelector<HTMLElement>(`[data-adapter="${name}"]`)!;
-  const travels = restoreTravels(await adapter.load());
+  let fallbackCode: TravelsPersistenceError['code'] | undefined;
+  const travels = restoreTravels(await adapter.load(), (code) => {
+    fallbackCode = code;
+  });
   const controls = travels.getControls();
   const persistence = attachAutoSave(travels, adapter.save);
 
@@ -515,6 +538,16 @@ const initAdapterPanel = async (root: HTMLElement, name: AdapterName) => {
     });
 
   panel
+    .querySelector(`[data-testid="${name}-adapter-seed-corrupt"]`)!
+    .addEventListener('click', () => {
+      void runPanelAction(root, name, async () => {
+        await adapter.save(createUnreplayableSnapshot());
+        setPanelText(root, `${name}-adapter-status`, 'corrupt-seeded');
+        await renderInfo(root, name, adapter);
+      });
+    });
+
+  panel
     .querySelector(`[data-testid="${name}-adapter-back"]`)!
     .addEventListener('click', () => {
       controls.back();
@@ -537,7 +570,11 @@ const initAdapterPanel = async (root: HTMLElement, name: AdapterName) => {
       });
     });
 
-  setPanelText(root, `${name}-adapter-status`, 'ready');
+  setPanelText(
+    root,
+    `${name}-adapter-status`,
+    fallbackCode ? `fallback:${fallbackCode}` : 'ready'
+  );
   await render();
 };
 

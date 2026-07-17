@@ -28,6 +28,7 @@ export function createLocalStorageAdapter<S>(
     },
     load(): Snapshot<S> {
       return Travels.deserialize<S>(localStorage.getItem(key) ?? '', {
+        validation: 'semantic',
         fallback,
         onError(error) {
           if (error instanceof TravelsPersistenceError) {
@@ -78,7 +79,9 @@ export function createIndexedDBAdapter<S>(
       });
       database.close();
 
-      return snapshot ? Travels.deserialize<S>(snapshot) : null;
+      return snapshot
+        ? Travels.deserialize<S>(snapshot, { validation: 'semantic' })
+        : null;
     },
   };
 }
@@ -105,6 +108,7 @@ export function createCompressedStringAdapter<S>(
     },
     decode(input: string) {
       return Travels.deserialize<S>(codec.decompress(input) ?? '', {
+        validation: 'semantic',
         fallback,
       });
     },

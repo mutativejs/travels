@@ -7,7 +7,10 @@ import { action, autorun, makeAutoObservable, runInAction } from 'mobx';
 import {
   createTravels,
   Travels,
+  TravelsPersistenceError,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
   type Travels as TravelsInstance,
+  type TravelsSerializedHistory,
   type Updater,
 } from 'travels';
 import { initPersistenceAdapters } from './persistence-adapters';
@@ -437,6 +440,13 @@ type PersistenceState = {
 };
 
 const persistenceStorageKey = 'travels-e2e-browser-history';
+const createPersistenceFallback =
+  (): TravelsSerializedHistory<PersistenceState> => ({
+    version: TRAVELS_HISTORY_SCHEMA_VERSION,
+    state: { title: 'Draft', blocks: [] },
+    patches: { patches: [], inversePatches: [] },
+    position: 0,
+  });
 const persistenceRoot = document.getElementById('persistence-root')!;
 persistenceRoot.innerHTML = `
   <div class="stack">
@@ -458,12 +468,20 @@ const createPersistenceHistory = () => {
   const stored = localStorage.getItem(persistenceStorageKey);
   if (!stored) {
     return createTravels<PersistenceState>(
-      { title: 'Draft', blocks: [] },
+      createPersistenceFallback().state,
       { maxHistory: 20, warnOnUnsupportedState: false }
     );
   }
 
-  const history = Travels.deserialize<PersistenceState>(stored);
+  const history = Travels.deserialize<PersistenceState>(stored, {
+    validation: 'semantic',
+    fallback: createPersistenceFallback,
+    onError(error) {
+      if (error instanceof TravelsPersistenceError) {
+        text('[data-testid="persistence-saved"]', `fallback:${error.code}`);
+      }
+    },
+  });
   return createTravels<PersistenceState>(history.state, {
     history,
     maxHistory: 20,

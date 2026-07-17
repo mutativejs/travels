@@ -63,7 +63,10 @@ async function loadSnapshot(
   database.close();
 
   return snapshot
-    ? Travels.deserialize<DocumentState>(snapshot, { fallback })
+    ? Travels.deserialize<DocumentState>(snapshot, {
+        validation: 'semantic',
+        fallback,
+      })
     : null;
 }
 
@@ -99,6 +102,7 @@ export async function createLocalFirstDocument(documentId: string) {
 
   channel.onmessage = (event: MessageEvent<unknown>) => {
     const remote = Travels.deserialize<DocumentState>(event.data, {
+      validation: 'semantic',
       fallback: travels.serialize(),
     });
 

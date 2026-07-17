@@ -40,6 +40,7 @@ Older hand-rolled persistence usually saved `{ state, patches, position }`. Conv
 
 ```ts
 const history = Travels.deserialize(stored, {
+  validation: 'semantic',
   migrate(snapshot) {
     if (snapshot && typeof snapshot === 'object' && !('version' in snapshot)) {
       return {

@@ -83,6 +83,7 @@ function loadFromStorage(): TravelsSerializedHistory<AppState> | null {
     if (!stored) return null;
 
     const data = Travels.deserialize<AppState>(stored, {
+      validation: 'semantic',
       fallback: createEmptySnapshot,
       migrate(snapshot) {
         if (isLegacyPersistenceSnapshot(snapshot)) {
