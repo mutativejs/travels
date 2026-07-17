@@ -103,6 +103,7 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialPatches?: TravelPatches<P>;
   initialMetadata?: Array<TravelMetadata | undefined>;
   trackingPauseDepth: number;
+  branchDiscardEffects: BranchDiscardEffect<P>[];
 };
 
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
@@ -421,6 +422,7 @@ export class Travels<
   private trackingPauseDepth = 0;
   private transactionDepth = 0;
   private transactionMetadata?: TravelMetadata;
+  private transactionBranchDiscardEffects: BranchDiscardEffect<P>[] = [];
   private isPublishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
@@ -828,6 +830,30 @@ export class Travels<
     );
   }
 
+  private publishBranchDiscard(effect: BranchDiscardEffect<P>): void {
+    if (this.transactionDepth > 0) {
+      this.transactionBranchDiscardEffects.push(effect);
+      return;
+    }
+
+    this.emitBranchDiscard(effect);
+  }
+
+  private flushTransactionBranchDiscards(): void {
+    if (!this.transactionBranchDiscardEffects.length) {
+      return;
+    }
+
+    const effects = this.transactionBranchDiscardEffects;
+    this.transactionBranchDiscardEffects = [];
+
+    this.publishEffects(() => {
+      for (const effect of effects) {
+        this.emitBranchDiscard(effect);
+      }
+    });
+  }
+
   private emitChange(
     type: TravelsDevtoolsEvent<S, P>['type'],
     metadata?: TravelMetadata,
@@ -841,7 +867,7 @@ export class Travels<
 
     this.publishEffects(() => {
       if (branchDiscard) {
-        this.emitBranchDiscard(branchDiscard);
+        this.publishBranchDiscard(branchDiscard);
       }
 
       if (patches) {
@@ -1023,6 +1049,7 @@ export class Travels<
         ? cloneTravelMetadataList(this.initialMetadata)
         : undefined,
       trackingPauseDepth: this.trackingPauseDepth,
+      branchDiscardEffects: this.transactionBranchDiscardEffects.slice(),
     };
   }
 
@@ -1044,6 +1071,8 @@ export class Travels<
       ? cloneTravelMetadataList(snapshot.initialMetadata)
       : undefined;
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
+    this.transactionBranchDiscardEffects =
+      snapshot.branchDiscardEffects.slice();
 
     this.invalidateHistoryCache();
   }
@@ -1351,6 +1380,7 @@ export class Travels<
           if (committed) {
             this.emitDevtools('transaction', this.transactionMetadata);
           }
+          this.flushTransactionBranchDiscards();
         }
         this.transactionMetadata = previousMetadata;
       }
@@ -1661,6 +1691,12 @@ export class Travels<
       : [];
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
+
+    if (this.transactionDepth > 0) {
+      // Reset supersedes branch changes made earlier in the transaction. A
+      // nested rollback restores this queue from its transaction snapshot.
+      this.transactionBranchDiscardEffects = [];
+    }
 
     this.invalidateHistoryCache();
     this.emitChange('reset');

@@ -423,6 +423,184 @@ describe('Productized history API', () => {
     expect(travels.canForward()).toBe(false);
   });
 
+  test('defers branch discard observers until the root transaction commits', () => {
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    let callbackState: { count: number } | undefined;
+    let callbackCanForward: boolean | undefined;
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            event.discarded.map((entry) => entry.metadata?.label)
+          );
+          callbackState = travels.getState();
+          callbackCanForward = travels.canForward();
+        },
+      }
+    );
+
+    travels.setState({ count: 1 }, { label: 'one' });
+    travels.setState({ count: 2 }, { label: 'two' });
+    travels.back();
+
+    travels.transaction(() => {
+      travels.setState({ count: 3 }, { label: 'three' });
+      expect(discardedLabels).toEqual([]);
+    });
+
+    expect(discardedLabels).toEqual([['two']]);
+    expect(callbackState).toEqual({ count: 3 });
+    expect(callbackCanForward).toBe(false);
+  });
+
+  test('drops branch discard effects when root or nested transactions roll back', () => {
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        onBranchDiscard(event) {
+          discardedLabels.push(
+            event.discarded.map((entry) => entry.metadata?.label)
+          );
+        },
+      }
+    );
+
+    travels.setState({ count: 1 }, { label: 'one' });
+    travels.setState({ count: 2 }, { label: 'two' });
+    travels.back();
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.setState({ count: 3 }, { label: 'rolled back root' });
+        throw new Error('root failure');
+      })
+    ).toThrow(TravelsError);
+
+    expect(discardedLabels).toEqual([]);
+    expect(travels.getState()).toEqual({ count: 1 });
+    expect(travels.canForward()).toBe(true);
+
+    travels.transaction(() => {
+      try {
+        travels.transaction(() => {
+          travels.setState({ count: 4 }, { label: 'rolled back nested' });
+          throw new Error('nested failure');
+        });
+      } catch {
+        // Keep the root transaction alive after the nested rollback.
+      }
+
+      expect(discardedLabels).toEqual([]);
+      expect(travels.canForward()).toBe(true);
+      travels.setState({ count: 5 }, { label: 'committed root' });
+      expect(discardedLabels).toEqual([]);
+    });
+
+    expect(discardedLabels).toEqual([['two']]);
+    expect(travels.getState()).toEqual({ count: 5 });
+    expect(travels.canForward()).toBe(false);
+  });
+
+  test('cancels deferred branch discards when reset restores the branch', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    source.back();
+    const history = source.serialize();
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(history.state, {
+      history,
+      onBranchDiscard(event) {
+        discardedLabels.push(
+          event.discarded.map((entry) => entry.metadata?.label)
+        );
+      },
+    });
+
+    travels.transaction(() => {
+      travels.setState({ count: 3 }, { label: 'superseded edit' });
+      travels.reset();
+    });
+
+    expect(travels.getState()).toEqual({ count: 1 });
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 2]);
+    expect(travels.canForward()).toBe(true);
+    expect(discardedLabels).toEqual([]);
+
+    travels.setState({ count: 4 }, { label: 'later edit' });
+    expect(discardedLabels).toEqual([['two']]);
+  });
+
+  test('publishes only the branch discard created after a transaction reset', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    source.back();
+    const history = source.serialize();
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(history.state, {
+      history,
+      onBranchDiscard(event) {
+        discardedLabels.push(
+          event.discarded.map((entry) => entry.metadata?.label)
+        );
+      },
+    });
+
+    travels.transaction(() => {
+      travels.setState({ count: 3 }, { label: 'superseded edit' });
+      travels.reset();
+      travels.setState({ count: 4 }, { label: 'committed edit' });
+      expect(discardedLabels).toEqual([]);
+    });
+
+    expect(travels.getState()).toEqual({ count: 4 });
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 4]);
+    expect(travels.canForward()).toBe(false);
+    expect(discardedLabels).toEqual([['two']]);
+  });
+
+  test('restores outer branch effects when a nested reset rolls back', () => {
+    const source = createTravels({ count: 0 });
+    source.setState({ count: 1 }, { label: 'one' });
+    source.setState({ count: 2 }, { label: 'two' });
+    source.back();
+    const history = source.serialize();
+    const discardedLabels: Array<Array<string | undefined>> = [];
+    const travels = createTravels(history.state, {
+      history,
+      onBranchDiscard(event) {
+        discardedLabels.push(
+          event.discarded.map((entry) => entry.metadata?.label)
+        );
+      },
+    });
+
+    travels.transaction(() => {
+      travels.setState({ count: 3 }, { label: 'committed outer edit' });
+
+      try {
+        travels.transaction(() => {
+          travels.reset();
+          expect(travels.canForward()).toBe(true);
+          throw new Error('nested reset failed');
+        });
+      } catch {
+        // Keep the root transaction alive after restoring its effect queue.
+      }
+
+      expect(travels.getState()).toEqual({ count: 3 });
+      expect(travels.canForward()).toBe(false);
+      expect(discardedLabels).toEqual([]);
+    });
+
+    expect(discardedLabels).toEqual([['two']]);
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
+  });
+
   test('devtools receives timeline events', () => {
     const events: string[] = [];
     const travels = createTravels(
