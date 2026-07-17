@@ -104,7 +104,7 @@ The matrix benchmark expands coverage:
 | Rounds | 5 | 7 |
 | Reported statistics | median, p95 | median, p95 |
 
-The CI mode is intentionally smaller: 10KB and 100KB states, 20 updates, 3 rounds, a compact-history size guard, and a real persistence validation guard. It should catch obvious regressions without pretending that CI runners provide lab-quality latency numbers.
+The CI mode is intentionally smaller: 10KB and 100KB states, 20 updates, 3 rounds, a compact-history size guard, a mutable primitive-update hot-path guard, and a real persistence validation guard. It should catch obvious regressions without pretending that CI runners provide lab-quality latency numbers.
 
 ## Why `--expose-gc`?
 

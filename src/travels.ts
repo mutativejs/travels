@@ -227,6 +227,15 @@ const clonePatchGroup = <P extends PatchesOption = {}>(
   return cloned;
 };
 
+const detachMutablePatchValues = <P extends PatchesOption = {}>(
+  patch: Patches<P>
+): Patches<P> =>
+  patch.some((operation) =>
+    isObjectLike((operation as { value?: unknown }).value)
+  )
+    ? clonePatchGroup(patch)
+    : patch;
+
 const cloneTravelPatches = <P extends PatchesOption = {}>(
   base?: TravelPatches<P>
 ): TravelPatches<P> => ({
@@ -1239,8 +1248,8 @@ export class Travels<
       // stores or caller-held references. Archive detached patch values before
       // applying the original forward patches to the live state so neither
       // later mutation nor lazy observer access can rewrite history.
-      patches = clonePatchGroup(p);
-      inversePatches = clonePatchGroup(ip);
+      patches = detachMutablePatchValues(p);
+      inversePatches = detachMutablePatchValues(ip);
 
       if (replacesRoot) {
         if (
@@ -1286,8 +1295,12 @@ export class Travels<
             this.options
           )) as unknown as [S, Patches<P>, Patches<P>];
 
-      patches = this.mutable ? clonePatchGroup(p) : p;
-      inversePatches = this.mutable ? clonePatchGroup(ip) : ip;
+      patches = p;
+      inversePatches = ip;
+      if (this.mutable) {
+        patches = detachMutablePatchValues(patches);
+        inversePatches = detachMutablePatchValues(inversePatches);
+      }
       this.state = nextState;
     }
 

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { createTravels, type TravelPatches } from '../src/index';
 
 type State = { item?: { value: number } };
@@ -10,6 +10,21 @@ const expectOriginalInverseValue = (patches: TravelPatches): void => {
 };
 
 describe('mutable patch isolation', () => {
+  test('does not clone primitive-only patch groups', () => {
+    const travels = createTravels(
+      { value: 0 },
+      { mutable: true, warnOnUnsupportedState: false }
+    );
+    const structuredClone = vi.spyOn(globalThis, 'structuredClone');
+
+    travels.setState((draft) => {
+      draft.value = 1;
+    });
+
+    expect(structuredClone).not.toHaveBeenCalled();
+    structuredClone.mockRestore();
+  });
+
   test('detaches archived inverse values from removed live objects', () => {
     const state: State = { item: { value: 1 } };
     const removed = state.item!;

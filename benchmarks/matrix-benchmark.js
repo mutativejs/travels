@@ -327,6 +327,54 @@ function runTravelsRound({ scenario, stateSizeKB, iterations }) {
   };
 }
 
+function runMutablePrimitiveRound(mutable, iterations = 20_000) {
+  const travels = createTravels(
+    { count: 0 },
+    { mutable, maxHistory: 10, warnOnUnsupportedState: false }
+  );
+
+  return measure(() => {
+    for (let iteration = 1; iteration <= iterations; iteration += 1) {
+      travels.setState((draft) => {
+        draft.count = iteration;
+      });
+    }
+  }).ms;
+}
+
+function runMutablePrimitiveBenchmark() {
+  const iterations = 20_000;
+  const rounds = Math.max(3, config.rounds);
+
+  // Warm both paths before measuring their relative patch bookkeeping cost.
+  runMutablePrimitiveRound(false, 1_000);
+  runMutablePrimitiveRound(true, 1_000);
+
+  const immutableSamples = [];
+  const mutableSamples = [];
+  for (let roundIndex = 0; roundIndex < rounds; roundIndex += 1) {
+    if (roundIndex % 2 === 0) {
+      immutableSamples.push(runMutablePrimitiveRound(false, iterations));
+      mutableSamples.push(runMutablePrimitiveRound(true, iterations));
+    } else {
+      mutableSamples.push(runMutablePrimitiveRound(true, iterations));
+      immutableSamples.push(runMutablePrimitiveRound(false, iterations));
+    }
+  }
+
+  const result = {
+    iterations,
+    immutable: summarizeMetric(immutableSamples),
+    mutable: summarizeMetric(mutableSamples),
+  };
+  console.log(
+    `\nMutable primitive hot path, ${iterations} updates: ` +
+      `immutable ${formatMetric(result.immutable)}ms; ` +
+      `mutable ${formatMetric(result.mutable)}ms`
+  );
+  return result;
+}
+
 function summarizeRounds(rounds) {
   const keys = Object.keys(rounds[0]);
   return Object.fromEntries(
@@ -405,7 +453,7 @@ function runMatrix() {
   return summaries;
 }
 
-function runCiGuard(summaries) {
+function runCiGuard(summaries, mutablePrimitive) {
   const failures = [];
 
   for (const summary of summaries) {
@@ -432,6 +480,13 @@ function runCiGuard(summaries) {
     }
   }
 
+  if (mutablePrimitive.mutable.median > mutablePrimitive.immutable.median * 2) {
+    failures.push(
+      `mutable primitive updates took ${mutablePrimitive.mutable.median}ms, ` +
+        `more than twice the immutable control (${mutablePrimitive.immutable.median}ms)`
+    );
+  }
+
   if (failures.length > 0) {
     console.error('\nCI benchmark guard failed:');
     for (const failure of failures) {
@@ -445,6 +500,7 @@ function runCiGuard(summaries) {
 }
 
 const summaries = runMatrix();
+const mutablePrimitive = runMutablePrimitiveBenchmark();
 if (isCi) {
-  runCiGuard(summaries);
+  runCiGuard(summaries, mutablePrimitive);
 }
