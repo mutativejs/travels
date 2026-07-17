@@ -33,6 +33,44 @@ export const isArrayIndex = (key: PropertyKey, length: number): boolean => {
   );
 };
 
+export const containsMapOrSet = (
+  value: unknown,
+  seen = new WeakSet<object>()
+): boolean => {
+  if (value instanceof Map || value instanceof Set) {
+    return true;
+  }
+
+  if (
+    value === null ||
+    (typeof value !== 'object' && typeof value !== 'function')
+  ) {
+    return false;
+  }
+
+  const object = value as object;
+  if (seen.has(object)) {
+    return false;
+  }
+  seen.add(object);
+
+  // Follow only enumerable string data properties: these are the fields that
+  // Travels can patch and JSON can retain. Framework objects may keep Maps in
+  // hidden or symbol-keyed bookkeeping that is outside the state data graph.
+  for (const key of Object.keys(object)) {
+    const descriptor = Object.getOwnPropertyDescriptor(object, key);
+    if (
+      descriptor &&
+      'value' in descriptor &&
+      containsMapOrSet(descriptor.value, seen)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const isUnsafePatchPathSegment = (
   segment: unknown,
   index: number,

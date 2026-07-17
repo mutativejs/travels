@@ -646,6 +646,92 @@ describe('State compatibility warnings', () => {
     ]);
   });
 
+  test.each([false, true])(
+    'rejects Map and Set when creating a runtime (mutable: %s)',
+    (mutable) => {
+      const options = { mutable, warnOnUnsupportedState: false };
+
+      expect(() =>
+        createTravels({ nested: { value: new Map([['a', 1]]) } }, options)
+      ).toThrow(
+        'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+      );
+      expect(() =>
+        createTravels({ nested: { value: new Set(['a']) } }, options)
+      ).toThrow(
+        'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+      );
+    }
+  );
+
+  test.each([
+    ['Map', false, () => new Map([['a', { id: 1 }]])],
+    ['Set', false, () => new Set([{ id: 1 }])],
+    ['Map', true, () => new Map([['a', { id: 1 }]])],
+    ['Set', true, () => new Set([{ id: 1 }])],
+  ] as const)(
+    'rejects an inserted %s collection atomically (mutable: %s)',
+    (_collectionName, mutable, createCollection) => {
+      const travels = createTravels<{ count: number; value: unknown }>(
+        { count: 0, value: null },
+        { mutable, warnOnUnsupportedState: false }
+      );
+      const initialState = travels.getState();
+
+      expect(() =>
+        travels.setState((draft) => {
+          draft.count = 1;
+          draft.value = createCollection();
+        })
+      ).toThrow(
+        'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+      );
+
+      expect(travels.getState()).toBe(initialState);
+      expect(travels.getState()).toEqual({ count: 0, value: null });
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getPatches()).toEqual({
+        patches: [],
+        inversePatches: [],
+      });
+    }
+  );
+
+  test('rejects collection-bearing imported patches before history cloning', () => {
+    expect(() =>
+      createTravels(
+        { value: null as Set<number> | null },
+        {
+          initialPatches: {
+            patches: [
+              [{ op: 'replace', path: ['value'], value: new Set([1]) }],
+            ],
+            inversePatches: [[{ op: 'replace', path: ['value'], value: null }]],
+          },
+          initialPosition: 1,
+          strictInitialPatches: true,
+          warnOnUnsupportedState: false,
+        }
+      )
+    ).toThrow('Travels: initialPatches must not contain Map or Set values');
+  });
+
+  test('rejects externally introduced collections at explicit baseline boundaries', () => {
+    const state: { value: unknown } = { value: null };
+    const travels = createTravels(state, { warnOnUnsupportedState: false });
+    state.value = new Set([1]);
+
+    expect(() => travels.replaceStateWithoutHistory(() => undefined)).toThrow(
+      'Travels: Map and Set are not supported in state.'
+    );
+    expect(() => travels.rebase()).toThrow(
+      'Travels: Map and Set are not supported in state.'
+    );
+    expect(() => travels.serialize()).toThrow(
+      'Travels: Map and Set are not supported in state.'
+    );
+  });
+
   test('JsonValue and PatchableState helpers can constrain user APIs', () => {
     const jsonState = {
       title: 'Draft',

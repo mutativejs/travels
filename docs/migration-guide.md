@@ -36,7 +36,7 @@ See [`examples/react-integration.tsx`](../examples/react-integration.tsx).
 
 ## From Map/Set State
 
-Travels no longer supports Map or Set in either immutable or mutable state. Normalize collections before creating or updating a Travels instance:
+Travels no longer supports Map or Set in either immutable or mutable state. Initial state and updates fail fast, and restored state or patch payloads containing collections are rejected during structural validation. Normalize collections before creating or updating a Travels instance:
 
 ```ts
 type Item = { id: string; title: string };

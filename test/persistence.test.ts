@@ -690,6 +690,55 @@ describe('Persistence Example - State Persistence', () => {
     ).not.toThrow();
   });
 
+  test('structural deserialization rejects Map and Set in state and patches', () => {
+    for (const state of [
+      { value: new Map([['a', 1]]) },
+      { value: new Set([1]) },
+    ]) {
+      try {
+        Travels.deserialize({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state,
+          position: 0,
+          patches: { patches: [], inversePatches: [] },
+        });
+        throw new Error('Expected Travels.deserialize to throw');
+      } catch (error) {
+        expect(error).toBeInstanceOf(TravelsPersistenceError);
+        expect((error as TravelsPersistenceError).code).toBe('INVALID_SCHEMA');
+        expect((error as Error).message).toContain(
+          'state must not contain Map or Set values'
+        );
+      }
+    }
+
+    for (const value of [new Map([['a', 1]]), new Set([1])]) {
+      try {
+        Travels.deserialize(
+          {
+            version: TRAVELS_HISTORY_SCHEMA_VERSION,
+            state: { value: null },
+            position: 1,
+            patches: {
+              patches: [[{ op: 'replace', path: ['value'], value }]],
+              inversePatches: [
+                [{ op: 'replace', path: ['value'], value: null }],
+              ],
+            },
+          },
+          { validation: 'structural' }
+        );
+        throw new Error('Expected Travels.deserialize to throw');
+      } catch (error) {
+        expect(error).toBeInstanceOf(TravelsPersistenceError);
+        expect((error as TravelsPersistenceError).code).toBe('INVALID_PATCHES');
+        expect((error as Error).message).toContain(
+          'patches must not contain Map or Set values'
+        );
+      }
+    }
+  });
+
   test('Travels.deserialize() should normalize null metadata placeholders', () => {
     const history = Travels.deserialize<{ count: number }>({
       version: TRAVELS_HISTORY_SCHEMA_VERSION,

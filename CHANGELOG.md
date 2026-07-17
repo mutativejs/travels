@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- **Breaking:** Remove Map and Set from the supported state contract in immutable mode; both runtime modes now require collections to be normalized to plain records or dense arrays, and semantic validation rejects collection-bearing snapshots.
+- **Breaking:** Remove Map and Set from the supported state contract in immutable mode; both runtime modes now reject collection-bearing initial state and updates, while restored state and retained patch payloads fail structural validation.
 - Require restored patch paths to use JSON Pointer strings or dense arrays of strings/non-negative integers; runtime-only collection locators are no longer accepted.
 - Keep structural persistence validation as the synchronous default for backward-compatible restore latency; applications should explicitly select semantic validation for unverified or potentially corrupted snapshots.
 - Materialize observer patch-history snapshots lazily, skip branch snapshots when no discard hook is configured, and discard superseded root-replacement patches to avoid copying or retaining history that no observer or replay can use.

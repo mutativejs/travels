@@ -10,6 +10,7 @@ import type {
 } from './type.js';
 import { composePatchGroups } from './replay.js';
 import {
+  containsMapOrSet,
   consumePromiseLikeRejection,
   isArrayIndex,
   isPlainObject,
@@ -148,6 +149,10 @@ export const getTravelPatchesValidationError = <P extends PatchesOption = {}>(
     return `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`;
   }
 
+  if (containsMapOrSet(patchHistory)) {
+    return `patches must not contain Map or Set values`;
+  }
+
   if (patchHistory.patches.length !== patchHistory.inversePatches.length) {
     return `patches.patches and patches.inversePatches must have the same length`;
   }
@@ -194,6 +199,13 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
       "Travels: persisted history must include 'state'."
+    );
+  }
+
+  if (containsMapOrSet(snapshot.state)) {
+    throw new TravelsPersistenceError(
+      'INVALID_SCHEMA',
+      'Travels: persisted history state must not contain Map or Set values.'
     );
   }
 

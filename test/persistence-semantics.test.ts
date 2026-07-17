@@ -34,6 +34,21 @@ const semanticIsolationError = () =>
     entryIndex: undefined,
     direction: undefined,
   });
+const unsupportedCollectionStateError = () =>
+  expect.objectContaining<Partial<TravelsPersistenceError>>({
+    code: 'INVALID_SCHEMA',
+    message:
+      'Travels: persisted history state must not contain Map or Set values.',
+    entryIndex: undefined,
+    direction: undefined,
+  });
+const unsupportedCollectionPatchesError = () =>
+  expect.objectContaining<Partial<TravelsPersistenceError>>({
+    code: 'INVALID_PATCHES',
+    message: 'Travels: patches must not contain Map or Set values.',
+    entryIndex: undefined,
+    direction: undefined,
+  });
 
 describe('persisted history semantic validation', () => {
   test('v1 accepts an internally consistent alternative past without provenance', () => {
@@ -416,22 +431,21 @@ describe('persisted history semantic validation', () => {
   test.each([
     ['Map', () => new Map([['value', 1]])],
     ['Set', () => new Set([1])],
-  ] as const)('rejects unsupported exact %s instances', (_name, createValue) => {
-    expect(() =>
-      Travels.deserialize(
-        singleValueSnapshot(createValue(), createValue(), createValue()),
-        semanticValidation
-      )
-    ).toThrowError(semanticIsolationError());
-  });
+  ] as const)(
+    'rejects unsupported exact %s instances',
+    (_name, createValue) => {
+      expect(() =>
+        Travels.deserialize(
+          singleValueSnapshot(createValue(), createValue(), createValue()),
+          semanticValidation
+        )
+      ).toThrowError(unsupportedCollectionStateError());
+    }
+  );
 
   test.each([
     ['Map', () => new Map([['value', 1]])],
     ['Set', () => new Set([1])],
-    [
-      'custom prototype',
-      () => Object.create({ inherited: true }) as Record<string, unknown>,
-    ],
   ] as const)(
     'rejects unsupported %s state in an empty history',
     (_name, createValue) => {
@@ -440,9 +454,17 @@ describe('persisted history semantic validation', () => {
           emptySnapshot({ value: createValue() }),
           semanticValidation
         )
-      ).toThrowError(semanticIsolationError());
+      ).toThrowError(unsupportedCollectionStateError());
     }
   );
+
+  test('rejects unsupported custom prototype state in an empty history', () => {
+    const value = Object.create({ inherited: true }) as Record<string, unknown>;
+
+    expect(() =>
+      Travels.deserialize(emptySnapshot({ value }), semanticValidation)
+    ).toThrowError(semanticIsolationError());
+  });
 
   test('rejects an empty-history accessor without invoking it and uses fallback', () => {
     let getterCalls = 0;
@@ -559,7 +581,7 @@ describe('persisted history semantic validation', () => {
 
     expect(() =>
       Travels.deserialize(snapshot, semanticValidation)
-    ).toThrowError(semanticIsolationError());
+    ).toThrowError(unsupportedCollectionPatchesError());
   });
 
   test('does not assign a replay direction to metadata isolation failures', () => {

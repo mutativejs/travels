@@ -33,6 +33,7 @@ import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError } from './errors.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
+  containsMapOrSet,
   consumePromiseLikeRejection,
   isArrayIndex,
   isObjectLike,
@@ -94,6 +95,14 @@ const assertSynchronousResult = <T>(value: T, api: string): T => {
 
   silenceNativePromiseRejection(value);
   throw new TypeError(`Travels: ${api} callback must be synchronous.`);
+};
+
+const assertSupportedRuntimeState = (value: unknown): void => {
+  if (containsMapOrSet(value)) {
+    throw new TypeError(
+      'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+    );
+  }
 };
 
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
@@ -533,6 +542,7 @@ export class Travels<
       initialPosition = 0;
     }
 
+    assertSupportedRuntimeState(initialState);
     this.state = initialState;
     // For mutable mode, deep clone initialState to prevent mutations
     this.initialState = cloneInitialSnapshot(initialState);
@@ -1298,6 +1308,9 @@ export class Travels<
         this.options
       ) as [S, Patches<P>, Patches<P>];
 
+      assertSupportedRuntimeState(p);
+      assertSupportedRuntimeState(ip);
+
       const replacesRoot = p.some(isRootReplacement);
       // Mutable state and removed values can remain reachable through reactive
       // stores or caller-held references. Archive detached patch values before
@@ -1349,6 +1362,9 @@ export class Travels<
                 : (updater as S),
             this.options
           )) as unknown as [S, Patches<P>, Patches<P>];
+
+      assertSupportedRuntimeState(p);
+      assertSupportedRuntimeState(ip);
 
       patches = p;
       inversePatches = ip;
@@ -1637,6 +1653,8 @@ export class Travels<
     } finally {
       this.resumeTracking();
     }
+
+    assertSupportedRuntimeState(this.state);
 
     if (
       this.historyVersion === historyVersionBefore &&
@@ -1935,6 +1953,7 @@ export class Travels<
    */
   public rebase(): void {
     this.assertCanMutate('rebase');
+    assertSupportedRuntimeState(this.state);
 
     this.initialState = cloneInitialSnapshot(this.state);
     this.initialPosition = 0;
@@ -2000,6 +2019,7 @@ export class Travels<
    * Serialize the current state, patch history, and position for persistence.
    */
   public serialize(): TravelsSerializedHistory<S, P> {
+    assertSupportedRuntimeState(this.state);
     if (process.env.NODE_ENV !== 'production') {
       if (this.transactionDepth > 0) {
         this.checkPersistenceCompatibilityAfterCommit();

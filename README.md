@@ -120,7 +120,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-Persistence requires JSON-compatible state, retained patch values, and history metadata: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Patch paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/non-negative integers. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map and Set are not supported in either runtime mode; normalize them to plain objects or dense arrays before passing state to Travels. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable data. See [State Requirements](#state-requirements-and-compatibility) for details.
+Persistence requires JSON-compatible state, retained patch values, and history metadata: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Patch paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/non-negative integers. Values such as `bigint`, `NaN`, infinities, and `-0` require normalization before JSON persistence. Map and Set are not supported in either runtime mode: construction and updates reject them, and restored state or patch payloads containing them fail validation. Normalize collections to plain objects or dense arrays before passing state to Travels. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable data. See [State Requirements](#state-requirements-and-compatibility) for details.
 
 ---
 
@@ -470,7 +470,7 @@ Vue components keep using the original `state` reference while Travels tracks hi
 
 **Compatibility Requirements:**
 
-Mutable mode has the same supported-state contract as immutable mode. Map and Set are not supported in either mode; keep reactive collections outside Travels state or normalize them to plain objects and dense arrays. See [State Requirements and Compatibility](#state-requirements-and-compatibility) for the full matrix.
+Mutable mode has the same supported-state contract as immutable mode. Map and Set are rejected in either mode; keep reactive collections outside Travels state or normalize them to plain objects and dense arrays. See [State Requirements and Compatibility](#state-requirements-and-compatibility) for the full matrix.
 
 **Other Tips:**
 
@@ -563,7 +563,7 @@ When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its sta
 | `bigint`                                  | Supported in memory                | Falls back to immutable for primitive roots   | `JSON.stringify` throws           | Encode as a string                              |
 | `undefined`                               | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                                      |
 | `Date`                                    | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string                   |
-| `Map` / `Set`                             | Not supported                      | Not supported                                 | Not represented by JSON           | Store entries/values as records or dense arrays |
+| `Map` / `Set`                             | Rejected                           | Rejected                                      | Rejected during restore           | Store entries/values as records or dense arrays |
 | Class instance / custom or null prototype | Not durable                        | Not durable                                   | Loses prototype/methods           | Store plain data or IDs                         |
 | Function                                  | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state                     |
 | Circular reference                        | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs                          |
@@ -587,11 +587,11 @@ function createHistoryFor<S extends PatchableState>(state: S) {
 }
 ```
 
-`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set.
+`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set. The runtime also fails fast when either collection is found in initial state, a newly generated patch payload, or restored history.
 
 These value requirements cover retained patch payloads and custom metadata included by `serialize()`; paths independently obey the structural contract above. An old runtime-only value or path therefore remains relevant after it leaves current state. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses them.
 
-In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Disable those warnings with `warnOnUnsupportedState: false` only when you deliberately accept responsibility for values outside the supported contract.
+In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Map/Set rejection is a production invariant and is not disabled by `warnOnUnsupportedState: false`; that option controls diagnostics for the remaining compatibility hazards only.
 
 ## Framework Integration
 

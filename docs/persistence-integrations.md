@@ -72,7 +72,7 @@ function restoreTravels(raw: unknown) {
 }
 ```
 
-For durable persistence, state, retained patch values, and history metadata must use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other values are invalid segments. Encode `bigint`; normalize `NaN`, infinities, and `-0` because JSON rejects or changes them. Array holes and custom properties/prototypes are not preserved by snapshots or JSON/JSON Patch; fill holes with `null` and use plain arrays and objects. Map and Set are unsupported as Travels state even when IndexedDB or another adapter can store them. A runtime-only value or path in old history remains part of the storage record.
+For durable persistence, state, retained patch values, and history metadata must use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other values are invalid segments. Encode `bigint`; normalize `NaN`, infinities, and `-0` because JSON rejects or changes them. Array holes and custom properties/prototypes are not preserved by snapshots or JSON/JSON Patch; fill holes with `null` and use plain arrays and objects. Map and Set are rejected as Travels state and retained patch payloads even when IndexedDB or another adapter can store them. A runtime-only value or path in old history remains part of the storage record.
 
 The adapter examples below reuse the `DocumentState`, `restoreTravels(...)`, and `attachAutoSave(...)` definitions from this section.
 
