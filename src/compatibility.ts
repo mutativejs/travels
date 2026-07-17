@@ -6,8 +6,7 @@ export type StateCompatibilityIssueCode =
   | 'FUNCTION'
   | 'CLASS_INSTANCE'
   | 'DOM_NODE'
-  | 'MAP_SET_MUTABLE'
-  | 'MAP_SET_PERSISTENCE'
+  | 'MAP_SET'
   | 'BIGINT'
   | 'NON_JSON_NUMBER'
   | 'ARRAY_SHAPE'
@@ -23,7 +22,6 @@ export type StateCompatibilityIssue = {
 };
 
 type CompatibilityOptions = {
-  mutable?: boolean;
   allowFrozen?: boolean;
   maxIssues?: number;
 };
@@ -200,32 +198,19 @@ export const findStateCompatibilityIssues = (
 
     if (current instanceof Map) {
       addIssue(
-        options.mutable ? 'MAP_SET_MUTABLE' : 'MAP_SET_PERSISTENCE',
+        'MAP_SET',
         path,
-        options.mutable
-          ? 'Map is unsupported in mutable mode; use entries or immutable mode.'
-          : 'Map persistence requires a codec.'
+        'Map is unsupported; store entries in a plain object or dense array.'
       );
-      current.forEach((entryValue, entryKey) => {
-        visit(entryKey, path.concat('<map-key>'));
-        visit(entryValue, path.concat(String(entryKey)));
-      });
       return;
     }
 
     if (current instanceof Set) {
       addIssue(
-        options.mutable ? 'MAP_SET_MUTABLE' : 'MAP_SET_PERSISTENCE',
+        'MAP_SET',
         path,
-        options.mutable
-          ? 'Set is unsupported in mutable mode; use values or immutable mode.'
-          : 'Set persistence requires a codec.'
+        'Set is unsupported; store values in a dense array.'
       );
-      let index = 0;
-      current.forEach((entryValue) => {
-        visit(entryValue, path.concat(index));
-        index += 1;
-      });
       return;
     }
 

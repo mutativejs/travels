@@ -50,11 +50,24 @@ describe('Type-level API contracts', () => {
 
     const travels = createJsonHistory(jsonState);
     expectTypeOf(travels.getState().blocks[0].text).toEqualTypeOf<string>();
+
+    if (false) {
+      // @ts-expect-error Map is outside the supported state contract
+      createJsonHistory(new Map([['count', 1]]));
+      // @ts-expect-error Set is outside the supported state contract
+      createJsonHistory(new Set(['selected']));
+    }
   });
 
   test('state compatibility issue codes match scanner output', () => {
     expectTypeOf<Extract<StateCompatibilityIssueCode, 'PATCH_PATH'>>()
       .toEqualTypeOf<never>();
+    expectTypeOf<
+      Extract<
+        StateCompatibilityIssueCode,
+        'MAP_SET_MUTABLE' | 'MAP_SET_PERSISTENCE'
+      >
+    >().toEqualTypeOf<never>();
   });
 
   test('manual controls archive accepts metadata', () => {

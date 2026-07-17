@@ -43,10 +43,8 @@ export type JsonObject = { [key: string]: JsonValue };
 export type JsonArray = JsonValue[];
 export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 
-export type PatchableState =
-  | JsonValue
-  | Map<unknown, unknown>
-  | Set<unknown>;
+/** State shape supported by Travels' runtime and persistence contracts. */
+export type PatchableState = JsonValue;
 
 export type TravelsHistory<P extends PatchesOption = {}> = {
   patches: TravelPatches<P>;

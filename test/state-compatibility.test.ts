@@ -38,7 +38,7 @@ describe('State compatibility warnings', () => {
         'DOM_NODE',
         'UNDEFINED',
         'ARRAY_SHAPE',
-        'MAP_SET_PERSISTENCE',
+        'MAP_SET',
       ])
     );
   });
@@ -386,34 +386,21 @@ describe('State compatibility warnings', () => {
     ['plain object', { key: 'x' }],
     ['symbol', Symbol('runtime-key')],
   ] as const)(
-    'diagnoses a JSON-encodable but non-durable %s terminal patch path',
+    'rejects a non-durable %s terminal patch path',
     (_label, terminalSegment) => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const path = [terminalSegment] as unknown as string[];
-      const travels = createTravels<Record<PropertyKey, unknown>>(
-        {},
-        {
-          initialPatches: {
-            patches: [[{ op: 'replace', path, value: 1 }]],
-            inversePatches: [[{ op: 'replace', path, value: 0 }]],
-          },
-          strictInitialPatches: true,
-        }
-      );
-
-      const encoded = JSON.stringify(travels.serialize());
-
-      expect(warnSpy).toHaveBeenCalledOnce();
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'patch compatibility warning at $.patches.patches[0][0].path'
+      expect(() =>
+        createTravels<Record<PropertyKey, unknown>>(
+          {},
+          {
+            initialPatches: {
+              patches: [[{ op: 'replace', path, value: 1 }]],
+              inversePatches: [[{ op: 'replace', path, value: 0 }]],
+            },
+            strictInitialPatches: true,
+          }
         )
-      );
-      expect(() => Travels.deserialize(encoded)).toThrowError(
-        expect.objectContaining({ code: 'INVALID_PATCHES' })
-      );
-
-      warnSpy.mockRestore();
+      ).toThrow(/initialPatches/);
     }
   );
 
@@ -423,7 +410,6 @@ describe('State compatibility warnings', () => {
       nan: number;
       negativeZero: number;
       createdAt: Date;
-      tags: Map<string, number>;
     };
     const source = createTravels(
       { payload: null as Payload | null },
@@ -435,7 +421,6 @@ describe('State compatibility warnings', () => {
         nan: NaN,
         negativeZero: -0,
         createdAt: new Date('2025-01-01T00:00:00.000Z'),
-        tags: new Map([['one', 1]]),
       },
     });
     source.setState({ payload: null });
@@ -447,14 +432,13 @@ describe('State compatibility warnings', () => {
     const restored = createTravels(snapshot.state, { history: snapshot });
     const warnings = warnSpy.mock.calls.map(([message]) => String(message));
 
-    expect(warnings).toHaveLength(5);
+    expect(warnings).toHaveLength(4);
     expect(warnings).toEqual(
       expect.arrayContaining([
         expect.stringContaining('.value.payload.missing'),
         expect.stringContaining('.value.payload.nan'),
         expect.stringContaining('.value.payload.negativeZero'),
         expect.stringContaining('.value.payload.createdAt'),
-        expect.stringContaining('.value.payload.tags'),
       ])
     );
 
@@ -463,7 +447,6 @@ describe('State compatibility warnings', () => {
       nan: null,
       negativeZero: 0,
       createdAt: '2025-01-01T00:00:00.000Z',
-      tags: {},
     });
 
     warnSpy.mockRestore();
@@ -650,18 +633,16 @@ describe('State compatibility warnings', () => {
     warnSpy.mockRestore();
   });
 
-  test('mutable mode flags Map and Set as unsupported runtime state', () => {
-    const issues = findStateCompatibilityIssues(
-      {
-        tags: new Set(['a']),
-        index: new Map([['a', 1]]),
-      },
-      { mutable: true }
-    );
+  test('flags Map and Set as unsupported runtime state in every mode', () => {
+    const issues = findStateCompatibilityIssues({
+      tags: new Set(['a']),
+      index: new Map([['a', 1]]),
+    });
 
-    expect(issues.map((issue) => issue.code)).toEqual([
-      'MAP_SET_MUTABLE',
-      'MAP_SET_MUTABLE',
+    expect(issues.map((issue) => issue.code)).toEqual(['MAP_SET', 'MAP_SET']);
+    expect(issues.map((issue) => issue.message)).toEqual([
+      'Set is unsupported; store values in a dense array.',
+      'Map is unsupported; store entries in a plain object or dense array.',
     ]);
   });
 

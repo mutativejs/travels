@@ -75,10 +75,7 @@ const isRootPatchPath = (path: unknown): boolean => {
   return path === '' || (Array.isArray(path) && path.length === 0);
 };
 
-const isValidPatchOperation = (
-  operation: unknown,
-  allowNonJsonPathSegments: boolean
-): boolean => {
+const isValidPatchOperation = (operation: unknown): boolean => {
   if (!isObjectRecord(operation) || Array.isArray(operation)) {
     return false;
   }
@@ -93,7 +90,7 @@ const isValidPatchOperation = (
     return false;
   }
 
-  if (!isValidPatchPath(path, allowNonJsonPathSegments)) {
+  if (!isValidPatchPath(path)) {
     return false;
   }
 
@@ -108,44 +105,28 @@ const isValidPatchOperation = (
   return true;
 };
 
-const isPatchHistoryEntries = (
-  value: unknown,
-  allowNonJsonPathSegments: boolean
-): value is unknown[][] => {
+const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
   return (
     isDenseArray(value) &&
     value.every(
       (entry) =>
         isDenseArray(entry) &&
-        entry.every((operation) =>
-          isValidPatchOperation(operation, allowNonJsonPathSegments)
-        )
+        entry.every((operation) => isValidPatchOperation(operation))
     )
   );
 };
 
-export const getTravelPatchesValidationError = <
-  P extends PatchesOption = {},
->(
-  patches: unknown,
-  options: { allowNonJsonPathSegments?: boolean } = {}
+export const getTravelPatchesValidationError = <P extends PatchesOption = {}>(
+  patches: unknown
 ): string | null => {
   if (!isObjectRecord(patches) || Array.isArray(patches)) {
     return `patches must be an object with 'patches' and 'inversePatches' arrays`;
   }
 
   const patchHistory = patches as TravelPatches<P>;
-  const allowNonJsonPathSegments =
-    options.allowNonJsonPathSegments === true;
   if (
-    !isPatchHistoryEntries(
-      patchHistory.patches,
-      allowNonJsonPathSegments
-    ) ||
-    !isPatchHistoryEntries(
-      patchHistory.inversePatches,
-      allowNonJsonPathSegments
-    )
+    !isPatchHistoryEntries(patchHistory.patches) ||
+    !isPatchHistoryEntries(patchHistory.inversePatches)
   ) {
     return `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`;
   }

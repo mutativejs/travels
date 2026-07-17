@@ -779,7 +779,9 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
   test('rejects non-integer maxHistory values', () => {
     expect(() =>
       createTravels({ count: 0 }, { maxHistory: 1.5 as number })
-    ).toThrow('Travels: maxHistory must be a non-negative integer, but got 1.5');
+    ).toThrow(
+      'Travels: maxHistory must be a non-negative integer, but got 1.5'
+    );
   });
 
   test('normalizes non-integer initialPosition values', () => {
@@ -918,152 +920,6 @@ describe('Bug #10: getPatches() should not expose internal mutable history', () 
     travels.back();
     expect(travels.getState().count).toBe(0);
     expect(travels.getPosition()).toBe(0);
-  });
-
-  test('cloned patches retain object Map key identity', () => {
-    const key = {};
-    const travels = createTravels(
-      { values: new Map([[key, 0]]) },
-      { warnOnUnsupportedState: false }
-    );
-
-    travels.setState((draft) => {
-      draft.values.set(key, 1);
-    });
-
-    const patches = travels.getPatches();
-    expect(patches.patches[0][0].path.at(-1)).toBe(key);
-    expect(patches.inversePatches[0][0].path.at(-1)).toBe(key);
-
-    const restored = createTravels(travels.getState(), {
-      initialPatches: patches,
-      initialPosition: 1,
-      strictInitialPatches: true,
-      warnOnUnsupportedState: false,
-    });
-
-    restored.back();
-    expect(restored.getState().values.get(key)).toBe(0);
-    expect(restored.getState().values).toHaveLength(1);
-  });
-
-  test('failed transactions retain object Map key identity in history', () => {
-    const key = {};
-    const travels = createTravels(
-      { values: new Map([[key, 0]]) },
-      { warnOnUnsupportedState: false }
-    );
-
-    travels.setState((draft) => {
-      draft.values.set(key, 1);
-    });
-
-    expect(() =>
-      travels.transaction(() => {
-        throw new Error('rollback');
-      })
-    ).toThrow();
-
-    travels.back();
-    expect(travels.getState().values.get(key)).toBe(0);
-    expect(travels.getState().values).toHaveLength(1);
-
-    travels.forward();
-    expect(travels.getState().values.get(key)).toBe(1);
-    expect(travels.getState().values).toHaveLength(1);
-  });
-});
-
-describe('Bug #11: patch cloning should preserve Map/Set values', () => {
-  test('getPatches keeps Map payloads intact', () => {
-    const travels = createTravels(new Map([['a', 1]]));
-    travels.setState(new Map([['b', 2]]));
-
-    const patches = travels.getPatches();
-    expect(patches.patches[0][0].value).toBeInstanceOf(Map);
-    expect((patches.patches[0][0].value as Map<string, number>).get('b')).toBe(
-      2
-    );
-
-    travels.back();
-    expect((travels.getState() as Map<string, number>).get('a')).toBe(1);
-  });
-
-  test('rehydration with Map payload patches replays correctly', () => {
-    const initialPatches = {
-      patches: [[{ op: 'replace', path: [], value: new Map([['b', 2]]) }]],
-      inversePatches: [[{ op: 'replace', path: [], value: new Map([['a', 1]]) }]],
-    };
-
-    const travels = createTravels(new Map([['a', 1]]), {
-      initialPatches,
-      initialPosition: 0,
-    });
-
-    travels.forward();
-    const state = travels.getState() as Map<string, number>;
-    expect(state).toBeInstanceOf(Map);
-    expect(state.get('b')).toBe(2);
-  });
-
-  test('getPatches keeps Set payloads intact', () => {
-    const travels = createTravels(new Set([1]));
-    travels.setState(new Set([2, 3]));
-
-    const patches = travels.getPatches();
-    expect(patches.patches[0][0].value).toBeInstanceOf(Set);
-    expect(
-      Array.from((patches.patches[0][0].value as Set<number>).values()).sort(
-        (a, b) => a - b
-      )
-    ).toEqual([2, 3]);
-
-    travels.back();
-    expect(Array.from((travels.getState() as Set<number>).values())).toEqual([1]);
-  });
-
-  test('rehydration with Set payload patches replays correctly', () => {
-    const initialPatches = {
-      patches: [[{ op: 'replace', path: [], value: new Set([2, 3]) }]],
-      inversePatches: [[{ op: 'replace', path: [], value: new Set([1]) }]],
-    };
-
-    const travels = createTravels(new Set([1]), {
-      initialPatches,
-      initialPosition: 0,
-    });
-
-    travels.forward();
-    const state = travels.getState() as Set<number>;
-    expect(state).toBeInstanceOf(Set);
-    expect(Array.from(state.values()).sort((a, b) => a - b)).toEqual([2, 3]);
-  });
-});
-
-describe('Bug #12: reset() should remain stable without structuredClone', () => {
-  test('Map baseline remains isolated when structuredClone is unavailable', () => {
-    const originalStructuredClone = (globalThis as any).structuredClone;
-    (globalThis as any).structuredClone = undefined;
-
-    try {
-      const travels = createTravels(new Map([['a', 1]]));
-      travels.setState((draft) => {
-        draft.set('a', 2);
-      });
-
-      travels.reset();
-      expect((travels.getState() as Map<string, number>).get('a')).toBe(1);
-
-      (travels.getState() as Map<string, number>).set('a', 999);
-      travels.setState((draft) => {
-        draft.set('a', 3);
-      });
-
-      travels.reset();
-      expect((travels.getState() as Map<string, number>).get('a')).toBe(1);
-    } finally {
-      (globalThis as any).structuredClone = originalStructuredClone;
-    }
   });
 });
 
@@ -1204,22 +1060,19 @@ describe('Initial patch validation', () => {
     expect(travels.getPosition()).toBe(0);
   });
 
-  test('strict mode permits runtime-only terminal path keys', () => {
+  test('strict mode rejects runtime-only terminal path keys', () => {
     const key = Symbol('runtime-key');
-    const travels = createTravels<Record<PropertyKey, unknown>>(
-      {},
-      {
-        initialPatches: {
-          patches: [[{ op: 'add', path: [key], value: 1 } as any]],
-          inversePatches: [[{ op: 'remove', path: [key] } as any]],
-        },
-        strictInitialPatches: true,
-      }
-    );
-
-    travels.forward();
-    expect(travels.getState()[key]).toBe(1);
-    travels.back();
-    expect(key in travels.getState()).toBe(false);
+    expect(() =>
+      createTravels<Record<PropertyKey, unknown>>(
+        {},
+        {
+          initialPatches: {
+            patches: [[{ op: 'add', path: [key], value: 1 } as any]],
+            inversePatches: [[{ op: 'remove', path: [key] } as any]],
+          },
+          strictInitialPatches: true,
+        }
+      )
+    ).toThrow(/initialPatches/);
   });
 });

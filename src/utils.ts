@@ -40,10 +40,7 @@ const isUnsafePatchPathSegment = (
 ): boolean =>
   segment === '__proto__' || (segment === 'constructor' && index < length - 1);
 
-export const isValidPatchPath = (
-  path: unknown,
-  allowNonJsonPathSegments: boolean
-): boolean => {
+export const isValidPatchPath = (path: unknown): boolean => {
   if (typeof path === 'string') {
     if (path === '') {
       return true;
@@ -77,10 +74,8 @@ export const isValidPatchPath = (
           Number.isFinite(segment) &&
           Number.isInteger(segment) &&
           segment >= 0);
-      const isRuntimeTerminalSegment =
-        allowNonJsonPathSegments && index === path.length - 1;
       return (
-        (isJsonPathSegment || isRuntimeTerminalSegment) &&
+        isJsonPathSegment &&
         !isUnsafePatchPathSegment(segment, index, path.length)
       );
     })

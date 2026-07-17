@@ -154,27 +154,6 @@ const deepCloneValue = (value: any, seen = new WeakMap<object, any>()): any => {
     return cloned;
   }
 
-  if (value instanceof Map) {
-    const cloned = new Map();
-    seen.set(value, cloned);
-    value.forEach((entryValue, entryKey) => {
-      cloned.set(
-        deepCloneValue(entryKey, seen),
-        deepCloneValue(entryValue, seen)
-      );
-    });
-    return cloned;
-  }
-
-  if (value instanceof Set) {
-    const cloned = new Set();
-    seen.set(value, cloned);
-    value.forEach((entryValue) => {
-      cloned.add(deepCloneValue(entryValue, seen));
-    });
-    return cloned;
-  }
-
   if (value instanceof Date) {
     const cloned = new Date(value.getTime());
     seen.set(value, cloned);
@@ -216,13 +195,9 @@ const getHistoryEntryIdentity = (entry: object): object => {
 const clonePatchGroup = <P extends PatchesOption = {}>(
   patch: Patches<P>
 ): Patches<P> => {
-  const cloned = patch.map((operation) => {
-    const copy = deepCloneValue(operation);
-    if (Array.isArray(operation.path)) {
-      copy.path = operation.path.slice();
-    }
-    return copy;
-  }) as Patches<P>;
+  const cloned = patch.map((operation) =>
+    deepCloneValue(operation)
+  ) as Patches<P>;
   const identity = historyEntryIdentities.get(patch);
   if (identity) {
     historyEntryIdentities.set(cloned, identity);
@@ -339,24 +314,6 @@ const containsDraft = (
   }
   seen.add(objectValue);
 
-  if (value instanceof Map) {
-    for (const [key, item] of value) {
-      if (containsDraft(key, seen) || containsDraft(item, seen)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  if (value instanceof Set) {
-    for (const item of value) {
-      if (containsDraft(item, seen)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   for (const key of Reflect.ownKeys(objectValue)) {
     if (containsDraft((objectValue as any)[key], seen)) {
       return true;
@@ -400,9 +357,10 @@ const getInitialPatchesValidationError = <P extends PatchesOption = {}>(
   }
 
   return (
-    getTravelPatchesValidationError(initialPatches, {
-      allowNonJsonPathSegments: true,
-    })?.replace(/(^|\s)patches(?=\.| must)/g, '$1initialPatches') ?? null
+    getTravelPatchesValidationError(initialPatches)?.replace(
+      /(^|\s)patches(?=\.| must)/g,
+      '$1initialPatches'
+    ) ?? null
   );
 };
 
@@ -641,7 +599,7 @@ export class Travels<
         const invalidPatchPath =
           subject === 'patch' &&
           isObjectLike(value) &&
-          !isValidPatchPath(value.path, false);
+          !isValidPatchPath(value.path);
         const inspectedValue = invalidPatchPath
           ? { ...value, path: [] }
           : value;
@@ -649,7 +607,6 @@ export class Travels<
           findStateCompatibilityIssues(inspectedValue, {
             allowFrozen:
               subject !== 'metadata' && this.options.enableAutoFreeze === true,
-            mutable: subject === 'state' && this.mutable,
           });
         if (invalidPatchPath) {
           issues.unshift({
