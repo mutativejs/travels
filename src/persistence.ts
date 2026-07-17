@@ -109,101 +109,106 @@ const isRootPatchPath = (path: unknown): boolean => {
   return path === '' || (Array.isArray(path) && path.length === 0);
 };
 
-const isValidPatchOperation = (operation: unknown): boolean => {
+const normalizePatchOperation = (
+  operation: unknown
+): { op: unknown; path: unknown; value?: unknown } | null => {
   if (!isObjectRecord(operation) || Array.isArray(operation)) {
-    return false;
+    return null;
   }
 
   const fields = getPatchOperationFields(operation);
   if (!fields) {
-    return false;
+    return null;
   }
 
   const { op, path } = fields;
   if (op !== 'add' && op !== 'remove' && op !== 'replace') {
-    return false;
+    return null;
   }
 
   if (!isValidPatchPath(path)) {
-    return false;
+    return null;
   }
 
   if ((op === 'add' || op === 'remove') && isRootPatchPath(path)) {
-    return false;
+    return null;
   }
 
   if ((op === 'add' || op === 'replace') && !('value' in fields)) {
-    return false;
+    return null;
   }
 
-  return true;
+  return fields;
 };
 
-const normalizePatchHistoryEntries = (entries: unknown[][]): unknown[][] => {
-  return entries.map((entry) =>
-    entry.map((operation) =>
-      getPatchOperationFields(operation as Record<string, unknown>)
-    )
-  ) as unknown[][];
-};
-
-export const normalizeTravelPatches = <P extends PatchesOption = {}>(
-  patches: TravelPatches<P>
-): TravelPatches<P> =>
-  ({
-    patches: normalizePatchHistoryEntries(patches.patches),
-    inversePatches: normalizePatchHistoryEntries(patches.inversePatches),
-  }) as TravelPatches<P>;
-
-const isPatchHistoryEntries = (value: unknown): value is unknown[][] => {
+const normalizePatchHistoryEntries = (value: unknown): unknown[][] | null => {
   if (!isStandardDenseArray(value)) {
-    return false;
+    return null;
   }
 
+  const normalized = new Array(value.length) as unknown[][];
   for (let entryIndex = 0; entryIndex < value.length; entryIndex += 1) {
     const entry = value[entryIndex];
     if (!isStandardDenseArray(entry)) {
-      return false;
+      return null;
     }
 
+    const normalizedEntry = new Array(entry.length);
     for (
       let operationIndex = 0;
       operationIndex < entry.length;
       operationIndex += 1
     ) {
-      if (!isValidPatchOperation(entry[operationIndex])) {
-        return false;
+      const operation = normalizePatchOperation(entry[operationIndex]);
+      if (!operation) {
+        return null;
       }
+      normalizedEntry[operationIndex] = operation;
     }
+    normalized[entryIndex] = normalizedEntry;
   }
 
-  return true;
+  return normalized;
 };
 
-export const getTravelPatchesValidationError = <P extends PatchesOption = {}>(
+type TravelPatchesValidation<P extends PatchesOption> =
+  | { error: string }
+  | { error: null; patches: TravelPatches<P> };
+
+export const validateTravelPatches = <P extends PatchesOption = {}>(
   patches: unknown
-): string | null => {
+): TravelPatchesValidation<P> => {
   if (!isObjectRecord(patches) || Array.isArray(patches)) {
-    return `patches must be an object with 'patches' and 'inversePatches' arrays`;
+    return {
+      error: `patches must be an object with 'patches' and 'inversePatches' arrays`,
+    };
   }
 
-  const patchHistory = patches as TravelPatches<P>;
-  if (
-    !isPatchHistoryEntries(patchHistory.patches) ||
-    !isPatchHistoryEntries(patchHistory.inversePatches)
-  ) {
-    return `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`;
+  const patchesProperty = getOwnDataProperty(patches, 'patches');
+  const inversePatchesProperty = getOwnDataProperty(patches, 'inversePatches');
+  const forward = normalizePatchHistoryEntries(patchesProperty?.value);
+  const inverse = normalizePatchHistoryEntries(inversePatchesProperty?.value);
+  if (!forward || !inverse) {
+    return {
+      error: `patches must have 'patches' and 'inversePatches' arrays of JSON Patch operations`,
+    };
   }
 
-  if (containsMapOrSet(normalizeTravelPatches(patchHistory))) {
-    return `patches must not contain Map or Set values`;
+  const normalized = {
+    patches: forward,
+    inversePatches: inverse,
+  } as TravelPatches<P>;
+  if (containsMapOrSet(normalized)) {
+    return { error: `patches must not contain Map or Set values` };
   }
 
-  if (patchHistory.patches.length !== patchHistory.inversePatches.length) {
-    return `patches.patches and patches.inversePatches must have the same length`;
+  if (forward.length !== inverse.length) {
+    return {
+      error: `patches.patches and patches.inversePatches must have the same length`,
+    };
   }
 
-  return null;
+  return { error: null, patches: normalized };
 };
 
 const parseSnapshotInput = (input: unknown): unknown => {
@@ -222,6 +227,19 @@ const parseSnapshotInput = (input: unknown): unknown => {
   }
 };
 
+const requireSnapshotDataProperty = (
+  descriptor: PropertyDescriptor | undefined,
+  field: string
+): DataPropertyDescriptor => {
+  if (!descriptor || !('value' in descriptor)) {
+    throw new TravelsPersistenceError(
+      'INVALID_SCHEMA',
+      `Travels: persisted history '${field}' must be an own data property.`
+    );
+  }
+  return descriptor as DataPropertyDescriptor;
+};
+
 const normalizeSnapshot = <S, P extends PatchesOption = {}>(
   snapshot: unknown
 ): TravelsSerializedHistory<S, P> => {
@@ -232,53 +250,67 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     );
   }
 
-  if (snapshot.version !== TRAVELS_HISTORY_SCHEMA_VERSION) {
+  const versionDescriptor = Object.getOwnPropertyDescriptor(
+    snapshot,
+    'version'
+  );
+  const stateDescriptor = Object.getOwnPropertyDescriptor(snapshot, 'state');
+  const patchesDescriptor = Object.getOwnPropertyDescriptor(
+    snapshot,
+    'patches'
+  );
+  const positionDescriptor = Object.getOwnPropertyDescriptor(
+    snapshot,
+    'position'
+  );
+  const metadataDescriptor = Object.getOwnPropertyDescriptor(
+    snapshot,
+    'metadata'
+  );
+  const version = requireSnapshotDataProperty(
+    versionDescriptor,
+    'version'
+  ).value;
+  if (version !== TRAVELS_HISTORY_SCHEMA_VERSION) {
     throw new TravelsPersistenceError(
       'UNSUPPORTED_VERSION',
       `Travels: unsupported persisted history version ${String(
-        snapshot.version
+        version
       )}. Expected ${TRAVELS_HISTORY_SCHEMA_VERSION}.`
     );
   }
 
-  if (!('state' in snapshot)) {
-    throw new TravelsPersistenceError(
-      'INVALID_SCHEMA',
-      "Travels: persisted history must include 'state'."
-    );
-  }
-
-  if (containsMapOrSet(snapshot.state)) {
+  const state = requireSnapshotDataProperty(stateDescriptor, 'state').value;
+  if (containsMapOrSet(state)) {
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
       'Travels: persisted history state must not contain Map or Set values.'
     );
   }
 
-  if (!('patches' in snapshot)) {
-    throw new TravelsPersistenceError(
-      'INVALID_SCHEMA',
-      "Travels: persisted history must include 'patches'."
-    );
-  }
-
-  const patchesInput = snapshot.patches as TravelPatches<P> | undefined;
-  const patchValidationError = getTravelPatchesValidationError(patchesInput);
-  if (patchValidationError) {
+  const patchesInput = requireSnapshotDataProperty(
+    patchesDescriptor,
+    'patches'
+  ).value;
+  const patchValidation = validateTravelPatches<P>(patchesInput);
+  if (patchValidation.error !== null) {
     throw new TravelsPersistenceError(
       'INVALID_PATCHES',
-      `Travels: ${patchValidationError}.`
+      `Travels: ${patchValidation.error}.`
     );
   }
-  const patches = normalizeTravelPatches(patchesInput!);
+  const { patches } = patchValidation;
 
-  const position = snapshot.position;
+  const position = requireSnapshotDataProperty(
+    positionDescriptor,
+    'position'
+  ).value;
   if (
     typeof position !== 'number' ||
     !Number.isFinite(position) ||
     !Number.isInteger(position) ||
     position < 0 ||
-    (patches && position > patches.patches.length)
+    position > patches.patches.length
   ) {
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
@@ -288,7 +320,9 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     );
   }
 
-  const metadataInput = snapshot.metadata as unknown;
+  const metadataInput = metadataDescriptor
+    ? requireSnapshotDataProperty(metadataDescriptor, 'metadata').value
+    : undefined;
   let metadata: Array<TravelMetadata | undefined> | undefined;
   if (metadataInput !== undefined) {
     if (!isStandardDenseArray(metadataInput)) {
@@ -312,7 +346,7 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
     }
   }
 
-  if (metadata !== undefined && metadata.length !== patches!.patches.length) {
+  if (metadata !== undefined && metadata.length !== patches.patches.length) {
     throw new TravelsPersistenceError(
       'INVALID_SCHEMA',
       "Travels: persisted history 'metadata' length must match patches length."
@@ -321,8 +355,8 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
 
   return {
     version: TRAVELS_HISTORY_SCHEMA_VERSION,
-    state: snapshot.state as S,
-    patches: patches as TravelPatches<P>,
+    state: state as S,
+    patches,
     position,
     metadata,
   };

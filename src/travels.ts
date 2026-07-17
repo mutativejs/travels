@@ -26,9 +26,8 @@ import type {
 } from './type.js';
 import {
   deserializeTravelsHistory,
-  getTravelPatchesValidationError,
-  normalizeTravelPatches,
   TRAVELS_HISTORY_SCHEMA_VERSION,
+  validateTravelPatches,
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError } from './errors.js';
@@ -374,21 +373,6 @@ const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
   return isPlainObject(current) && isPlainObject(snapshot);
 };
 
-const getInitialPatchesValidationError = <P extends PatchesOption = {}>(
-  initialPatches: TravelPatches<P> | undefined
-): string | null => {
-  if (!initialPatches) {
-    return null;
-  }
-
-  return (
-    getTravelPatchesValidationError(initialPatches)?.replace(
-      /(^|\s)patches(?=\.| must)/g,
-      '$1initialPatches'
-    ) ?? null
-  );
-};
-
 // Align mutable value updates with immutable replacements by syncing objects
 const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
   const draftIsArray = Array.isArray(draft);
@@ -539,8 +523,14 @@ export class Travels<
       );
     }
 
+    const initialPatchesValidation = initialPatches
+      ? validateTravelPatches<P>(initialPatches)
+      : undefined;
     const initialPatchesValidationError =
-      getInitialPatchesValidationError(initialPatches);
+      initialPatchesValidation?.error?.replace(
+        /(^|\s)patches(?=\.| must)/g,
+        '$1initialPatches'
+      ) ?? null;
 
     if (initialPatchesValidationError) {
       if (strictInitialPatches) {
@@ -556,8 +546,8 @@ export class Travels<
 
       initialPatches = undefined;
       initialPosition = 0;
-    } else if (initialPatches) {
-      initialPatches = normalizeTravelPatches(initialPatches);
+    } else if (initialPatchesValidation?.error === null) {
+      initialPatches = initialPatchesValidation.patches;
     }
 
     assertSupportedRuntimeState(initialState);

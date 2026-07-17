@@ -936,6 +936,170 @@ describe('Persistence Example - State Persistence', () => {
     }
   });
 
+  test.each(['version', 'state', 'patches', 'position', 'metadata'] as const)(
+    'rejects a top-level %s accessor without invoking it',
+    (field) => {
+      const snapshot: Record<string, unknown> = {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 0 },
+        patches: { patches: [], inversePatches: [] },
+        position: 0,
+        metadata: [],
+      };
+      const firstValue = snapshot[field];
+      const getter = vi
+        .fn()
+        .mockReturnValueOnce(firstValue)
+        .mockReturnValue(new Set([1]));
+      Object.defineProperty(snapshot, field, {
+        configurable: true,
+        enumerable: true,
+        get: getter,
+      });
+
+      expect(() => Travels.deserialize(snapshot)).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_SCHEMA',
+          message: `Travels: persisted history '${field}' must be an own data property.`,
+        })
+      );
+      expect(getter).not.toHaveBeenCalled();
+    }
+  );
+
+  test.each(['version', 'state', 'patches', 'position'] as const)(
+    'requires the top-level %s field to be own',
+    (field) => {
+      const snapshot: Record<string, unknown> = {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 0 },
+        patches: { patches: [], inversePatches: [] },
+        position: 0,
+      };
+      const inheritedValue = snapshot[field];
+      delete snapshot[field];
+      Object.setPrototypeOf(snapshot, { [field]: inheritedValue });
+
+      expect(() => Travels.deserialize(snapshot)).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_SCHEMA',
+          message: `Travels: persisted history '${field}' must be an own data property.`,
+        })
+      );
+    }
+  );
+
+  test.each(['patches', 'inversePatches'] as const)(
+    'rejects a patch container %s accessor without invoking it',
+    (field) => {
+      const patchHistory: Record<string, unknown> = {
+        patches: [],
+        inversePatches: [],
+      };
+      const fieldValue = patchHistory[field];
+      const getter = vi.fn(() => fieldValue);
+      Object.defineProperty(patchHistory, field, {
+        configurable: true,
+        enumerable: true,
+        get: getter,
+      });
+      const snapshot = {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 0 },
+        patches: patchHistory,
+        position: 0,
+      };
+
+      expect(() => Travels.deserialize(snapshot)).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+      expect(() =>
+        createTravels(
+          { count: 0 },
+          {
+            initialPatches: patchHistory as TravelPatches,
+            strictInitialPatches: true,
+            warnOnUnsupportedState: false,
+          }
+        )
+      ).toThrow(/initialPatches.*JSON Patch operations/);
+      expect(getter).not.toHaveBeenCalled();
+    }
+  );
+
+  test('rejects inherited patch container fields', () => {
+    const patchHistory = Object.create({
+      patches: [],
+      inversePatches: [],
+    });
+
+    expect(() =>
+      Travels.deserialize({
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 0 },
+        patches: patchHistory,
+        position: 0,
+      })
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_PATCHES',
+      })
+    );
+  });
+
+  test('captures accepted snapshot and patch container fields exactly once', () => {
+    const patchDescriptorReads: PropertyKey[] = [];
+    const patches = new Proxy(
+      { patches: [], inversePatches: [] },
+      {
+        get() {
+          throw new Error('patch container field read directly');
+        },
+        getOwnPropertyDescriptor(target, key) {
+          patchDescriptorReads.push(key);
+          return Reflect.getOwnPropertyDescriptor(target, key);
+        },
+      }
+    );
+    const snapshotDescriptorReads: PropertyKey[] = [];
+    const snapshot = new Proxy(
+      {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 0 },
+        patches,
+        position: 0,
+        metadata: [],
+      },
+      {
+        get() {
+          throw new Error('snapshot field read directly');
+        },
+        getOwnPropertyDescriptor(target, key) {
+          snapshotDescriptorReads.push(key);
+          return Reflect.getOwnPropertyDescriptor(target, key);
+        },
+      }
+    );
+
+    expect(Travels.deserialize(snapshot)).toEqual({
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: { count: 0 },
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+      metadata: [],
+    });
+    expect(snapshotDescriptorReads).toEqual([
+      'version',
+      'state',
+      'patches',
+      'position',
+      'metadata',
+    ]);
+    expect(patchDescriptorReads).toEqual(['patches', 'inversePatches']);
+  });
+
   test.each([
     ['returns a Set', () => new Set([1])],
     [

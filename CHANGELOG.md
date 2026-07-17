@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file.
 - Reject Map and Set instances created in another JavaScript realm at runtime and persistence boundaries.
 - Canonicalize object-form patch operations from own data properties so accessors cannot bypass validation or execute during history cloning.
 - Delay auto-freezing candidate updates until Map/Set validation succeeds so rejected updates leave caller-owned values untouched.
+- Capture object-form snapshot and patch-container fields once from own data properties, rejecting accessors and inherited fields without evaluating them.
 
 ### Changed
 

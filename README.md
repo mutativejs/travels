@@ -811,7 +811,11 @@ Every `Travels.deserialize(...)` call validates:
 - JSON Patch operation names and paths
 - position bounds
 
-Object-form snapshots follow the same shape produced by JSON: patch-history
+Object-form snapshots follow the same shape produced by JSON. Top-level
+`version`, `state`, `patches`, `position`, and optional `metadata` fields, plus
+the patch container's `patches` and `inversePatches` fields, must be own data
+properties. Accessors and inherited fields are not evaluated or accepted; each
+accepted field is captured once for validation and return. Patch-history
 containers, patch groups, array paths, and metadata lists must be plain dense
 arrays with `Array.prototype`, indexed data properties, and no custom own
 properties. Frozen plain arrays are accepted. Invalid arrays produce
