@@ -1234,10 +1234,15 @@ export class Travels<
         this.options
       ) as [S, Patches<P>, Patches<P>];
 
-      patches = p;
-      inversePatches = ip;
+      const replacesRoot = this.hasRootReplacement(p);
+      // Mutable state and removed values can remain reachable through reactive
+      // stores or caller-held references. Archive detached patch values before
+      // applying the original forward patches to the live state so neither
+      // later mutation nor lazy observer access can rewrite history.
+      patches = clonePatchGroup(p);
+      inversePatches = clonePatchGroup(ip);
 
-      if (this.hasRootReplacement(patches)) {
+      if (replacesRoot) {
         if (
           process.env.NODE_ENV !== 'production' &&
           !this.mutableRootReplaceWarned
@@ -1251,8 +1256,9 @@ export class Travels<
         // Root replacement cannot be applied mutably; fall back to immutable assignment.
         this.state = nextState;
       } else {
-        // Apply patches to mutate the existing state object
-        apply(this.state as object, patches, { mutable: true });
+        // Apply the original patches. Applying the archived clones would make
+        // their object-valued payloads part of the live state again.
+        apply(this.state as object, p, { mutable: true });
       }
     } else {
       // For immutable state: create new object
@@ -1280,8 +1286,8 @@ export class Travels<
             this.options
           )) as unknown as [S, Patches<P>, Patches<P>];
 
-      patches = p;
-      inversePatches = ip;
+      patches = this.mutable ? clonePatchGroup(p) : p;
+      inversePatches = this.mutable ? clonePatchGroup(ip) : ip;
       this.state = nextState;
     }
 

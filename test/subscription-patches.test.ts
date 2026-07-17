@@ -2,6 +2,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { createTravels, type TravelPatches } from '../src/index';
 
 describe('subscription patch snapshots', () => {
+  type RootSwitchState = { items: number[] } | number[];
+
   test('does not clone history when observers ignore the patches argument', () => {
     const travels = createTravels({ count: 0 }, { maxHistory: 1_000 });
     const getPatches = vi.spyOn(travels, 'getPatches');
@@ -92,5 +94,33 @@ describe('subscription patch snapshots', () => {
       [{ op: 'replace', path: ['count'], value: 1 }],
     ]);
     expect(travels.getPatches().patches[0]).toHaveLength(2);
+  });
+
+  test('retains mutable root replacement values across later updates', () => {
+    let firstSnapshot: TravelPatches | undefined;
+    const travels = createTravels<RootSwitchState>(
+      { items: [0] },
+      { mutable: true, maxHistory: 10, warnOnUnsupportedState: false }
+    );
+    travels.subscribe((_state, patches) => {
+      firstSnapshot ??= patches;
+    });
+
+    travels.setState([1, 2]);
+    travels.setState((draft) => {
+      if (Array.isArray(draft)) {
+        draft.push(3);
+      }
+    });
+
+    expect(firstSnapshot!.patches).toEqual([
+      [{ op: 'replace', path: [], value: [1, 2] }],
+    ]);
+
+    travels.go(0);
+    travels.go(1);
+    expect(travels.getState()).toEqual([1, 2]);
+    travels.forward();
+    expect(travels.getState()).toEqual([1, 2, 3]);
   });
 });

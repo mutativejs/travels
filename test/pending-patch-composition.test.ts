@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, Travels } from '../src/index';
 
 const isRootReplacement = (operation: { op: string; path: unknown }) =>
   operation.op === 'replace' &&
@@ -7,6 +7,8 @@ const isRootReplacement = (operation: { op: string; path: unknown }) =>
     (Array.isArray(operation.path) && operation.path.length === 0));
 
 describe('pending patch composition', () => {
+  type RootSwitchState = { items: number[] } | number[];
+
   test('manual archive preserves granular patches and exact inverse order', () => {
     const initial = {
       payload: 'x'.repeat(100_000),
@@ -75,6 +77,61 @@ describe('pending patch composition', () => {
       count: 1,
       items: [1, 2],
     });
+  });
+
+  test('manual archive detaches mutable root replacements before composition', () => {
+    const travels = createTravels<RootSwitchState>(
+      { items: [0] },
+      {
+        autoArchive: false,
+        mutable: true,
+        warnOnUnsupportedState: false,
+      }
+    );
+
+    travels.setState([1, 2]);
+    travels.setState((draft) => {
+      if (Array.isArray(draft)) {
+        draft.push(3);
+      }
+    });
+    travels.archive();
+
+    expect(travels.getState()).toEqual([1, 2, 3]);
+    expect(() =>
+      Travels.deserialize(travels.serialize(), { validation: 'semantic' })
+    ).not.toThrow();
+
+    travels.back();
+    expect(travels.getState()).toEqual({ items: [0] });
+    travels.forward();
+    expect(travels.getState()).toEqual([1, 2, 3]);
+  });
+
+  test('transaction detaches mutable root replacements before composition', () => {
+    const travels = createTravels<RootSwitchState>(
+      { items: [0] },
+      { mutable: true, warnOnUnsupportedState: false }
+    );
+
+    travels.transaction(() => {
+      travels.setState([1, 2]);
+      travels.setState((draft) => {
+        if (Array.isArray(draft)) {
+          draft.push(3);
+        }
+      });
+    });
+
+    expect(travels.getState()).toEqual([1, 2, 3]);
+    expect(() =>
+      Travels.deserialize(travels.serialize(), { validation: 'semantic' })
+    ).not.toThrow();
+
+    travels.back();
+    expect(travels.getState()).toEqual({ items: [0] });
+    travels.forward();
+    expect(travels.getState()).toEqual([1, 2, 3]);
   });
 
   test('root replacement followed by nested edits remains reversible', () => {
