@@ -211,7 +211,7 @@ describe('Coverage Improvements', () => {
       expect(travels.canBack()).toBe(false); // Can't go further back
     });
 
-    test('manual archive uses pendingState snapshot before async reset', () => {
+    test('manual archive works immediately after an update', () => {
       interface State {
         value: number;
       }
@@ -225,15 +225,13 @@ describe('Coverage Improvements', () => {
       );
 
       travels.setState({ value: 1 });
-      expect((travels as any).pendingState).not.toBeNull();
-      // Archive immediately so pendingState is still populated
       travels.archive();
 
       expect(travels.getPatches().patches.length).toBe(1);
       expect(travels.getHistory().map((state) => state.value)).toEqual([0, 1]);
     });
 
-    test('manual archive falls back to committed state after pendingState reset', async () => {
+    test('manual archive is independent of microtask timing', async () => {
       interface State {
         value: number;
       }
@@ -248,7 +246,6 @@ describe('Coverage Improvements', () => {
 
       travels.setState({ value: 1 });
       await Promise.resolve();
-      expect((travels as any).pendingState).toBeNull();
 
       travels.archive();
 
@@ -256,7 +253,7 @@ describe('Coverage Improvements', () => {
       expect(travels.getHistory().map((state) => state.value)).toEqual([0, 1]);
     });
 
-    test('pendingState reset does not clear newer updates before queued microtasks', async () => {
+    test('multiple pending updates remain composable across microtasks', async () => {
       interface State {
         value: number;
       }
@@ -268,32 +265,25 @@ describe('Coverage Improvements', () => {
         }
       );
 
-      const observed: Array<number | null> = [];
-
       travels.setState({ value: 1 });
-      Promise.resolve().then(() => {
-        observed.push((travels as any).pendingState?.value ?? null);
-      });
-      travels.setState({ value: 2 });
-
       await Promise.resolve();
+      travels.setState({ value: 2 });
+      travels.archive();
 
-      expect(observed).toEqual([2]);
-      expect((travels as any).pendingState).toBeNull();
+      expect(travels.getHistory().map((state) => state.value)).toEqual([0, 2]);
+      travels.back();
+      expect(travels.getState()).toEqual({ value: 0 });
     });
 
-    test('no-op updates do not populate pendingState', async () => {
+    test('no-op updates do not create pending archive entries', () => {
       const travels = createTravels({ value: 0 }, { autoArchive: false });
 
       travels.setState(() => {
         // noop
       });
 
-      expect((travels as any).pendingState).toBeNull();
-
-      await Promise.resolve();
-
-      expect((travels as any).pendingState).toBeNull();
+      expect(travels.canArchive()).toBe(false);
+      expect(travels.getPatches().patches).toHaveLength(0);
     });
   });
 

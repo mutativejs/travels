@@ -101,8 +101,6 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialPosition: number;
   initialPatches?: TravelPatches<P>;
   initialMetadata?: Array<TravelMetadata | undefined>;
-  pendingState: S | null;
-  pendingStateVersion: number;
   trackingPauseDepth: number;
 };
 
@@ -396,15 +394,12 @@ export class Travels<
   private initialPosition: number;
   private initialPatches?: TravelPatches<P>;
   private initialMetadata?: Array<TravelMetadata | undefined>;
-  private autoArchive: A;
-  private configuredAutoArchive: A;
+  private readonly autoArchive: A;
   private options: MutativeOptions<PatchesOption | true, F>;
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
   private devtools?: (event: TravelsDevtoolsEvent<S, P>) => void;
   private listeners: Set<Listener<S, P>> = new Set();
-  private pendingState: S | null = null;
-  private pendingStateVersion = 0;
   private controlsCache:
     | RebasableTravelsControls<S, F, P>
     | RebasableManualTravelsControls<S, F, P>
@@ -502,7 +497,6 @@ export class Travels<
     this.initialState = cloneInitialSnapshot(initialState);
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
-    this.configuredAutoArchive = autoArchive;
     this.mutable = mutable;
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
@@ -649,6 +643,10 @@ export class Travels<
   private invalidateHistoryCache(): void {
     this.historyVersion += 1;
     this.historyCache = null;
+  }
+
+  private isAutoArchiving(): boolean {
+    return this.autoArchive && this.transactionDepth === 0;
   }
 
   /**
@@ -856,8 +854,6 @@ export class Travels<
       initialMetadata: this.initialMetadata
         ? cloneTravelMetadataList(this.initialMetadata)
         : undefined,
-      pendingState: this.pendingState,
-      pendingStateVersion: this.pendingStateVersion,
       trackingPauseDepth: this.trackingPauseDepth,
     };
   }
@@ -879,8 +875,6 @@ export class Travels<
     this.initialMetadata = snapshot.initialMetadata
       ? cloneTravelMetadataList(snapshot.initialMetadata)
       : undefined;
-    this.pendingState = snapshot.pendingState;
-    this.pendingStateVersion = snapshot.pendingStateVersion;
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
 
     this.invalidateHistoryCache();
@@ -924,7 +918,6 @@ export class Travels<
   public setState(updater: Updater<S>, metadata?: TravelMetadata): void {
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
-    let nextPendingState: S;
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
@@ -992,13 +985,9 @@ export class Travels<
 
         // Root replacement cannot be applied mutably; fall back to immutable assignment.
         this.state = nextState;
-        nextPendingState = nextState;
       } else {
         // Apply patches to mutate the existing state object
         apply(this.state as object, patches, { mutable: true });
-
-        // Keep the same reference
-        nextPendingState = this.state;
       }
     } else {
       // For immutable state: create new object
@@ -1033,7 +1022,6 @@ export class Travels<
       patches = p;
       inversePatches = ip;
       this.state = nextState;
-      nextPendingState = nextState;
     }
 
     const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
@@ -1041,16 +1029,6 @@ export class Travels<
     if (hasNoChanges) {
       return;
     }
-
-    this.pendingState = nextPendingState;
-    const pendingStateVersion = ++this.pendingStateVersion;
-
-    // Reset pendingState asynchronously, but only if no newer update landed.
-    Promise.resolve().then(() => {
-      if (this.pendingStateVersion === pendingStateVersion) {
-        this.pendingState = null;
-      }
-    });
 
     this.warnAboutStateCompatibility(this.state);
 
@@ -1061,7 +1039,7 @@ export class Travels<
       return;
     }
 
-    if (this.autoArchive) {
+    if (this.isAutoArchiving()) {
       const notLast = this.position < this.allPatches.patches.length;
 
       // Remove all patches after the current position
@@ -1139,7 +1117,7 @@ export class Travels<
   }
 
   public archive(metadata?: TravelMetadata): void {
-    if (this.configuredAutoArchive) {
+    if (this.autoArchive) {
       console.warn('Auto archive is enabled, no need to archive manually');
       return;
     }
@@ -1175,7 +1153,6 @@ export class Travels<
       );
     }
 
-    const previousAutoArchive = this.autoArchive;
     const previousMetadata = this.transactionMetadata;
     const isRootTransaction = this.transactionDepth === 0;
     const transactionSnapshot = this.captureTransactionSnapshot();
@@ -1187,8 +1164,6 @@ export class Travels<
     } else if (!this.transactionMetadata && metadata) {
       this.transactionMetadata = metadata;
     }
-    this.autoArchive = false as A;
-
     try {
       assertSynchronousResult(fn(), 'transaction');
     } catch (error) {
@@ -1200,7 +1175,6 @@ export class Travels<
       this.transactionDepth -= 1;
 
       if (this.transactionDepth === 0) {
-        this.autoArchive = previousAutoArchive;
         if (!failed) {
           const committed = this.archivePending(this.transactionMetadata);
           if (committed) {
@@ -1262,33 +1236,18 @@ export class Travels<
     patches: Patches<P>;
     inversePatches: Patches<P>;
   } {
-    // Use pendingState if available, otherwise use current state.
-    const stateToUse = (this.pendingState ?? this.state) as object;
-
-    const archivedState = this.applyImmutably(
-      stateToUse,
-      this.tempPatches.inversePatches.flat().reverse()
-    ) as S;
-
-    // Merge temp patches into the same entry shape archive() would commit.
-    const [, patches, inversePatches] = create(
-      stateToUse,
-      (): object =>
-        isObjectLike(archivedState)
-          ? (rawReturn(archivedState as object) as object)
-          : (archivedState as object),
-      this.options
-    ) as [S, Patches<P>, Patches<P>];
-
     return {
-      patches: inversePatches,
-      inversePatches: patches,
+      patches: composePatchGroups(this.tempPatches.patches, 'forward'),
+      inversePatches: composePatchGroups(
+        this.tempPatches.inversePatches,
+        'backward'
+      ),
     };
   }
 
   private getAllPatches(): TravelPatches<P> {
     const shouldArchive =
-      !this.autoArchive && !!this.tempPatches.patches.length;
+      !this.isAutoArchiving() && !!this.tempPatches.patches.length;
 
     if (shouldArchive) {
       const pendingArchive = this.getPendingArchiveEntry();
@@ -1340,13 +1299,14 @@ export class Travels<
     const _allPatches = this.getAllPatches();
 
     const patches =
-      !this.autoArchive && _allPatches.patches.length > this.maxHistory
+      !this.isAutoArchiving() && _allPatches.patches.length > this.maxHistory
         ? _allPatches.patches.slice(
             _allPatches.patches.length - this.maxHistory
           )
         : _allPatches.patches;
     const inversePatches =
-      !this.autoArchive && _allPatches.inversePatches.length > this.maxHistory
+      !this.isAutoArchiving() &&
+      _allPatches.inversePatches.length > this.maxHistory
         ? _allPatches.inversePatches.slice(
             _allPatches.inversePatches.length - this.maxHistory
           )
@@ -1402,7 +1362,7 @@ export class Travels<
     }
 
     const shouldArchive =
-      !this.autoArchive && !!this.tempPatches.patches.length;
+      !this.isAutoArchiving() && !!this.tempPatches.patches.length;
 
     if (shouldArchive) {
       this.archivePending();
@@ -1554,7 +1514,7 @@ export class Travels<
    */
   public canForward(): boolean {
     const shouldArchive =
-      !this.autoArchive && !!this.tempPatches.patches.length;
+      !this.isAutoArchiving() && !!this.tempPatches.patches.length;
     const _allPatches = this.getAllPatches();
 
     // Temporary patches represent the current state, not a future state
@@ -1568,7 +1528,7 @@ export class Travels<
    */
   public canArchive(): boolean {
     return (
-      !this.configuredAutoArchive && !!this.tempPatches.patches.length
+      !this.autoArchive && !!this.tempPatches.patches.length
     );
   }
 
@@ -1584,7 +1544,7 @@ export class Travels<
    */
   public getPatches(): TravelPatches<P> {
     const shouldArchive =
-      !this.autoArchive && !!this.tempPatches.patches.length;
+      !this.isAutoArchiving() && !!this.tempPatches.patches.length;
     const patchSource = shouldArchive ? this.getAllPatches() : this.allPatches;
     return cloneTravelPatches(patchSource);
   }
@@ -1608,7 +1568,7 @@ export class Travels<
       this.allPatches.patches.length
     );
 
-    if (!this.autoArchive && this.tempPatches.patches.length) {
+    if (!this.isAutoArchiving() && this.tempPatches.patches.length) {
       metadata.push(cloneTravelMetadata(this.tempMetadata));
     }
 
@@ -1655,7 +1615,7 @@ export class Travels<
       rebase: (): void => self.rebase(),
     };
 
-    if (!this.configuredAutoArchive) {
+    if (!this.autoArchive) {
       (controls as RebasableManualTravelsControls<S, F, P>).archive =
         (metadata?: TravelMetadata): void => self.archive(metadata);
       (controls as RebasableManualTravelsControls<S, F, P>).canArchive =
