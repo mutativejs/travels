@@ -465,6 +465,61 @@ describe('persisted history semantic validation', () => {
     );
   });
 
+  test.each([
+    ['Map', () => new Map([['value', 1]])],
+    ['Set', () => new Set([1])],
+    [
+      'custom prototype',
+      () => Object.create({ inherited: true }) as Record<string, unknown>,
+    ],
+  ] as const)(
+    'rejects unsupported %s state in an empty history',
+    (_name, createValue) => {
+      expect(() =>
+        Travels.deserialize(
+          emptySnapshot({ value: createValue() }),
+          semanticValidation
+        )
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_HISTORY',
+          entryIndex: undefined,
+          direction: undefined,
+        })
+      );
+    }
+  );
+
+  test('rejects an empty-history accessor without invoking it and uses fallback', () => {
+    let getterCalls = 0;
+    const value = {} as { unsafe: unknown };
+    Object.defineProperty(value, 'unsafe', {
+      enumerable: true,
+      get() {
+        getterCalls += 1;
+        throw new Error('accessor should not run');
+      },
+    });
+    const fallback = emptySnapshot({ safe: true });
+    const onError = vi.fn();
+
+    const history = Travels.deserialize(emptySnapshot({ value }), {
+      ...semanticValidation,
+      fallback,
+      onError,
+    });
+
+    expect(history).toEqual(fallback);
+    expect(getterCalls).toBe(0);
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: undefined,
+        direction: undefined,
+      })
+    );
+  });
+
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>
       Travels.deserialize(
@@ -676,6 +731,15 @@ describe('persisted history semantic validation', () => {
           code: 'INVALID_HISTORY',
           entryIndex: 0,
           direction: 'forward',
+        })
+      );
+      expect(() =>
+        Travels.deserialize(emptySnapshot({ count: 0 }), semanticValidation)
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_HISTORY',
+          entryIndex: undefined,
+          direction: undefined,
         })
       );
     } finally {

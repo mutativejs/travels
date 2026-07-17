@@ -387,11 +387,24 @@ const invalidHistoryError = (
     { cause, entryIndex, direction }
   );
 
-const isolateReplayValue = <T>(
+const invalidHistoryAnchorError = (cause?: unknown): TravelsPersistenceError =>
+  new TravelsPersistenceError(
+    'INVALID_HISTORY',
+    'Travels: persisted history semantic anchor clone failed.',
+    { cause }
+  );
+
+function isolateReplayValue<T>(value: T): T;
+function isolateReplayValue<T>(
   value: T,
   entryIndex: number,
   direction: 'forward' | 'inverse'
-): T => {
+): T;
+function isolateReplayValue<T>(
+  value: T,
+  entryIndex?: number,
+  direction?: 'forward' | 'inverse'
+): T {
   let cause: unknown;
   try {
     if (areReplayStatesEqual(value, value)) {
@@ -403,13 +416,16 @@ const isolateReplayValue = <T>(
   } catch (error) {
     cause = error;
   }
+  if (entryIndex === undefined || direction === undefined) {
+    throw invalidHistoryAnchorError(cause);
+  }
   throw invalidHistoryError(
     entryIndex,
     direction,
     'state clone failed.',
     cause
   );
-};
+}
 
 const replayHistoryEntry = <S, P extends PatchesOption = {}>(
   state: S,
@@ -475,6 +491,10 @@ const validateTravelsHistorySemantics = <
     state: snapshot.state,
     patches: snapshot.patches,
   } as TravelsSerializedHistory<S, P>;
+
+  if (entryCount === 0) {
+    isolateReplayValue(preparedSnapshot);
+  }
 
   for (const direction of ['inverse', 'forward'] as const) {
     const isForward = direction === 'forward';
