@@ -586,7 +586,7 @@ Recovery rules:
 
 - Always provide `fallback` for browser startup paths. It recovers detected parsing, migration, and validation failures; external integrity failures must select a trusted snapshot before deserialization.
 - Select `validation: 'semantic'` for unverified snapshots. Use the default structural mode only when schema validation is sufficient or a trusted application boundary has already verified the snapshot.
-- Use `onError` to log the stable `TravelsPersistenceError.code`; `INVALID_HISTORY` also identifies the failing `entryIndex` and replay `direction`.
+- Use `onError` to log the stable `TravelsPersistenceError.code`; entry-specific `INVALID_HISTORY` replay failures also identify the failing `entryIndex` and replay `direction`, while whole-graph isolation failures omit fields that cannot be attributed truthfully.
 - When recording uses custom Mutative `strict` or `mark` settings, pass the same values through `replayOptions` so semantic validation uses identical replay rules.
 - Normalize Map, Set, built-in subclasses, custom own properties, accessors, non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex` values at the application boundary; semantic comparison rejects those shapes as unverifiable.
 - Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.

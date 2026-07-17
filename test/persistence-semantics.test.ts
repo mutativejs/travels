@@ -26,6 +26,14 @@ const singleValueSnapshot = <S>(state: S, forward: S, inverse: S) => ({
 });
 
 const semanticValidation = { validation: 'semantic' as const };
+const semanticIsolationError = () =>
+  expect.objectContaining<Partial<TravelsPersistenceError>>({
+    code: 'INVALID_HISTORY',
+    message:
+      'Travels: persisted history semantic validation graph could not be isolated.',
+    entryIndex: undefined,
+    direction: undefined,
+  });
 
 describe('persisted history semantic validation', () => {
   test('v1 accepts an internally consistent alternative past without provenance', () => {
@@ -215,13 +223,7 @@ describe('persisted history semantic validation', () => {
         },
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test('rejects RegExp cursors that snapshot cloning cannot preserve', () => {
@@ -236,13 +238,7 @@ describe('persisted history semantic validation', () => {
         singleValueSnapshot(pattern(2), pattern(9), pattern(0)),
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test('rejects hidden state on subclasses of supported built-ins', () => {
@@ -268,13 +264,7 @@ describe('persisted history semantic validation', () => {
         ),
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   const accessorValues = new WeakMap<object, number>();
@@ -338,13 +328,7 @@ describe('persisted history semantic validation', () => {
         singleValueSnapshot(createValue(2), createValue(9), createValue(0)),
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test.each([
@@ -376,13 +360,7 @@ describe('persisted history semantic validation', () => {
         },
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test('rejects replay that changes the array length descriptor', () => {
@@ -402,13 +380,7 @@ describe('persisted history semantic validation', () => {
         },
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test('rejects an observable negative-zero RegExp cursor', () => {
@@ -423,13 +395,7 @@ describe('persisted history semantic validation', () => {
         singleValueSnapshot(pattern(-0), pattern(0), pattern(0)),
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test.each([
@@ -456,13 +422,7 @@ describe('persisted history semantic validation', () => {
         singleValueSnapshot(createValue(), createValue(), createValue()),
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
   });
 
   test.each([
@@ -480,13 +440,7 @@ describe('persisted history semantic validation', () => {
           emptySnapshot({ value: createValue() }),
           semanticValidation
         )
-      ).toThrowError(
-        expect.objectContaining<Partial<TravelsPersistenceError>>({
-          code: 'INVALID_HISTORY',
-          entryIndex: undefined,
-          direction: undefined,
-        })
-      );
+      ).toThrowError(semanticIsolationError());
     }
   );
 
@@ -511,13 +465,7 @@ describe('persisted history semantic validation', () => {
 
     expect(history).toEqual(fallback);
     expect(getterCalls).toBe(0);
-    expect(onError).toHaveBeenCalledWith(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: undefined,
-        direction: undefined,
-      })
-    );
+    expect(onError).toHaveBeenCalledWith(semanticIsolationError());
   });
 
   test.each([
@@ -538,13 +486,7 @@ describe('persisted history semantic validation', () => {
           },
           semanticValidation
         )
-      ).toThrowError(
-        expect.objectContaining<Partial<TravelsPersistenceError>>({
-          code: 'INVALID_HISTORY',
-          entryIndex: 0,
-          direction: 'forward',
-        })
-      );
+      ).toThrowError(semanticIsolationError());
     }
   );
 
@@ -571,13 +513,7 @@ describe('persisted history semantic validation', () => {
 
     expect(history).toEqual(fallback);
     expect(getterCalls).toBe(0);
-    expect(onError).toHaveBeenCalledWith(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'forward',
-      })
-    );
+    expect(onError).toHaveBeenCalledWith(semanticIsolationError());
   });
 
   test('keeps valid metadata caller-owned after semantic isolation', () => {
@@ -596,6 +532,57 @@ describe('persisted history semantic validation', () => {
     });
     expect(Object.isFrozen(metadata)).toBe(false);
     expect(Object.isFrozen(metadata.nested)).toBe(false);
+  });
+
+  test('does not attribute a later patch isolation failure to the first replay entry', () => {
+    const snapshot = {
+      version: 1 as const,
+      state: { count: 0, value: null as Set<number> | null },
+      position: 0,
+      patches: {
+        patches: [
+          [{ op: 'replace' as const, path: ['count'], value: 1 }],
+          [
+            {
+              op: 'replace' as const,
+              path: ['value'],
+              value: new Set([1]),
+            },
+          ],
+        ],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['count'], value: 0 }],
+          [{ op: 'replace' as const, path: ['value'], value: null }],
+        ],
+      },
+    };
+
+    expect(() =>
+      Travels.deserialize(snapshot, semanticValidation)
+    ).toThrowError(semanticIsolationError());
+  });
+
+  test('does not assign a replay direction to metadata isolation failures', () => {
+    const snapshot = {
+      version: 1 as const,
+      state: { count: 1 },
+      position: 1,
+      patches: {
+        patches: [
+          [{ op: 'replace' as const, path: ['count'], value: 1 }],
+          [{ op: 'replace' as const, path: ['count'], value: 2 }],
+        ],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['count'], value: 0 }],
+          [{ op: 'replace' as const, path: ['count'], value: 1 }],
+        ],
+      },
+      metadata: [{ label: 'first' }, { value: new Map([['x', 1]]) }],
+    };
+
+    expect(() =>
+      Travels.deserialize(snapshot, semanticValidation)
+    ).toThrowError(semanticIsolationError());
   });
 
   test('rejects a round trip that changes plain-object own-key order', () => {
@@ -815,13 +802,7 @@ describe('persisted history semantic validation', () => {
 
     expect(() =>
       Travels.deserialize(snapshot, semanticValidation)
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'inverse',
-      })
-    );
+    ).toThrowError(semanticIsolationError());
     expect(setterCalls).toBe(0);
     expect(box.value).toBe(0);
     expect(snapshot.state.box).toBe(box);
@@ -832,22 +813,10 @@ describe('persisted history semantic validation', () => {
     try {
       expect(() =>
         Travels.deserialize(singleValueSnapshot(0, 1, 0), semanticValidation)
-      ).toThrowError(
-        expect.objectContaining<Partial<TravelsPersistenceError>>({
-          code: 'INVALID_HISTORY',
-          entryIndex: 0,
-          direction: 'forward',
-        })
-      );
+      ).toThrowError(semanticIsolationError());
       expect(() =>
         Travels.deserialize(emptySnapshot({ count: 0 }), semanticValidation)
-      ).toThrowError(
-        expect.objectContaining<Partial<TravelsPersistenceError>>({
-          code: 'INVALID_HISTORY',
-          entryIndex: undefined,
-          direction: undefined,
-        })
-      );
+      ).toThrowError(semanticIsolationError());
     } finally {
       vi.unstubAllGlobals();
     }

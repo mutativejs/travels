@@ -830,11 +830,13 @@ corruption detector for unverified storage.
 `Travels.deserialize(...)` throws `TravelsPersistenceError` with a stable
 `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`,
 `INVALID_PATCHES`, `INVALID_HISTORY`, `MIGRATION_FAILED`, or
-`FALLBACK_FAILED`. Semantic failures also expose `entryIndex` and `direction`
-(`forward` or `inverse`). Provide `fallback` when detected parsing, migration,
-or validation failures should recover to a known-safe snapshot instead of
-failing startup. Fallback snapshots pass through the selected validation mode;
-a throwing or invalid fallback reports `FALLBACK_FAILED`.
+`FALLBACK_FAILED`. Entry-specific semantic replay failures also expose
+`entryIndex` and `direction` (`forward` or `inverse`). Whole-graph isolation
+failures omit those fields because no single patch entry or replay direction is
+responsible. Provide `fallback` when detected parsing, migration, or validation
+failures should recover to a known-safe snapshot instead of failing startup.
+Fallback snapshots pass through the selected validation mode; a throwing or
+invalid fallback reports `FALLBACK_FAILED`.
 
 `migrate` and function-valued `fallback` callbacks are synchronous extension
 points. Complete storage reads, network requests, or other asynchronous work

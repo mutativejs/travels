@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Treat plain-object own-key order as observable during semantic round trips, rejecting histories that cannot restore enumeration or JSON serialization order.
 - Validate empty persisted timelines through the semantic isolation pipeline so unsupported anchors cannot bypass fallback recovery.
 - Include persisted metadata in semantic isolation so unsupported values and accessors cannot bypass fallback recovery.
+- Omit unrelated entry and direction fields from whole-graph semantic isolation failures while retaining precise diagnostics for entry-specific replay failures.
 - Scan restored compatibility data once and inspect only the newly committed history entry on ordinary updates, avoiding quadratic development-mode diagnostics as retained history grows.
 - Diagnose null-prototype objects whose nested writes are not drafted into undoable history by default.
 - Diagnose non-durable state, patch values/paths, and history metadata before JSON persistence rejects or changes a snapshot.

@@ -391,10 +391,12 @@ const invalidHistoryError = (
     { cause, entryIndex, direction }
   );
 
-const invalidHistoryAnchorError = (cause?: unknown): TravelsPersistenceError =>
+const invalidHistoryIsolationError = (
+  cause?: unknown
+): TravelsPersistenceError =>
   new TravelsPersistenceError(
     'INVALID_HISTORY',
-    'Travels: persisted history semantic anchor clone failed.',
+    'Travels: persisted history semantic validation graph could not be isolated.',
     { cause }
   );
 
@@ -421,7 +423,7 @@ function isolateReplayValue<T>(
     cause = error;
   }
   if (entryIndex === undefined || direction === undefined) {
-    throw invalidHistoryAnchorError(cause);
+    throw invalidHistoryIsolationError(cause);
   }
   throw invalidHistoryError(
     entryIndex,
@@ -510,11 +512,7 @@ const validateTravelsHistorySemantics = <
       continue;
     }
 
-    const validationSnapshot = isolateReplayValue(
-      preparedSnapshot,
-      index,
-      reverseDirection
-    );
+    const validationSnapshot = isolateReplayValue(preparedSnapshot);
     let state = validationSnapshot.state;
 
     for (; index !== end; index += isForward ? 1 : -1) {
