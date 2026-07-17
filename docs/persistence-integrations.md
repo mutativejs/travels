@@ -72,7 +72,7 @@ function restoreTravels(raw: unknown) {
 }
 ```
 
-For durable persistence, keep Travels state JSON-compatible: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Encode `bigint` explicitly; normalize `NaN`, infinities, and `-0` because JSON either rejects or changes them. Array holes, custom properties, and custom or null prototypes are not preserved by snapshots or JSON/JSON Patch; fill empty slots with `null`, use plain arrays and objects, and store metadata in surrounding objects. IndexedDB can store richer values, but JSON Patch replay and cross-environment migrations are easiest when state uses the same durable subset.
+For durable persistence, keep Travels state and history metadata JSON-compatible: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Encode `bigint` explicitly; normalize `NaN`, infinities, and `-0` because JSON either rejects or changes them. Array holes, custom properties, and custom or null prototypes are not preserved by snapshots or JSON/JSON Patch; fill empty slots with `null` and use plain arrays and objects. IndexedDB can store richer values, but JSON Patch replay and cross-environment migrations are easiest when the complete snapshot uses the same durable subset.
 
 The adapter examples below reuse the `DocumentState`, `restoreTravels(...)`, and `attachAutoSave(...)` definitions from this section.
 

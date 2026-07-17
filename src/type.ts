@@ -11,6 +11,10 @@ export type TravelPatches<P extends PatchesOption = {}> = {
   inversePatches: Patches<P>[];
 };
 
+/**
+ * Metadata attached to a history entry. Keep custom values JSON-compatible
+ * when the history will be persisted with `serialize()`.
+ */
 export type TravelMetadata = {
   label?: string;
   timestamp?: number;
@@ -185,8 +189,9 @@ export type TravelsOptions<
    */
   mutable?: boolean;
   /**
-   * Whether to warn in development when state contains values with weak patch or
-   * JSON persistence semantics, by default `true` in development.
+   * Whether to warn in development when state or persisted history metadata
+   * contains values with weak patch or JSON persistence semantics, by default
+   * `true` in development.
    */
   warnOnUnsupportedState?: boolean;
   /**

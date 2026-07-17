@@ -110,7 +110,7 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   trackingPauseDepth: number;
   branchDiscards: BranchDiscardEffect<P>[];
   hasEffects: boolean;
-  needsStateCheck: boolean;
+  needsCompatibilityCheck: boolean;
 };
 
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
@@ -477,7 +477,7 @@ export class Travels<
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
   private warnOnUnsupportedState: boolean;
-  private stateCompatibilityWarningKeys = new Set<string>();
+  private compatibilityWarningKeys = new Set<string>();
   private trackingPauseDepth = 0;
   private transactionDepth = 0;
   private transactionMeta?: TravelMetadata;
@@ -490,7 +490,7 @@ export class Travels<
     [Patches<P>, Patches<P>, TravelMetadata | undefined]
   >;
   private transactionHasEffects = false;
-  private transactionNeedsStateCheck = false;
+  private transactionNeedsCompatibilityCheck = false;
   private publishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
@@ -590,8 +590,6 @@ export class Travels<
       enablePatches: patchesOptions ?? true,
     };
 
-    this.warnAboutStateCompatibility(initialState);
-
     const {
       patches: normalizedPatches,
       position: normalizedPosition,
@@ -620,29 +618,35 @@ export class Travels<
 
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
+
+    this.warnAboutPersistenceCompatibility();
   }
 
-  private warnAboutStateCompatibility(state: unknown): void {
+  private warnAboutCompatibility(
+    subject: 'state' | 'metadata',
+    value: unknown
+  ): void {
     if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
       return;
     }
 
     this.publishEffects(() => {
       try {
-        const issues = findStateCompatibilityIssues(state, {
-          allowFrozen: this.options.enableAutoFreeze === true,
-          mutable: this.mutable,
+        const issues = findStateCompatibilityIssues(value, {
+          allowFrozen:
+            subject === 'state' && this.options.enableAutoFreeze === true,
+          mutable: subject === 'state' && this.mutable,
         });
 
         for (const issue of issues) {
-          const key = `${issue.code}:${issue.path}`;
-          if (this.stateCompatibilityWarningKeys.has(key)) {
+          const key = `${subject}:${issue.code}:${issue.path}`;
+          if (this.compatibilityWarningKeys.has(key)) {
             continue;
           }
 
-          this.stateCompatibilityWarningKeys.add(key);
+          this.compatibilityWarningKeys.add(key);
           console.warn(
-            `Travels state compatibility warning at ${issue.path}: ${issue.message}`
+            `Travels ${subject} compatibility warning at ${issue.path}: ${issue.message}`
           );
         }
       } catch (error) {
@@ -651,13 +655,45 @@ export class Travels<
     });
   }
 
-  private checkStateCompatibilityAfterCommit(): void {
-    if (this.transactionDepth > 0) {
-      this.transactionNeedsStateCheck = true;
+  private warnAboutPersistenceCompatibility(): void {
+    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
       return;
     }
 
-    this.warnAboutStateCompatibility(this.state);
+    this.warnAboutCompatibility('state', this.state);
+
+    if (this.maxHistory === 0) {
+      return;
+    }
+
+    const hasPendingMetadata =
+      !this.isAutoArchiving() && this.tempPatches.patches.length > 0;
+    const metadataCount =
+      this.allPatches.patches.length + (hasPendingMetadata ? 1 : 0);
+    const retainedStart = Math.max(0, metadataCount - this.maxHistory);
+    for (
+      let index = retainedStart;
+      index < this.allPatches.patches.length;
+      index += 1
+    ) {
+      const metadata = this.allMetadata[index];
+      if (metadata !== undefined) {
+        this.warnAboutCompatibility('metadata', metadata);
+      }
+    }
+
+    if (hasPendingMetadata && this.tempMetadata !== undefined) {
+      this.warnAboutCompatibility('metadata', this.tempMetadata);
+    }
+  }
+
+  private checkPersistenceCompatibilityAfterCommit(): void {
+    if (this.transactionDepth > 0) {
+      this.transactionNeedsCompatibilityCheck = true;
+      return;
+    }
+
+    this.warnAboutPersistenceCompatibility();
   }
 
   private normalizeInitialHistory(
@@ -1126,7 +1162,7 @@ export class Travels<
       trackingPauseDepth: this.trackingPauseDepth,
       branchDiscards: this.transactionBranchDiscards.slice(),
       hasEffects: this.transactionHasEffects,
-      needsStateCheck: this.transactionNeedsStateCheck,
+      needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
     };
   }
 
@@ -1150,7 +1186,7 @@ export class Travels<
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
     this.transactionBranchDiscards = snapshot.branchDiscards.slice();
     this.transactionHasEffects = snapshot.hasEffects;
-    this.transactionNeedsStateCheck = snapshot.needsStateCheck;
+    this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
 
     this.invalidateHistoryCache();
   }
@@ -1304,7 +1340,7 @@ export class Travels<
     if (this.trackingPauseDepth > 0) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
-      this.checkStateCompatibilityAfterCommit();
+      this.checkPersistenceCompatibilityAfterCommit();
       this.emitChange('replaceStateWithoutHistory', metadata);
       return;
     }
@@ -1358,7 +1394,7 @@ export class Travels<
     }
 
     this.invalidateHistoryCache();
-    this.checkStateCompatibilityAfterCommit();
+    this.checkPersistenceCompatibilityAfterCommit();
     this.emitChange('setState', metadata, branchDiscard);
   }
 
@@ -1388,6 +1424,7 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
+    this.checkPersistenceCompatibilityAfterCommit();
     if (publishChange) {
       this.emitChange('archive', archiveMetadata);
     }
@@ -1459,7 +1496,7 @@ export class Travels<
         );
       }
       this.transactionHasEffects = false;
-      this.transactionNeedsStateCheck = false;
+      this.transactionNeedsCompatibilityCheck = false;
     } else if (!this.transactionMeta && metadata) {
       this.transactionMeta = metadata;
     }
@@ -1477,8 +1514,8 @@ export class Travels<
         if (!failed) {
           const committed = this.archivePending(this.transactionMeta, false);
           const shouldPublish = committed || this.transactionHasEffects;
-          if (this.transactionNeedsStateCheck) {
-            this.warnAboutStateCompatibility(this.state);
+          if (this.transactionNeedsCompatibilityCheck && !committed) {
+            this.warnAboutPersistenceCompatibility();
           }
           if (shouldPublish) {
             this.emitChange('transaction', this.transactionMeta);
@@ -1488,7 +1525,8 @@ export class Travels<
         this.transactionEntries = undefined;
         this.transactionMeta = previousMetadata;
         this.transactionHasEffects = transactionSnapshot.hasEffects;
-        this.transactionNeedsStateCheck = transactionSnapshot.needsStateCheck;
+        this.transactionNeedsCompatibilityCheck =
+          transactionSnapshot.needsCompatibilityCheck;
         const errors = this.transactionErrors;
         this.transactionErrors = undefined;
         if (errors) {
@@ -1898,6 +1936,7 @@ export class Travels<
    * Serialize the current state, patch history, and position for persistence.
    */
   public serialize(): TravelsSerializedHistory<S, P> {
+    this.checkPersistenceCompatibilityAfterCommit();
     return {
       version: TRAVELS_HISTORY_SCHEMA_VERSION,
       state: cloneInitialSnapshot(this.state),

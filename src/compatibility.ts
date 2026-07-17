@@ -134,17 +134,17 @@ export const findStateCompatibilityIssues = (
     }
 
     if (typeof current === 'undefined') {
-      addIssue('UNDEFINED', path, 'use null; undefined is not durable state.');
+      addIssue('UNDEFINED', path, 'use null; undefined is not durable data.');
       return;
     }
 
     if (typeof current === 'function') {
-      addIssue('FUNCTION', path, 'functions are not durable state.');
+      addIssue('FUNCTION', path, 'functions are not durable data.');
       return;
     }
 
     if (typeof current === 'symbol') {
-      addIssue('SYMBOL', path, 'symbols are not durable state.');
+      addIssue('SYMBOL', path, 'symbols are not durable data.');
       return;
     }
 
@@ -177,7 +177,7 @@ export const findStateCompatibilityIssues = (
       addIssue(
         'CIRCULAR_REFERENCE',
         path,
-        'circular references are not durable state.'
+        'circular references are not durable data.'
       );
       return;
     }
@@ -193,7 +193,7 @@ export const findStateCompatibilityIssues = (
       addIssue(
         'WEAK_COLLECTION',
         path,
-        'WeakMap and WeakSet are not durable state.'
+        'WeakMap and WeakSet are not durable data.'
       );
       return;
     }
@@ -230,7 +230,7 @@ export const findStateCompatibilityIssues = (
     }
 
     if (isDomNode(current)) {
-      addIssue('DOM_NODE', path, 'DOM nodes and refs are not durable state.');
+      addIssue('DOM_NODE', path, 'DOM nodes and refs are not durable data.');
       return;
     }
 
@@ -270,7 +270,7 @@ export const findStateCompatibilityIssues = (
       addIssue(
         'CLASS_INSTANCE',
         path,
-        'class instances and custom prototypes are not durable state.'
+        'class instances and custom prototypes are not durable data.'
       );
       return;
     }
@@ -296,7 +296,7 @@ export const findStateCompatibilityIssues = (
 
     for (const key of keys) {
       if (typeof key === 'symbol') {
-        addIssue('SYMBOL', path, 'symbol keys are not durable state.');
+        addIssue('SYMBOL', path, 'symbol keys are not durable data.');
         continue;
       }
 

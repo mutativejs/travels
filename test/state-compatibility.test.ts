@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
   findStateCompatibilityIssues,
+  TravelsError,
   type JsonValue,
   type PatchableState,
 } from '../src/index';
@@ -266,6 +267,83 @@ describe('State compatibility warnings', () => {
     warnSpy.mockRestore();
   });
 
+  test('warns once per incompatible persisted metadata path', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ count: 0 });
+
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      {
+        requestId: 1n,
+        timestamp: NaN,
+        nested: { offset: -0 },
+      }
+    );
+    travels.serialize();
+
+    const metadataWarnings = warnSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes('metadata compatibility warning'));
+    expect(metadataWarnings).toHaveLength(3);
+    expect(metadataWarnings).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('$.requestId'),
+        expect.stringContaining('$.timestamp'),
+        expect.stringContaining('$.nested.offset'),
+      ])
+    );
+    expect(() => JSON.stringify(travels.serialize())).toThrow(TypeError);
+    expect(warnSpy.mock.calls.map(([message]) => String(message))).toHaveLength(
+      3
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  test('publishes metadata compatibility warnings only after root commit', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ count: 0 });
+
+    expect(() =>
+      travels.transaction({ requestId: 1n }, () => {
+        travels.setState({ count: 1 });
+        throw new Error('rollback');
+      })
+    ).toThrow(TravelsError);
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    travels.transaction({ requestId: 2n }, () => {
+      travels.setState({ count: 2 });
+    });
+
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('metadata compatibility warning at $.requestId')
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  test('checks metadata restored with existing history', () => {
+    const source = createTravels(
+      { count: 0 },
+      { warnOnUnsupportedState: false }
+    );
+    source.setState({ count: 1 }, { requestId: 1n });
+    const snapshot = source.serialize();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    createTravels(snapshot.state, { history: snapshot });
+
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('metadata compatibility warning at $.requestId')
+    );
+    warnSpy.mockRestore();
+  });
+
   test('warnOnUnsupportedState disables runtime compatibility warnings', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -275,6 +353,13 @@ describe('State compatibility warnings', () => {
       },
       { warnOnUnsupportedState: false }
     );
+
+    const travels = createTravels(
+      { count: 0 },
+      { warnOnUnsupportedState: false }
+    );
+    travels.setState({ count: 1 }, { requestId: 1n });
+    travels.serialize();
 
     expect(warnSpy).not.toHaveBeenCalled();
     warnSpy.mockRestore();
