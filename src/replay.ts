@@ -3,12 +3,10 @@ import type { PatchesOption } from './type.js';
 
 export type PatchReplayDirection = 'forward' | 'backward';
 
-const isRootReplacement = (patch: {
+export const isRootReplacement = (patch: {
   op: string;
   path: string | readonly unknown[];
-}): boolean =>
-  patch.op === 'replace' &&
-  (patch.path === '' || (Array.isArray(patch.path) && patch.path.length === 0));
+}): boolean => patch.op === 'replace' && patch.path.length === 0;
 
 const discardSupersededOperations = <P extends PatchesOption = {}>(
   patches: Patches<P>

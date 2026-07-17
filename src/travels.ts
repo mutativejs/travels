@@ -31,7 +31,7 @@ import {
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError } from './errors.js';
-import { composePatchGroups } from './replay.js';
+import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
   consumePromiseLikeRejection,
   isObjectLike,
@@ -240,11 +240,7 @@ const cloneTravelPatches = <P extends PatchesOption = {}>(
   base?: TravelPatches<P>
 ): TravelPatches<P> => ({
   patches: base ? base.patches.map(clonePatchGroup) : [],
-  inversePatches: base
-    ? base.inversePatches.map((patch) =>
-        patch.map((operation) => deepCloneValue(operation))
-      )
-    : [],
+  inversePatches: base ? base.inversePatches.map(clonePatchGroup) : [],
 });
 
 const filterBranchDiscardEffect = <P extends PatchesOption = {}>(
@@ -496,7 +492,11 @@ export class Travels<
   private transactionBranchDiscards: BranchDiscardEffect<P>[] = [];
   // Errors survive nested rollbacks but remain private until the root settles.
   private transactionErrors?: TravelsError[];
-  private transactionEntryIds?: Set<object>;
+  // Root-visible entries retain their pre-transaction payload for effects.
+  private transactionEntries?: Map<
+    object,
+    [Patches<P>, Patches<P>, TravelMetadata | undefined]
+  >;
   private transactionHasEffects = false;
   private transactionNeedsStateCheck = false;
   private publishingEffects = false;
@@ -902,12 +902,24 @@ export class Travels<
 
     const queuedEffects = this.transactionBranchDiscards;
     this.transactionBranchDiscards = [];
-    const visibleEntryIds = this.transactionEntryIds;
-    const effects = visibleEntryIds
+    const visibleEntries = this.transactionEntries;
+    const effects = visibleEntries
       ? queuedEffects.flatMap((effect) =>
           filterBranchDiscardEffect(effect, (entryId) =>
-            visibleEntryIds.has(entryId)
-          )
+            visibleEntries.has(entryId)
+          ).map((filteredEffect) => {
+            const entries = filteredEffect.patches.patches.map(
+              (patches) => visibleEntries.get(getHistoryEntryIdentity(patches))!
+            );
+            return {
+              position: filteredEffect.position,
+              patches: {
+                patches: entries.map((entry) => entry[0]),
+                inversePatches: entries.map((entry) => entry[1]),
+              } as TravelPatches<P>,
+              metadata: entries.map((entry) => entry[2]),
+            };
+          })
         )
       : queuedEffects;
 
@@ -989,12 +1001,8 @@ export class Travels<
     metadata: Array<TravelMetadata | undefined> = []
   ): TravelHistoryEntry<P>[] {
     return patches.patches.map((patch, index) => ({
-      patches: patch.map((operation) =>
-        deepCloneValue(operation)
-      ) as Patches<P>,
-      inversePatches: patches.inversePatches[index].map((operation) =>
-        deepCloneValue(operation)
-      ) as Patches<P>,
+      patches: clonePatchGroup(patch),
+      inversePatches: clonePatchGroup(patches.inversePatches[index]),
       metadata: cloneTravelMetadata(metadata[index]),
     }));
   }
@@ -1156,19 +1164,6 @@ export class Travels<
     this.invalidateHistoryCache();
   }
 
-  /**
-   * Check if patches contain root-level replacement operations
-   * Root replacement cannot be done mutably as it changes the type/value of the entire state
-   */
-  private hasRootReplacement(patches: Patches<P>): boolean {
-    return patches.some(
-      (patch) =>
-        ((Array.isArray(patch.path) && patch.path.length === 0) ||
-          patch.path === '') &&
-        patch.op === 'replace'
-    );
-  }
-
   private applyImmutably<T>(state: T, patches: Patches<P>): T {
     const { enablePatches: _enablePatches, ...replayOptions } = this.options;
     return apply(
@@ -1248,7 +1243,7 @@ export class Travels<
         this.options
       ) as [S, Patches<P>, Patches<P>];
 
-      const replacesRoot = this.hasRootReplacement(p);
+      const replacesRoot = p.some(isRootReplacement);
       // Mutable state and removed values can remain reachable through reactive
       // stores or caller-held references. Archive detached patch values before
       // applying the original forward patches to the live state so neither
@@ -1459,8 +1454,16 @@ export class Travels<
       this.transactionMeta = metadata;
       this.transactionErrors = undefined;
       const visiblePatches = this.getAllPatches();
-      this.transactionEntryIds = new Set(
-        visiblePatches.patches.map(getHistoryEntryIdentity)
+      const visibleMetadata = this.getMetadata();
+      this.transactionEntries = new Map(
+        visiblePatches.patches.map((patches, index) => [
+          getHistoryEntryIdentity(patches),
+          [
+            patches,
+            visiblePatches.inversePatches[index],
+            visibleMetadata[index],
+          ],
+        ])
       );
       this.transactionHasEffects = false;
       this.transactionNeedsStateCheck = false;
@@ -1479,10 +1482,7 @@ export class Travels<
 
       if (this.transactionDepth === 0) {
         if (!failed) {
-          const committed = this.archivePending(
-            this.transactionMeta,
-            false
-          );
+          const committed = this.archivePending(this.transactionMeta, false);
           const shouldPublish = committed || this.transactionHasEffects;
           if (this.transactionNeedsStateCheck) {
             this.warnAboutStateCompatibility(this.state);
@@ -1492,7 +1492,7 @@ export class Travels<
           }
           this.flushTransactionBranchDiscards();
         }
-        this.transactionEntryIds = undefined;
+        this.transactionEntries = undefined;
         this.transactionMeta = previousMetadata;
         this.transactionHasEffects = transactionSnapshot.hasEffects;
         this.transactionNeedsStateCheck = transactionSnapshot.needsStateCheck;
@@ -1737,7 +1737,7 @@ export class Travels<
     const canGoMutably =
       this.mutable &&
       isObjectLike(this.state) &&
-      !this.hasRootReplacement(patchesToApply);
+      !patchesToApply.some(isRootReplacement);
 
     if (canGoMutably) {
       // For observable state: mutate in place
@@ -1825,7 +1825,7 @@ export class Travels<
             effect,
             (entryId) => !restoredEntryIds.has(entryId)
           )
-        );
+      );
     }
 
     this.invalidateHistoryCache();

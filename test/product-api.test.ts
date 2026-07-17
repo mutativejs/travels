@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
-import { createTravels, TravelsError } from '../src/index';
+import {
+  createTravels,
+  TravelsError,
+  type TravelHistoryEntry,
+} from '../src/index';
 
 describe('Productized history API', () => {
   test('stores metadata for setState entries and serialized snapshots', () => {
@@ -580,6 +584,36 @@ describe('Productized history API', () => {
 
     expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
     expect(discardedLabels).toEqual([['two']]);
+  });
+
+  test('reports the root-start snapshot of an extended pending entry', () => {
+    const discarded: Array<{
+      position: number;
+      entries: TravelHistoryEntry[];
+    }> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        autoArchive: false,
+        onBranchDiscard(event) {
+          discarded.push({
+            position: event.position,
+            entries: event.discarded,
+          });
+        },
+      }
+    );
+    travels.setState({ count: 1 }, { label: 'visible' });
+    const visibleEntries = travels.getHistoryEntries();
+
+    travels.transaction(() => {
+      travels.setState({ count: 2 }, { label: 'provisional' });
+      travels.back();
+      travels.setState({ count: 3 }, { label: 'committed' });
+    });
+
+    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 3]);
+    expect(discarded).toEqual([{ position: 0, entries: visibleEntries }]);
   });
 
   test('restores pending entry visibility after a nested rollback', () => {
