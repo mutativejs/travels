@@ -10,7 +10,6 @@ export type StateCompatibilityIssueCode =
   | 'MAP_SET_PERSISTENCE'
   | 'BIGINT'
   | 'NON_JSON_NUMBER'
-  | 'PATCH_PATH'
   | 'ARRAY_SHAPE'
   | 'OBJECT_SHAPE'
   | 'WEAK_COLLECTION'

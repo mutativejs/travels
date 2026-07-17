@@ -4,6 +4,7 @@ import {
   Travels,
   type JsonValue,
   type PatchableState,
+  type StateCompatibilityIssueCode,
   type TravelMetadata,
   type TravelsSerializedHistory,
   type Updater,
@@ -49,6 +50,11 @@ describe('Type-level API contracts', () => {
 
     const travels = createJsonHistory(jsonState);
     expectTypeOf(travels.getState().blocks[0].text).toEqualTypeOf<string>();
+  });
+
+  test('state compatibility issue codes match scanner output', () => {
+    expectTypeOf<Extract<StateCompatibilityIssueCode, 'PATCH_PATH'>>()
+      .toEqualTypeOf<never>();
   });
 
   test('manual controls archive accepts metadata', () => {

@@ -645,11 +645,12 @@ export class Travels<
         const inspectedValue = invalidPatchPath
           ? { ...value, path: [] }
           : value;
-        const issues = findStateCompatibilityIssues(inspectedValue, {
-          allowFrozen:
-            subject !== 'metadata' && this.options.enableAutoFreeze === true,
-          mutable: subject === 'state' && this.mutable,
-        });
+        const issues: { code: string; path: string; message: string }[] =
+          findStateCompatibilityIssues(inspectedValue, {
+            allowFrozen:
+              subject !== 'metadata' && this.options.enableAutoFreeze === true,
+            mutable: subject === 'state' && this.mutable,
+          });
         if (invalidPatchPath) {
           issues.unshift({
             code: 'PATCH_PATH',
