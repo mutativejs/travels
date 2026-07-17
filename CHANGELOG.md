@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Compare array length and hole topology on a detached semantic replay graph, preventing opaque values from mutating caller-owned snapshots or hiding irreversible patches through shared identity.
 - Reject semantic comparisons for unsupported prototypes, built-in subclasses, changed property descriptors or object extensibility, non-durable own-property shapes, and RegExp cursors whose observable state cannot be preserved safely.
 - Keep semantic state-key comparison linear so wide untrusted snapshots cannot trigger quadratic replay validation.
+- Diagnose null-prototype objects whose nested writes are not drafted into undoable history by default.
 
 ### Changed
 

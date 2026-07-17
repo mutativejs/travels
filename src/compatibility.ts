@@ -49,11 +49,6 @@ const isDomNode = (value: unknown): boolean => {
   );
 };
 
-const isPlainObjectOrNullProto = (value: object): boolean => {
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-};
-
 type DataPropertyDescriptor = PropertyDescriptor & { value: unknown };
 type PropertyDescriptors = Record<PropertyKey, PropertyDescriptor>;
 
@@ -248,7 +243,7 @@ export const findStateCompatibilityIssues = (
       return;
     }
 
-    if (!isPlainObjectOrNullProto(current)) {
+    if (Object.getPrototypeOf(current) !== Object.prototype) {
       addIssue(
         'CLASS_INSTANCE',
         path,

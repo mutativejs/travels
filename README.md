@@ -120,7 +120,7 @@ unsubscribe();
 
 **⚠️ Important: State Requirements**
 
-For persistence-safe history, keep state **JSON-compatible**: plain objects, arrays, strings, numbers, booleans, and `null`. Map/Set have limited runtime support in immutable mode, but need a custom codec for JSON persistence. Complex types like Date, class instances, DOM nodes, refs, and functions are not supported as durable state. See [State Requirements](#state-requirements-and-compatibility) for details.
+For persistence-safe history, keep state **JSON-compatible**: plain objects, arrays, strings, numbers, booleans, and `null`. Map/Set have limited runtime support in immutable mode, but need a custom codec for JSON persistence. Complex types like Date, class instances, null-prototype objects, DOM nodes, refs, and functions are not supported as durable state. See [State Requirements](#state-requirements-and-compatibility) for details.
 
 ---
 
@@ -546,7 +546,7 @@ function handleSave() {
 
 ## State Requirements and Compatibility
 
-Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom prototypes are runtime-only representations: normalize them before persisting history.
+Travels works best when state is durable data: plain objects, dense arrays, strings, numbers, booleans, and `null`. The patch engine can clone some richer JavaScript values, but JSON persistence and cross-environment replay only have predictable semantics for JSON-compatible data. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are runtime-only representations: normalize them before persisting history. Null-prototype dictionaries are not drafted by Mutative by default, so nested writes may not produce undoable patches; convert them to plain objects before storing them in Travels.
 
 When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
@@ -559,7 +559,7 @@ When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its sta
 | `undefined`                             | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                       |
 | `Date`                                  | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string    |
 | `Map` / `Set`                           | Runtime support in immutable mode  | Not supported                                 | Requires custom codec             | Store arrays, or provide a codec |
-| Class instance / custom prototype       | Not durable                        | Not durable                                   | Loses prototype/methods           | Store plain data or IDs          |
+| Class instance / custom or null prototype | Not durable                      | Not durable                                   | Loses prototype/methods           | Store plain data or IDs          |
 | Function                                | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state      |
 | Circular reference                      | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs           |
 | DOM node, ref, observable instance body | Not supported as durable state     | Not supported as durable state                | Not serializable                  | Store outside Travels state      |

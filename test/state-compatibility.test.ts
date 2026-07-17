@@ -134,6 +134,24 @@ describe('State compatibility warnings', () => {
     ).toBeUndefined();
   });
 
+  test('flags null-prototype objects that patch updates cannot track', () => {
+    const dictionary = Object.assign(Object.create(null), { value: 0 });
+
+    expect(findStateCompatibilityIssues({ dictionary })).toEqual([
+      expect.objectContaining({
+        code: 'CLASS_INSTANCE',
+        path: '$.dictionary',
+      }),
+    ]);
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    createTravels({ dictionary });
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('$.dictionary')
+    );
+    warnSpy.mockRestore();
+  });
+
   test('flags property descriptors and integrity levels lost by persistence', () => {
     const hidden = {} as { value: number };
     Object.defineProperty(hidden, 'value', { value: 1 });
