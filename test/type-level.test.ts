@@ -25,6 +25,7 @@ describe('Type-level API contracts', () => {
     expectTypeOf(history.state).toEqualTypeOf<State>();
 
     Travels.deserialize<State>(snapshot, { validation: 'structural' });
+    Travels.deserialize<State>(snapshot, { validation: 'semantic' });
     if (false) {
       // @ts-expect-error validation modes are a closed public contract
       Travels.deserialize<State>(snapshot, { validation: 'unknown' });

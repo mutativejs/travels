@@ -68,9 +68,11 @@ output or a separately installed package.
 
 ### 4. `persistence-validation-benchmark.js` - Restore validation cost
 
-Measures the real `Travels.deserialize(...)` structural and semantic paths
-against a wide-array history. Unlike the legacy JSON parsing metrics, this
-includes schema normalization, patch replay, and round-trip comparison.
+Measures the real default structural and explicit semantic
+`Travels.deserialize(...)` paths against a wide-array history. It reports
+median and p95 latency across multiple rounds. Unlike the legacy JSON parsing
+metrics, this includes schema normalization and, for semantic mode, patch
+replay and round-trip comparison.
 
 ```bash
 pnpm run benchmark:persistence
@@ -135,8 +137,8 @@ Measure the time to perform 50 consecutive undos and redos.
 
 The legacy comparison scripts measure serialized history size, serialization,
 and JSON parsing. JSON parsing alone is not equivalent to restoring a Travels
-history. `persistence-validation-benchmark.js` separately measures structural
-and semantic `Travels.deserialize(...)` latency.
+history. `persistence-validation-benchmark.js` separately measures default
+structural and explicit semantic `Travels.deserialize(...)` latency.
 
 **Important when:**
 
@@ -202,7 +204,7 @@ pnpm run benchmark:ci
 This builds the current checkout and runs:
 
 1. The reduced scenario matrix
-2. The real structural/semantic persistence validation guard
+2. The real default-structural/explicit-semantic persistence validation guard
 
 ## Latest Results (Node v22.21.1)
 

@@ -13,6 +13,8 @@ const emptySnapshot = <S>(state: S): TravelsSerializedHistory<S> => ({
   position: 0,
 });
 
+const semanticValidation = { validation: 'semantic' as const };
+
 describe('persisted history semantic validation', () => {
   test('v1 accepts an internally consistent alternative past without provenance', () => {
     const onError = vi.fn();
@@ -27,7 +29,7 @@ describe('persisted history semantic validation', () => {
           inversePatches: [[{ op: 'replace', path: ['count'], value: 999 }]],
         },
       },
-      { fallback, onError }
+      { fallback, onError, ...semanticValidation }
     );
     const restored = createTravels(history.state, { history });
 
@@ -42,19 +44,22 @@ describe('persisted history semantic validation', () => {
 
   test('rejects an inverse patch that cannot be applied at the anchor state', () => {
     expect(() =>
-      Travels.deserialize({
-        version: 1,
-        state: { count: 1 },
-        position: 1,
-        patches: {
-          patches: [
-            [{ op: 'replace', path: ['missing', 'value'], value: 1 }],
-          ],
-          inversePatches: [
-            [{ op: 'replace', path: ['missing', 'value'], value: 0 }],
-          ],
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { count: 1 },
+          position: 1,
+          patches: {
+            patches: [
+              [{ op: 'replace', path: ['missing', 'value'], value: 1 }],
+            ],
+            inversePatches: [
+              [{ op: 'replace', path: ['missing', 'value'], value: 0 }],
+            ],
+          },
         },
-      })
+        semanticValidation
+      )
     ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
@@ -66,19 +71,22 @@ describe('persisted history semantic validation', () => {
 
   test('rejects a future patch that cannot be applied', () => {
     expect(() =>
-      Travels.deserialize({
-        version: 1,
-        state: { count: 0 },
-        position: 0,
-        patches: {
-          patches: [
-            [{ op: 'replace', path: ['missing', 'value'], value: 1 }],
-          ],
-          inversePatches: [
-            [{ op: 'replace', path: ['missing', 'value'], value: 0 }],
-          ],
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { count: 0 },
+          position: 0,
+          patches: {
+            patches: [
+              [{ op: 'replace', path: ['missing', 'value'], value: 1 }],
+            ],
+            inversePatches: [
+              [{ op: 'replace', path: ['missing', 'value'], value: 0 }],
+            ],
+          },
         },
-      })
+        semanticValidation
+      )
     ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
@@ -88,7 +96,7 @@ describe('persisted history semantic validation', () => {
     );
   });
 
-  test('allows trusted callers to select structural-only validation', () => {
+  test('uses structural validation by default and allows semantic opt-in', () => {
     const snapshot = {
       version: 1 as const,
       state: { count: 0 },
@@ -103,10 +111,10 @@ describe('persisted history semantic validation', () => {
       },
     };
 
-    expect(Travels.deserialize(snapshot, { validation: 'structural' })).toEqual(
-      snapshot
-    );
-    expect(() => Travels.deserialize(snapshot)).toThrowError(
+    expect(Travels.deserialize(snapshot)).toEqual(snapshot);
+    expect(() =>
+      Travels.deserialize(snapshot, semanticValidation)
+    ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
       })
@@ -151,22 +159,23 @@ describe('persisted history semantic validation', () => {
 
   test('rejects state anchors that do not match their patch history', () => {
     expect(() =>
-      Travels.deserialize({
-        version: 1,
-        state: { count: 2, label: 'current' },
-        position: 1,
-        patches: {
-          patches: [
-            [{ op: 'replace', path: ['count'], value: 1 }],
-          ],
-          inversePatches: [
-            [
-              { op: 'replace', path: ['count'], value: 0 },
-              { op: 'replace', path: ['label'], value: 'corrupt' },
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { count: 2, label: 'current' },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [
+              [
+                { op: 'replace', path: ['count'], value: 0 },
+                { op: 'replace', path: ['label'], value: 'corrupt' },
+              ],
             ],
-          ],
+          },
         },
-      })
+        semanticValidation
+      )
     ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
@@ -178,22 +187,23 @@ describe('persisted history semantic validation', () => {
 
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>
-      Travels.deserialize({
-        version: 1,
-        state: { count: 0, label: 'before' },
-        position: 0,
-        patches: {
-          patches: [
-            [
-              { op: 'replace', path: ['count'], value: 1 },
-              { op: 'replace', path: ['label'], value: 'after' },
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { count: 0, label: 'before' },
+          position: 0,
+          patches: {
+            patches: [
+              [
+                { op: 'replace', path: ['count'], value: 1 },
+                { op: 'replace', path: ['label'], value: 'after' },
+              ],
             ],
-          ],
-          inversePatches: [
-            [{ op: 'replace', path: ['count'], value: 0 }],
-          ],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          },
         },
-      })
+        semanticValidation
+      )
     ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
@@ -205,19 +215,20 @@ describe('persisted history semantic validation', () => {
 
   test('rejects history that changes only a sparse array length', () => {
     expect(() =>
-      Travels.deserialize({
-        version: 1,
-        state: { items: new Array(2) },
-        position: 1,
-        patches: {
-          patches: [
-            [{ op: 'replace', path: ['items', 'length'], value: 1 }],
-          ],
-          inversePatches: [
-            [{ op: 'replace', path: ['items', 'length'], value: 1 }],
-          ],
+      Travels.deserialize(
+        {
+          version: 1,
+          state: { items: new Array(2) },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path: ['items', 'length'], value: 1 }]],
+            inversePatches: [
+              [{ op: 'replace', path: ['items', 'length'], value: 1 }],
+            ],
+          },
         },
-      })
+        semanticValidation
+      )
     ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
@@ -237,7 +248,10 @@ describe('persisted history semantic validation', () => {
       draft.count = 1;
     });
 
-    const history = Travels.deserialize(travels.serialize());
+    const history = Travels.deserialize(
+      travels.serialize(),
+      semanticValidation
+    );
     const restored = createTravels(history.state, {
       history,
       warnOnUnsupportedState: false,
@@ -269,7 +283,9 @@ describe('persisted history semantic validation', () => {
       draft.items.length = 2;
     });
 
-    expect(() => Travels.deserialize(travels.serialize())).toThrowError(
+    expect(() =>
+      Travels.deserialize(travels.serialize(), semanticValidation)
+    ).toThrowError(
       expect.objectContaining<Partial<TravelsPersistenceError>>({
         code: 'INVALID_HISTORY',
         entryIndex: 0,
@@ -299,7 +315,7 @@ describe('persisted history semantic validation', () => {
     const history = Travels.deserialize<{
       items: number[];
       count: number;
-    }>(serialized);
+    }>(serialized, semanticValidation);
     const restored = createTravels(history.state, { history, maxHistory: 10 });
 
     expect(JSON.stringify(history)).toBe(serialized);
@@ -322,7 +338,7 @@ describe('persisted history semantic validation', () => {
       },
     };
 
-    const history = Travels.deserialize(snapshot);
+    const history = Travels.deserialize(snapshot, semanticValidation);
 
     expect(history.state.sharedChild).toBe(sharedChild);
     expect(Object.isFrozen(snapshot.state)).toBe(false);
@@ -340,15 +356,14 @@ describe('persisted history semantic validation', () => {
         state: { count: 1 },
         position: 1,
         patches: {
-          patches: [
-            [{ op: 'replace', path: ['missing', 'value'], value: 1 }],
-          ],
+          patches: [[{ op: 'replace', path: ['missing', 'value'], value: 1 }]],
           inversePatches: [
             [{ op: 'replace', path: ['missing', 'value'], value: 0 }],
           ],
         },
       },
       {
+        ...semanticValidation,
         fallback,
         onError(error) {
           errors.push((error as TravelsPersistenceError).code);
@@ -376,7 +391,10 @@ describe('persisted history semantic validation', () => {
     };
 
     try {
-      Travels.deserialize('not-json', { fallback: invalidFallback });
+      Travels.deserialize('not-json', {
+        ...semanticValidation,
+        fallback: invalidFallback,
+      });
       throw new Error('Expected semantic fallback validation to fail');
     } catch (error) {
       expect(error).toEqual(

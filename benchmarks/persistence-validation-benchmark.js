@@ -6,10 +6,10 @@ const isCi = args.has('--ci');
 const isFull = args.has('--full');
 
 const config = isCi
-  ? { width: 5_000, entries: 20 }
+  ? { width: 5_000, entries: 20, rounds: 3 }
   : isFull
-    ? { width: 25_000, entries: 100 }
-    : { width: 10_000, entries: 20 };
+    ? { width: 25_000, entries: 100, rounds: 5 }
+    : { width: 10_000, entries: 20, rounds: 5 };
 
 function createWideArraySnapshot(width, entries) {
   const state = { items: Array(width).fill(0) };
@@ -33,7 +33,18 @@ function createWideArraySnapshot(width, entries) {
 function measure(fn) {
   const startedAt = performance.now();
   fn();
-  return Math.round((performance.now() - startedAt) * 100) / 100;
+  return performance.now() - startedAt;
+}
+
+function summarize(samples) {
+  const sorted = [...samples].sort((left, right) => left - right);
+  const percentile = (value) =>
+    sorted[Math.max(0, Math.ceil(sorted.length * value) - 1)];
+
+  return {
+    median: percentile(0.5),
+    p95: percentile(0.95),
+  };
 }
 
 const encoded = JSON.stringify(
@@ -42,34 +53,44 @@ const encoded = JSON.stringify(
 
 // Warm up module initialization and both validation branches with a tiny input.
 const warmup = JSON.stringify(createWideArraySnapshot(10, 1));
-Travels.deserialize(warmup, { validation: 'structural' });
 Travels.deserialize(warmup);
+Travels.deserialize(warmup, { validation: 'semantic' });
 
-const structuralMs = measure(() => {
-  Travels.deserialize(encoded, { validation: 'structural' });
-});
-const semanticMs = measure(() => {
-  Travels.deserialize(encoded);
-});
+const structuralSamples = [];
+const semanticSamples = [];
+for (let round = 0; round < config.rounds; round += 1) {
+  structuralSamples.push(measure(() => Travels.deserialize(encoded)));
+  semanticSamples.push(
+    measure(() => Travels.deserialize(encoded, { validation: 'semantic' }))
+  );
+}
+
+const structural = summarize(structuralSamples);
+const semantic = summarize(semanticSamples);
 
 console.log('Travels persistence validation benchmark');
 console.log(
   `Wide array: ${config.width} values; history entries: ${config.entries}`
 );
 console.log(`Encoded snapshot: ${(encoded.length / 1024).toFixed(1)} KiB`);
-console.log(`Structural validation: ${structuralMs.toFixed(2)} ms`);
-console.log(`Semantic validation: ${semanticMs.toFixed(2)} ms`);
+console.log(`Measured rounds: ${config.rounds}`);
+console.log(
+  `Default structural validation: median ${structural.median.toFixed(2)} ms; p95 ${structural.p95.toFixed(2)} ms`
+);
+console.log(
+  `Explicit semantic validation: median ${semantic.median.toFixed(2)} ms; p95 ${semantic.p95.toFixed(2)} ms`
+);
 
 if (isCi) {
   const failures = [];
-  if (structuralMs > 250) {
+  if (structural.p95 > 50) {
     failures.push(
-      `structural validation ${structuralMs}ms exceeded the 250ms CI limit`
+      `default structural validation p95 ${structural.p95.toFixed(2)}ms exceeded the 50ms CI limit`
     );
   }
-  if (semanticMs > 5_000) {
+  if (semantic.p95 > 2_000) {
     failures.push(
-      `semantic validation ${semanticMs}ms exceeded the 5000ms CI smoke limit`
+      `explicit semantic validation p95 ${semantic.p95.toFixed(2)}ms exceeded the 2000ms CI smoke limit`
     );
   }
 

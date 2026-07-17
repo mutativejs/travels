@@ -282,7 +282,7 @@ Returns a versioned persistence snapshot containing the current state, patch his
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 
-Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Validation replays every entry from the stored position in both directions and rejects patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied.
+Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Structural validation is the low-latency default; select `validation: 'semantic'` to replay every entry in both directions and reject patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied.
 
 #### `canBack(): boolean`
 
@@ -767,6 +767,7 @@ function loadFromStorage() {
   if (!stored) return createTravels(defaultState);
 
   const history = Travels.deserialize(stored, {
+    validation: 'semantic',
     fallback: {
       version: 1,
       state: defaultState,
@@ -788,30 +789,29 @@ function loadFromStorage() {
 }
 ```
 
-`Travels.deserialize(...)` validates:
+Every `Travels.deserialize(...)` call validates:
 
 - schema version
 - snapshot shape
 - patch array shape
 - JSON Patch operation names and paths
 - position bounds
-- semantic replay from the stored position to both ends of history
-- forward/inverse reversibility for every reachable entry
 
-`semantic` validation is the default. It provides the complete list of checks
-above, but its cost grows with both state shape and reachable history length.
-Applications that have already authenticated or otherwise verified a trusted
-snapshot can select the low-latency structural path:
+This structural validation is the default so the synchronous restore API keeps
+its historical low-latency behavior. Select semantic validation for snapshots
+that have not already crossed a trusted verification boundary:
 
 ```typescript
-const history = Travels.deserialize(verifiedSnapshot, {
-  validation: 'structural',
+const history = Travels.deserialize(stored, {
+  validation: 'semantic',
 });
 ```
 
-Structural mode still validates the schema, operation names, paths, and
-position bounds, but deliberately does not apply or reverse the patches. Do
-not use it as a corruption detector for unverified storage.
+Semantic mode additionally replays from the stored position to both ends of
+history and verifies forward/inverse reversibility for every reachable entry.
+Its cost grows with both state shape and reachable history length. Structural
+mode deliberately does not apply patches, so do not use the default alone as a
+corruption detector for unverified storage.
 
 `Travels.deserialize(...)` throws `TravelsPersistenceError` with a stable
 `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`,
@@ -827,6 +827,7 @@ settings during validation:
 
 ```typescript
 const history = Travels.deserialize(stored, {
+  validation: 'semantic',
   replayOptions: {
     strict: true,
     mark: customMark,
@@ -856,6 +857,7 @@ Use `migrate` to upgrade older snapshots before validation:
 
 ```typescript
 const history = Travels.deserialize(stored, {
+  validation: 'semantic',
   migrate(snapshot) {
     if (snapshot && typeof snapshot === 'object' && snapshot.version === 0) {
       return {

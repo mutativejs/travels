@@ -625,9 +625,9 @@ const validateNormalizedSnapshot = <S, P extends PatchesOption = {}>(
   snapshot: TravelsSerializedHistory<S, P>,
   options: TravelsDeserializeOptions<S, P>
 ): TravelsSerializedHistory<S, P> =>
-  options.validation === 'structural'
-    ? snapshot
-    : validateTravelsHistorySemantics(snapshot, options.replayOptions);
+  options.validation === 'semantic'
+    ? validateTravelsHistorySemantics(snapshot, options.replayOptions)
+    : snapshot;
 
 const toPersistenceError = (
   error: unknown,

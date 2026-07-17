@@ -92,9 +92,9 @@ export type TravelsDeserializeOptions<
    */
   onError?: (error: Error) => void;
   /**
-   * `semantic` replays and reverses every entry (default). `structural` only
-   * validates the encoded schema and patch shapes and is intended for trusted,
-   * already-verified snapshots where restore latency is critical.
+   * `structural` validates the encoded schema and patch shapes (default).
+   * `semantic` additionally replays and reverses every entry and is recommended
+   * for snapshots that have not crossed a trusted verification boundary.
    */
   validation?: TravelsHistoryValidationMode;
   /**
