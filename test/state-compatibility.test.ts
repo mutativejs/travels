@@ -55,6 +55,28 @@ describe('State compatibility warnings', () => {
     ).toEqual(['UNDEFINED', 'UNDEFINED']);
   });
 
+  test('flags non-enumerable array indices lost by snapshot cloning', () => {
+    const items: string[] = [];
+    Object.defineProperty(items, '0', {
+      value: 'kept',
+      enumerable: false,
+    });
+
+    expect(findStateCompatibilityIssues({ items })).toEqual([
+      expect.objectContaining({
+        code: 'SPARSE_ARRAY',
+        path: '$.items',
+      }),
+    ]);
+
+    const snapshot = createTravels(
+      { items },
+      { warnOnUnsupportedState: false }
+    ).serialize();
+    expect(0 in snapshot.state.items).toBe(false);
+    expect(JSON.stringify(snapshot.state)).toBe('{"items":[null]}');
+  });
+
   test('createTravels warns once per incompatible state path in development', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

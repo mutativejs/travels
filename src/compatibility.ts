@@ -53,6 +53,8 @@ const isPlainObjectOrNullProto = (value: object): boolean => {
 const hasArrayHoles = (value: unknown[]): boolean => {
   let presentIndices = 0;
 
+  // Snapshot cloning can drop non-enumerable indices, so only normal enumerable
+  // array elements belong to the durable dense-array contract.
   for (const key of Object.keys(value)) {
     const index = Number(key);
     if (
