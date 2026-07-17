@@ -842,9 +842,12 @@ const history = Travels.deserialize(stored, {
 
 Semantic validation uses only the documented `strict` and `mark` replay options.
 It never enables mutable replay or auto-freeze because those output policies do
-not change patch interpretation. `Travels.deserialize(...)` therefore does not
-mutate or freeze caller-owned snapshot objects; configure those policies on the
-restored Travels instance instead.
+not change patch interpretation. State and patch values are first isolated into
+a validation-only object graph, and values that cannot be isolated safely are
+rejected before replay. `Travels.deserialize(...)` therefore does not mutate or
+freeze caller-owned snapshot objects; configure those policies on the restored
+Travels instance instead. Semantic validation requires native
+`structuredClone`, which is available in the supported runtimes.
 
 Replay comparison is deliberately conservative for non-JSON values. Exact
 `Date`, `RegExp`, `Map`, and `Set` instances are compared by their supported

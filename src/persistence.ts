@@ -327,19 +327,15 @@ const areReplayStatesEqual = (
   left: unknown,
   right: unknown,
   leftToRight = new WeakMap<object, object>(),
-  rightToLeft = new WeakMap<object, object>()
+  rightValues = new WeakSet<object>()
 ): boolean => {
-  if (Object.is(left, right)) {
-    return true;
-  }
-
   if (
     left === null ||
     right === null ||
     (typeof left !== 'object' && typeof left !== 'function') ||
     (typeof right !== 'object' && typeof right !== 'function')
   ) {
-    return false;
+    return Object.is(left, right);
   }
 
   const leftObject = left as object;
@@ -348,9 +344,8 @@ const areReplayStatesEqual = (
   if (knownRight) {
     return knownRight === rightObject;
   }
-  const knownLeft = rightToLeft.get(rightObject);
-  if (knownLeft) {
-    return knownLeft === leftObject;
+  if (rightValues.has(rightObject)) {
+    return false;
   }
 
   const prototype = Object.getPrototypeOf(leftObject);
@@ -362,7 +357,7 @@ const areReplayStatesEqual = (
   }
 
   leftToRight.set(leftObject, rightObject);
-  rightToLeft.set(rightObject, leftObject);
+  rightValues.add(rightObject);
 
   const leftKeys = Reflect.ownKeys(leftObject);
   const keyCount = leftKeys.length;
@@ -370,28 +365,13 @@ const areReplayStatesEqual = (
     return false;
   }
   const leftIsArray = Array.isArray(left);
-  const rightIsArray = Array.isArray(right);
   const isRegExp = prototype === RegExp.prototype;
 
-  // Array length is compared through its descriptor below. Present indices are
-  // also compared explicitly, so holes remain distinct from `undefined`.
-  if (leftIsArray || rightIsArray) {
-    if (
-      !leftIsArray ||
-      !rightIsArray ||
-      prototype !== Array.prototype ||
-      leftKeys.some((key) => {
-        if (key === 'length') {
-          return false;
-        }
-        return (
-          !isArrayIndex(key, left.length) ||
-          !Object.prototype.propertyIsEnumerable.call(leftObject, key)
-        );
-      })
-    ) {
-      return false;
-    }
+  if (
+    leftIsArray !== Array.isArray(right) ||
+    (leftIsArray && prototype !== Array.prototype)
+  ) {
+    return false;
   }
 
   if (prototype === Date.prototype) {
@@ -433,13 +413,13 @@ const areReplayStatesEqual = (
           leftKey,
           rightEntries[index][0],
           leftToRight,
-          rightToLeft
+          rightValues
         ) &&
         areReplayStatesEqual(
           leftValue,
           rightEntries[index][1],
           leftToRight,
-          rightToLeft
+          rightValues
         )
     );
   }
@@ -453,13 +433,13 @@ const areReplayStatesEqual = (
     }
 
     const leftValues = Array.from(left as Set<unknown>);
-    const rightValues = Array.from(right as Set<unknown>);
+    const rightItems = Array.from(right as Set<unknown>);
     return leftValues.every((leftValue, index) =>
       areReplayStatesEqual(
         leftValue,
-        rightValues[index],
+        rightItems[index],
         leftToRight,
-        rightToLeft
+        rightValues
       )
     );
   }
@@ -478,9 +458,11 @@ const areReplayStatesEqual = (
     }
 
     return (
-      (leftIsArray ||
-        isRegExp ||
-        (typeof key === 'string' && leftDescriptor.enumerable)) &&
+      (leftIsArray
+        ? key === 'length' ||
+          (isArrayIndex(key, left.length) && leftDescriptor.enumerable)
+        : isRegExp ||
+          (typeof key === 'string' && leftDescriptor.enumerable)) &&
       'value' in leftDescriptor &&
       'value' in rightDescriptor &&
       leftDescriptor.writable === rightDescriptor.writable &&
@@ -490,7 +472,7 @@ const areReplayStatesEqual = (
         leftDescriptor.value,
         rightDescriptor.value,
         leftToRight,
-        rightToLeft
+        rightValues
       )
     );
   });
@@ -504,9 +486,33 @@ const invalidHistoryError = (
 ): TravelsPersistenceError =>
   new TravelsPersistenceError(
     'INVALID_HISTORY',
-    `Travels: persisted history entry ${entryIndex} could not be validated in the ${direction} direction: ${detail}`,
+    `Travels: entry ${entryIndex} failed ${direction}: ${detail}`,
     { cause, entryIndex, direction }
   );
+
+const isolateReplayValue = <T>(
+  value: T,
+  entryIndex: number,
+  direction: 'forward' | 'inverse'
+): T => {
+  let cause: unknown;
+  try {
+    if (areReplayStatesEqual(value, value)) {
+      const clone = structuredClone(value);
+      if (areReplayStatesEqual(value, clone)) {
+        return clone;
+      }
+    }
+  } catch (error) {
+    cause = error;
+  }
+  throw invalidHistoryError(
+    entryIndex,
+    direction,
+    'state clone failed.',
+    cause
+  );
+};
 
 const replayHistoryEntry = <S, P extends PatchesOption = {}>(
   state: S,
@@ -546,25 +552,14 @@ const assertRoundTrip = (
   entryIndex: number,
   direction: 'forward' | 'inverse'
 ): void => {
-  let matches = false;
   try {
-    matches = areReplayStatesEqual(expected, actual);
-  } catch (error) {
-    throw invalidHistoryError(
-      entryIndex,
-      direction,
-      'state comparison failed.',
-      error
-    );
+    if (areReplayStatesEqual(expected, actual)) {
+      return;
+    }
+  } catch {
+    // Isolated replay values should be comparable; fail closed if they are not.
   }
-
-  if (!matches) {
-    throw invalidHistoryError(
-      entryIndex,
-      direction,
-      'forward and inverse patches are not reversible.'
-    );
-  }
+  throw invalidHistoryError(entryIndex, direction, 'irreversible patches');
 };
 
 const validateTravelsHistorySemantics = <
@@ -574,56 +569,51 @@ const validateTravelsHistorySemantics = <
   snapshot: TravelsSerializedHistory<S, P>,
   replayOptions: TravelsReplayOptions = {}
 ): TravelsSerializedHistory<S, P> => {
+  const entryCount = snapshot.patches.patches.length;
   const validationReplayOptions = {
     strict: replayOptions.strict,
     mark: replayOptions.mark,
-    // Freezing is an output policy, not part of patch interpretation. Applying
-    // it here can freeze structurally shared objects owned by the caller.
-    enableAutoFreeze: false,
   };
-  let stateAfter = snapshot.state;
+  const preparedSnapshot = {
+    state: snapshot.state,
+    patches: snapshot.patches,
+  } as TravelsSerializedHistory<S, P>;
 
-  for (let index = snapshot.position - 1; index >= 0; index -= 1) {
-    const stateBefore = replayHistoryEntry(
-      stateAfter,
-      snapshot,
-      index,
-      'inverse',
-      validationReplayOptions
-    );
-    const replayedStateAfter = replayHistoryEntry(
-      stateBefore,
-      snapshot,
-      index,
-      'forward',
-      validationReplayOptions
-    );
-    assertRoundTrip(stateAfter, replayedStateAfter, index, 'forward');
-    stateAfter = stateBefore;
-  }
+  for (const direction of ['inverse', 'forward'] as const) {
+    const isForward = direction === 'forward';
+    const reverseDirection = isForward ? 'inverse' : 'forward';
+    let index = isForward ? snapshot.position : snapshot.position - 1;
+    const end = isForward ? entryCount : -1;
+    if (index === end) {
+      continue;
+    }
 
-  let stateBefore = snapshot.state;
-  for (
-    let index = snapshot.position;
-    index < snapshot.patches.patches.length;
-    index += 1
-  ) {
-    const nextState = replayHistoryEntry(
-      stateBefore,
-      snapshot,
+    const validationSnapshot = isolateReplayValue(
+      preparedSnapshot,
       index,
-      'forward',
-      validationReplayOptions
+      reverseDirection
     );
-    const replayedStateBefore = replayHistoryEntry(
-      nextState,
-      snapshot,
-      index,
-      'inverse',
-      validationReplayOptions
-    );
-    assertRoundTrip(stateBefore, replayedStateBefore, index, 'inverse');
-    stateBefore = nextState;
+    let state = validationSnapshot.state;
+
+    for (; index !== end; index += isForward ? 1 : -1) {
+      const expected = isolateReplayValue(state, index, reverseDirection);
+      const adjacent = replayHistoryEntry(
+        state,
+        validationSnapshot,
+        index,
+        direction,
+        validationReplayOptions
+      );
+      const restored = replayHistoryEntry(
+        isolateReplayValue(adjacent, index, reverseDirection),
+        validationSnapshot,
+        index,
+        reverseDirection,
+        validationReplayOptions
+      );
+      assertRoundTrip(expected, restored, index, reverseDirection);
+      state = adjacent;
+    }
   }
 
   return snapshot;

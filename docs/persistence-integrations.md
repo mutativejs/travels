@@ -522,10 +522,12 @@ const history = Travels.deserialize<DocumentState>(stored, {
 
 `Travels.deserialize(...)` always verifies that a snapshot is structurally
 valid. With `validation: 'semantic'`, it also verifies that the history can
-replay consistently in both directions. Neither mode proves where the snapshot
-came from or that a reconstructed past is the history that was originally
-recorded. Version 1 has no independent trusted history anchor, so an internally
-reversible alternative history is accepted and does not trigger `fallback`.
+replay consistently in both directions on a detached validation graph, without
+letting replay mutate the supplied state or patch values. Neither mode proves
+where the snapshot came from or that a reconstructed past is the history that
+was originally recorded. Version 1 has no independent trusted history anchor,
+so an internally reversible alternative history is accepted and does not
+trigger `fallback`.
 This boundary is covered by
 [`test/persistence-semantics.test.ts`](../test/persistence-semantics.test.ts).
 

@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 - Defer nested transaction `onError` hooks until the root transaction commits or rolls back, and report a bubbling failure only once.
 - Report rejected listener, devtools, and lifecycle-hook promises through `onObserverError` instead of leaving unhandled rejections.
 - Keep `onBranchDiscard` aligned with the committed root-transaction timeline, including reset, rebase, nested rollback, pending entries extended inside a transaction, and branches created only by provisional transaction steps.
-- Compare array length and hole topology during semantic replay, and avoid mutating or freezing caller-owned snapshots while validating history.
+- Compare array length and hole topology on a detached semantic replay graph, preventing opaque values from mutating caller-owned snapshots or hiding irreversible patches through shared identity.
 - Reject semantic comparisons for unsupported prototypes, built-in subclasses, changed property descriptors or object extensibility, non-durable own-property shapes, and RegExp cursors whose observable state cannot be preserved safely.
 - Keep semantic state-key comparison linear so wide untrusted snapshots cannot trigger quadratic replay validation.
 

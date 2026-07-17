@@ -610,6 +610,169 @@ describe('persisted history semantic validation', () => {
     expect(Object.isFrozen(sharedChild.nested)).toBe(false);
   });
 
+  test('rejects opaque state before replay can invoke its setters', () => {
+    let setterCalls = 0;
+    class Box {
+      private current = 0;
+
+      get value() {
+        return this.current;
+      }
+
+      set value(next: number) {
+        setterCalls += 1;
+        this.current = next;
+      }
+    }
+
+    const box = new Box();
+    const snapshot: TravelsSerializedHistory<{ box: Box }> = {
+      version: 1,
+      state: { box },
+      position: 0,
+      patches: {
+        patches: [[{ op: 'replace', path: ['box', 'value'], value: 1 }]],
+        inversePatches: [[{ op: 'replace', path: ['box', 'value'], value: 0 }]],
+      },
+    };
+
+    expect(() =>
+      Travels.deserialize(snapshot, semanticValidation)
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'inverse',
+      })
+    );
+    expect(setterCalls).toBe(0);
+    expect(box.value).toBe(0);
+    expect(snapshot.state.box).toBe(box);
+  });
+
+  test('fails closed when native replay isolation is unavailable', () => {
+    vi.stubGlobal('structuredClone', undefined);
+    try {
+      expect(() =>
+        Travels.deserialize(singleValueSnapshot(0, 1, 0), semanticValidation)
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_HISTORY',
+          entryIndex: 0,
+          direction: 'forward',
+        })
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  test('isolates intrinsic state while rejecting an in-place inverse', () => {
+    const pattern = /a/g;
+    const snapshot: TravelsSerializedHistory<{ pattern: RegExp }> = {
+      version: 1,
+      state: { pattern },
+      position: 0,
+      patches: {
+        patches: [
+          [{ op: 'replace', path: ['pattern', 'lastIndex'], value: 0 }],
+        ],
+        inversePatches: [
+          [{ op: 'replace', path: ['pattern', 'lastIndex'], value: 999 }],
+        ],
+      },
+    };
+    const fallback = emptySnapshot({ pattern: /fallback/g });
+    const onError = vi.fn();
+
+    const history = Travels.deserialize(snapshot, {
+      ...semanticValidation,
+      fallback,
+      onError,
+    });
+
+    expect(history).toEqual(fallback);
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'inverse',
+      })
+    );
+    expect(pattern.lastIndex).toBe(0);
+    expect(snapshot.state.pattern).toBe(pattern);
+  });
+
+  test('preserves state-to-patch aliases inside isolated replay', () => {
+    const pattern = /a/g;
+    const state = { pattern };
+    const snapshot: TravelsSerializedHistory<typeof state> = {
+      version: 1,
+      state,
+      position: 1,
+      patches: {
+        patches: [[{ op: 'replace', path: [], value: state }]],
+        inversePatches: [
+          [{ op: 'replace', path: ['pattern', 'lastIndex'], value: 999 }],
+        ],
+      },
+    };
+
+    expect(() =>
+      Travels.deserialize(snapshot, semanticValidation)
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+    expect(pattern.lastIndex).toBe(0);
+    expect(snapshot.state).toBe(state);
+    expect((snapshot.patches.patches[0][0] as { value: unknown }).value).toBe(
+      state
+    );
+    expect(snapshot.patches.patches[0][0]).toEqual({
+      op: 'replace',
+      path: [],
+      value: state,
+    });
+  });
+
+  test('does not mutate object-valued patch payloads during replay', () => {
+    const pattern = /a/g;
+    const replacement = { pattern };
+    const snapshot: TravelsSerializedHistory<{
+      pattern: RegExp | null;
+    }> = {
+      version: 1,
+      state: { pattern: null },
+      position: 0,
+      patches: {
+        patches: [[{ op: 'replace', path: [], value: replacement }]],
+        inversePatches: [
+          [{ op: 'replace', path: ['pattern', 'lastIndex'], value: 999 }],
+        ],
+      },
+    };
+
+    expect(() =>
+      Travels.deserialize(snapshot, semanticValidation)
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'inverse',
+      })
+    );
+    expect(pattern.lastIndex).toBe(0);
+    expect(snapshot.patches.patches[0][0]).toEqual({
+      op: 'replace',
+      path: [],
+      value: replacement,
+    });
+  });
+
   test('ignores unsupported replay options without mutating the snapshot', () => {
     const travels = createTravels({ nested: { value: 0 } });
     travels.setState((draft) => {
