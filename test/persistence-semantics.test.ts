@@ -246,11 +246,11 @@ describe('persisted history semantic validation', () => {
   });
 
   test('rejects hidden state on subclasses of supported built-ins', () => {
-    class TaggedMap extends Map<string, number> {
+    class TaggedDate extends Date {
       readonly #tag: string;
 
       constructor(tag: string) {
-        super([['value', 1]]);
+        super(1);
         this.#tag = tag;
       }
 
@@ -262,9 +262,9 @@ describe('persisted history semantic validation', () => {
     expect(() =>
       Travels.deserialize(
         singleValueSnapshot(
-          new TaggedMap('expected'),
-          new TaggedMap('corrupt'),
-          new TaggedMap('before')
+          new TaggedDate('expected'),
+          new TaggedDate('corrupt'),
+          new TaggedDate('before')
         ),
         semanticValidation
       )
@@ -324,7 +324,7 @@ describe('persisted history semantic validation', () => {
     [
       'custom own property on an exact built-in',
       (value: number) => {
-        const result = new Map([['value', 1]]) as Map<string, number> & {
+        const result = new Date(1) as Date & {
           tag: number;
         };
         result.tag = value;
@@ -435,8 +435,6 @@ describe('persisted history semantic validation', () => {
   test.each([
     ['Date', () => new Date(1), () => new Date(0)],
     ['RegExp', () => /after/g, () => /before/g],
-    ['Map', () => new Map([['value', 1]]), () => new Map([['value', 0]])],
-    ['Set', () => new Set([1]), () => new Set([0])],
   ] as const)(
     'continues to compare exact %s instances by their intrinsic state',
     (_name, createAfter, createBefore) => {
@@ -448,6 +446,24 @@ describe('persisted history semantic validation', () => {
       ).not.toThrow();
     }
   );
+
+  test.each([
+    ['Map', () => new Map([['value', 1]])],
+    ['Set', () => new Set([1])],
+  ] as const)('rejects unsupported exact %s instances', (_name, createValue) => {
+    expect(() =>
+      Travels.deserialize(
+        singleValueSnapshot(createValue(), createValue(), createValue()),
+        semanticValidation
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
+  });
 
   test('rejects a non-reversible inverse entry in future history', () => {
     expect(() =>

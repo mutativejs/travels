@@ -324,54 +324,6 @@ const areReplayStatesEqual = (
     }
   }
 
-  if (prototype === Map.prototype) {
-    if (
-      keyCount !== 0 ||
-      (left as Map<unknown, unknown>).size !==
-        (right as Map<unknown, unknown>).size
-    ) {
-      return false;
-    }
-
-    const leftEntries = Array.from(left as Map<unknown, unknown>);
-    const rightEntries = Array.from(right as Map<unknown, unknown>);
-    return leftEntries.every(
-      ([leftKey, leftValue], index) =>
-        areReplayStatesEqual(
-          leftKey,
-          rightEntries[index][0],
-          leftToRight,
-          rightValues
-        ) &&
-        areReplayStatesEqual(
-          leftValue,
-          rightEntries[index][1],
-          leftToRight,
-          rightValues
-        )
-    );
-  }
-
-  if (prototype === Set.prototype) {
-    if (
-      keyCount !== 0 ||
-      (left as Set<unknown>).size !== (right as Set<unknown>).size
-    ) {
-      return false;
-    }
-
-    const leftValues = Array.from(left as Set<unknown>);
-    const rightItems = Array.from(right as Set<unknown>);
-    return leftValues.every((leftValue, index) =>
-      areReplayStatesEqual(
-        leftValue,
-        rightItems[index],
-        leftToRight,
-        rightValues
-      )
-    );
-  }
-
   // Unknown prototypes can hide observable data in internal slots. Treat them
   // as unverifiable instead of accepting two empty enumerable surfaces.
   if (!leftIsArray && !isRegExp && !isPlainObject(left)) {
