@@ -108,6 +108,8 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialMetadata?: Array<TravelMetadata | undefined>;
   trackingPauseDepth: number;
   branchDiscardEffects: BranchDiscardEffect<P>[];
+  hasObserverEffects: boolean;
+  needsCompatibilityCheck: boolean;
 };
 
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
@@ -427,6 +429,8 @@ export class Travels<
   private transactionDepth = 0;
   private transactionMetadata?: TravelMetadata;
   private transactionBranchDiscardEffects: BranchDiscardEffect<P>[] = [];
+  private transactionHasObserverEffects = false;
+  private transactionNeedsCompatibilityCheck = false;
   private isPublishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
@@ -579,6 +583,15 @@ export class Travels<
         this.reportObserverError('compatibilityCheck', error);
       }
     });
+  }
+
+  private checkStateCompatibilityAfterCommit(): void {
+    if (this.transactionDepth > 0) {
+      this.transactionNeedsCompatibilityCheck = true;
+      return;
+    }
+
+    this.warnAboutStateCompatibility(this.state);
   }
 
   private normalizeInitialHistory(
@@ -786,47 +799,6 @@ export class Travels<
     return snapshot;
   }
 
-  private notify(patches?: TravelPatches<P>): void {
-    if (!this.listeners.size) {
-      return;
-    }
-    const eventPatches = patches ?? this.getPatches();
-    const state = this.state;
-    const position = this.position;
-    const listeners = Array.from(this.listeners);
-
-    this.publishEffects(() => {
-      for (const listener of listeners) {
-        this.invokeObserver('listener', () =>
-          listener(state, eventPatches, position)
-        );
-      }
-    });
-  }
-
-  private emitDevtools(
-    type: TravelsDevtoolsEvent<S, P>['type'],
-    metadata?: TravelMetadata,
-    patches?: TravelPatches<P>
-  ): void {
-    if (!this.devtools) {
-      return;
-    }
-    const eventPatches = patches ?? this.getPatches();
-    const devtools = this.devtools;
-    const event = {
-      type,
-      state: this.state,
-      position: this.position,
-      patches: eventPatches,
-      metadata,
-    } as TravelsDevtoolsEvent<S, P>;
-
-    this.publishEffects(() => {
-      this.invokeObserver('devtools', () => devtools(event));
-    });
-  }
-
   private emitBranchDiscard(effect: BranchDiscardEffect<P>): void {
     if (!this.onBranchDiscard) {
       return;
@@ -870,6 +842,14 @@ export class Travels<
     metadata?: TravelMetadata,
     branchDiscard?: BranchDiscardEffect<P>
   ): void {
+    if (this.transactionDepth > 0) {
+      this.transactionHasObserverEffects = true;
+      if (branchDiscard) {
+        this.publishBranchDiscard(branchDiscard);
+      }
+      return;
+    }
+
     const patches = this.getEventPatches();
     const state = this.state;
     const position = this.position;
@@ -1061,6 +1041,8 @@ export class Travels<
         : undefined,
       trackingPauseDepth: this.trackingPauseDepth,
       branchDiscardEffects: this.transactionBranchDiscardEffects.slice(),
+      hasObserverEffects: this.transactionHasObserverEffects,
+      needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
     };
   }
 
@@ -1084,6 +1066,8 @@ export class Travels<
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
     this.transactionBranchDiscardEffects =
       snapshot.branchDiscardEffects.slice();
+    this.transactionHasObserverEffects = snapshot.hasObserverEffects;
+    this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
 
     this.invalidateHistoryCache();
   }
@@ -1240,7 +1224,7 @@ export class Travels<
     if (this.trackingPauseDepth > 0) {
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
-      this.warnAboutStateCompatibility(this.state);
+      this.checkStateCompatibilityAfterCommit();
       this.emitChange('replaceStateWithoutHistory', metadata);
       return;
     }
@@ -1293,14 +1277,17 @@ export class Travels<
     }
 
     this.invalidateHistoryCache();
-    this.warnAboutStateCompatibility(this.state);
+    this.checkStateCompatibilityAfterCommit();
     this.emitChange('setState', metadata, branchDiscard);
   }
 
   /**
    * Archive the current state (only for manual archive mode)
    */
-  private archivePending(metadata?: TravelMetadata): boolean {
+  private archivePending(
+    metadata?: TravelMetadata,
+    publishChange = true
+  ): boolean {
     if (!this.tempPatches.patches.length) return false;
     const archiveMetadata =
       metadata === undefined ? this.tempMetadata : metadata;
@@ -1320,7 +1307,9 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
-    this.emitChange('archive', archiveMetadata);
+    if (publishChange) {
+      this.emitChange('archive', archiveMetadata);
+    }
     return true;
   }
 
@@ -1373,6 +1362,8 @@ export class Travels<
     this.transactionDepth += 1;
     if (isRootTransaction) {
       this.transactionMetadata = metadata;
+      this.transactionHasObserverEffects = false;
+      this.transactionNeedsCompatibilityCheck = false;
     } else if (!this.transactionMetadata && metadata) {
       this.transactionMetadata = metadata;
     }
@@ -1387,18 +1378,28 @@ export class Travels<
 
       if (this.transactionDepth === 0) {
         if (!failure) {
-          const committed = this.archivePending(this.transactionMetadata);
-          if (committed) {
-            this.emitDevtools('transaction', this.transactionMetadata);
+          const committed = this.archivePending(
+            this.transactionMetadata,
+            false
+          );
+          const shouldPublish = committed || this.transactionHasObserverEffects;
+          if (this.transactionNeedsCompatibilityCheck) {
+            this.warnAboutStateCompatibility(this.state);
+          }
+          if (shouldPublish) {
+            this.emitChange('transaction', this.transactionMetadata);
           }
           this.flushTransactionBranchDiscards();
         }
         this.transactionMetadata = previousMetadata;
+        this.transactionHasObserverEffects =
+          transactionSnapshot.hasObserverEffects;
+        this.transactionNeedsCompatibilityCheck =
+          transactionSnapshot.needsCompatibilityCheck;
       }
     }
 
     if (failure) {
-      this.notify();
       throw this.reportError('TRANSACTION_FAILED', failure.error);
     }
   }

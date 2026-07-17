@@ -86,6 +86,136 @@ describe('observer publication atomicity', () => {
     expect(travels.getState()).toEqual({ count: 1 });
   });
 
+  test('publishes one final observer event after a root transaction commits', () => {
+    const listenerSnapshots: Array<{
+      count: number;
+      position: number;
+      historyLength: number;
+    }> = [];
+    const devtoolsEvents: Array<{
+      type: string;
+      count: number;
+      position: number;
+      historyLength: number;
+    }> = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          devtoolsEvents.push({
+            type: event.type,
+            count: event.state.count,
+            position: event.position,
+            historyLength: event.patches.patches.length,
+          });
+        },
+      }
+    );
+    travels.subscribe((state, patches, position) => {
+      listenerSnapshots.push({
+        count: state.count,
+        position,
+        historyLength: patches.patches.length,
+      });
+    });
+
+    travels.transaction({ label: 'committed' }, () => {
+      travels.setState({ count: 1 });
+      travels.setState({ count: 2 });
+      expect(listenerSnapshots).toEqual([]);
+      expect(devtoolsEvents).toEqual([]);
+    });
+
+    expect(listenerSnapshots).toEqual([
+      { count: 2, position: 1, historyLength: 1 },
+    ]);
+    expect(devtoolsEvents).toEqual([
+      {
+        type: 'transaction',
+        count: 2,
+        position: 1,
+        historyLength: 1,
+      },
+    ]);
+  });
+
+  test('does not publish provisional or rollback events for failed transactions', () => {
+    const listener = vi.fn();
+    const devtools = vi.fn();
+    const travels = createTravels({ count: 0 }, { devtools });
+    travels.subscribe(listener);
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.setState({ count: 1 });
+        expect(listener).not.toHaveBeenCalled();
+        expect(devtools).not.toHaveBeenCalled();
+        throw new Error('rollback');
+      })
+    ).toThrow(TravelsError);
+
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getPatches().patches).toHaveLength(0);
+    expect(listener).not.toHaveBeenCalled();
+    expect(devtools).not.toHaveBeenCalled();
+  });
+
+  test('restores nested observer effects before the outer transaction commits', () => {
+    const observedCounts: number[] = [];
+    const eventTypes: string[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          eventTypes.push(event.type);
+        },
+      }
+    );
+    travels.subscribe((state) => observedCounts.push(state.count));
+
+    travels.transaction(() => {
+      travels.setState({ count: 1 });
+      try {
+        travels.transaction(() => {
+          travels.setState({ count: 2 });
+          throw new Error('nested rollback');
+        });
+      } catch {
+        // Keep the root transaction alive.
+      }
+      travels.setState({ count: 3 });
+    });
+
+    expect(observedCounts).toEqual([3]);
+    expect(eventTypes).toEqual(['transaction']);
+  });
+
+  test('publishes committed non-archive transaction changes once', () => {
+    const listener = vi.fn();
+    const eventTypes: string[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          eventTypes.push(event.type);
+        },
+      }
+    );
+    travels.subscribe(listener);
+    travels.setState({ count: 1 });
+    listener.mockClear();
+    eventTypes.length = 0;
+
+    travels.transaction(() => {
+      travels.reset();
+    });
+
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(listener).toHaveBeenCalledOnce();
+    expect(eventTypes).toEqual(['transaction']);
+  });
+
   test('reports asynchronous observer rejections without leaving them unhandled', async () => {
     const listenerFailure = new Error('async listener failed');
     const devtoolsFailure = new Error('async devtools failed');

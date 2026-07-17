@@ -215,6 +215,11 @@ versions; schedule a later task if a follow-up update is required.
 Observer promises are not awaited, but rejected promises are isolated and
 reported through `onObserverError` with the same source information.
 
+Root transactions are also atomic at the observer boundary. State listeners
+and devtools receive one final `transaction` event after a successful commit;
+failed transactions publish neither provisional changes nor rollback
+compensation events.
+
 **Parameters:**
 
 - `listener`: Callback function called on state changes
@@ -315,6 +320,8 @@ travels.transaction({ label: 'Move Selection' }, () => {
 `batch(...)` is an alias for `transaction(...)`.
 
 Transaction callbacks must also be synchronous. A rejected asynchronous callback rolls the transaction back and reports a `TravelsError` through `onError` when configured.
+Nested changes remain private until the root transaction commits, so listeners
+and devtools never observe states that are later rolled back.
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 
