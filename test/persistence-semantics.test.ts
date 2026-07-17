@@ -227,15 +227,21 @@ describe('persisted history semantic validation', () => {
     );
   });
 
-  test('preserves valid sparse array lengths and hole positions', () => {
+  test('distinguishes unchanged hole topology in direct snapshot replay', () => {
     const items = new Array<string>(3);
-    const travels = createTravels({ items, count: 0 });
+    const travels = createTravels(
+      { items, count: 0 },
+      { warnOnUnsupportedState: false }
+    );
     travels.setState((draft) => {
       draft.count = 1;
     });
 
     const history = Travels.deserialize(travels.serialize());
-    const restored = createTravels(history.state, { history });
+    const restored = createTravels(history.state, {
+      history,
+      warnOnUnsupportedState: false,
+    });
 
     restored.back();
     expect(restored.getState().items).toHaveLength(3);
@@ -250,6 +256,26 @@ describe('persisted history semantic validation', () => {
     expect(1 in restored.getState().items).toBe(false);
     expect(2 in restored.getState().items).toBe(false);
     expect(restored.getState().count).toBe(1);
+  });
+
+  test('rejects a generated history that cannot preserve an expanded array hole', () => {
+    const travels = createTravels(
+      { items: [1] },
+      {
+        warnOnUnsupportedState: false,
+      }
+    );
+    travels.setState((draft) => {
+      draft.items.length = 2;
+    });
+
+    expect(() => Travels.deserialize(travels.serialize())).toThrowError(
+      expect.objectContaining<Partial<TravelsPersistenceError>>({
+        code: 'INVALID_HISTORY',
+        entryIndex: 0,
+        direction: 'forward',
+      })
+    );
   });
 
   test('validates every past and future entry without changing the snapshot', () => {

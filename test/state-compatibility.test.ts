@@ -22,6 +22,7 @@ describe('State compatibility warnings', () => {
       circular,
       ref: document.createElement('div'),
       missing: undefined,
+      sparse: new Array(2),
       tags: new Set(['a']),
     });
 
@@ -33,9 +34,25 @@ describe('State compatibility warnings', () => {
         'CIRCULAR_REFERENCE',
         'DOM_NODE',
         'UNDEFINED',
+        'SPARSE_ARRAY',
         'MAP_SET_PERSISTENCE',
       ])
     );
+  });
+
+  test('flags sparse arrays without treating explicit undefined as a hole', () => {
+    expect(findStateCompatibilityIssues({ items: new Array(2) })).toEqual([
+      expect.objectContaining({
+        code: 'SPARSE_ARRAY',
+        path: '$.items',
+      }),
+    ]);
+
+    expect(
+      findStateCompatibilityIssues({ items: [undefined, undefined] }).map(
+        (issue) => issue.code
+      )
+    ).toEqual(['UNDEFINED', 'UNDEFINED']);
   });
 
   test('createTravels warns once per incompatible state path in development', () => {

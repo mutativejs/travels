@@ -6,6 +6,7 @@ export type StateCompatibilityIssueCode =
   | 'DOM_NODE'
   | 'MAP_SET_MUTABLE'
   | 'MAP_SET_PERSISTENCE'
+  | 'SPARSE_ARRAY'
   | 'WEAK_COLLECTION'
   | 'SYMBOL'
   | 'UNDEFINED';
@@ -47,6 +48,24 @@ const isDomNode = (value: unknown): boolean => {
 const isPlainObjectOrNullProto = (value: object): boolean => {
   const proto = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;
+};
+
+const hasArrayHoles = (value: unknown[]): boolean => {
+  let presentIndices = 0;
+
+  for (const key of Object.keys(value)) {
+    const index = Number(key);
+    if (
+      Number.isInteger(index) &&
+      index >= 0 &&
+      index < value.length &&
+      String(index) === key
+    ) {
+      presentIndices += 1;
+    }
+  }
+
+  return presentIndices !== value.length;
 };
 
 export const findStateCompatibilityIssues = (
@@ -178,6 +197,13 @@ export const findStateCompatibilityIssues = (
     }
 
     if (Array.isArray(current)) {
+      if (hasArrayHoles(current)) {
+        addIssue(
+          'SPARSE_ARRAY',
+          path,
+          'sparse array holes cannot be represented faithfully by JSON persistence; use null for empty slots.'
+        );
+      }
       current.forEach((item, index) => visit(item, path.concat(index)));
       return;
     }
