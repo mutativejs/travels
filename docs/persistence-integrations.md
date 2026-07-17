@@ -519,7 +519,9 @@ const history = Travels.deserialize<DocumentState>(stored, {
 Recovery rules:
 
 - Always provide `fallback` for browser startup paths. A corrupted local snapshot should not make the app unusable.
-- Use `onError` to log the stable `TravelsPersistenceError.code`.
+- Use `onError` to log the stable `TravelsPersistenceError.code`; `INVALID_HISTORY` also identifies the failing `entryIndex` and replay `direction`.
+- When recording uses custom Mutative `strict` or `mark` settings, pass the same values through `replayOptions` so semantic validation uses identical replay rules.
+- Configure `enableAutoFreeze` on the restored Travels instance; deserialization deliberately avoids freezing caller-owned snapshot objects.
 - Keep storage keys namespaced, for example `travels:<app>:<documentId>`.
 - If persistence size matters, compress the serialized snapshot before storage and decompress before `Travels.deserialize(...)`.
 - If state contains non-JSON values such as `Date`, `Map`, or `Set`, add an application codec before writing and after reading. Prefer timestamps, records, and arrays for durable state.

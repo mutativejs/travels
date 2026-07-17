@@ -55,8 +55,16 @@ export type TravelsPersistenceErrorCode =
   | 'INVALID_SCHEMA'
   | 'UNSUPPORTED_VERSION'
   | 'INVALID_PATCHES'
+  | 'INVALID_HISTORY'
   | 'MIGRATION_FAILED'
   | 'FALLBACK_FAILED';
+
+export type TravelsReplayOptions = {
+  /** Match the `strict` option used when the history was recorded. */
+  strict?: boolean;
+  /** Match the Mutative `mark` option used when the history was recorded. */
+  mark?: MutativeOptions<false, boolean>['mark'];
+};
 
 export type TravelsMigration<
   S,
@@ -81,6 +89,11 @@ export type TravelsDeserializeOptions<
    * Receive typed persistence errors before a fallback is returned or the error is thrown.
    */
   onError?: (error: Error) => void;
+  /**
+   * Mutative options used while semantically replaying every history entry.
+   * Supply the same strict/mark settings that were used to record the history.
+   */
+  replayOptions?: TravelsReplayOptions;
 };
 
 export type TravelsBranchDiscardEvent<P extends PatchesOption = {}> = {

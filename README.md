@@ -270,7 +270,7 @@ Returns a versioned persistence snapshot containing the current state, patch his
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 
-Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied.
+Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Validation replays every entry from the stored position in both directions and rejects patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied.
 
 #### `canBack(): boolean`
 
@@ -782,8 +782,40 @@ function loadFromStorage() {
 - patch array shape
 - JSON Patch operation names and paths
 - position bounds
+- semantic replay from the stored position to both ends of history
+- forward/inverse reversibility for every reachable entry
 
-It throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, `MIGRATION_FAILED`, or `FALLBACK_FAILED`. Provide `fallback` when corrupted storage should recover to a known-safe snapshot instead of failing startup. Fallback snapshots are validated too; a throwing or invalid fallback reports `FALLBACK_FAILED`.
+It throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, `INVALID_HISTORY`, `MIGRATION_FAILED`, or `FALLBACK_FAILED`. Semantic failures also expose `entryIndex` and `direction` (`forward` or `inverse`). Provide `fallback` when detected parsing, migration, or validation failures should recover to a known-safe snapshot instead of failing startup. Fallback snapshots pass through the same structural and semantic validation; a throwing or invalid fallback reports `FALLBACK_FAILED`.
+
+If history was recorded with custom Mutative replay behavior, provide the same
+settings during validation:
+
+```typescript
+const history = Travels.deserialize(stored, {
+  replayOptions: {
+    strict: true,
+    mark: customMark,
+  },
+});
+```
+
+Semantic validation never enables auto-freeze because freezing does not change
+patch interpretation. `Travels.deserialize(...)` therefore does not freeze
+caller-owned snapshot objects; configure auto-freeze on the restored Travels
+instance instead.
+
+Semantic validation proves replay consistency only: the stored anchor and patch
+pairs can be applied and reversed. It does not authenticate the snapshot's
+origin or prove that the reconstructed past is the history originally recorded.
+A different but internally reversible history cannot be distinguished without
+an external trusted anchor.
+
+`fallback` runs only after parsing, migration, or validation rejects the input.
+An internally consistent alternative history is accepted and therefore does
+not automatically trigger fallback. Verify checksums, signatures, document
+identity, or revisions before calling `Travels.deserialize(...)` when the
+source requires integrity or provenance guarantees; select a known-safe
+snapshot when that external verification fails.
 
 Use `migrate` to upgrade older snapshots before validation:
 

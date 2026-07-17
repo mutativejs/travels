@@ -1,27 +1,38 @@
+import { apply } from 'mutative';
 import type {
   PatchesOption,
   TravelMetadata,
   TravelPatches,
   TravelsDeserializeOptions,
   TravelsPersistenceErrorCode,
+  TravelsReplayOptions,
   TravelsSerializedHistory,
 } from './type.js';
+import { composePatchGroups } from './replay.js';
 
 export const TRAVELS_HISTORY_SCHEMA_VERSION = 1 as const;
 
 export class TravelsPersistenceError extends Error {
   public readonly code: TravelsPersistenceErrorCode;
   public readonly cause?: unknown;
+  public readonly entryIndex?: number;
+  public readonly direction?: 'forward' | 'inverse';
 
   constructor(
     code: TravelsPersistenceErrorCode,
     message: string,
-    options: { cause?: unknown } = {}
+    options: {
+      cause?: unknown;
+      entryIndex?: number;
+      direction?: 'forward' | 'inverse';
+    } = {}
   ) {
     super(message);
     this.name = 'TravelsPersistenceError';
     this.code = code;
     this.cause = options.cause;
+    this.entryIndex = options.entryIndex;
+    this.direction = options.direction;
   }
 }
 
@@ -307,6 +318,303 @@ const normalizeSnapshot = <S, P extends PatchesOption = {}>(
   };
 };
 
+const areReplayStatesEqual = (
+  left: unknown,
+  right: unknown,
+  leftToRight = new WeakMap<object, object>(),
+  rightToLeft = new WeakMap<object, object>()
+): boolean => {
+  if (Object.is(left, right)) {
+    return true;
+  }
+
+  if (
+    left === null ||
+    right === null ||
+    (typeof left !== 'object' && typeof left !== 'function') ||
+    (typeof right !== 'object' && typeof right !== 'function')
+  ) {
+    return false;
+  }
+
+  const leftObject = left as object;
+  const rightObject = right as object;
+  const knownRight = leftToRight.get(leftObject);
+  if (knownRight) {
+    return knownRight === rightObject;
+  }
+  const knownLeft = rightToLeft.get(rightObject);
+  if (knownLeft) {
+    return knownLeft === leftObject;
+  }
+
+  if (Object.getPrototypeOf(leftObject) !== Object.getPrototypeOf(rightObject)) {
+    return false;
+  }
+
+  leftToRight.set(leftObject, rightObject);
+  rightToLeft.set(rightObject, leftObject);
+
+  // Array length is non-enumerable. The enumerable key comparison below still
+  // distinguishes holes from present indices, including explicit `undefined`.
+  if (Array.isArray(left) || Array.isArray(right)) {
+    if (
+      !Array.isArray(left) ||
+      !Array.isArray(right) ||
+      left.length !== right.length
+    ) {
+      return false;
+    }
+  }
+
+  if (left instanceof Date || right instanceof Date) {
+    return (
+      left instanceof Date &&
+      right instanceof Date &&
+      left.getTime() === right.getTime()
+    );
+  }
+
+  if (left instanceof RegExp || right instanceof RegExp) {
+    return (
+      left instanceof RegExp &&
+      right instanceof RegExp &&
+      left.source === right.source &&
+      left.flags === right.flags
+    );
+  }
+
+  if (left instanceof Map || right instanceof Map) {
+    if (!(left instanceof Map) || !(right instanceof Map)) {
+      return false;
+    }
+    if (left.size !== right.size) {
+      return false;
+    }
+
+    const leftEntries = Array.from(left.entries());
+    const rightEntries = Array.from(right.entries());
+    return leftEntries.every(
+      ([leftKey, leftValue], index) =>
+        areReplayStatesEqual(
+          leftKey,
+          rightEntries[index][0],
+          leftToRight,
+          rightToLeft
+        ) &&
+        areReplayStatesEqual(
+          leftValue,
+          rightEntries[index][1],
+          leftToRight,
+          rightToLeft
+        )
+    );
+  }
+
+  if (left instanceof Set || right instanceof Set) {
+    if (!(left instanceof Set) || !(right instanceof Set)) {
+      return false;
+    }
+    if (left.size !== right.size) {
+      return false;
+    }
+
+    const leftValues = Array.from(left.values());
+    const rightValues = Array.from(right.values());
+    return leftValues.every((leftValue, index) =>
+      areReplayStatesEqual(
+        leftValue,
+        rightValues[index],
+        leftToRight,
+        rightToLeft
+      )
+    );
+  }
+
+  if (
+    left instanceof WeakMap ||
+    right instanceof WeakMap ||
+    left instanceof WeakSet ||
+    right instanceof WeakSet ||
+    left instanceof Promise ||
+    right instanceof Promise
+  ) {
+    return false;
+  }
+
+  const isEnumerable = (value: object, key: PropertyKey) =>
+    Object.prototype.propertyIsEnumerable.call(value, key);
+  const leftKeys = Reflect.ownKeys(leftObject).filter((key) =>
+    isEnumerable(leftObject, key)
+  );
+  const rightKeys = Reflect.ownKeys(rightObject).filter((key) =>
+    isEnumerable(rightObject, key)
+  );
+
+  if (
+    leftKeys.length !== rightKeys.length ||
+    leftKeys.some((key) => !rightKeys.includes(key))
+  ) {
+    return false;
+  }
+
+  return leftKeys.every((key) => {
+    const leftDescriptor = Object.getOwnPropertyDescriptor(leftObject, key);
+    const rightDescriptor = Object.getOwnPropertyDescriptor(rightObject, key);
+    if (!leftDescriptor || !rightDescriptor) {
+      return false;
+    }
+
+    if ('value' in leftDescriptor && 'value' in rightDescriptor) {
+      return areReplayStatesEqual(
+        leftDescriptor.value,
+        rightDescriptor.value,
+        leftToRight,
+        rightToLeft
+      );
+    }
+
+    return (
+      !('value' in leftDescriptor) &&
+      !('value' in rightDescriptor) &&
+      leftDescriptor.get === rightDescriptor.get &&
+      leftDescriptor.set === rightDescriptor.set
+    );
+  });
+};
+
+const invalidHistoryError = (
+  entryIndex: number,
+  direction: 'forward' | 'inverse',
+  detail: string,
+  cause?: unknown
+): TravelsPersistenceError =>
+  new TravelsPersistenceError(
+    'INVALID_HISTORY',
+    `Travels: persisted history entry ${entryIndex} could not be validated in the ${direction} direction: ${detail}`,
+    { cause, entryIndex, direction }
+  );
+
+const replayHistoryEntry = <S, P extends PatchesOption = {}>(
+  state: S,
+  snapshot: TravelsSerializedHistory<S, P>,
+  entryIndex: number,
+  direction: 'forward' | 'inverse',
+  replayOptions: TravelsReplayOptions
+): S => {
+  const group =
+    direction === 'forward'
+      ? snapshot.patches.patches[entryIndex]
+      : snapshot.patches.inversePatches[entryIndex];
+  const patches = composePatchGroups(
+    [group],
+    direction === 'forward' ? 'forward' : 'backward'
+  );
+
+  try {
+    return apply(
+      state as object,
+      patches,
+      replayOptions as Parameters<typeof apply>[2]
+    ) as S;
+  } catch (error) {
+    throw invalidHistoryError(
+      entryIndex,
+      direction,
+      'patch replay failed.',
+      error
+    );
+  }
+};
+
+const assertRoundTrip = (
+  expected: unknown,
+  actual: unknown,
+  entryIndex: number,
+  direction: 'forward' | 'inverse'
+): void => {
+  let matches = false;
+  try {
+    matches = areReplayStatesEqual(expected, actual);
+  } catch (error) {
+    throw invalidHistoryError(
+      entryIndex,
+      direction,
+      'state comparison failed.',
+      error
+    );
+  }
+
+  if (!matches) {
+    throw invalidHistoryError(
+      entryIndex,
+      direction,
+      'forward and inverse patches are not reversible.'
+    );
+  }
+};
+
+const validateTravelsHistorySemantics = <
+  S,
+  P extends PatchesOption = {},
+>(
+  snapshot: TravelsSerializedHistory<S, P>,
+  replayOptions: TravelsReplayOptions = {}
+): TravelsSerializedHistory<S, P> => {
+  const validationReplayOptions = {
+    ...replayOptions,
+    // Freezing is an output policy, not part of patch interpretation. Applying
+    // it here can freeze structurally shared objects owned by the caller.
+    enableAutoFreeze: false,
+  };
+  let stateAfter = snapshot.state;
+
+  for (let index = snapshot.position - 1; index >= 0; index -= 1) {
+    const stateBefore = replayHistoryEntry(
+      stateAfter,
+      snapshot,
+      index,
+      'inverse',
+      validationReplayOptions
+    );
+    const replayedStateAfter = replayHistoryEntry(
+      stateBefore,
+      snapshot,
+      index,
+      'forward',
+      validationReplayOptions
+    );
+    assertRoundTrip(stateAfter, replayedStateAfter, index, 'forward');
+    stateAfter = stateBefore;
+  }
+
+  let stateBefore = snapshot.state;
+  for (
+    let index = snapshot.position;
+    index < snapshot.patches.patches.length;
+    index += 1
+  ) {
+    const nextState = replayHistoryEntry(
+      stateBefore,
+      snapshot,
+      index,
+      'forward',
+      validationReplayOptions
+    );
+    const replayedStateBefore = replayHistoryEntry(
+      nextState,
+      snapshot,
+      index,
+      'inverse',
+      validationReplayOptions
+    );
+    assertRoundTrip(stateBefore, replayedStateBefore, index, 'inverse');
+    stateBefore = nextState;
+  }
+
+  return snapshot;
+};
+
 const resolveFallback = <S, P extends PatchesOption = {}>(
   fallback: NonNullable<TravelsDeserializeOptions<S, P>['fallback']>
 ): TravelsSerializedHistory<S, P> =>
@@ -355,7 +663,10 @@ export const deserializeTravelsHistory = <
       }
     }
 
-    return normalizeSnapshot<S, P>(migrated);
+    return validateTravelsHistorySemantics(
+      normalizeSnapshot<S, P>(migrated),
+      options.replayOptions
+    );
   } catch (error) {
     const persistenceError = toPersistenceError(
       error,
@@ -370,7 +681,10 @@ export const deserializeTravelsHistory = <
     }
 
     try {
-      return normalizeSnapshot<S, P>(resolveFallback(options.fallback));
+      return validateTravelsHistorySemantics(
+        normalizeSnapshot<S, P>(resolveFallback(options.fallback)),
+        options.replayOptions
+      );
     } catch (fallbackCause) {
       const fallbackError = new TravelsPersistenceError(
         'FALLBACK_FAILED',

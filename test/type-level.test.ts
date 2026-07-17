@@ -24,6 +24,13 @@ describe('Type-level API contracts', () => {
     const history = Travels.deserialize<State>(snapshot);
     expectTypeOf(history.state).toEqualTypeOf<State>();
 
+    if (false) {
+      Travels.deserialize<State>(snapshot, {
+        // @ts-expect-error auto-freeze is an instance output policy, not replay behavior
+        replayOptions: { enableAutoFreeze: true },
+      });
+    }
+
     createTravels(history.state, { history });
   });
 
