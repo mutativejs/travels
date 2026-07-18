@@ -34,6 +34,7 @@ All notable changes to this project will be documented in this file.
 - Canonicalize object-form patch operations from own data properties so accessors cannot bypass validation or execute during history cloning.
 - Delay auto-freezing candidate updates until Map/Set validation succeeds so rejected updates leave caller-owned values untouched.
 - Capture object-form snapshot and patch-container fields once from own data properties, rejecting accessors and inherited fields without evaluating them.
+- Skip collection traversal for primitive-only patch streams and cache validated object patch values at their roots, preserving repeated-subtree reuse without penalizing fresh payloads.
 
 ### Changed
 

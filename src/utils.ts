@@ -107,10 +107,12 @@ export const getMapOrSetKind = (
 export const containsMapOrSet = (
   value: unknown,
   seen = new WeakSet<object>(),
-  knownCollectionFree?: WeakSet<object>
+  knownCollectionFree?: WeakSet<object>,
+  cacheDescendants = true
 ): boolean => {
   const stack = [value];
-  const visited: object[] = [];
+  const visited =
+    knownCollectionFree && cacheDescendants ? ([] as object[]) : undefined;
 
   while (stack.length > 0) {
     const current = stack.pop();
@@ -129,7 +131,7 @@ export const containsMapOrSet = (
     }
 
     seen.add(current);
-    visited.push(current);
+    visited?.push(current);
 
     // Follow only enumerable string data properties: these are the fields that
     // Travels can patch and JSON can retain. Framework objects may keep Maps in
@@ -146,10 +148,12 @@ export const containsMapOrSet = (
     }
   }
 
-  if (knownCollectionFree) {
+  if (knownCollectionFree && visited) {
     for (const current of visited) {
       knownCollectionFree.add(current);
     }
+  } else if (knownCollectionFree && isObjectLike(value)) {
+    knownCollectionFree.add(value);
   }
   return false;
 };

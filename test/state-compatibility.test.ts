@@ -785,6 +785,47 @@ describe('State compatibility warnings', () => {
     expect(repeatedReads).toEqual([]);
   });
 
+  test('caches only a validated patch-value root when requested', () => {
+    const child = { value: 1 };
+    const root = { child };
+    const knownCollectionFree = new WeakSet<object>();
+
+    expect(
+      containsMapOrSet(root, new WeakSet(), knownCollectionFree, false)
+    ).toBe(false);
+    expect(knownCollectionFree.has(root)).toBe(true);
+    expect(knownCollectionFree.has(child)).toBe(false);
+  });
+
+  test('skips collection caching for primitive-only patch streams', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { maxHistory: 1, warnOnUnsupportedState: false }
+    );
+    const cachedPatchOperations: object[] = [];
+    const originalAdd = WeakSet.prototype.add;
+    const addSpy = vi
+      .spyOn(WeakSet.prototype, 'add')
+      .mockImplementation(function (this: WeakSet<object>, value: object) {
+        const op = Object.getOwnPropertyDescriptor(value, 'op');
+        const path = Object.getOwnPropertyDescriptor(value, 'path');
+        if (op && 'value' in op && path && 'value' in path) {
+          cachedPatchOperations.push(value);
+        }
+        return originalAdd.call(this, value);
+      });
+
+    try {
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+    } finally {
+      addSpy.mockRestore();
+    }
+
+    expect(cachedPatchOperations).toEqual([]);
+  });
+
   test.each([false, true])(
     'rejects Map and Set when creating a runtime (mutable: %s)',
     (mutable) => {

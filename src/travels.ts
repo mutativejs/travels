@@ -109,6 +109,34 @@ const assertSupportedRuntimeState = (
   }
 };
 
+const assertSupportedPatchValues = <P extends PatchesOption = {}>(
+  patches: Patches<P>,
+  inversePatches: Patches<P>,
+  knownCollectionFree?: WeakSet<object>
+): [boolean, boolean] => {
+  const groups = [patches, inversePatches] as const;
+  const hasObjectValues: [boolean, boolean] = [false, false];
+  const seen = new WeakSet<object>();
+
+  for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
+    for (const operation of groups[groupIndex]) {
+      const value = (operation as { value?: unknown }).value;
+      if (!isObjectLike(value)) {
+        continue;
+      }
+
+      hasObjectValues[groupIndex] = true;
+      if (containsMapOrSet(value, seen, knownCollectionFree, false)) {
+        throw new TypeError(
+          'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+        );
+      }
+    }
+  }
+
+  return hasObjectValues;
+};
+
 const freezeAcceptedState = (state: unknown): void => {
   void create([state], () => undefined, { enableAutoFreeze: true });
 };
@@ -245,13 +273,9 @@ const clonePatchGroup = <P extends PatchesOption = {}>(
 };
 
 const detachMutablePatchValues = <P extends PatchesOption = {}>(
-  patch: Patches<P>
-): Patches<P> =>
-  patch.some((operation) =>
-    isObjectLike((operation as { value?: unknown }).value)
-  )
-    ? clonePatchGroup(patch)
-    : patch;
+  patch: Patches<P>,
+  hasObjectValues: boolean
+): Patches<P> => (hasObjectValues ? clonePatchGroup(patch) : patch);
 
 const clonePatchGroups = <P extends PatchesOption = {}>(
   groups: Patches<P>[]
@@ -1581,8 +1605,9 @@ export class Travels<
         createOptions
       ) as [S, Patches<P>, Patches<P>];
 
-      assertSupportedRuntimeState(
-        [p, ip],
+      const objectPatchValues = assertSupportedPatchValues(
+        p,
+        ip,
         this.mutable ? undefined : this.collectionFreeObjects
       );
       if (this.options.enableAutoFreeze) {
@@ -1594,8 +1619,8 @@ export class Travels<
       // stores or caller-held references. Archive detached patch values before
       // applying the original forward patches to the live state so neither
       // later mutation nor lazy observer access can rewrite history.
-      patches = detachMutablePatchValues(p);
-      inversePatches = detachMutablePatchValues(ip);
+      patches = detachMutablePatchValues(p, objectPatchValues[0]);
+      inversePatches = detachMutablePatchValues(ip, objectPatchValues[1]);
 
       if (replacesRoot) {
         if (
@@ -1642,8 +1667,9 @@ export class Travels<
             createOptions
           )) as unknown as [S, Patches<P>, Patches<P>];
 
-      assertSupportedRuntimeState(
-        [p, ip],
+      const objectPatchValues = assertSupportedPatchValues(
+        p,
+        ip,
         this.mutable ? undefined : this.collectionFreeObjects
       );
       if (this.options.enableAutoFreeze) {
@@ -1653,8 +1679,11 @@ export class Travels<
       patches = p;
       inversePatches = ip;
       if (this.mutable) {
-        patches = detachMutablePatchValues(patches);
-        inversePatches = detachMutablePatchValues(inversePatches);
+        patches = detachMutablePatchValues(patches, objectPatchValues[0]);
+        inversePatches = detachMutablePatchValues(
+          inversePatches,
+          objectPatchValues[1]
+        );
       }
       this.state = nextState;
     }
