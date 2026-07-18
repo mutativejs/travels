@@ -88,10 +88,13 @@ import { createTravels } from 'travels';
 const travels = createTravels({ count: 0 });
 
 // Subscribe to state changes
-const unsubscribe = travels.subscribe((state, patches, position) => {
-  console.log('State:', state);
-  console.log('Position:', position);
-});
+const unsubscribe = travels.subscribe(
+  (state, patches, position, historyLength) => {
+    console.log('State:', state);
+    console.log('Position:', position);
+    console.log('Retained history:', historyLength);
+  }
+);
 
 // Update state using mutation syntax (preferred - more intuitive)
 travels.setState((draft) => {
@@ -199,15 +202,18 @@ travels.setState(
 
 Metadata is included in persisted snapshots. Keep custom metadata values in the same durable JSON-compatible subset as state, or use an application codec.
 
-#### `subscribe(listener: (state, patches, position) => void): () => void`
+#### `subscribe(listener: (state, patches, position, historyLength) => void): () => void`
 
 Subscribe to state changes. Returns an unsubscribe function.
 
-The `patches` argument is a shared per-event snapshot. It is materialized lazily,
-so state-only subscribers do not copy the complete history on every update.
+The `patches` argument is the event-local forward/inverse delta from the
+previously published state to `state`. Root transactions compose their internal
+steps into one delta; operations that do not change state, such as `archive()`
+and `rebase()`, publish empty patch arrays. The shared per-event snapshot is
+materialized lazily and its forward/inverse directions are cloned independently.
 Treat it as read-only; mutating it can affect other listeners or devtools hooks
-handling the same event. Once accessed, the snapshot remains stable even after
-later history updates.
+handling the same event. Use `getPatches()` explicitly when a full retained
+history snapshot is required.
 
 Notifications run only after state, position, and history have committed. An
 observer exception is isolated from other observers and is reported through
@@ -228,8 +234,9 @@ branches created and discarded entirely inside the transaction.
 
 - `listener`: Callback function called on state changes
   - `state`: The new state
-  - `patches`: The current patches history
+  - `patches`: The event-local state transition patches
   - `position`: The current position in history
+  - `historyLength`: The number of entries currently retained in history
 
 #### `back(amount?: number): void`
 

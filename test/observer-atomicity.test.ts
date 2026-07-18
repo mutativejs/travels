@@ -48,7 +48,8 @@ describe('observer publication atomicity', () => {
     expect(listener).toHaveBeenCalledOnce();
     expect(listener.mock.calls[0][0]).toEqual({ count: 3 });
     expect(listener.mock.calls[0][2]).toBe(2);
-    expect(listener.mock.calls[0][1].patches).toHaveLength(2);
+    expect(listener.mock.calls[0][1].patches).toHaveLength(1);
+    expect(listener.mock.calls[0][3]).toBe(2);
     expect(devtools).toHaveBeenCalledOnce();
     expect(observerErrors).toHaveLength(1);
     expect(observerErrors[0].source).toBe('onBranchDiscard');
@@ -106,16 +107,16 @@ describe('observer publication atomicity', () => {
             type: event.type,
             count: event.state.count,
             position: event.position,
-            historyLength: event.patches.patches.length,
+            historyLength: event.historyLength,
           });
         },
       }
     );
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe((state, _patches, position, historyLength) => {
       listenerSnapshots.push({
         count: state.count,
         position,
-        historyLength: patches.patches.length,
+        historyLength,
       });
     });
 
@@ -420,11 +421,11 @@ describe('observer publication atomicity', () => {
         });
       }
     });
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe((state, _patches, position, historyLength) => {
       snapshots.push({
         state: state.count,
         position,
-        historyLength: patches.patches.length,
+        historyLength,
       });
     });
 

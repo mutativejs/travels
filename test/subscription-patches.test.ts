@@ -21,7 +21,7 @@ describe('subscription patch snapshots', () => {
     expect(travels.getPosition()).toBe(1_000);
   });
 
-  test('materializes one shared full-history snapshot on first access', () => {
+  test('materializes one shared event-local delta on first access', () => {
     const snapshots: TravelPatches[] = [];
     const travels = createTravels({ count: 0 }, { maxHistory: 10 });
 
@@ -41,7 +41,60 @@ describe('subscription patch snapshots', () => {
     expect(snapshots[0].inversePatches).toHaveLength(1);
   });
 
-  test('retains the event-time history across appends and branch replacement', () => {
+  test('keeps patch reads constant as retained history grows', () => {
+    let latest:
+      | { patches: TravelPatches; historyLength: number }
+      | undefined;
+    const travels = createTravels({ count: 0 }, { maxHistory: 100 });
+    travels.subscribe((_state, patches, _position, historyLength) => {
+      latest = { patches, historyLength };
+    });
+
+    for (let count = 1; count <= 100; count += 1) {
+      travels.setState((draft) => {
+        draft.count = count;
+      });
+    }
+
+    expect(latest?.historyLength).toBe(100);
+    expect(latest?.patches.patches).toHaveLength(1);
+    expect(latest?.patches.inversePatches).toHaveLength(1);
+    expect(travels.getPatches().patches).toHaveLength(100);
+  });
+
+  test('publishes composed transaction deltas and empty archive deltas', () => {
+    const events: Array<{ patches: TravelPatches; historyLength: number }> = [];
+    const travels = createTravels(
+      { count: 0 },
+      { autoArchive: false, maxHistory: 10 }
+    );
+    travels.subscribe((_state, patches, _position, historyLength) => {
+      events.push({ patches, historyLength });
+    });
+
+    travels.transaction(() => {
+      travels.setState({ count: 1 });
+      travels.setState({ count: 2 });
+    });
+    travels.setState({ count: 3 });
+    travels.archive();
+
+    expect(events).toHaveLength(3);
+    expect(events[0].patches.patches).toHaveLength(1);
+    expect(events[0].patches.patches[0]).toEqual([
+      { op: 'replace', path: [], value: { count: 2 } },
+    ]);
+    expect(events[0].patches.inversePatches[0]).toEqual([
+      { op: 'replace', path: [], value: { count: 0 } },
+    ]);
+    expect(events[0].historyLength).toBe(1);
+    expect(events[1].patches.patches).toHaveLength(1);
+    expect(events[1].historyLength).toBe(2);
+    expect(events[2].patches).toEqual({ patches: [], inversePatches: [] });
+    expect(events[2].historyLength).toBe(2);
+  });
+
+  test('retains the event-time delta across appends and branch replacement', () => {
     let firstSnapshot: TravelPatches | undefined;
     const travels = createTravels({ count: 0 }, { maxHistory: 10 });
 
@@ -73,7 +126,7 @@ describe('subscription patch snapshots', () => {
     expect(travels.getState()).toEqual({ count: 1 });
   });
 
-  test('retains an unarchived manual snapshot across later pending updates', () => {
+  test('retains an unarchived manual delta across later pending updates', () => {
     let firstSnapshot: TravelPatches | undefined;
     const travels = createTravels(
       { count: 0 },

@@ -47,7 +47,8 @@ import {
 type Listener<S, P extends PatchesOption = {}> = (
   state: S,
   patches: TravelPatches<P>,
-  position: number
+  position: number,
+  historyLength: number
 ) => void;
 
 type SynchronousFunction<F> = F extends (...args: never[]) => infer R
@@ -133,6 +134,8 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   needsCompatibilityCheck: boolean;
   compatibilityChecks: DeferredCompatibilityCheck<P>[];
   compatibilityCheckCount: number;
+  eventPatches: TravelPatches<P>;
+  eventPatchCount: number;
   stateJournalLength: number;
 };
 
@@ -266,6 +269,14 @@ const cloneTravelPatches = <P extends PatchesOption = {}>(
   patches: base ? clonePatchGroups(base.patches) : [],
   inversePatches: base ? clonePatchGroups(base.inversePatches) : [],
 });
+
+const createPatchDelta = <P extends PatchesOption = {}>(
+  patches: Patches<P>,
+  inversePatches: Patches<P>
+): TravelPatches<P> =>
+  patches.length === 0 && inversePatches.length === 0
+    ? cloneTravelPatches()
+    : { patches: [patches], inversePatches: [inversePatches] };
 
 const filterBranchDiscardEffect = <P extends PatchesOption = {}>(
   effect: BranchDiscardEffect<P>,
@@ -532,6 +543,7 @@ export class Travels<
   private transactionHasEffects = false;
   private transactionNeedsCompatibilityCheck = false;
   private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
+  private transactionEventPatches: TravelPatches<P> = cloneTravelPatches();
   private transactionStateJournal: MutableStateJournalEntry<P>[] = [];
   private publishingEffects = false;
 
@@ -1065,42 +1077,62 @@ export class Travels<
   /**
    * Notify all listeners of state changes
    */
-  private getEventPatches(): TravelPatches<P> | undefined {
+  private getEventPatches(
+    source?: TravelPatches<P>
+  ): TravelPatches<P> | undefined {
     if (!this.listeners.size && !this.devtools) {
       return undefined;
     }
 
-    const shouldArchive =
-      !this.isAutoArchiving() && !!this.tempPatches.patches.length;
-    const source = shouldArchive ? this.getAllPatches() : this.allPatches;
-    const patchGroups = source.patches;
-    const inversePatchGroups = source.inversePatches;
+    const patchGroups = source?.patches ?? [];
+    const inversePatchGroups = source?.inversePatches ?? [];
     const patchCount = patchGroups.length;
     const inversePatchCount = inversePatchGroups.length;
-    let materialized: TravelPatches<P> | undefined;
-
-    const materialize = (): TravelPatches<P> => {
-      if (!materialized) {
-        materialized = cloneTravelPatches({
-          patches: patchGroups.slice(0, patchCount),
-          inversePatches: inversePatchGroups.slice(0, inversePatchCount),
-        });
-      }
-      return materialized;
-    };
+    let materializedPatches: Patches<P>[] | undefined;
+    let materializedInversePatches: Patches<P>[] | undefined;
 
     const snapshot = {} as TravelPatches<P>;
     Object.defineProperties(snapshot, {
       patches: {
         enumerable: true,
-        get: () => materialize().patches,
+        get: () =>
+          (materializedPatches ??= clonePatchGroups(
+            patchGroups.slice(0, patchCount)
+          )),
       },
       inversePatches: {
         enumerable: true,
-        get: () => materialize().inversePatches,
+        get: () =>
+          (materializedInversePatches ??= clonePatchGroups(
+            inversePatchGroups.slice(0, inversePatchCount)
+          )),
       },
     });
     return snapshot;
+  }
+
+  private getVisibleHistoryLength(): number {
+    if (this.maxHistory === 0) {
+      return 0;
+    }
+    const pendingEntry =
+      !this.isAutoArchiving() && this.tempPatches.patches.length > 0 ? 1 : 0;
+    return Math.min(
+      this.maxHistory,
+      this.allPatches.patches.length + pendingEntry
+    );
+  }
+
+  private getTransactionPatchDelta(): TravelPatches<P> {
+    const patches = composePatchGroups(
+      this.transactionEventPatches.patches,
+      'forward'
+    );
+    const inversePatches = composePatchGroups(
+      this.transactionEventPatches.inversePatches,
+      'backward'
+    );
+    return createPatchDelta(patches, inversePatches);
   }
 
   private emitBranchDiscard(effect: BranchDiscardEffect<P>): void {
@@ -1215,19 +1247,27 @@ export class Travels<
   private emitChange(
     type: TravelsDevtoolsEvent<S, P>['type'],
     metadata?: TravelMetadata,
-    branchDiscard?: BranchDiscardEffect<P>
+    branchDiscard?: BranchDiscardEffect<P>,
+    changePatches?: TravelPatches<P>
   ): void {
     if (this.transactionDepth > 0) {
       this.transactionHasEffects = true;
+      if (changePatches) {
+        this.transactionEventPatches.patches.push(...changePatches.patches);
+        this.transactionEventPatches.inversePatches.push(
+          ...changePatches.inversePatches
+        );
+      }
       if (branchDiscard) {
         this.publishBranchDiscard(branchDiscard);
       }
       return;
     }
 
-    const patches = this.getEventPatches();
+    const patches = this.getEventPatches(changePatches);
     const state = this.state;
     const position = this.position;
+    const historyLength = this.getVisibleHistoryLength();
     const listeners = Array.from(this.listeners);
     const devtools = this.devtools;
 
@@ -1239,7 +1279,7 @@ export class Travels<
       if (patches) {
         for (const listener of listeners) {
           this.invokeObserver('listener', () =>
-            listener(state, patches, position)
+            listener(state, patches, position, historyLength)
           );
         }
 
@@ -1249,6 +1289,7 @@ export class Travels<
             state,
             position,
             patches,
+            historyLength,
             metadata,
           } as TravelsDevtoolsEvent<S, P>;
           this.invokeObserver('devtools', () => devtools(event));
@@ -1404,6 +1445,11 @@ export class Travels<
       needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
       compatibilityChecks: this.transactionCompatibilityChecks,
       compatibilityCheckCount: this.transactionCompatibilityChecks.length,
+      eventPatches: {
+        patches: this.transactionEventPatches.patches,
+        inversePatches: this.transactionEventPatches.inversePatches,
+      },
+      eventPatchCount: this.transactionEventPatches.patches.length,
       stateJournalLength: this.transactionStateJournal.length,
     };
   }
@@ -1428,6 +1474,8 @@ export class Travels<
     snapshot.tempPatches.inversePatches.length = snapshot.tempPatchCount;
     snapshot.branchDiscards.length = snapshot.branchDiscardCount;
     snapshot.compatibilityChecks.length = snapshot.compatibilityCheckCount;
+    snapshot.eventPatches.patches.length = snapshot.eventPatchCount;
+    snapshot.eventPatches.inversePatches.length = snapshot.eventPatchCount;
 
     this.state = snapshot.state;
     this.position = snapshot.position;
@@ -1444,6 +1492,7 @@ export class Travels<
     this.transactionHasEffects = snapshot.hasEffects;
     this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
     this.transactionCompatibilityChecks = snapshot.compatibilityChecks;
+    this.transactionEventPatches = snapshot.eventPatches;
 
     this.invalidateHistoryCache();
   }
@@ -1626,7 +1675,12 @@ export class Travels<
           false
         );
       }
-      this.emitChange('replaceStateWithoutHistory', metadata);
+      this.emitChange(
+        'replaceStateWithoutHistory',
+        metadata,
+        undefined,
+        createPatchDelta(patches, inversePatches)
+      );
       return;
     }
 
@@ -1688,7 +1742,12 @@ export class Travels<
         archivedImmediately
       );
     }
-    this.emitChange('setState', metadata, branchDiscard);
+    this.emitChange(
+      'setState',
+      metadata,
+      branchDiscard,
+      createPatchDelta(patches, inversePatches)
+    );
   }
 
   private archivePending(
@@ -1781,6 +1840,7 @@ export class Travels<
         : undefined;
       this.transactionHasEffects = false;
       this.transactionNeedsCompatibilityCheck = false;
+      this.transactionEventPatches = cloneTravelPatches();
       if (process.env.NODE_ENV !== 'production') {
         this.transactionCompatibilityChecks = [];
       }
@@ -1801,6 +1861,7 @@ export class Travels<
         if (!failed) {
           const committed = this.archivePending(this.transactionMeta, false);
           const shouldPublish = committed || this.transactionHasEffects;
+          const changePatches = this.getTransactionPatchDelta();
           if (
             process.env.NODE_ENV !== 'production' &&
             this.transactionNeedsCompatibilityCheck
@@ -1810,7 +1871,12 @@ export class Travels<
             }
           }
           if (shouldPublish) {
-            this.emitChange('transaction', this.transactionMeta);
+            this.emitChange(
+              'transaction',
+              this.transactionMeta,
+              undefined,
+              changePatches
+            );
           }
           this.flushTransactionBranchDiscards();
         }
@@ -1822,6 +1888,10 @@ export class Travels<
           transactionSnapshot.needsCompatibilityCheck;
         this.transactionStateJournal.length =
           transactionSnapshot.stateJournalLength;
+        this.transactionEventPatches.patches.length =
+          transactionSnapshot.eventPatchCount;
+        this.transactionEventPatches.inversePatches.length =
+          transactionSnapshot.eventPatchCount;
         if (process.env.NODE_ENV !== 'production') {
           this.transactionCompatibilityChecks.length =
             transactionSnapshot.compatibilityCheckCount;
@@ -2061,6 +2131,19 @@ export class Travels<
             .slice(this.position, nextPosition),
           'forward'
         );
+    const rollbackPatches = back
+      ? composePatchGroups(
+          _allPatches.patches
+            .slice(-this.maxHistory)
+            .slice(nextPosition, this.position),
+          'forward'
+        )
+      : composePatchGroups(
+          _allPatches.inversePatches
+            .slice(-this.maxHistory)
+            .slice(this.position, nextPosition),
+          'backward'
+        );
 
     // Can only use mutable mode if:
     // 1. mutable mode is enabled
@@ -2073,19 +2156,6 @@ export class Travels<
 
     if (canGoMutably) {
       // For observable state: mutate in place
-      const rollbackPatches = back
-        ? composePatchGroups(
-            _allPatches.patches
-              .slice(-this.maxHistory)
-              .slice(nextPosition, this.position),
-            'forward'
-          )
-        : composePatchGroups(
-            _allPatches.inversePatches
-              .slice(-this.maxHistory)
-              .slice(this.position, nextPosition),
-            'backward'
-          );
       this.journalMutableState(this.state as object, rollbackPatches);
       apply(this.state as object, patchesToApply, { mutable: true });
     } else {
@@ -2095,7 +2165,12 @@ export class Travels<
 
     this.position = nextPosition;
     this.invalidateHistoryCache();
-    this.emitChange('go');
+    this.emitChange(
+      'go',
+      undefined,
+      undefined,
+      createPatchDelta(patchesToApply, rollbackPatches)
+    );
   }
 
   /**
@@ -2120,13 +2195,15 @@ export class Travels<
   public reset(): void {
     this.assertCanMutate('reset');
 
+    let patches: Patches<P>;
+    let inversePatches: Patches<P>;
     const canResetMutably =
       this.mutable && canSynchronizeMutableRoots(this.state, this.initialState);
 
     if (canResetMutably) {
       // For observable state: use patch system to reset to initial state
       // Generate patches from current state to initial state
-      const [, patches, inversePatches] = create(
+      const [, resetPatches, resetInversePatches] = create(
         this.state,
         (draft) => {
           // Clear all properties
@@ -2142,14 +2219,24 @@ export class Travels<
         this.options
       ) as unknown as [S, Patches<P>, Patches<P>];
 
+      patches = resetPatches;
+      inversePatches = resetInversePatches;
       this.journalMutableState(this.state as object, inversePatches);
       apply(this.state as object, patches, { mutable: true });
     } else {
       // For immutable state: restore from a snapshot clone.
-      this.state = this.applyImmutably(
-        cloneInitialSnapshot(this.initialState),
-        []
-      );
+      const target = cloneInitialSnapshot(this.initialState);
+      const [nextState, resetPatches, resetInversePatches] = create(
+        this.state,
+        () =>
+          isObjectLike(target)
+            ? (rawReturn(target as object) as S)
+            : (target as S),
+        this.options
+      ) as unknown as [S, Patches<P>, Patches<P>];
+      this.state = nextState;
+      patches = resetPatches;
+      inversePatches = resetInversePatches;
     }
 
     this.position = this.initialPosition;
@@ -2176,7 +2263,12 @@ export class Travels<
     }
 
     this.invalidateHistoryCache();
-    this.emitChange('reset');
+    this.emitChange(
+      'reset',
+      undefined,
+      undefined,
+      createPatchDelta(patches, inversePatches)
+    );
   }
 
   /**

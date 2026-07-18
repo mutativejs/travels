@@ -47,8 +47,8 @@ describe('maxHistory Boundary Handling', () => {
     let lastPosition = 0;
     let lastPatchesLength = 0;
 
-    travels.subscribe((state, patches, position) => {
-      const patchesLength = patches.patches.length;
+    travels.subscribe((state, _patches, position, historyLength) => {
+      const patchesLength = historyLength;
 
       // Detect overflow: position reaches maxHistory and patches didn't grow
       const isOverflow =
@@ -89,8 +89,8 @@ describe('maxHistory Boundary Handling', () => {
 
     let lastPatchesLength = 0;
 
-    travels.subscribe((state, patches, position) => {
-      const patchesLength = patches.patches.length;
+    travels.subscribe((state, _patches, position, historyLength) => {
+      const patchesLength = historyLength;
 
       // Detect overflow (patches didn't grow but position reached maxHistory)
       if (
@@ -234,14 +234,14 @@ describe('maxHistory Boundary Handling', () => {
 
     let lastPatchesLength = 0;
 
-    travels.subscribe((state, patches, position) => {
-      const patchesLength = patches.patches.length;
+    travels.subscribe((state, _patches, position, historyLength) => {
+      const patchesLength = historyLength;
 
       // Detect memory tier overflow
       if (position >= 5 && patchesLength === lastPatchesLength) {
         // Move to local tier
         if (localStorage.length < 50) {
-          localStorage.push({ state, patches });
+          localStorage.push({ state, patches: travels.getPatches() });
         } else {
           // Local tier full, move to cloud
           cloudStorage.push(localStorage.shift());

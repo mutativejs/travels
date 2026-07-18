@@ -645,17 +645,18 @@ describe('Event Notifications', () => {
       assert: (
         state: { value: number },
         patches: ReturnType<typeof travels.getPatches>,
-        position: number
+        position: number,
+        historyLength: number
       ) => void;
     };
 
     const expectations: Expectation[] = [];
     let callIndex = 0;
 
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe((state, patches, position, historyLength) => {
       const expectation = expectations[callIndex++];
       expect(expectation?.name).toBeDefined();
-      expectation.assert(state, patches, position);
+      expectation.assert(state, patches, position, historyLength);
     });
 
     const run = (
@@ -670,9 +671,10 @@ describe('Event Notifications', () => {
     run(
       'setState-1',
       () => travels.setState({ value: 1 }),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(1);
         expect(position).toBe(1);
+        expect(historyLength).toBe(1);
         expect(patches.patches).toHaveLength(1);
         expect(patches.inversePatches).toHaveLength(1);
       }
@@ -681,77 +683,84 @@ describe('Event Notifications', () => {
     run(
       'archive-1',
       () => travels.archive(),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(1);
         expect(position).toBe(1);
-        expect(patches.patches).toHaveLength(1);
-        expect(patches.inversePatches).toHaveLength(1);
+        expect(historyLength).toBe(1);
+        expect(patches.patches).toHaveLength(0);
+        expect(patches.inversePatches).toHaveLength(0);
       }
     );
 
     run(
       'setState-2',
       () => travels.setState({ value: 2 }),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(2);
         expect(position).toBe(2);
-        expect(patches.patches).toHaveLength(2);
-        expect(patches.inversePatches).toHaveLength(2);
+        expect(historyLength).toBe(2);
+        expect(patches.patches).toHaveLength(1);
+        expect(patches.inversePatches).toHaveLength(1);
       }
     );
 
     run(
       'archive-2',
       () => travels.archive(),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(2);
         expect(position).toBe(2);
-        expect(patches.patches).toHaveLength(2);
-        expect(patches.inversePatches).toHaveLength(2);
+        expect(historyLength).toBe(2);
+        expect(patches.patches).toHaveLength(0);
+        expect(patches.inversePatches).toHaveLength(0);
       }
     );
 
     run(
       'back',
       () => travels.back(),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(1);
         expect(position).toBe(1);
-        expect(patches.patches).toHaveLength(2);
-        expect(patches.inversePatches).toHaveLength(2);
+        expect(historyLength).toBe(2);
+        expect(patches.patches).toHaveLength(1);
+        expect(patches.inversePatches).toHaveLength(1);
       }
     );
 
     run(
       'forward',
       () => travels.forward(),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(2);
         expect(position).toBe(2);
-        expect(patches.patches).toHaveLength(2);
-        expect(patches.inversePatches).toHaveLength(2);
+        expect(historyLength).toBe(2);
+        expect(patches.patches).toHaveLength(1);
+        expect(patches.inversePatches).toHaveLength(1);
       }
     );
 
     run(
       'go',
       () => travels.go(1),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(1);
         expect(position).toBe(1);
-        expect(patches.patches).toHaveLength(2);
-        expect(patches.inversePatches).toHaveLength(2);
+        expect(historyLength).toBe(2);
+        expect(patches.patches).toHaveLength(1);
+        expect(patches.inversePatches).toHaveLength(1);
       }
     );
 
     run(
       'reset',
       () => travels.reset(),
-      (state, patches, position) => {
+      (state, patches, position, historyLength) => {
         expect(state.value).toBe(0);
         expect(position).toBe(0);
-        expect(patches.patches).toHaveLength(0);
-        expect(patches.inversePatches).toHaveLength(0);
+        expect(historyLength).toBe(0);
+        expect(patches.patches).toHaveLength(1);
+        expect(patches.inversePatches).toHaveLength(1);
       }
     );
 

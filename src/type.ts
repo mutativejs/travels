@@ -7,8 +7,9 @@ import type {
 } from 'mutative';
 
 /**
- * Retained forward/inverse JSON Patch entries. Persisted paths use JSON Pointer
- * strings or dense arrays of strings/non-negative integers; values are JSON-compatible.
+ * Forward/inverse JSON Patch groups. Retained-history APIs use one group per
+ * entry; observer events use event-local transition groups. Persisted paths use
+ * JSON Pointer strings or dense arrays of strings/non-negative integers.
  */
 export type TravelPatches<P extends PatchesOption = {}> = {
   patches: Patches<P>[];
@@ -148,7 +149,10 @@ export type TravelsDevtoolsEvent<
     | 'replaceStateWithoutHistory';
   state: S;
   position: number;
+  /** Event-local patches that transform the previously published state. */
   patches: TravelPatches<P>;
+  /** Number of entries currently retained in history. */
+  historyLength: number;
   metadata?: TravelMetadata;
 };
 
