@@ -45,6 +45,29 @@ describe('subscription patch snapshots', () => {
     expect(snapshots[0].inversePatches).toHaveLength(1);
   });
 
+  test('warns once per legacy positional listener in development', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({ count: 0 });
+    const legacyListener = ((state: unknown, patches: unknown) => {
+      void state;
+      void patches;
+    }) as unknown as Parameters<typeof travels.subscribe>[0];
+
+    travels.subscribe(legacyListener)();
+    travels.subscribe(legacyListener)();
+    travels.subscribe(({ state }) => {
+      void state;
+    })();
+    travels.subscribe(() => {})();
+
+    const legacyWarnings = warnSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes('single TravelsEvent object'));
+    warnSpy.mockRestore();
+
+    expect(legacyWarnings).toHaveLength(1);
+  });
+
   test('shares one frozen event envelope with subscribers and devtools', () => {
     const events: TravelsEvent<{ count: number }>[] = [];
     const travels = createTravels(

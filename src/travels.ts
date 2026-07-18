@@ -247,6 +247,11 @@ const deepCloneValue = (value: any, seen = new WeakMap<object, any>()): any => {
 
 const historyEntryIdentities = new WeakMap<object, object>();
 
+// Development-only migration aid: legacy positional subscribe callbacks read
+// `undefined` from their second parameter and fail inside observer isolation,
+// so surface the API change once per listener function instead.
+const warnedLegacyListeners = new WeakSet<Function>();
+
 const getHistoryEntryIdentity = (entry: object): object => {
   let identity = historyEntryIdentities.get(entry);
   if (!identity) {
@@ -1132,6 +1137,16 @@ export class Travels<
    * @returns Unsubscribe function
    */
   public subscribe = (listener: Listener<S, P>) => {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      listener.length > 1 &&
+      !warnedLegacyListeners.has(listener)
+    ) {
+      warnedLegacyListeners.add(listener);
+      console.warn(
+        'Travels: subscribe listeners receive a single TravelsEvent object. Replace positional (state, patches, position, historyLength) parameters with event destructuring.'
+      );
+    }
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
