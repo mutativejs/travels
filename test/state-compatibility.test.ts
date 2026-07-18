@@ -548,6 +548,76 @@ describe('State compatibility warnings', () => {
     expect(laterMetadataInspections).toBe(metadataInspections);
   });
 
+  test('scans only touched immutable state paths after a commit', () => {
+    const untouched = {
+      items: Array.from({ length: 200 }, (_, index) => ({ index })),
+    };
+    const descriptorSpy = vi.spyOn(Object, 'getOwnPropertyDescriptors');
+    const travels = createTravels({ count: 0, untouched });
+    const initialInspections = descriptorSpy.mock.calls.filter(
+      ([candidate]) => candidate === untouched
+    ).length;
+
+    for (let count = 1; count <= 20; count += 1) {
+      travels.setState((draft) => {
+        draft.count = count;
+      });
+    }
+
+    const laterInspections = descriptorSpy.mock.calls.filter(
+      ([candidate]) => candidate === untouched
+    ).length;
+    descriptorSpy.mockRestore();
+
+    expect(initialInspections).toBeGreaterThan(0);
+    expect(laterInspections).toBe(initialInspections);
+  });
+
+  test('keeps touched-state warning deduplication scoped to absolute paths', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels({
+      left: null as bigint | null,
+      right: null as bigint | null,
+    });
+
+    travels.setState((draft) => {
+      draft.left = 1n;
+    });
+    travels.setState((draft) => {
+      draft.right = 2n;
+    });
+
+    const stateWarnings = warnSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes('state compatibility warning'));
+    warnSpy.mockRestore();
+
+    expect(stateWarnings).toEqual([
+      expect.stringContaining('at $.left'),
+      expect.stringContaining('at $.right'),
+    ]);
+  });
+
+  test('retains full state scans for mutable mode', () => {
+    const untouched = { nested: { value: 1 } };
+    const descriptorSpy = vi.spyOn(Object, 'getOwnPropertyDescriptors');
+    const travels = createTravels({ count: 0, untouched }, { mutable: true });
+    const initialInspections = descriptorSpy.mock.calls.filter(
+      ([candidate]) => candidate === untouched
+    ).length;
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+
+    const laterInspections = descriptorSpy.mock.calls.filter(
+      ([candidate]) => candidate === untouched
+    ).length;
+    descriptorSpy.mockRestore();
+
+    expect(laterInspections).toBeGreaterThan(initialInspections);
+  });
+
   test('serialize rechecks retained payloads changed through shared references', () => {
     const payload = { nested: 0 as number | bigint };
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

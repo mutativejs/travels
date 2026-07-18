@@ -125,6 +125,15 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   branchDiscards: BranchDiscardEffect<P>[];
   hasEffects: boolean;
   needsCompatibilityCheck: boolean;
+  compatibilityCheckCount: number;
+};
+
+type DeferredCompatibilityCheck<P extends PatchesOption = {}> = {
+  patches?: Patches<P>;
+  inversePatches?: Patches<P>;
+  metadata?: TravelMetadata;
+  entryIndex: number;
+  retained: boolean;
 };
 
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
@@ -373,6 +382,53 @@ const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
   return isPlainObject(current) && isPlainObject(snapshot);
 };
 
+const getPatchPathSegments = (
+  path: unknown
+): Array<string | number> | undefined => {
+  if (Array.isArray(path)) {
+    return path.slice() as Array<string | number>;
+  }
+
+  if (typeof path !== 'string') {
+    return undefined;
+  }
+  if (path === '') {
+    return [];
+  }
+
+  return path
+    .split('/')
+    .slice(1)
+    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
+};
+
+const formatCompatibilityPath = (segments: Array<string | number>): string =>
+  segments.reduce<string>(
+    (path, segment) =>
+      typeof segment === 'number'
+        ? `${path}[${segment}]`
+        : `${path}.${segment}`,
+    '$'
+  );
+
+const getOwnDataValueAtPath = (
+  value: unknown,
+  segments: Array<string | number>
+): { found: true; value: unknown } | { found: false } => {
+  let current = value;
+  for (const segment of segments) {
+    if (!isObjectLike(current)) {
+      return { found: false };
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(current, segment);
+    if (!descriptor || !('value' in descriptor)) {
+      return { found: false };
+    }
+    current = descriptor.value;
+  }
+  return { found: true, value: current };
+};
+
 // Align mutable value updates with immutable replacements by syncing objects
 const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
   const draftIsArray = Array.isArray(draft);
@@ -460,7 +516,7 @@ export class Travels<
   >;
   private transactionHasEffects = false;
   private transactionNeedsCompatibilityCheck = false;
-  private transactionRequiresFullCompatibilityScan?: boolean;
+  private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
   private publishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
@@ -639,7 +695,9 @@ export class Travels<
             issue.path === '$'
               ? pathPrefix
               : `${pathPrefix}${issue.path.slice(1)}`;
-          const key = `${subject}:${issue.code}:${issue.path}`;
+          const key = `${subject}:${issue.code}:${
+            subject === 'state' ? issuePath : issue.path
+          }`;
           if (this.compatibilityWarningKeys.has(key)) {
             continue;
           }
@@ -712,11 +770,89 @@ export class Travels<
     }
   }
 
+  private warnAboutStateCompatibilityAfterPatches(patches?: Patches<P>): void {
+    if (!patches || this.mutable) {
+      this.warnAboutCompatibility('state', this.state);
+      return;
+    }
+
+    const touchedPaths: Array<Array<string | number>> = [];
+    for (const operation of patches) {
+      const descriptor = Object.getOwnPropertyDescriptor(operation, 'path');
+      const segments =
+        descriptor && 'value' in descriptor
+          ? getPatchPathSegments(descriptor.value)
+          : undefined;
+      if (!segments || segments.length === 0) {
+        this.warnAboutCompatibility('state', this.state);
+        return;
+      }
+
+      if (
+        touchedPaths.some(
+          (existing) =>
+            existing.length <= segments.length &&
+            existing.every((segment, index) => segment === segments[index])
+        )
+      ) {
+        continue;
+      }
+
+      for (let index = touchedPaths.length - 1; index >= 0; index -= 1) {
+        const existing = touchedPaths[index];
+        if (
+          segments.length < existing.length &&
+          segments.every(
+            (segment, pathIndex) => segment === existing[pathIndex]
+          )
+        ) {
+          touchedPaths.splice(index, 1);
+        }
+      }
+      touchedPaths.push(segments);
+    }
+
+    for (const path of touchedPaths) {
+      const resolved = getOwnDataValueAtPath(this.state, path);
+      if (resolved.found) {
+        this.warnAboutCompatibility(
+          'state',
+          resolved.value,
+          formatCompatibilityPath(path)
+        );
+      }
+    }
+  }
+
+  private runPersistenceCompatibilityCheck(
+    check: DeferredCompatibilityCheck<P>
+  ): void {
+    this.warnAboutStateCompatibilityAfterPatches(check.patches);
+    if (
+      check.retained &&
+      this.maxHistory !== 0 &&
+      check.patches &&
+      check.inversePatches
+    ) {
+      this.warnAboutPatchCompatibility(
+        {
+          patches: [check.patches],
+          inversePatches: [check.inversePatches],
+        },
+        check.entryIndex
+      );
+    }
+    if (check.metadata !== undefined) {
+      this.warnAboutCompatibility('metadata', check.metadata);
+    }
+  }
+
   private checkPersistenceCompatibilityAfterCommit(
     patches?: Patches<P>,
     inversePatches?: Patches<P>,
     metadata?: TravelMetadata,
-    entryIndex = 0
+    entryIndex = 0,
+    retained = true
   ): void {
     if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
       return;
@@ -724,22 +860,23 @@ export class Travels<
 
     if (this.transactionDepth > 0) {
       this.transactionNeedsCompatibilityCheck = true;
+      this.transactionCompatibilityChecks.push({
+        patches,
+        inversePatches,
+        metadata,
+        entryIndex,
+        retained,
+      });
       return;
     }
 
-    this.warnAboutCompatibility('state', this.state);
-    if (this.maxHistory === 0) {
-      return;
-    }
-    if (patches && inversePatches) {
-      this.warnAboutPatchCompatibility(
-        { patches: [patches], inversePatches: [inversePatches] },
-        entryIndex
-      );
-    }
-    if (metadata !== undefined) {
-      this.warnAboutCompatibility('metadata', metadata);
-    }
+    this.runPersistenceCompatibilityCheck({
+      patches,
+      inversePatches,
+      metadata,
+      entryIndex,
+      retained,
+    });
   }
 
   private normalizeInitialHistory(
@@ -1209,6 +1346,7 @@ export class Travels<
       branchDiscards: this.transactionBranchDiscards.slice(),
       hasEffects: this.transactionHasEffects,
       needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
+      compatibilityCheckCount: this.transactionCompatibilityChecks.length,
     };
   }
 
@@ -1233,6 +1371,8 @@ export class Travels<
     this.transactionBranchDiscards = snapshot.branchDiscards.slice();
     this.transactionHasEffects = snapshot.hasEffects;
     this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
+    this.transactionCompatibilityChecks.length =
+      snapshot.compatibilityCheckCount;
 
     this.invalidateHistoryCache();
   }
@@ -1400,7 +1540,13 @@ export class Travels<
       this.resetHistoryToCurrentState();
       this.invalidateHistoryCache();
       if (process.env.NODE_ENV !== 'production') {
-        this.checkPersistenceCompatibilityAfterCommit();
+        this.checkPersistenceCompatibilityAfterCommit(
+          patches,
+          inversePatches,
+          storedMetadata,
+          0,
+          false
+        );
       }
       this.emitChange('replaceStateWithoutHistory', metadata);
       return;
@@ -1458,10 +1604,11 @@ export class Travels<
     if (process.env.NODE_ENV !== 'production') {
       const archivedImmediately = this.isAutoArchiving();
       this.checkPersistenceCompatibilityAfterCommit(
-        archivedImmediately ? patches : undefined,
-        archivedImmediately ? inversePatches : undefined,
+        patches,
+        inversePatches,
         storedMetadata,
-        Math.max(0, this.allPatches.patches.length - 1)
+        Math.max(0, this.allPatches.patches.length - 1),
+        archivedImmediately
       );
     }
     this.emitChange('setState', metadata, branchDiscard);
@@ -1472,7 +1619,6 @@ export class Travels<
     publishChange = true
   ): boolean {
     if (!this.tempPatches.patches.length) return false;
-    const archivedInsideTransaction = this.transactionDepth > 0;
     const archiveMetadata =
       metadata === undefined ? this.tempMetadata : metadata;
     const storedMetadata = cloneTravelMetadata(archiveMetadata);
@@ -1489,13 +1635,6 @@ export class Travels<
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      archivedInsideTransaction &&
-      this.warnOnUnsupportedState
-    ) {
-      this.transactionRequiresFullCompatibilityScan = true;
-    }
     if (process.env.NODE_ENV !== 'production') {
       this.checkPersistenceCompatibilityAfterCommit(
         pendingArchive.patches,
@@ -1553,9 +1692,6 @@ export class Travels<
 
     const previousMetadata = this.transactionMeta;
     const isRootTransaction = this.transactionDepth === 0;
-    const previousFullScan =
-      process.env.NODE_ENV !== 'production' &&
-      this.transactionRequiresFullCompatibilityScan;
     const transactionSnapshot = this.captureTransactionSnapshot();
     let failed = false;
 
@@ -1580,7 +1716,7 @@ export class Travels<
       this.transactionHasEffects = false;
       this.transactionNeedsCompatibilityCheck = false;
       if (process.env.NODE_ENV !== 'production') {
-        this.transactionRequiresFullCompatibilityScan = false;
+        this.transactionCompatibilityChecks = [];
       }
     } else if (!this.transactionMeta && metadata) {
       this.transactionMeta = metadata;
@@ -1590,9 +1726,6 @@ export class Travels<
     } catch (error) {
       failed = true;
       this.restoreTransactionSnapshot(transactionSnapshot);
-      if (process.env.NODE_ENV !== 'production') {
-        this.transactionRequiresFullCompatibilityScan = previousFullScan;
-      }
       this.transactionMeta = previousMetadata;
       throw this.reportError('TRANSACTION_FAILED', error);
     } finally {
@@ -1604,10 +1737,11 @@ export class Travels<
           const shouldPublish = committed || this.transactionHasEffects;
           if (
             process.env.NODE_ENV !== 'production' &&
-            this.transactionNeedsCompatibilityCheck &&
-            (!committed || this.transactionRequiresFullCompatibilityScan)
+            this.transactionNeedsCompatibilityCheck
           ) {
-            this.warnAboutPersistenceCompatibility();
+            for (const check of this.transactionCompatibilityChecks) {
+              this.runPersistenceCompatibilityCheck(check);
+            }
           }
           if (shouldPublish) {
             this.emitChange('transaction', this.transactionMeta);
@@ -1620,7 +1754,8 @@ export class Travels<
         this.transactionNeedsCompatibilityCheck =
           transactionSnapshot.needsCompatibilityCheck;
         if (process.env.NODE_ENV !== 'production') {
-          this.transactionRequiresFullCompatibilityScan = false;
+          this.transactionCompatibilityChecks.length =
+            transactionSnapshot.compatibilityCheckCount;
         }
         const errors = this.transactionErrors;
         this.transactionErrors = undefined;
