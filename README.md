@@ -612,6 +612,8 @@ These value requirements cover retained patch payloads and custom metadata inclu
 
 In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Map/Set rejection is a production invariant and is not disabled by `warnOnUnsupportedState: false`; that option controls diagnostics for the remaining compatibility hazards only.
 
+The published package ships the diagnostics through the `development` export condition: tools that resolve it (the Vite dev server, webpack with `mode: 'development'`, and other bundlers with development conditions enabled) load `dist/index.dev.*` bundles containing the full scanner, while the default and `require` entries stay diagnostic-free for production. Script-tag consumers of the UMD bundle always receive the production build.
+
 ## Framework Integration
 
 Runnable and copyable integration examples live in [`examples/`](examples/):

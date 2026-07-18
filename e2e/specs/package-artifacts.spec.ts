@@ -30,10 +30,28 @@ test('the built package exposes a working CommonJS entry', () => {
 });
 
 test('browser bundles do not depend on a Node process global', () => {
-  for (const artifact of ['dist/index.esm.js', 'dist/index.umd.js']) {
+  for (const artifact of [
+    'dist/index.esm.js',
+    'dist/index.umd.js',
+    'dist/index.dev.esm.js',
+  ]) {
     const source = readFileSync(resolve(repoRoot, artifact), 'utf8');
     expect(source).not.toContain('process.env');
   }
+});
+
+test('development bundles retain the diagnostics production strips', () => {
+  const developmentSource = readFileSync(
+    resolve(repoRoot, 'dist/index.dev.esm.js'),
+    'utf8'
+  );
+  const productionSource = readFileSync(
+    resolve(repoRoot, 'dist/index.esm.js'),
+    'utf8'
+  );
+
+  expect(developmentSource).toContain('compatibility warning');
+  expect(productionSource).not.toContain('compatibility warning');
 });
 
 test('declarations resolve for a NodeNext package consumer', () => {
@@ -66,7 +84,13 @@ test('npm pack includes publishable artifacts and excludes test sources', () => 
           (file.endsWith('.js') || file.endsWith('.cjs'))
       )
       .sort()
-  ).toEqual(['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js']);
+  ).toEqual([
+    'dist/index.cjs',
+    'dist/index.dev.cjs',
+    'dist/index.dev.esm.js',
+    'dist/index.esm.js',
+    'dist/index.umd.js',
+  ]);
   expect(files).not.toContain('test/index.test.ts');
   expect(files).not.toContain('e2e/specs/package-artifacts.spec.ts');
 });

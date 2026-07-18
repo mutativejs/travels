@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Add opt-in persisted-history semantic validation with `validation: 'semantic'`, configurable Mutative `strict`/`mark` replay options, and `INVALID_HISTORY` diagnostics that identify the failing entry and replay direction.
 - Add `ARRAY_SHAPE` and `OBJECT_SHAPE` state-compatibility diagnostics and a dedicated structural/semantic restore benchmark guard; compatibility scans inspect descriptors without invoking accessors and recognize intentional auto-freeze output.
 - Warn once per listener in development when a subscribe callback still declares positional parameters, pointing the migration at the unified `TravelsEvent` object.
+- Publish `development`-condition CJS/ESM bundles so bundler development builds surface the state-compatibility diagnostics; default, `require`, and UMD entries remain production-only and diagnostic-free.
 
 ### Fixed
 

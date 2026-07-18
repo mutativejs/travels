@@ -6,12 +6,16 @@ const { gzipSync } = require('node:zlib');
 const KiB = 1024;
 const repoRoot = resolve(__dirname, '..');
 const artifacts = ['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js'];
+const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 const limits = {
   bundleRaw: 38.5 * KiB,
   bundleGzip: 11 * KiB,
   bundleMap: 184 * KiB,
-  packagePacked: 238 * KiB,
-  packageUnpacked: 935 * KiB,
+  developmentBundleRaw: 47 * KiB,
+  developmentBundleGzip: 13 * KiB,
+  developmentBundleMap: 200 * KiB,
+  packagePacked: 380 * KiB,
+  packageUnpacked: 1450 * KiB,
 };
 
 const failures = [];
@@ -24,8 +28,7 @@ const checkLimit = (label, actual, limit) => {
   }
 };
 
-console.log('Bundle size report');
-for (const artifact of artifacts) {
+const reportArtifact = (artifact, rawLimit, gzipLimit, mapLimit) => {
   const source = readFileSync(resolve(repoRoot, artifact));
   const sourceMap = readFileSync(resolve(repoRoot, `${artifact}.map`));
   const parsedSourceMap = JSON.parse(sourceMap.toString('utf8'));
@@ -36,9 +39,9 @@ for (const artifact of artifacts) {
       gzipSize
     )}, map ${formatBytes(sourceMap.byteLength)}`
   );
-  checkLimit(`${artifact} raw size`, source.byteLength, limits.bundleRaw);
-  checkLimit(`${artifact} gzip size`, gzipSize, limits.bundleGzip);
-  checkLimit(`${artifact}.map size`, sourceMap.byteLength, limits.bundleMap);
+  checkLimit(`${artifact} raw size`, source.byteLength, rawLimit);
+  checkLimit(`${artifact} gzip size`, gzipSize, gzipLimit);
+  checkLimit(`${artifact}.map size`, sourceMap.byteLength, mapLimit);
   if (
     !Array.isArray(parsedSourceMap.sources) ||
     !parsedSourceMap.sources.some((sourcePath) =>
@@ -47,10 +50,26 @@ for (const artifact of artifacts) {
   ) {
     failures.push(`${artifact}.map does not resolve to TypeScript sources`);
   }
+};
+
+console.log('Bundle size report');
+for (const artifact of artifacts) {
+  reportArtifact(artifact, limits.bundleRaw, limits.bundleGzip, limits.bundleMap);
+}
+for (const artifact of developmentArtifacts) {
+  reportArtifact(
+    artifact,
+    limits.developmentBundleRaw,
+    limits.developmentBundleGzip,
+    limits.developmentBundleMap
+  );
 }
 
-const finalBundleMaps = new Set(artifacts.map((artifact) => `${artifact}.map`));
-const finalJavaScript = new Set(artifacts);
+const allArtifacts = [...artifacts, ...developmentArtifacts];
+const finalBundleMaps = new Set(
+  allArtifacts.map((artifact) => `${artifact}.map`)
+);
+const finalJavaScript = new Set(allArtifacts);
 const distFiles = readdirSync(resolve(repoRoot, 'dist'));
 const unexpectedMaps = distFiles
   .filter((name) => name.endsWith('.map') && !name.endsWith('.d.ts.map'))
@@ -82,7 +101,7 @@ if (packResult.status !== 0) {
 
 const [pack] = JSON.parse(packResult.stdout);
 const packedFiles = new Set(pack.files.map(({ path }) => path));
-for (const artifact of artifacts) {
+for (const artifact of allArtifacts) {
   if (!packedFiles.has(artifact) || !packedFiles.has(`${artifact}.map`)) {
     failures.push(`npm package is missing ${artifact} or its source map`);
   }
