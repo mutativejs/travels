@@ -161,7 +161,7 @@ describe('observer publication atomicity', () => {
       withObserver.setState({ count: 2 });
     });
 
-    expect(visibleMetadata).toHaveBeenCalledOnce();
+    expect(visibleMetadata).not.toHaveBeenCalled();
   });
 
   test('does not publish provisional or rollback events for failed transactions', () => {

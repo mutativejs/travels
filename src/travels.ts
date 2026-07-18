@@ -114,11 +114,13 @@ const freezeAcceptedState = (state: unknown): void => {
 
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   state: S;
-  stateReference: S;
   position: number;
   allPatches: TravelPatches<P>;
+  allPatchCount: number;
   allMetadata: Array<TravelMetadata | undefined>;
+  allMetadataCount: number;
   tempPatches: TravelPatches<P>;
+  tempPatchCount: number;
   tempMetadata?: TravelMetadata;
   initialState: S;
   initialPosition: number;
@@ -126,9 +128,17 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   initialMetadata?: Array<TravelMetadata | undefined>;
   trackingPauseDepth: number;
   branchDiscards: BranchDiscardEffect<P>[];
+  branchDiscardCount: number;
   hasEffects: boolean;
   needsCompatibilityCheck: boolean;
+  compatibilityChecks: DeferredCompatibilityCheck<P>[];
   compatibilityCheckCount: number;
+  stateJournalLength: number;
+};
+
+type MutableStateJournalEntry<P extends PatchesOption = {}> = {
+  state: object;
+  inversePatches: Patches<P>;
 };
 
 type DeferredCompatibilityCheck<P extends PatchesOption = {}> = {
@@ -518,9 +528,11 @@ export class Travels<
     object,
     [Patches<P>, Patches<P>, TravelMetadata | undefined]
   >;
+  private transactionRootSnapshot?: TransactionSnapshot<S, P>;
   private transactionHasEffects = false;
   private transactionNeedsCompatibilityCheck = false;
   private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
+  private transactionStateJournal: MutableStateJournalEntry<P>[] = [];
   private publishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
@@ -1101,12 +1113,65 @@ export class Travels<
     );
   }
 
+  private getRootTransactionEntries(): Map<
+    object,
+    [Patches<P>, Patches<P>, TravelMetadata | undefined]
+  > {
+    const snapshot = this.transactionRootSnapshot!;
+    let patches = snapshot.allPatches.patches.slice(0, snapshot.allPatchCount);
+    let inversePatches = snapshot.allPatches.inversePatches.slice(
+      0,
+      snapshot.allPatchCount
+    );
+    let metadata = snapshot.allMetadata.slice(0, snapshot.allMetadataCount);
+
+    if (snapshot.tempPatchCount > 0) {
+      const pendingPatches = composePatchGroups(
+        snapshot.tempPatches.patches.slice(0, snapshot.tempPatchCount),
+        'forward'
+      );
+      historyEntryIdentities.set(
+        pendingPatches,
+        getHistoryEntryIdentity(snapshot.tempPatches.patches[0])
+      );
+      patches = patches.concat([pendingPatches]);
+      inversePatches = inversePatches.concat([
+        composePatchGroups(
+          snapshot.tempPatches.inversePatches.slice(
+            0,
+            snapshot.tempPatchCount
+          ),
+          'backward'
+        ),
+      ]);
+      metadata = metadata.concat([snapshot.tempMetadata]);
+    }
+
+    if (this.maxHistory === 0) {
+      return new Map();
+    }
+    if (patches.length > this.maxHistory) {
+      const retainedStart = patches.length - this.maxHistory;
+      patches = patches.slice(retainedStart);
+      inversePatches = inversePatches.slice(retainedStart);
+      metadata = metadata.slice(retainedStart);
+    }
+
+    return new Map(
+      patches.map((entry, index) => [
+        getHistoryEntryIdentity(entry),
+        [entry, inversePatches[index], metadata[index]],
+      ])
+    );
+  }
+
   private publishBranchDiscard(effect: BranchDiscardEffect<P>): void {
     if (!this.onBranchDiscard) {
       return;
     }
 
     if (this.transactionDepth > 0) {
+      this.transactionEntries ??= this.getRootTransactionEntries();
       this.transactionBranchDiscards.push(effect);
       return;
     }
@@ -1302,84 +1367,83 @@ export class Travels<
     );
   }
 
-  private restoreStateFromSnapshot(snapshot: S, stateReference: S): void {
-    const canRestoreMutably =
-      this.mutable && canSynchronizeMutableRoots(stateReference, snapshot);
-
-    if (canRestoreMutably) {
-      const [, patches] = create(
-        stateReference,
-        (draft) => {
-          for (const key of Object.keys(draft as object)) {
-            delete (draft as any)[key];
-          }
-          deepClone(snapshot, draft);
-          if (Array.isArray(draft) && Array.isArray(snapshot)) {
-            (draft as any[]).length = (snapshot as any[]).length;
-          }
-        },
-        this.options
-      );
-
-      apply(stateReference as object, patches, { mutable: true });
-      this.state = stateReference;
-      return;
+  private journalMutableState(
+    state: object,
+    inversePatches: Patches<P>
+  ): void {
+    if (this.transactionDepth > 0 && inversePatches.length > 0) {
+      this.transactionStateJournal.push({ state, inversePatches });
     }
-
-    this.state = snapshot;
   }
 
   private captureTransactionSnapshot(): TransactionSnapshot<S, P> {
     return {
-      state:
-        this.mutable && isObjectLike(this.state)
-          ? cloneInitialSnapshot(this.state)
-          : this.state,
-      stateReference: this.state,
+      state: this.state,
       position: this.position,
-      allPatches: cloneTravelPatches(this.allPatches),
-      allMetadata: cloneTravelMetadataList(this.allMetadata),
-      tempPatches: cloneTravelPatches(this.tempPatches),
-      tempMetadata: cloneTravelMetadata(this.tempMetadata),
-      initialState: cloneInitialSnapshot(this.initialState),
+      allPatches: {
+        patches: this.allPatches.patches,
+        inversePatches: this.allPatches.inversePatches,
+      },
+      allPatchCount: this.allPatches.patches.length,
+      allMetadata: this.allMetadata,
+      allMetadataCount: this.allMetadata.length,
+      tempPatches: {
+        patches: this.tempPatches.patches,
+        inversePatches: this.tempPatches.inversePatches,
+      },
+      tempPatchCount: this.tempPatches.patches.length,
+      tempMetadata: this.tempMetadata,
+      initialState: this.initialState,
       initialPosition: this.initialPosition,
-      initialPatches: this.initialPatches
-        ? cloneTravelPatches(this.initialPatches)
-        : undefined,
-      initialMetadata: this.initialMetadata
-        ? cloneTravelMetadataList(this.initialMetadata)
-        : undefined,
+      initialPatches: this.initialPatches,
+      initialMetadata: this.initialMetadata,
       trackingPauseDepth: this.trackingPauseDepth,
-      branchDiscards: this.transactionBranchDiscards.slice(),
+      branchDiscards: this.transactionBranchDiscards,
+      branchDiscardCount: this.transactionBranchDiscards.length,
       hasEffects: this.transactionHasEffects,
       needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
+      compatibilityChecks: this.transactionCompatibilityChecks,
       compatibilityCheckCount: this.transactionCompatibilityChecks.length,
+      stateJournalLength: this.transactionStateJournal.length,
     };
   }
 
   private restoreTransactionSnapshot(
     snapshot: TransactionSnapshot<S, P>
   ): void {
-    this.restoreStateFromSnapshot(snapshot.state, snapshot.stateReference);
+    for (
+      let index = this.transactionStateJournal.length - 1;
+      index >= snapshot.stateJournalLength;
+      index -= 1
+    ) {
+      const entry = this.transactionStateJournal[index];
+      apply(entry.state, entry.inversePatches, { mutable: true });
+    }
+    this.transactionStateJournal.length = snapshot.stateJournalLength;
+
+    snapshot.allPatches.patches.length = snapshot.allPatchCount;
+    snapshot.allPatches.inversePatches.length = snapshot.allPatchCount;
+    snapshot.allMetadata.length = snapshot.allMetadataCount;
+    snapshot.tempPatches.patches.length = snapshot.tempPatchCount;
+    snapshot.tempPatches.inversePatches.length = snapshot.tempPatchCount;
+    snapshot.branchDiscards.length = snapshot.branchDiscardCount;
+    snapshot.compatibilityChecks.length = snapshot.compatibilityCheckCount;
+
+    this.state = snapshot.state;
     this.position = snapshot.position;
-    this.allPatches = cloneTravelPatches(snapshot.allPatches);
-    this.allMetadata = cloneTravelMetadataList(snapshot.allMetadata);
-    this.tempPatches = cloneTravelPatches(snapshot.tempPatches);
-    this.tempMetadata = cloneTravelMetadata(snapshot.tempMetadata);
-    this.initialState = cloneInitialSnapshot(snapshot.initialState);
+    this.allPatches = snapshot.allPatches;
+    this.allMetadata = snapshot.allMetadata;
+    this.tempPatches = snapshot.tempPatches;
+    this.tempMetadata = snapshot.tempMetadata;
+    this.initialState = snapshot.initialState;
     this.initialPosition = snapshot.initialPosition;
-    this.initialPatches = snapshot.initialPatches
-      ? cloneTravelPatches(snapshot.initialPatches)
-      : undefined;
-    this.initialMetadata = snapshot.initialMetadata
-      ? cloneTravelMetadataList(snapshot.initialMetadata)
-      : undefined;
+    this.initialPatches = snapshot.initialPatches;
+    this.initialMetadata = snapshot.initialMetadata;
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
-    this.transactionBranchDiscards = snapshot.branchDiscards.slice();
+    this.transactionBranchDiscards = snapshot.branchDiscards;
     this.transactionHasEffects = snapshot.hasEffects;
     this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
-    this.transactionCompatibilityChecks.length =
-      snapshot.compatibilityCheckCount;
+    this.transactionCompatibilityChecks = snapshot.compatibilityChecks;
 
     this.invalidateHistoryCache();
   }
@@ -1498,6 +1562,7 @@ export class Travels<
       } else {
         // Apply the original patches. Applying the archived clones would make
         // their object-valued payloads part of the live state again.
+        this.journalMutableState(this.state as object, inversePatches);
         apply(this.state as object, p, { mutable: true });
       }
     } else {
@@ -1601,8 +1666,7 @@ export class Travels<
       }
 
       if (hasFuture) {
-        this.tempPatches.patches.length = 0;
-        this.tempPatches.inversePatches.length = 0;
+        this.tempPatches = cloneTravelPatches();
         this.tempMetadata = undefined;
       }
 
@@ -1643,8 +1707,7 @@ export class Travels<
 
     this.trimHistoryToMax();
 
-    this.tempPatches.patches.length = 0;
-    this.tempPatches.inversePatches.length = 0;
+    this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
 
     this.invalidateHistoryCache();
@@ -1712,20 +1775,10 @@ export class Travels<
     if (isRootTransaction) {
       this.transactionMeta = metadata;
       this.transactionErrors = undefined;
-      if (this.onBranchDiscard) {
-        const visiblePatches = this.getAllPatches();
-        const visibleMetadata = this.getMetadata();
-        this.transactionEntries = new Map(
-          visiblePatches.patches.map((patches, index) => [
-            getHistoryEntryIdentity(patches),
-            [
-              patches,
-              visiblePatches.inversePatches[index],
-              visibleMetadata[index],
-            ],
-          ])
-        );
-      }
+      this.transactionEntries = undefined;
+      this.transactionRootSnapshot = this.onBranchDiscard
+        ? transactionSnapshot
+        : undefined;
       this.transactionHasEffects = false;
       this.transactionNeedsCompatibilityCheck = false;
       if (process.env.NODE_ENV !== 'production') {
@@ -1762,10 +1815,13 @@ export class Travels<
           this.flushTransactionBranchDiscards();
         }
         this.transactionEntries = undefined;
+        this.transactionRootSnapshot = undefined;
         this.transactionMeta = previousMetadata;
         this.transactionHasEffects = transactionSnapshot.hasEffects;
         this.transactionNeedsCompatibilityCheck =
           transactionSnapshot.needsCompatibilityCheck;
+        this.transactionStateJournal.length =
+          transactionSnapshot.stateJournalLength;
         if (process.env.NODE_ENV !== 'production') {
           this.transactionCompatibilityChecks.length =
             transactionSnapshot.compatibilityCheckCount;
@@ -2017,6 +2073,20 @@ export class Travels<
 
     if (canGoMutably) {
       // For observable state: mutate in place
+      const rollbackPatches = back
+        ? composePatchGroups(
+            _allPatches.patches
+              .slice(-this.maxHistory)
+              .slice(nextPosition, this.position),
+            'forward'
+          )
+        : composePatchGroups(
+            _allPatches.inversePatches
+              .slice(-this.maxHistory)
+              .slice(this.position, nextPosition),
+            'backward'
+          );
+      this.journalMutableState(this.state as object, rollbackPatches);
       apply(this.state as object, patchesToApply, { mutable: true });
     } else {
       // For immutable state or primitive types: create new state
@@ -2056,7 +2126,7 @@ export class Travels<
     if (canResetMutably) {
       // For observable state: use patch system to reset to initial state
       // Generate patches from current state to initial state
-      const [, patches] = create(
+      const [, patches, inversePatches] = create(
         this.state,
         (draft) => {
           // Clear all properties
@@ -2070,8 +2140,9 @@ export class Travels<
           }
         },
         this.options
-      );
+      ) as unknown as [S, Patches<P>, Patches<P>];
 
+      this.journalMutableState(this.state as object, inversePatches);
       apply(this.state as object, patches, { mutable: true });
     } else {
       // For immutable state: restore from a snapshot clone.

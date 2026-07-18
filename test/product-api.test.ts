@@ -200,6 +200,102 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ count: 2 });
   });
 
+  test('empty transactions do not clone state or retained history', () => {
+    const onBranchDiscard = vi.fn();
+    const travels = createTravels(
+      {
+        count: 0,
+        items: Array.from({ length: 200 }, (_, index) => ({ index })),
+      },
+      { maxHistory: 100, onBranchDiscard }
+    );
+    for (let count = 1; count <= 100; count += 1) {
+      travels.setState((draft) => {
+        draft.count = count;
+      });
+    }
+
+    const cloneSpy = vi.spyOn(globalThis, 'structuredClone');
+    const metadataSpy = vi.spyOn(travels, 'getMetadata');
+    travels.transaction(() => undefined);
+    cloneSpy.mockRestore();
+    metadataSpy.mockRestore();
+
+    expect(cloneSpy).not.toHaveBeenCalled();
+    expect(metadataSpy).not.toHaveBeenCalled();
+    expect(onBranchDiscard).not.toHaveBeenCalled();
+    expect(travels.getPosition()).toBe(100);
+  });
+
+  test('mutable transaction journals restore navigation and reset in place', () => {
+    const original = { count: 0, items: [0] };
+    const travels = createTravels(original, {
+      mutable: true,
+      maxHistory: 5,
+      warnOnUnsupportedState: false,
+    });
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    travels.setState((draft) => {
+      draft.count = 2;
+    });
+    const patchesBefore = travels.getPatches();
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.back();
+        travels.reset();
+        travels.setState((draft) => {
+          draft.count = 9;
+          draft.items.push(1);
+        });
+        throw new Error('rollback journal');
+      })
+    ).toThrow(TravelsError);
+
+    expect(travels.getState()).toBe(original);
+    expect(travels.getState()).toEqual({ count: 2, items: [0] });
+    expect(travels.getPosition()).toBe(2);
+    expect(travels.getPatches()).toEqual(patchesBefore);
+  });
+
+  test('nested mutable journals roll back only the failed scope', () => {
+    const original = { count: 0, items: [] as number[] };
+    const travels = createTravels(original, {
+      mutable: true,
+      warnOnUnsupportedState: false,
+    });
+
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+
+      try {
+        travels.transaction(() => {
+          travels.setState((draft) => {
+            draft.count = 2;
+            draft.items.push(2);
+          });
+          throw new Error('nested rollback');
+        });
+      } catch {
+        // Continue the root transaction after restoring its journal mark.
+      }
+
+      expect(travels.getState()).toEqual({ count: 1, items: [] });
+      travels.setState((draft) => {
+        draft.count = 3;
+      });
+    });
+
+    expect(travels.getState()).toBe(original);
+    expect(travels.getState()).toEqual({ count: 3, items: [] });
+    travels.back();
+    expect(travels.getState()).toEqual({ count: 0, items: [] });
+  });
+
   test('transaction buffering does not expose manual archive controls', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const travels = createTravels({ count: 0 });
