@@ -8,6 +8,7 @@ import {
   type PatchableState,
   type TravelMetadata,
 } from '../src/index';
+import { containsMapOrSet } from '../src/utils';
 
 const createCrossRealmCollection = (
   kind: 'Map' | 'Set'
@@ -735,6 +736,53 @@ describe('State compatibility warnings', () => {
       'Set is unsupported; store values in a dense array.',
       'Map is unsupported; store entries in a plain object or dense array.',
     ]);
+  });
+
+  test('skips collection prototype probes for ordinary state containers', () => {
+    const getter = vi.fn(() => new Set([1]));
+    const child = { value: 1 };
+    const root: Record<PropertyKey, unknown> = { child };
+    Object.defineProperty(root, 'accessor', {
+      enumerable: true,
+      get: getter,
+    });
+    Object.defineProperty(root, 'hidden', {
+      value: new Map([['hidden', true]]),
+    });
+    root[Symbol('internal')] = new Set(['internal']);
+
+    const descriptorSpy = vi.spyOn(Object, 'getOwnPropertyDescriptor');
+    expect(containsMapOrSet(root)).toBe(false);
+
+    const prototypeProbes = descriptorSpy.mock.calls.filter(
+      ([candidate]) =>
+        candidate === Object.prototype || candidate === Array.prototype
+    );
+    descriptorSpy.mockRestore();
+
+    expect(prototypeProbes).toEqual([]);
+    expect(getter).not.toHaveBeenCalled();
+    expect(containsMapOrSet({ nested: { value: new Set([1]) } })).toBe(true);
+  });
+
+  test('reuses known collection-free immutable subtrees', () => {
+    const child = { value: 1 };
+    const root = { child };
+    const knownCollectionFree = new WeakSet<object>();
+
+    expect(
+      containsMapOrSet(root, new WeakSet(), knownCollectionFree)
+    ).toBe(false);
+    const descriptorSpy = vi.spyOn(Object, 'getOwnPropertyDescriptor');
+    expect(
+      containsMapOrSet(root, new WeakSet(), knownCollectionFree)
+    ).toBe(false);
+    const repeatedReads = descriptorSpy.mock.calls.filter(
+      ([candidate]) => candidate === root || candidate === child
+    );
+    descriptorSpy.mockRestore();
+
+    expect(repeatedReads).toEqual([]);
   });
 
   test.each([false, true])(

@@ -72,6 +72,20 @@ export const getMapOrSetKind = (
   value: object
 ): 'Map' | 'Set' | undefined => {
   let prototype = Object.getPrototypeOf(value);
+  if (
+    prototype === null ||
+    prototype === Object.prototype ||
+    prototype === Array.prototype
+  ) {
+    return undefined;
+  }
+  if (prototype === Map.prototype) {
+    return 'Map';
+  }
+  if (prototype === Set.prototype) {
+    return 'Set';
+  }
+
   while (prototype) {
     const tag = Object.getOwnPropertyDescriptor(prototype, Symbol.toStringTag);
     if (tag && 'value' in tag && (tag.value === 'Map' || tag.value === 'Set')) {
@@ -92,30 +106,52 @@ export const getMapOrSetKind = (
 
 export const containsMapOrSet = (
   value: unknown,
-  seen = new WeakSet<object>()
+  seen = new WeakSet<object>(),
+  knownCollectionFree?: WeakSet<object>
 ): boolean => {
-  if (!isObjectLike(value) || seen.has(value)) {
-    return false;
+  const stack = [value];
+  const visited: object[] = [];
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (
+      !isObjectLike(current) ||
+      seen.has(current) ||
+      knownCollectionFree?.has(current)
+    ) {
+      continue;
+    }
+
+    // Plain objects and arrays return through a fast prototype path while
+    // uncommon prototypes still receive cross-realm collection detection.
+    if (getMapOrSetKind(current)) {
+      return true;
+    }
+
+    seen.add(current);
+    visited.push(current);
+
+    // Follow only enumerable string data properties: these are the fields that
+    // Travels can patch and JSON can retain. Framework objects may keep Maps in
+    // hidden or symbol-keyed bookkeeping that is outside the state data graph.
+    for (const key of Object.keys(current)) {
+      const descriptor = Object.getOwnPropertyDescriptor(current, key);
+      if (
+        descriptor &&
+        'value' in descriptor &&
+        isObjectLike(descriptor.value)
+      ) {
+        stack.push(descriptor.value);
+      }
+    }
   }
 
-  // Confirm cross-realm collections without invoking instance accessors.
-  if (getMapOrSetKind(value)) {
-    return true;
+  if (knownCollectionFree) {
+    for (const current of visited) {
+      knownCollectionFree.add(current);
+    }
   }
-
-  seen.add(value);
-
-  // Follow only enumerable string data properties: these are the fields that
-  // Travels can patch and JSON can retain. Framework objects may keep Maps in
-  // hidden or symbol-keyed bookkeeping that is outside the state data graph.
-  return Object.keys(value).some((key) => {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    return !!(
-      descriptor &&
-      'value' in descriptor &&
-      containsMapOrSet(descriptor.value, seen)
-    );
-  });
+  return false;
 };
 
 const isUnsafePatchPathSegment = (

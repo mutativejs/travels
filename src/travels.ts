@@ -97,8 +97,11 @@ const assertSynchronousResult = <T>(value: T, api: string): T => {
   throw new TypeError(`Travels: ${api} callback must be synchronous.`);
 };
 
-const assertSupportedRuntimeState = (value: unknown): void => {
-  if (containsMapOrSet(value)) {
+const assertSupportedRuntimeState = (
+  value: unknown,
+  knownCollectionFree?: WeakSet<object>
+): void => {
+  if (containsMapOrSet(value, new WeakSet<object>(), knownCollectionFree)) {
     throw new TypeError(
       'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
     );
@@ -499,6 +502,7 @@ export class Travels<
     | null = null;
   private historyCache: { version: number; history: S[] } | null = null;
   private historyVersion = 0;
+  private collectionFreeObjects = new WeakSet<object>();
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
   private warnOnUnsupportedState: boolean;
@@ -606,7 +610,10 @@ export class Travels<
       initialPatches = initialPatchesValidation.patches;
     }
 
-    assertSupportedRuntimeState(initialState);
+    assertSupportedRuntimeState(
+      initialState,
+      mutable ? undefined : this.collectionFreeObjects
+    );
     this.state = initialState;
     // For mutable mode, deep clone initialState to prevent mutations
     this.initialState = cloneInitialSnapshot(initialState);
@@ -1459,7 +1466,10 @@ export class Travels<
         createOptions
       ) as [S, Patches<P>, Patches<P>];
 
-      assertSupportedRuntimeState([p, ip]);
+      assertSupportedRuntimeState(
+        [p, ip],
+        this.mutable ? undefined : this.collectionFreeObjects
+      );
       if (this.options.enableAutoFreeze) {
         freezeAcceptedState(nextState);
       }
@@ -1516,7 +1526,10 @@ export class Travels<
             createOptions
           )) as unknown as [S, Patches<P>, Patches<P>];
 
-      assertSupportedRuntimeState([p, ip]);
+      assertSupportedRuntimeState(
+        [p, ip],
+        this.mutable ? undefined : this.collectionFreeObjects
+      );
       if (this.options.enableAutoFreeze) {
         freezeAcceptedState(nextState);
       }
