@@ -802,6 +802,7 @@ export class Travels<
   }
 
   private warnAboutStateCompatibilityAfterPatches(patches?: Patches<P>): void {
+    if (process.env.NODE_ENV === 'production') return;
     if (!patches || this.mutable) {
       this.warnAboutCompatibility('state', this.state);
       return;
@@ -858,6 +859,7 @@ export class Travels<
   private runPersistenceCompatibilityCheck(
     check: DeferredCompatibilityCheck<P>
   ): void {
+    if (process.env.NODE_ENV === 'production') return;
     this.warnAboutStateCompatibilityAfterPatches(check.patches);
     if (
       check.retained &&

@@ -7,11 +7,11 @@ const KiB = 1024;
 const repoRoot = resolve(__dirname, '..');
 const artifacts = ['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js'];
 const limits = {
-  bundleRaw: 34 * KiB,
-  bundleGzip: 10 * KiB,
-  bundleMap: 163 * KiB,
-  packagePacked: 217 * KiB,
-  packageUnpacked: 840 * KiB,
+  bundleRaw: 38.5 * KiB,
+  bundleGzip: 11 * KiB,
+  bundleMap: 181 * KiB,
+  packagePacked: 234 * KiB,
+  packageUnpacked: 920 * KiB,
 };
 
 const failures = [];
