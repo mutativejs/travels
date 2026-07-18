@@ -45,6 +45,7 @@ All notable changes to this project will be documented in this file.
 - **Breaking:** Publish one shared `TravelsEvent` object to subscribers and devtools, with lazily materialized event-local state transition patches and retained `historyLength`, instead of positional subscriber arguments or complete retained-history snapshots. Use `getPatches()` for an explicit full-history snapshot.
 - **Breaking:** Remove Map and Set from the supported state contract in immutable mode; both runtime modes now reject collection-bearing initial state and updates, while restored state and retained patch payloads fail structural validation.
 - Require restored patch paths to use JSON Pointer strings or dense arrays of strings/non-negative integers; runtime-only collection locators are no longer accepted.
+- Require `mutative@^1.3.0` as the peer baseline; history composition, semantic replay, and journal rollback are validated against that release line instead of any `>=1.0.0` version.
 - Keep structural persistence validation as the synchronous default for backward-compatible restore latency; applications should explicitly select semantic validation for unverified or potentially corrupted snapshots.
 - Materialize observer patch-history snapshots lazily, skip branch snapshots when no discard hook is configured, and discard superseded root-replacement patches to avoid copying or retaining history that no observer or replay can use.
 
