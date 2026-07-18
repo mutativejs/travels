@@ -1,10 +1,14 @@
 import { describe, expect, test, vi } from 'vitest';
-import { createTravels, type TravelPatches } from '../src/index';
+import {
+  createTravels,
+  type TravelPatches,
+  type TravelsEvent,
+} from '../src/index';
 
 describe('subscription patch snapshots', () => {
   type RootSwitchState = { items: number[] } | number[];
 
-  test('does not clone history when observers ignore the patches argument', () => {
+  test('does not clone history when observers ignore event patches', () => {
     const travels = createTravels({ count: 0 }, { maxHistory: 1_000 });
     const getPatches = vi.spyOn(travels, 'getPatches');
     travels.subscribe(() => {
@@ -25,11 +29,11 @@ describe('subscription patch snapshots', () => {
     const snapshots: TravelPatches[] = [];
     const travels = createTravels({ count: 0 }, { maxHistory: 10 });
 
-    travels.subscribe((_state, patches) => {
+    travels.subscribe(({ patches }) => {
       snapshots.push(patches);
       expect(patches.patches).toBe(patches.patches);
     });
-    travels.subscribe((_state, patches) => snapshots.push(patches));
+    travels.subscribe(({ patches }) => snapshots.push(patches));
 
     travels.setState((draft) => {
       draft.count = 1;
@@ -41,12 +45,49 @@ describe('subscription patch snapshots', () => {
     expect(snapshots[0].inversePatches).toHaveLength(1);
   });
 
+  test('shares one frozen event envelope with subscribers and devtools', () => {
+    const events: TravelsEvent<{ count: number }>[] = [];
+    const travels = createTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          events.push(event);
+        },
+      }
+    );
+
+    travels.subscribe((event) => events.push(event));
+    travels.subscribe((event) => events.push(event));
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      { label: 'increment' }
+    );
+
+    expect(events).toHaveLength(3);
+    expect(events[0]).toBe(events[1]);
+    expect(events[1]).toBe(events[2]);
+    expect(Object.isFrozen(events[0])).toBe(true);
+    expect(events[0]).toMatchObject({
+      type: 'setState',
+      state: { count: 1 },
+      position: 1,
+      historyLength: 1,
+      metadata: { label: 'increment' },
+    });
+    expect(Object.getOwnPropertyDescriptor(events[0], 'patches')).toMatchObject(
+      { enumerable: true, get: expect.any(Function) }
+    );
+    expect(events[0].patches).toBe(events[0].patches);
+  });
+
   test('keeps patch reads constant as retained history grows', () => {
     let latest:
       | { patches: TravelPatches; historyLength: number }
       | undefined;
     const travels = createTravels({ count: 0 }, { maxHistory: 100 });
-    travels.subscribe((_state, patches, _position, historyLength) => {
+    travels.subscribe(({ patches, historyLength }) => {
       latest = { patches, historyLength };
     });
 
@@ -63,13 +104,17 @@ describe('subscription patch snapshots', () => {
   });
 
   test('publishes composed transaction deltas and empty archive deltas', () => {
-    const events: Array<{ patches: TravelPatches; historyLength: number }> = [];
+    const events: Array<{
+      type: TravelsEvent<unknown>['type'];
+      patches: TravelPatches;
+      historyLength: number;
+    }> = [];
     const travels = createTravels(
       { count: 0 },
       { autoArchive: false, maxHistory: 10 }
     );
-    travels.subscribe((_state, patches, _position, historyLength) => {
-      events.push({ patches, historyLength });
+    travels.subscribe(({ type, patches, historyLength }) => {
+      events.push({ type, patches, historyLength });
     });
 
     travels.transaction(() => {
@@ -80,6 +125,11 @@ describe('subscription patch snapshots', () => {
     travels.archive();
 
     expect(events).toHaveLength(3);
+    expect(events.map((event) => event.type)).toEqual([
+      'transaction',
+      'setState',
+      'archive',
+    ]);
     expect(events[0].patches.patches).toHaveLength(1);
     expect(events[0].patches.patches[0]).toEqual([
       { op: 'replace', path: [], value: { count: 2 } },
@@ -98,7 +148,7 @@ describe('subscription patch snapshots', () => {
     let firstSnapshot: TravelPatches | undefined;
     const travels = createTravels({ count: 0 }, { maxHistory: 10 });
 
-    travels.subscribe((_state, patches) => {
+    travels.subscribe(({ patches }) => {
       firstSnapshot ??= patches;
     });
 
@@ -126,13 +176,40 @@ describe('subscription patch snapshots', () => {
     expect(travels.getState()).toEqual({ count: 1 });
   });
 
+  test('captures event-time patches before their lazy first read', () => {
+    let firstEvent: TravelsEvent<{ count: number }> | undefined;
+    const travels = createTravels({ count: 0 }, { maxHistory: 10 });
+
+    travels.subscribe((event) => {
+      firstEvent ??= event;
+    });
+
+    travels.setState((draft) => {
+      draft.count = 1;
+    });
+    travels.setState((draft) => {
+      draft.count = 2;
+    });
+    travels.back();
+    travels.setState((draft) => {
+      draft.count = 3;
+    });
+
+    expect(firstEvent?.patches.patches).toEqual([
+      [{ op: 'replace', path: ['count'], value: 1 }],
+    ]);
+    expect(firstEvent?.patches.inversePatches).toEqual([
+      [{ op: 'replace', path: ['count'], value: 0 }],
+    ]);
+  });
+
   test('retains an unarchived manual delta across later pending updates', () => {
     let firstSnapshot: TravelPatches | undefined;
     const travels = createTravels(
       { count: 0 },
       { autoArchive: false, maxHistory: 10 }
     );
-    travels.subscribe((_state, patches) => {
+    travels.subscribe(({ patches }) => {
       firstSnapshot ??= patches;
     });
 
@@ -155,7 +232,7 @@ describe('subscription patch snapshots', () => {
       { items: [0] },
       { mutable: true, maxHistory: 10, warnOnUnsupportedState: false }
     );
-    travels.subscribe((_state, patches) => {
+    travels.subscribe(({ patches }) => {
       firstSnapshot ??= patches;
     });
 

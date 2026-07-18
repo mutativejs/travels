@@ -16,7 +16,7 @@ import type {
   TravelPatches,
   TravelsBranchDiscardEvent,
   TravelsDeserializeOptions,
-  TravelsDevtoolsEvent,
+  TravelsEvent,
   TravelsOptions,
   TravelsObserverErrorEvent,
   TravelsObserverErrorSource,
@@ -45,10 +45,7 @@ import {
  * Listener callback for state changes
  */
 type Listener<S, P extends PatchesOption = {}> = (
-  state: S,
-  patches: TravelPatches<P>,
-  position: number,
-  historyLength: number
+  event: TravelsEvent<S, P>
 ) => void;
 
 type SynchronousFunction<F> = F extends (...args: never[]) => infer R
@@ -540,7 +537,7 @@ export class Travels<
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
   private onObserverError?: (event: TravelsObserverErrorEvent) => void;
-  private devtools?: (event: TravelsDevtoolsEvent<S, P>) => void;
+  private devtools?: (event: TravelsEvent<S, P>) => void;
   private listeners: Set<Listener<S, P>> = new Set();
   private controlsCache:
     | RebasableTravelsControls<S, F, P>
@@ -674,7 +671,7 @@ export class Travels<
     this.onBranchDiscard = onBranchDiscard;
     this.onObserverError = onObserverError;
     this.devtools = devtools as
-      | ((event: TravelsDevtoolsEvent<S, P>) => void)
+      | ((event: TravelsEvent<S, P>) => void)
       | undefined;
     this.options = {
       ...mutativeOptions,
@@ -1142,40 +1139,47 @@ export class Travels<
   };
 
   /**
-   * Notify all listeners of state changes
+   * Create one immutable event envelope shared by listeners and devtools.
    */
-  private getEventPatches(
-    source?: TravelPatches<P>
-  ): TravelPatches<P> | undefined {
-    if (!this.listeners.size && !this.devtools) {
-      return undefined;
-    }
-
-    const patchGroups = source?.patches ?? [];
-    const inversePatchGroups = source?.inversePatches ?? [];
+  private createEvent(
+    type: TravelsEvent<S, P>['type'],
+    metadata?: TravelMetadata,
+    changePatches?: TravelPatches<P>
+  ): TravelsEvent<S, P> {
+    const patchGroups = changePatches?.patches ?? [];
+    const inversePatchGroups = changePatches?.inversePatches ?? [];
     const patchCount = patchGroups.length;
     const inversePatchCount = inversePatchGroups.length;
-    let materializedPatches: Patches<P>[] | undefined;
-    let materializedInversePatches: Patches<P>[] | undefined;
+    let snapshot: TravelPatches<P> | undefined;
+    const event: TravelsEvent<S, P> = {
+      type,
+      state: this.state,
+      position: this.position,
+      historyLength: this.getVisibleHistoryLength(),
+      metadata,
+      get patches() {
+        if (snapshot) {
+          return snapshot;
+        }
 
-    const snapshot = {} as TravelPatches<P>;
-    Object.defineProperties(snapshot, {
-      patches: {
-        enumerable: true,
-        get: () =>
-          (materializedPatches ??= clonePatchGroups(
-            patchGroups.slice(0, patchCount)
-          )),
+        let materializedPatches: Patches<P>[] | undefined;
+        let materializedInversePatches: Patches<P>[] | undefined;
+        snapshot = {
+          get patches() {
+            return (materializedPatches ??= clonePatchGroups(
+              patchGroups.slice(0, patchCount)
+            ));
+          },
+          get inversePatches() {
+            return (materializedInversePatches ??= clonePatchGroups(
+              inversePatchGroups.slice(0, inversePatchCount)
+            ));
+          },
+        };
+        return snapshot;
       },
-      inversePatches: {
-        enumerable: true,
-        get: () =>
-          (materializedInversePatches ??= clonePatchGroups(
-            inversePatchGroups.slice(0, inversePatchCount)
-          )),
-      },
-    });
-    return snapshot;
+    };
+    return Object.freeze(event);
   }
 
   private getVisibleHistoryLength(): number {
@@ -1312,7 +1316,7 @@ export class Travels<
   }
 
   private emitChange(
-    type: TravelsDevtoolsEvent<S, P>['type'],
+    type: TravelsEvent<S, P>['type'],
     metadata?: TravelMetadata,
     branchDiscard?: BranchDiscardEffect<P>,
     changePatches?: TravelPatches<P>
@@ -1331,34 +1335,24 @@ export class Travels<
       return;
     }
 
-    const patches = this.getEventPatches(changePatches);
-    const state = this.state;
-    const position = this.position;
-    const historyLength = this.getVisibleHistoryLength();
     const listeners = Array.from(this.listeners);
     const devtools = this.devtools;
+    const event =
+      listeners.length > 0 || devtools
+        ? this.createEvent(type, metadata, changePatches)
+        : undefined;
 
     this.publishEffects(() => {
       if (branchDiscard) {
         this.publishBranchDiscard(branchDiscard);
       }
 
-      if (patches) {
+      if (event) {
         for (const listener of listeners) {
-          this.invokeObserver('listener', () =>
-            listener(state, patches, position, historyLength)
-          );
+          this.invokeObserver('listener', () => listener(event));
         }
 
         if (devtools) {
-          const event = {
-            type,
-            state,
-            position,
-            patches,
-            historyLength,
-            metadata,
-          } as TravelsDevtoolsEvent<S, P>;
           this.invokeObserver('devtools', () => devtools(event));
         }
       }

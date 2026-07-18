@@ -135,11 +135,11 @@ export type TravelsObserverErrorEvent = {
   error: unknown;
 };
 
-export type TravelsDevtoolsEvent<
+export type TravelsEvent<
   S,
   P extends PatchesOption = {},
 > = {
-  type:
+  readonly type:
     | 'setState'
     | 'archive'
     | 'transaction'
@@ -147,14 +147,23 @@ export type TravelsDevtoolsEvent<
     | 'reset'
     | 'rebase'
     | 'replaceStateWithoutHistory';
-  state: S;
-  position: number;
-  /** Event-local patches that transform the previously published state. */
-  patches: TravelPatches<P>;
+  readonly state: S;
+  readonly position: number;
+  /**
+   * Lazily materialized event-local patches that transform the previously
+   * published state. Treat the shared snapshot as read-only.
+   */
+  readonly patches: TravelPatches<P>;
   /** Number of entries currently retained in history. */
-  historyLength: number;
-  metadata?: TravelMetadata;
+  readonly historyLength: number;
+  readonly metadata?: TravelMetadata;
 };
+
+/** @deprecated Use `TravelsEvent`; both observer channels share that contract. */
+export type TravelsDevtoolsEvent<
+  S,
+  P extends PatchesOption = {},
+> = TravelsEvent<S, P>;
 
 export type TravelsErrorCode = 'TRANSACTION_FAILED';
 
@@ -220,7 +229,7 @@ export type TravelsOptions<
   /**
    * Optional hook for external devtools or debugging timelines.
    */
-  devtools?: (event: TravelsDevtoolsEvent<any, P>) => void;
+  devtools?: (event: TravelsEvent<any, P>) => void;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
     /**
      * Configure patch formatting. Patches cannot be disabled because Travels

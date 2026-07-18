@@ -46,10 +46,10 @@ describe('observer publication atomicity', () => {
     expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 3]);
     expect(travels.canForward()).toBe(false);
     expect(listener).toHaveBeenCalledOnce();
-    expect(listener.mock.calls[0][0]).toEqual({ count: 3 });
-    expect(listener.mock.calls[0][2]).toBe(2);
-    expect(listener.mock.calls[0][1].patches).toHaveLength(1);
-    expect(listener.mock.calls[0][3]).toBe(2);
+    expect(listener.mock.calls[0][0].state).toEqual({ count: 3 });
+    expect(listener.mock.calls[0][0].position).toBe(2);
+    expect(listener.mock.calls[0][0].patches.patches).toHaveLength(1);
+    expect(listener.mock.calls[0][0].historyLength).toBe(2);
     expect(devtools).toHaveBeenCalledOnce();
     expect(observerErrors).toHaveLength(1);
     expect(observerErrors[0].source).toBe('onBranchDiscard');
@@ -82,7 +82,7 @@ describe('observer publication atomicity', () => {
     ).not.toThrow();
 
     expect(healthyListener).toHaveBeenCalledOnce();
-    expect(healthyListener.mock.calls[0][0]).toEqual({ count: 1 });
+    expect(healthyListener.mock.calls[0][0].state).toEqual({ count: 1 });
     expect(sources).toEqual(['listener', 'devtools']);
     expect(travels.getState()).toEqual({ count: 1 });
   });
@@ -112,7 +112,7 @@ describe('observer publication atomicity', () => {
         },
       }
     );
-    travels.subscribe((state, _patches, position, historyLength) => {
+    travels.subscribe(({ state, position, historyLength }) => {
       listenerSnapshots.push({
         count: state.count,
         position,
@@ -198,7 +198,7 @@ describe('observer publication atomicity', () => {
         },
       }
     );
-    travels.subscribe((state) => observedCounts.push(state.count));
+    travels.subscribe(({ state }) => observedCounts.push(state.count));
 
     travels.transaction(() => {
       travels.setState({ count: 1 });
@@ -360,7 +360,7 @@ describe('observer publication atomicity', () => {
         },
       }
     );
-    const unsubscribe = travels.subscribe(async (state) => {
+    const unsubscribe = travels.subscribe(async ({ state }) => {
       if (state.count === 3) {
         throw listenerFailure;
       }
@@ -414,14 +414,14 @@ describe('observer publication atomicity', () => {
       }
     );
 
-    travels.subscribe((state) => {
+    travels.subscribe(({ state }) => {
       if (state.count === 1) {
         travels.setState((draft) => {
           draft.count = 2;
         });
       }
     });
-    travels.subscribe((state, _patches, position, historyLength) => {
+    travels.subscribe(({ state, position, historyLength }) => {
       snapshots.push({
         state: state.count,
         position,

@@ -34,6 +34,32 @@ See [`examples/zustand.ts`](../examples/zustand.ts).
 
 See [`examples/react-integration.tsx`](../examples/react-integration.tsx).
 
+## From Positional Subscribe Callbacks
+
+Subscribers now receive the same `TravelsEvent` object as the `devtools` hook.
+Replace positional callback parameters with event destructuring:
+
+```ts
+// Before
+travels.subscribe((state, patches, position, historyLength) => {
+  render(state, position);
+});
+
+// After
+travels.subscribe(
+  ({ type, state, patches, position, historyLength, metadata }) => {
+    render(state, position);
+  }
+);
+```
+
+One shallow-frozen event object is shared by all observers for a notification.
+Its `patches` property remains an event-local delta, is materialized lazily,
+and must be treated as read-only. Call `travels.getPatches()` when full retained
+history is required. `TravelsDevtoolsEvent` remains as a deprecated type alias
+for `TravelsEvent`. Callbacks that ignore their arguments, such as external store
+invalidation functions, can remain unchanged.
+
 ## From Map/Set State
 
 Travels no longer supports Map or Set in either immutable or mutable state. Initial state and updates fail fast, and restored state or patch payloads containing collections are rejected during structural validation. Normalize collections before creating or updating a Travels instance:

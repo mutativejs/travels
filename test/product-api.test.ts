@@ -1114,8 +1114,8 @@ describe('Productized history API', () => {
     );
     const getPatchesSpy = vi.spyOn(travels, 'getPatches');
 
-    travels.subscribe((_state, patches) => snapshots.push(patches));
-    travels.subscribe((_state, patches) => snapshots.push(patches));
+    travels.subscribe(({ patches }) => snapshots.push(patches));
+    travels.subscribe(({ patches }) => snapshots.push(patches));
     travels.setState((draft) => {
       draft.count = 1;
     });

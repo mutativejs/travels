@@ -91,7 +91,7 @@ describe('mutable patch isolation', () => {
       warnOnUnsupportedState: false,
     });
     let eventPatches: TravelPatches | undefined;
-    travels.subscribe((_state, patches) => {
+    travels.subscribe(({ patches }) => {
       eventPatches ??= patches;
     });
 

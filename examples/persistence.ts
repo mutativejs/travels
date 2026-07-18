@@ -149,8 +149,8 @@ console.log('Initial state:', travels.getState());
 console.log('Initial position:', travels.getPosition());
 
 // Auto-save on state changes
-travels.subscribe((state, patches, position) => {
-  console.log('\nState changed - Auto-saving...');
+travels.subscribe(({ type }) => {
+  console.log(`\n${type} event - Auto-saving...`);
   saveToStorage(travels);
 });
 

@@ -47,7 +47,7 @@ describe('maxHistory Boundary Handling', () => {
     let lastPosition = 0;
     let lastPatchesLength = 0;
 
-    travels.subscribe((state, _patches, position, historyLength) => {
+    travels.subscribe(({ position, historyLength }) => {
       const patchesLength = historyLength;
 
       // Detect overflow: position reaches maxHistory and patches didn't grow
@@ -89,7 +89,7 @@ describe('maxHistory Boundary Handling', () => {
 
     let lastPatchesLength = 0;
 
-    travels.subscribe((state, _patches, position, historyLength) => {
+    travels.subscribe(({ position, historyLength }) => {
       const patchesLength = historyLength;
 
       // Detect overflow (patches didn't grow but position reached maxHistory)
@@ -133,7 +133,7 @@ describe('maxHistory Boundary Handling', () => {
 
     let lastPosition = 0;
 
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe(({ state, position }) => {
       // ✅ Simpler detection: position didn't grow
       if (position === lastPosition && lastPosition > 0) {
         overflowEvents.push({
@@ -169,7 +169,7 @@ describe('maxHistory Boundary Handling', () => {
 
     let lastPosition = 0;
 
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe(({ state, patches, position }) => {
       // Detect overflow
       if (position === lastPosition && lastPosition >= 3) {
         // Archive to localStorage
@@ -234,7 +234,7 @@ describe('maxHistory Boundary Handling', () => {
 
     let lastPatchesLength = 0;
 
-    travels.subscribe((state, _patches, position, historyLength) => {
+    travels.subscribe(({ state, position, historyLength }) => {
       const patchesLength = historyLength;
 
       // Detect memory tier overflow
@@ -304,7 +304,7 @@ describe('maxHistory Boundary Handling', () => {
     let overflowCount = 0;
     let lastPosition = 0;
 
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe(({ position }) => {
       if (position === lastPosition && position >= 3) {
         overflowCount++;
         // Can do anything here: archive, notify, throttle, etc.
@@ -360,7 +360,7 @@ describe('maxHistory Usage Patterns Documentation', () => {
 
     let lastPosition = 0;
 
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe(({ position }) => {
       // Auto-archive strategy
       if (position === lastPosition && position >= 5) {
         archive.push({

@@ -147,7 +147,7 @@ describe('Travels - Auto Archive Mode', () => {
     const states: any[] = [];
     const positions: number[] = [];
 
-    const unsubscribe = travels.subscribe((state, patches, position) => {
+    const unsubscribe = travels.subscribe(({ state, position }) => {
       states.push(state);
       positions.push(position);
     });
@@ -398,8 +398,8 @@ describe('Travels - Edge Cases', () => {
     const calls1: any[] = [];
     const calls2: any[] = [];
 
-    const unsub1 = travels.subscribe((state) => calls1.push(state));
-    const unsub2 = travels.subscribe((state) => calls2.push(state));
+    const unsub1 = travels.subscribe(({ state }) => calls1.push(state));
+    const unsub2 = travels.subscribe(({ state }) => calls2.push(state));
 
     travels.setState({ count: 1 });
 

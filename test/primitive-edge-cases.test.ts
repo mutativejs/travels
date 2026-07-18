@@ -161,7 +161,7 @@ describe('Primitive types edge cases with mutable mode', () => {
     const travels = createTravels<number>(0, { mutable: true });
     const values: number[] = [];
 
-    travels.subscribe((state) => {
+    travels.subscribe(({ state }) => {
       values.push(state);
     });
 

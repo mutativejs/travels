@@ -89,7 +89,8 @@ const travels = createTravels({ count: 0 });
 
 // Subscribe to state changes
 const unsubscribe = travels.subscribe(
-  (state, patches, position, historyLength) => {
+  ({ type, state, position, historyLength }) => {
+    console.log('Event:', type);
     console.log('State:', state);
     console.log('Position:', position);
     console.log('Retained history:', historyLength);
@@ -202,18 +203,20 @@ travels.setState(
 
 Metadata is included in persisted snapshots. Keep custom metadata values in the same durable JSON-compatible subset as state, or use an application codec.
 
-#### `subscribe(listener: (state, patches, position, historyLength) => void): () => void`
+#### `subscribe(listener: (event: TravelsEvent<S, P>) => void): () => void`
 
 Subscribe to state changes. Returns an unsubscribe function.
 
-The `patches` argument is the event-local forward/inverse delta from the
-previously published state to `state`. Root transactions compose their internal
-steps into one delta; operations that do not change state, such as `archive()`
-and `rebase()`, publish empty patch arrays. The shared per-event snapshot is
-materialized lazily and its forward/inverse directions are cloned independently.
-Treat it as read-only; mutating it can affect other listeners or devtools hooks
-handling the same event. Use `getPatches()` explicitly when a full retained
-history snapshot is required.
+Each notification creates one shallow-frozen event envelope shared by all
+listeners and the devtools hook. `event.patches` is the event-local
+forward/inverse delta from the previously published state to `event.state`.
+Root transactions compose their internal steps into one delta; operations that
+do not change state, such as `archive()` and `rebase()`, publish empty patch
+arrays. The patch snapshot is materialized lazily and its forward/inverse
+directions are cloned independently. Treat the state, patches, and metadata as
+read-only; mutating nested values can affect other observers handling the same
+event. Use `getPatches()` explicitly when a full retained history snapshot is
+required.
 
 Notifications run only after state, position, and history have committed. An
 observer exception is isolated from other observers and is reported through
@@ -232,11 +235,13 @@ branches created and discarded entirely inside the transaction.
 
 **Parameters:**
 
-- `listener`: Callback function called on state changes
+- `listener`: Callback receiving one `TravelsEvent`
+  - `type`: The committed operation (`setState`, `archive`, `transaction`, `go`, `reset`, `rebase`, or `replaceStateWithoutHistory`)
   - `state`: The new state
-  - `patches`: The event-local state transition patches
+  - `patches`: The lazily materialized event-local state transition patches
   - `position`: The current position in history
   - `historyLength`: The number of entries currently retained in history
+  - `metadata`: Optional metadata associated with the operation
 
 #### `back(amount?: number): void`
 
@@ -454,7 +459,7 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
 - `getHistory()` reconstructs and caches snapshots from the stored patches. Treat the returned array and every entry as read-only; they are not reactive proxies.
-- `subscribe` listeners always receive the live mutable object, so `state === travels.getState()` stays true.
+- `subscribe` listeners receive the live mutable object as `event.state`, so `event.state === travels.getState()` stays true.
 
 ### Example: Pinia/Vue Store
 
@@ -748,7 +753,7 @@ const useStore = create((set) => ({
 }));
 
 // Subscribe to travels changes
-travels.subscribe((state) => {
+travels.subscribe(({ state }) => {
   useStore.setState(state);
 });
 ```
@@ -763,7 +768,7 @@ export function useTravel(initialState, options) {
   const travels = createTravels(initialState, options);
   const state = ref(travels.getState());
 
-  travels.subscribe((newState) => {
+  travels.subscribe(({ state: newState }) => {
     state.value = newState;
   });
 

@@ -20,7 +20,8 @@ const travels = createTravels<AppState>({
 });
 
 // Subscribe to state changes
-const unsubscribe = travels.subscribe((state, patches, position) => {
+const unsubscribe = travels.subscribe(({ type, state, position }) => {
+  console.log('Event:', type);
   console.log('State changed:', state);
   console.log('Position:', position);
   console.log('Can undo:', travels.canBack());

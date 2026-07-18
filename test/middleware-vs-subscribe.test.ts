@@ -12,7 +12,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     const travels = createTravels({ count: 0 });
     const log: string[] = [];
 
-    travels.subscribe((state, patches, position) => {
+    travels.subscribe(({ state, patches, position }) => {
       // ✅ Can do: Observe state changes
       log.push(`State changed to: ${state.count}`);
 
@@ -46,7 +46,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     // ❌ Subscribe cannot do this
     const travels = createTravels({ count: 0 });
 
-    travels.subscribe((state) => {
+    travels.subscribe(({ state }) => {
       // ❌ Cannot prevent state update here
       // ❌ Cannot modify the value being updated
       if (state.count > 10) {
@@ -118,7 +118,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     // ❌ Subscribe can only observe results, cannot modify input
     const travels = createTravels<any>({ items: [] });
 
-    travels.subscribe((state) => {
+    travels.subscribe(({ state }) => {
       // ❌ Cannot modify setState's input here
       // State is already updated, cannot add timestamp to each item
     });
@@ -518,7 +518,7 @@ describe('Core question: Capabilities Subscribe cannot replace', () => {
     const travels = createTravels({ count: 0 });
 
     // Subscribe cannot prevent
-    travels.subscribe((state) => {
+    travels.subscribe(({ state }) => {
       if (state.count > 10) {
         // Too late!
       }
@@ -557,7 +557,7 @@ describe('Core question: Capabilities Subscribe cannot replace', () => {
     const travels = createTravels<any>({ items: [] });
 
     // Subscribe cannot modify input
-    travels.subscribe((state) => {
+    travels.subscribe(({ state }) => {
       // Cannot modify setState's parameters
     });
 

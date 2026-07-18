@@ -193,7 +193,7 @@ describe('Mutable mode for observable state', () => {
     expect(travels.getState().count).toBe(0);
   });
 
-  test('subscribe callback receives mutated state', () => {
+  test('subscribe event receives mutated state', () => {
     const state = { count: 0 };
     const travels = createTravels(state, { mutable: true });
     const originalRef = travels.getState();
@@ -201,7 +201,7 @@ describe('Mutable mode for observable state', () => {
     const stateSnapshots: any[] = [];
     const references: any[] = [];
 
-    travels.subscribe((currentState) => {
+    travels.subscribe(({ state: currentState }) => {
       stateSnapshots.push({ ...currentState });
       references.push(currentState);
     });

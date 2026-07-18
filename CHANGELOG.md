@@ -40,7 +40,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Strip development-only incremental compatibility scans from production bundles and recalibrate package-size budgets for the new transaction, observer, and validation safeguards.
-- **Breaking:** Publish event-local state transition patches to subscribers and devtools instead of cloning the complete retained history on every patch read; subscriber callbacks now receive retained `historyLength` as a fourth argument, and devtools events expose the same field. Use `getPatches()` for an explicit full-history snapshot.
+- **Breaking:** Publish one shared `TravelsEvent` object to subscribers and devtools, with lazily materialized event-local state transition patches and retained `historyLength`, instead of positional subscriber arguments or complete retained-history snapshots. Use `getPatches()` for an explicit full-history snapshot.
 - **Breaking:** Remove Map and Set from the supported state contract in immutable mode; both runtime modes now reject collection-bearing initial state and updates, while restored state and retained patch payloads fail structural validation.
 - Require restored patch paths to use JSON Pointer strings or dense arrays of strings/non-negative integers; runtime-only collection locators are no longer accepted.
 - Keep structural persistence validation as the synchronous default for backward-compatible restore latency; applications should explicitly select semantic validation for unverified or potentially corrupted snapshots.

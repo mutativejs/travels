@@ -6,6 +6,8 @@ import {
   type PatchableState,
   type StateCompatibilityIssueCode,
   type TravelMetadata,
+  type TravelsDevtoolsEvent,
+  type TravelsEvent,
   type TravelsSerializedHistory,
   type Updater,
 } from '../src/index';
@@ -93,6 +95,29 @@ describe('Type-level API contracts', () => {
     expectTypeOf(travels.getControls().archive)
       .parameter(0)
       .toEqualTypeOf<TravelMetadata | undefined>();
+  });
+
+  test('subscribe and devtools share one event contract', () => {
+    type State = { count: number };
+    const travels = createTravels<State>({ count: 0 });
+
+    travels.subscribe((event) => {
+      expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+    });
+    createTravels<State>(
+      { count: 0 },
+      {
+        devtools(event) {
+          expectTypeOf(event).toEqualTypeOf<TravelsDevtoolsEvent<State>>();
+          expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+        },
+      }
+    );
+
+    if (false) {
+      // @ts-expect-error positional subscribe callbacks were replaced by TravelsEvent
+      travels.subscribe((_state, _patches, _position, _historyLength) => {});
+    }
   });
 
   test('async callbacks are rejected while typed updaters remain forwardable', () => {

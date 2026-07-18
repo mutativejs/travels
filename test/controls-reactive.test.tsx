@@ -289,14 +289,14 @@ describe('Controls Reactive Problem', () => {
 
     // Demonstrate correct usage
     function CorrectUsage() {
-      // ✅ Solution 1: Get position from subscribe callback
+      // ✅ Solution 1: Get position from the subscribe event
       const [snapshot, setSnapshot] = React.useState(() => ({
         state: travels.getState(),
         position: travels.getPosition(),
       }));
 
       React.useEffect(() => {
-        return travels.subscribe((state, _, position) => {
+        return travels.subscribe(({ state, position }) => {
           setSnapshot({ state, position });
         });
       }, []);
@@ -309,8 +309,8 @@ describe('Controls Reactive Problem', () => {
       const [position, setPosition] = React.useState(travels.getPosition());
 
       React.useEffect(() => {
-        return travels.subscribe((_, __, pos) => {
-          setPosition(pos);
+        return travels.subscribe(({ position }) => {
+          setPosition(position);
         });
       }, []);
 
@@ -351,7 +351,7 @@ describe('Controls Reactive Problem', () => {
      *
      * Conclusion from README:
      * - For 95% of use cases, getter + subscribe works perfectly
-     * - For edge cases, use subscribe callback to create truly reactive state
+     * - For edge cases, use subscribe events to create truly reactive state
      * - Or create custom hooks that wrap subscribe
      * - The design is intentionally simple and flexible
      */

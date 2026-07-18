@@ -358,7 +358,7 @@ const archive: any[] = [];
 
 let lastPosition = 0;
 
-travels.subscribe((state, patches, position) => {
+travels.subscribe(({ position }) => {
   // Detect overflow: position stops growing
   if (position === lastPosition && position >= 5) {
     // Archive to external storage

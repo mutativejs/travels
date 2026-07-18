@@ -92,8 +92,9 @@ export function setupTravelsCounter() {
   }
 
   // Subscribe to state changes
-  travels.subscribe((state, patches, position, historyLength) => {
+  travels.subscribe(({ type, state, patches, position, historyLength }) => {
     console.log("State changed:", {
+      type,
       state,
       position,
       deltaPatchGroups: patches.patches.length,

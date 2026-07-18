@@ -21,7 +21,8 @@ const travels = createTravels<TodoState>(
   { autoArchive: false, maxHistory: 20 }
 );
 
-travels.subscribe((state, patches, position) => {
+travels.subscribe(({ type, state, position }) => {
+  console.log('Event:', type);
   console.log('State changed:', state);
   console.log('Position:', position);
   console.log('Can archive:', travels.canArchive());

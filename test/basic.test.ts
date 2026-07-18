@@ -201,7 +201,7 @@ describe('Basic Example - Basic Usage', () => {
     const states: AppState[] = [];
     const positions: number[] = [];
 
-    const unsubscribe = travels.subscribe((state, patches, position) => {
+    const unsubscribe = travels.subscribe(({ state, position }) => {
       states.push(state);
       positions.push(position);
     });
@@ -236,7 +236,7 @@ describe('Basic Example - Basic Usage', () => {
     const { subscribe, getState } = travels;
 
     // check function auto bind travel
-    const unsubscribe = subscribe.call({} ,(state, _patches, position) => {
+    const unsubscribe = subscribe.call({}, ({ state, position }) => {
       capturedStates.push(state);
       capturedPositions.push(position);
     });

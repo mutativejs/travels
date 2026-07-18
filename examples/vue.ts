@@ -38,7 +38,7 @@ export function useTravelsHistory<S>(
   const canUndo = shallowRef(travels.canBack());
   const canRedo = shallowRef(travels.canForward());
 
-  travels.subscribe((nextState, _patches, nextPosition) => {
+  travels.subscribe(({ state: nextState, position: nextPosition }) => {
     state.value = nextState;
     position.value = nextPosition;
     canUndo.value = travels.canBack();

@@ -653,7 +653,7 @@ describe('Event Notifications', () => {
     const expectations: Expectation[] = [];
     let callIndex = 0;
 
-    travels.subscribe((state, patches, position, historyLength) => {
+    travels.subscribe(({ state, patches, position, historyLength }) => {
       const expectation = expectations[callIndex++];
       expect(expectation?.name).toBeDefined();
       expectation.assert(state, patches, position, historyLength);
