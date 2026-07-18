@@ -486,11 +486,7 @@ localspace-specific notes:
 
 Use `migrate` when the stored shape predates Travels' current serialized history schema:
 
-`migrate` and function-valued `fallback` are synchronous callbacks. Await
-storage, network, or other asynchronous work before calling
-`Travels.deserialize(...)`. Promise-like callback results fail with
-`MIGRATION_FAILED` or `FALLBACK_FAILED`, and Travels observes their rejection
-to prevent an unhandled Promise rejection.
+`migrate` and function-valued `fallback` are synchronous callbacks. Await storage, network, or other asynchronous work before calling `Travels.deserialize(...)`. Promise-like callback results fail with `MIGRATION_FAILED` or `FALLBACK_FAILED`, and Travels observes their rejection to prevent an unhandled Promise rejection.
 
 ```ts
 type LegacyDocumentSnapshot = {
@@ -527,41 +523,19 @@ const history = Travels.deserialize<DocumentState>(stored, {
 
 ## Integrity and Provenance
 
-`Travels.deserialize(...)` always verifies that a snapshot is structurally
-valid. With `validation: 'semantic'`, it also verifies that the history can
-replay consistently in both directions on a detached validation graph, without
-letting replay mutate the supplied state or patch values. Neither mode proves
-where the snapshot came from or that a reconstructed past is the history that
-was originally recorded. Version 1 has no independent trusted history anchor,
-so an internally reversible alternative history is accepted and does not
-trigger `fallback`.
-This boundary is covered by
-[`test/persistence-semantics.test.ts`](../test/persistence-semantics.test.ts).
+`Travels.deserialize(...)` always verifies that a snapshot is structurally valid. With `validation: 'semantic'`, it also verifies that the history can replay consistently in both directions on a detached validation graph, without letting replay mutate the supplied state or patch values. Neither mode proves where the snapshot came from or that a reconstructed past is the history that was originally recorded. Version 1 has no independent trusted history anchor, so an internally reversible alternative history is accepted and does not trigger `fallback`. This boundary is covered by [`test/persistence-semantics.test.ts`](../test/persistence-semantics.test.ts).
 
-For object-form input, top-level snapshot fields and the patch container's
-`patches` and `inversePatches` fields must be own data properties. Accessors and
-inherited fields are rejected without evaluation, and accepted fields are
-captured once. Patch-history containers, patch groups, array paths, and metadata
-lists must be plain dense arrays with no custom own properties or prototypes.
-Frozen plain arrays are valid. Validation and history cloning use indexed
-data-property access rather than input-defined array methods, so malformed
-arrays are rejected through the stable persistence error codes.
+For object-form input, top-level snapshot fields and the patch container's `patches` and `inversePatches` fields must be own data properties. Accessors and inherited fields are rejected without evaluation, and accepted fields are captured once. Patch-history containers, patch groups, array paths, and metadata lists must be plain dense arrays with no custom own properties or prototypes. Frozen plain arrays are valid. Validation and history cloning use indexed data-property access rather than input-defined array methods, so malformed arrays are rejected through the stable persistence error codes.
 
-When integrity or provenance matters, verification MUST happen outside Travels
-and before deserialization:
+When integrity or provenance matters, verification MUST happen outside Travels and before deserialization:
 
 ```text
 stored bytes -> verify envelope -> decode snapshot -> Travels.deserialize -> createTravels
 ```
 
-If external verification fails, discard the unverified snapshot and restore a
-trusted default or last-known-good generation. Do not rely on `fallback` to
-discover an internally consistent alternative history.
+If external verification fails, discard the unverified snapshot and restore a trusted default or last-known-good generation. Do not rely on `fallback` to discover an internally consistent alternative history.
 
-Structural validation is the default to preserve the synchronous API's
-low-latency behavior. It rejects malformed schemas and patch encodings, but it
-does not prove that navigation will apply successfully. Use explicit semantic
-validation for unverified or potentially corrupted storage:
+Structural validation is the default to preserve the synchronous API's low-latency behavior. It rejects malformed schemas and patch encodings, but it does not prove that navigation will apply successfully. Use explicit semantic validation for unverified or potentially corrupted storage:
 
 ```ts
 const history = Travels.deserialize(unverifiedSnapshot, {
@@ -569,11 +543,7 @@ const history = Travels.deserialize(unverifiedSnapshot, {
 });
 ```
 
-Semantic replay detects applicability and reversibility failures before the
-restored history is used. Its work grows with the reachable history and the
-containers copied by each patch. A snapshot that has already been authenticated
-or otherwise verified by a trusted application boundary can use the default
-structural path when restore latency matters.
+Semantic replay detects applicability and reversibility failures before the restored history is used. Its work grows with the reachable history and the containers copied by each patch. A snapshot that has already been authenticated or otherwise verified by a trusted application boundary can use the default structural path when restore latency matters.
 
 Choose the integrity mechanism according to the application's trust model:
 
@@ -585,11 +555,7 @@ Choose the integrity mechanism according to the application's trust model:
 | Tamper-resistant storage     | Verify a server-held HMAC, digital signature, or authenticated-encryption tag. A key stored beside attacker-controlled browser data does not establish trust.                                        |
 | Audit-grade history          | Keep a server-authoritative append-only event log and a trusted signed chain head or equivalent commitment. Treat Travels snapshots as reconstructable client caches.                                |
 
-Hashing every patch, storing extra checkpoints, or embedding a hash chain in the
-same mutable blob adds redundancy but cannot by itself prove historical intent;
-an attacker that can rewrite the blob can rewrite those values too. The trusted
-checksum, signature, revision, or chain commitment must be controlled outside
-the snapshot it protects.
+Hashing every patch, storing extra checkpoints, or embedding a hash chain in the same mutable blob adds redundancy but cannot by itself prove historical intent; an attacker that can rewrite the blob can rewrite those values too. The trusted checksum, signature, revision, or chain commitment must be controlled outside the snapshot it protects.
 
 Recovery rules:
 

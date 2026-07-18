@@ -113,11 +113,7 @@ Because the state is mutated in place, your UI keeps updating during the transac
 
 ### Transactions + Mutable State
 
-`travels.transaction(...)` journals the inverse patches produced by Travels
-operations. If the callback fails, those recorded changes are reversed while
-the live state object keeps its identity. A direct write to that object does
-not produce a Travels patch, so it is outside the journal and survives
-rollback:
+`travels.transaction(...)` journals the inverse patches produced by Travels operations. If the callback fails, those recorded changes are reversed while the live state object keeps its identity. A direct write to that object does not produce a Travels patch, so it is outside the journal and survives rollback:
 
 ```ts
 const store = reactive({ saved: false, connectionStatus: 'online' });
@@ -136,10 +132,7 @@ try {
 }
 ```
 
-Use `travels.setState(...)` for every mutation that must share the transaction's
-rollback boundary. Travels listeners and devtools publish only the settled root
-transaction, but MobX, Vue, Pinia, or other observers attached directly to the
-live object can see provisional in-place mutations as they happen.
+Use `travels.setState(...)` for every mutation that must share the transaction's rollback boundary. Travels listeners and devtools publish only the settled root transaction, but MobX, Vue, Pinia, or other observers attached directly to the live object can see provisional in-place mutations as they happen.
 
 ## Performance & Testing Notes
 
