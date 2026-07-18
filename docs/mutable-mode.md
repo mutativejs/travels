@@ -111,6 +111,36 @@ function commitTransaction(cb: () => void) {
 
 Because the state is mutated in place, your UI keeps updating during the transaction, but history only grows when you call `archive()`.
 
+### Transactions + Mutable State
+
+`travels.transaction(...)` journals the inverse patches produced by Travels
+operations. If the callback fails, those recorded changes are reversed while
+the live state object keeps its identity. A direct write to that object does
+not produce a Travels patch, so it is outside the journal and survives
+rollback:
+
+```ts
+const store = reactive({ saved: false, connectionStatus: 'online' });
+const travels = createTravels(store, { mutable: true });
+
+try {
+  travels.transaction(() => {
+    travels.setState((draft) => {
+      draft.saved = true; // Rolled back if the callback fails
+    });
+    store.connectionStatus = 'offline'; // Survives rollback
+    throw new Error('cancel');
+  });
+} catch {
+  // store.saved was restored; store.connectionStatus is still "offline".
+}
+```
+
+Use `travels.setState(...)` for every mutation that must share the transaction's
+rollback boundary. Travels listeners and devtools publish only the settled root
+transaction, but MobX, Vue, Pinia, or other observers attached directly to the
+live object can see provisional in-place mutations as they happen.
+
 ## Performance & Testing Notes
 
 - Mutable mode still generates JSON patches, so you can persist or inspect diffs just like immutable mode.

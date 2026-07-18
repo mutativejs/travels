@@ -338,6 +338,13 @@ Nested transaction errors are likewise deferred until the root transaction
 commits or rolls back, so `onError` always observes the settled root state. A
 single failure that bubbles through multiple nested scopes is reported once.
 
+In mutable mode, rollback replays inverse patches only for changes made through
+Travels APIs. Direct writes to the live state during the callback are outside
+the transaction journal and survive rollback. Route every change that must be
+atomic through `travels.setState(...)`; framework observers bound directly to
+the live object may still observe in-place mutations before the root
+transaction settles even though Travels listeners and devtools do not.
+
 #### `pauseTracking(): void` / `resumeTracking(): void`
 
 Temporarily apply state updates without creating history entries. Paused updates become the new baseline so later undo/redo cannot replay patches against mismatched state.

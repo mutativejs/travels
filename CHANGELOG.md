@@ -49,6 +49,7 @@ All notable changes to this project will be documented in this file.
 
 - Define plain dense arrays as the durable persistence contract; holes, custom properties, and custom prototypes remain usable only where callers accept their runtime limitations.
 - Document the provenance boundary: replay validation can detect malformed or inconsistent patches, but only an external trusted checksum, signature, revision, or authoritative log can distinguish a self-consistent alternative history.
+- Define mutable transaction rollback as covering only changes made through Travels APIs; direct writes to the live state remain outside the journal and survive rollback.
 
 ## [1.4.0] - 2026-07-12
 
