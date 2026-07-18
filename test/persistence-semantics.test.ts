@@ -786,6 +786,34 @@ describe('persisted history semantic validation', () => {
     expect(restored.getPosition()).toBe(1);
   });
 
+  test('isolates a plain replay graph once regardless of entry count', () => {
+    const entryCount = 20;
+    const position = entryCount / 2;
+    const snapshot: TravelsSerializedHistory<{ count: number }> = {
+      version: 1,
+      state: { count: position },
+      position,
+      patches: {
+        patches: Array.from({ length: entryCount }, (_, index) => [
+          { op: 'replace', path: ['count'], value: index + 1 },
+        ]),
+        inversePatches: Array.from({ length: entryCount }, (_, index) => [
+          { op: 'replace', path: ['count'], value: index },
+        ]),
+      },
+    };
+    const structuredCloneSpy = vi.spyOn(globalThis, 'structuredClone');
+
+    try {
+      expect(() =>
+        Travels.deserialize(snapshot, semanticValidation)
+      ).not.toThrow();
+      expect(structuredCloneSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      structuredCloneSpy.mockRestore();
+    }
+  });
+
   test('does not freeze caller-owned snapshots during semantic replay', () => {
     const sharedChild = { nested: { value: 1 } };
     const snapshot: TravelsSerializedHistory<{

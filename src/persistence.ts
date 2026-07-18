@@ -540,6 +540,70 @@ function isolateReplayValue<T>(
   );
 }
 
+const isDraftSafeReplayTree = (
+  value: unknown,
+  seen = new WeakSet<object>()
+): boolean => {
+  if (value === null || typeof value !== 'object') {
+    return typeof value !== 'function';
+  }
+
+  if (seen.has(value)) {
+    // Be conservative around cycles and aliases. Mutative's immutable replay is
+    // guaranteed not to mutate an ordinary object/array tree, which is the fast
+    // path this predicate is intended to prove.
+    return false;
+  }
+  seen.add(value);
+
+  const prototype = Object.getPrototypeOf(value);
+  if (
+    (Array.isArray(value) && prototype !== Array.prototype) ||
+    (!Array.isArray(value) && prototype !== Object.prototype)
+  ) {
+    return false;
+  }
+
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (
+      !descriptor ||
+      !('value' in descriptor) ||
+      !isDraftSafeReplayTree(descriptor.value, seen)
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const canReplayWithoutEntryIsolation = <
+  S,
+  P extends PatchesOption = {},
+>(snapshot: TravelsSerializedHistory<S, P>): boolean => {
+  if (!isDraftSafeReplayTree(snapshot.state)) {
+    return false;
+  }
+
+  for (const history of [
+    snapshot.patches.patches,
+    snapshot.patches.inversePatches,
+  ]) {
+    for (const group of history) {
+      for (const operation of group) {
+        const value = Object.getOwnPropertyDescriptor(operation, 'value');
+        if (
+          value !== undefined &&
+          (!('value' in value) || !isDraftSafeReplayTree(value.value))
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+};
+
 const replayHistoryEntry = <S, P extends PatchesOption = {}>(
   state: S,
   snapshot: TravelsSerializedHistory<S, P>,
@@ -608,7 +672,14 @@ const validateTravelsHistorySemantics = <
 
   if (entryCount === 0) {
     isolateReplayValue(preparedSnapshot);
+    return snapshot;
   }
+
+  let validationSnapshot = isolateReplayValue(preparedSnapshot);
+  const canReuseReplayGraph =
+    replayOptions.mark === undefined &&
+    canReplayWithoutEntryIsolation(validationSnapshot);
+  let validatedDirection = false;
 
   for (const direction of ['inverse', 'forward'] as const) {
     const isForward = direction === 'forward';
@@ -619,11 +690,16 @@ const validateTravelsHistorySemantics = <
       continue;
     }
 
-    const validationSnapshot = isolateReplayValue(preparedSnapshot);
+    if (validatedDirection && !canReuseReplayGraph) {
+      validationSnapshot = isolateReplayValue(preparedSnapshot);
+    }
+    validatedDirection = true;
     let state = validationSnapshot.state;
 
     for (; index !== end; index += isForward ? 1 : -1) {
-      const expected = isolateReplayValue(state, index, reverseDirection);
+      const expected = canReuseReplayGraph
+        ? state
+        : isolateReplayValue(state, index, reverseDirection);
       const adjacent = replayHistoryEntry(
         state,
         validationSnapshot,
@@ -632,7 +708,9 @@ const validateTravelsHistorySemantics = <
         validationReplayOptions
       );
       const restored = replayHistoryEntry(
-        isolateReplayValue(adjacent, index, reverseDirection),
+        canReuseReplayGraph
+          ? adjacent
+          : isolateReplayValue(adjacent, index, reverseDirection),
         validationSnapshot,
         index,
         reverseDirection,
