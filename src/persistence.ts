@@ -401,14 +401,27 @@ const areReplayStatesEqual = (
   const leftKeys = Reflect.ownKeys(leftObject);
   const rightKeys = Reflect.ownKeys(rightObject);
   const keyCount = leftKeys.length;
-  if (
-    keyCount !== rightKeys.length ||
-    leftKeys.some((key, index) => key !== rightKeys[index])
-  ) {
+  if (keyCount !== rightKeys.length) {
     return false;
   }
   const leftIsArray = Array.isArray(left);
   const isRegExp = prototype === RegExp.prototype;
+
+  // Array indices and the fixed built-in slots (Date/RegExp) are positional, so
+  // their key sequence must match exactly. Plain-object own-key order is not
+  // preserved by JSON Patch replay — removing a key and re-adding it re-appends
+  // it — so a reordered but otherwise identical object is still an equal,
+  // reversible state. Compare plain-object keys as an unordered set.
+  if (leftIsArray) {
+    if (leftKeys.some((key, index) => key !== rightKeys[index])) {
+      return false;
+    }
+  } else {
+    const rightKeySet = new Set(rightKeys);
+    if (leftKeys.some((key) => !rightKeySet.has(key))) {
+      return false;
+    }
+  }
 
   if (
     leftIsArray !== Array.isArray(right) ||

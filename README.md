@@ -883,8 +883,9 @@ built-in subclasses, custom own properties, accessors, non-enumerable data,
 custom array prototypes, and non-zero `RegExp.lastIndex` values are rejected as
 unverifiable. Property descriptor flags, array length descriptors, and object
 extensibility must also survive replay unchanged. Plain-object own-key order is
-treated as observable, so enumeration and JSON serialization order must
-round-trip unchanged. Normalize unsupported values into the supported state
+not treated as observable: patch replay re-appends a removed and re-added key,
+so histories that reorder object keys are accepted as long as the key set and
+values round-trip. Normalize unsupported values into the supported state
 contract before semantic validation.
 
 Semantic validation proves replay consistency only: the stored anchor and patch

@@ -607,12 +607,15 @@ describe('persisted history semantic validation', () => {
     ).toThrowError(semanticIsolationError());
   });
 
-  test('rejects a round trip that changes plain-object own-key order', () => {
+  test('accepts a round trip that changes plain-object own-key order', () => {
     const reorderA = () => [
       { op: 'remove' as const, path: ['a'] },
       { op: 'add' as const, path: ['a'], value: 1 },
     ];
 
+    // Removing then re-adding a key re-appends it, so replay cannot preserve
+    // enumeration order. The key set and values still round-trip, so the
+    // history is internally reversible and must be accepted.
     expect(() =>
       Travels.deserialize(
         {
@@ -626,13 +629,23 @@ describe('persisted history semantic validation', () => {
         },
         semanticValidation
       )
-    ).toThrowError(
-      expect.objectContaining<Partial<TravelsPersistenceError>>({
-        code: 'INVALID_HISTORY',
-        entryIndex: 0,
-        direction: 'inverse',
-      })
-    );
+    ).not.toThrow();
+  });
+
+  test('accepts a serialized history whose replay reorders object keys', () => {
+    const travels = createTravels({ c: 1 } as Record<string, number>, {
+      warnOnUnsupportedState: false,
+    });
+    travels.setState((draft) => {
+      draft.b = 2;
+    });
+    travels.setState((draft) => {
+      delete draft.c;
+    });
+
+    expect(() =>
+      Travels.deserialize(travels.serialize(), semanticValidation)
+    ).not.toThrow();
   });
 
   test('rejects a non-reversible inverse entry in future history', () => {
