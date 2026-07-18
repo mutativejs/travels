@@ -178,6 +178,7 @@ type DeferredCompatibilityCheck<P extends PatchesOption = {}> = {
   metadata?: TravelMetadata;
   entryIndex: number;
   retained: boolean;
+  entryIdentity?: object;
 };
 
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
@@ -450,31 +451,31 @@ const getPatchPathSegments = (
     .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
 };
 
-const formatCompatibilityPath = (segments: Array<string | number>): string =>
-  segments.reduce<string>(
-    (path, segment) =>
-      typeof segment === 'number'
-        ? `${path}[${segment}]`
-        : `${path}.${segment}`,
-    '$'
-  );
-
 const getOwnDataValueAtPath = (
   value: unknown,
   segments: Array<string | number>
-): { found: true; value: unknown } | { found: false } => {
+): { found: true; value: unknown; path: string } | { found: false } => {
   let current = value;
+  let path = '$';
   for (const segment of segments) {
     if (!isObjectLike(current)) {
       return { found: false };
     }
+
+    const arrayIndex =
+      Array.isArray(current) &&
+      (typeof segment === 'number'
+        ? Number.isInteger(segment) && segment >= 0 && segment < current.length
+        : isArrayIndex(segment, current.length));
+    path = arrayIndex ? `${path}[${segment}]` : `${path}.${segment}`;
+
     const descriptor = Object.getOwnPropertyDescriptor(current, segment);
     if (!descriptor || !('value' in descriptor)) {
       return { found: false };
     }
     current = descriptor.value;
   }
-  return { found: true, value: current };
+  return { found: true, value: current, path };
 };
 
 // Align mutable value updates with immutable replacements by syncing objects
@@ -871,11 +872,7 @@ export class Travels<
     for (const path of touchedPaths) {
       const resolved = getOwnDataValueAtPath(this.state, path);
       if (resolved.found) {
-        this.warnAboutCompatibility(
-          'state',
-          resolved.value,
-          formatCompatibilityPath(path)
-        );
+        this.warnAboutCompatibility('state', resolved.value, resolved.path);
       }
     }
   }
@@ -904,6 +901,39 @@ export class Travels<
     }
   }
 
+  private flushTransactionCompatibilityChecks(): void {
+    if (process.env.NODE_ENV === 'production') return;
+
+    const retainedEntries = new Map<object, number>();
+    for (let index = 0; index < this.allPatches.patches.length; index += 1) {
+      retainedEntries.set(
+        getHistoryEntryIdentity(this.allPatches.patches[index]),
+        index
+      );
+    }
+
+    for (const check of this.transactionCompatibilityChecks) {
+      if (!check.entryIdentity) {
+        this.runPersistenceCompatibilityCheck(check);
+        continue;
+      }
+
+      const entryIndex = retainedEntries.get(check.entryIdentity);
+      if (entryIndex === undefined) {
+        // The patch payload and metadata are no longer persisted, but an
+        // effect at the touched state path may have survived history trimming.
+        this.runPersistenceCompatibilityCheck({
+          patches: check.patches,
+          entryIndex: 0,
+          retained: false,
+        });
+        continue;
+      }
+
+      this.runPersistenceCompatibilityCheck({ ...check, entryIndex });
+    }
+  }
+
   private checkPersistenceCompatibilityAfterCommit(
     patches?: Patches<P>,
     inversePatches?: Patches<P>,
@@ -916,6 +946,15 @@ export class Travels<
     }
 
     if (this.transactionDepth > 0) {
+      if (
+        !retained &&
+        patches &&
+        this.tempPatches.patches[this.tempPatches.patches.length - 1] ===
+          patches
+      ) {
+        return;
+      }
+
       this.transactionNeedsCompatibilityCheck = true;
       this.transactionCompatibilityChecks.push({
         patches,
@@ -923,6 +962,8 @@ export class Travels<
         metadata,
         entryIndex,
         retained,
+        entryIdentity:
+          retained && patches ? getHistoryEntryIdentity(patches) : undefined,
       });
       return;
     }
@@ -1897,9 +1938,7 @@ export class Travels<
             process.env.NODE_ENV !== 'production' &&
             this.transactionNeedsCompatibilityCheck
           ) {
-            for (const check of this.transactionCompatibilityChecks) {
-              this.runPersistenceCompatibilityCheck(check);
-            }
+            this.flushTransactionCompatibilityChecks();
           }
           if (shouldPublish) {
             this.emitChange(

@@ -599,6 +599,35 @@ describe('State compatibility warnings', () => {
     ]);
   });
 
+  test('formats JSON Pointer numeric segments from the resolved state shape', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const arrayTravels = createTravels(
+      { items: [{ value: null as Date | null }] },
+      { patchesOptions: { pathAsArray: false } }
+    );
+    const objectTravels = createTravels(
+      { items: { 0: { value: null as Date | null } } },
+      { patchesOptions: { pathAsArray: false } }
+    );
+
+    arrayTravels.setState((draft) => {
+      draft.items[0].value = new Date('2025-01-01T00:00:00.000Z');
+    });
+    objectTravels.setState((draft) => {
+      draft.items[0].value = new Date('2025-01-01T00:00:00.000Z');
+    });
+
+    const stateWarnings = warnSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes('state compatibility warning'));
+    warnSpy.mockRestore();
+
+    expect(stateWarnings).toEqual([
+      expect.stringContaining('at $.items[0].value'),
+      expect.stringContaining('at $.items.0.value'),
+    ]);
+  });
+
   test('retains full state scans for mutable mode', () => {
     const untouched = { nested: { value: 1 } };
     const descriptorSpy = vi.spyOn(Object, 'getOwnPropertyDescriptors');
@@ -668,6 +697,116 @@ describe('State compatibility warnings', () => {
     );
 
     warnSpy.mockRestore();
+  });
+
+  test('does not diagnose patch payloads discarded before a root commit', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels(
+      { marker: 0, value: null as Date | null },
+      { autoArchive: false }
+    );
+
+    travels.transaction(() => {
+      travels.setState(
+        (draft) => {
+          draft.value = new Date('2025-01-01T00:00:00.000Z');
+        },
+        { requestId: 1n }
+      );
+      travels.archive();
+      travels.back();
+      travels.setState((draft) => {
+        draft.marker = 1;
+      });
+      travels.archive();
+    });
+
+    const warnings = warnSpy.mock.calls.map(([message]) => String(message));
+    warnSpy.mockRestore();
+
+    expect(travels.getState()).toEqual({ marker: 1, value: null });
+    expect(travels.getPatches().patches).toHaveLength(1);
+    expect(warnings).toEqual([]);
+  });
+
+  test('uses final retained indices for deferred patch diagnostics', () => {
+    const travels = createTravels(
+      { marker: 0, value: null as Date | null },
+      { autoArchive: false, maxHistory: 2 }
+    );
+    travels.setState((draft) => {
+      draft.marker = 1;
+    });
+    travels.archive();
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.value = new Date('2025-01-01T00:00:00.000Z');
+      });
+      travels.archive();
+      travels.setState((draft) => {
+        draft.marker = 2;
+      });
+      travels.archive();
+    });
+
+    const patchWarnings = warnSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes('patch compatibility warning'));
+    warnSpy.mockRestore();
+
+    expect(patchWarnings).toEqual([
+      expect.stringContaining('at $.patches.patches[0][0].value'),
+    ]);
+  });
+
+  test('keeps state diagnostics for effects whose entry is trimmed', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const travels = createTravels(
+      {
+        marker: 0,
+        left: null as Date | null,
+        right: null as Date | null,
+      },
+      { autoArchive: false, maxHistory: 1 }
+    );
+
+    travels.transaction(() => {
+      travels.setState((draft) => {
+        draft.left = new Date('2025-01-01T00:00:00.000Z');
+      });
+      travels.setState((draft) => {
+        draft.right = new Date('2025-01-02T00:00:00.000Z');
+      });
+      travels.archive({ requestId: 1n });
+      travels.setState((draft) => {
+        draft.marker = 1;
+      });
+      travels.archive();
+    });
+
+    const warnings = warnSpy.mock.calls.map(([message]) => String(message));
+    warnSpy.mockRestore();
+
+    expect(
+      warnings.filter((message) =>
+        message.includes('state compatibility warning')
+      )
+    ).toEqual([
+      expect.stringContaining('at $.left'),
+      expect.stringContaining('at $.right'),
+    ]);
+    expect(
+      warnings.filter((message) =>
+        message.includes('patch compatibility warning')
+      )
+    ).toEqual([]);
+    expect(
+      warnings.filter((message) =>
+        message.includes('metadata compatibility warning')
+      )
+    ).toEqual([]);
   });
 
   test('does not retain a full-scan request from a rolled-back nested transaction', () => {

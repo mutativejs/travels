@@ -9,9 +9,9 @@ const artifacts = ['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js'];
 const limits = {
   bundleRaw: 38.5 * KiB,
   bundleGzip: 11 * KiB,
-  bundleMap: 181 * KiB,
-  packagePacked: 234 * KiB,
-  packageUnpacked: 920 * KiB,
+  bundleMap: 184 * KiB,
+  packagePacked: 238 * KiB,
+  packageUnpacked: 935 * KiB,
 };
 
 const failures = [];

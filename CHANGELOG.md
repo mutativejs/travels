@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - Delay auto-freezing candidate updates until Map/Set validation succeeds so rejected updates leave caller-owned values untouched.
 - Capture object-form snapshot and patch-container fields once from own data properties, rejecting accessors and inherited fields without evaluating them.
 - Skip collection traversal for primitive-only patch streams and cache validated object patch values at their roots, preserving repeated-subtree reuse without penalizing fresh payloads.
+- Reconcile deferred compatibility diagnostics with the final retained transaction history and render JSON Pointer array indices with bracket notation.
 
 ### Changed
 
