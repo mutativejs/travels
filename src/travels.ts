@@ -1094,6 +1094,18 @@ export class Travels<
         `Travels: ${api} cannot be called while observers are being notified.`
       );
     }
+    if (
+      this.controlledApply &&
+      api !== 'recordPatches' &&
+      api !== 'go' &&
+      api !== 'back' &&
+      api !== 'forward' &&
+      api !== 'rebase'
+    ) {
+      throw new Error(
+        `Travels: ${api} is not available on a controlled journal. Record external commits with recordPatches() and navigate with back(), forward(), or go().`
+      );
+    }
   }
 
   private publishEffects(effect: () => void): void {
@@ -1878,6 +1890,11 @@ export class Travels<
    */
   public recordPatches(state: S, entry: TravelHistoryEntry<P>): void {
     this.assertCanMutate('recordPatches');
+    if (!this.controlledApply) {
+      throw new Error(
+        'Travels: recordPatches is only available on a controlled journal created with createTravelJournal().'
+      );
+    }
     if (this.transactionDepth > 0) {
       throw new Error(
         'Travels: recordPatches cannot be called inside a Travels transaction because the external state owner controls rollback.'

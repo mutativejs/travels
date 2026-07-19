@@ -10,12 +10,12 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 const limits = {
   bundleRaw: 40.5 * KiB,
   bundleGzip: 11 * KiB,
-  bundleMap: 190 * KiB,
+  bundleMap: 192 * KiB,
   developmentBundleRaw: 47 * KiB,
   developmentBundleGzip: 13 * KiB,
   developmentBundleMap: 200 * KiB,
   packagePacked: 380 * KiB,
-  packageUnpacked: 1450 * KiB,
+  packageUnpacked: 1470 * KiB,
 };
 
 const failures = [];

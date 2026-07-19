@@ -1,6 +1,6 @@
 import { apply, create, type Draft, type Patches } from 'mutative';
 import { describe, expect, test, vi } from 'vitest';
-import { createTravelJournal } from '../src/index';
+import { createTravelJournal, createTravels, Travels } from '../src/index';
 
 type State = {
   count: number;
@@ -69,6 +69,73 @@ describe('controlled travel journal', () => {
     expect(() => journal.back()).toThrow('authority rejected transition');
     expect(journal.getState()).toBe(authoritativeState);
     expect(journal.getPosition()).toBe(1);
+  });
+
+  test('rejects asynchronous controlled apply results atomically', () => {
+    let authoritativeState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(authoritativeState, {
+      apply: (() =>
+        Promise.resolve(authoritativeState)) as unknown as () => State,
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      authoritativeState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    authoritativeState = nextState;
+    journal.recordPatches(authoritativeState, { patches, inversePatches });
+
+    expect(() => journal.back()).toThrow(
+      'controlledApply callback must be synchronous'
+    );
+    expect(journal.getState()).toBe(authoritativeState);
+    expect(journal.getPosition()).toBe(1);
+  });
+
+  test('rejects state-owning operations even when the journal is widened', () => {
+    const journal = createTravelJournal<State>(
+      { count: 0, label: 'initial' },
+      { apply: ({ state }) => state }
+    ) as unknown as Travels<State>;
+    const unsupportedOperations = [
+      () => journal.setState({ count: 1, label: 'changed' }),
+      () => journal.reset(),
+      () => journal.replaceStateWithoutHistory({ count: 1, label: 'changed' }),
+      () => journal.transaction(() => undefined),
+      () => journal.batch(() => undefined),
+      () => journal.pauseTracking(),
+      () => journal.resumeTracking(),
+      () => journal.archive(),
+      () => journal.getControls().reset(),
+    ];
+
+    for (const operation of unsupportedOperations) {
+      expect(operation).toThrow('is not available on a controlled journal');
+    }
+
+    expect(journal.getState()).toEqual({ count: 0, label: 'initial' });
+    expect(journal.getPosition()).toBe(0);
+  });
+
+  test('reserves recordPatches for controlled journals', () => {
+    const travels = createTravels({ count: 0, label: 'initial' });
+
+    expect(() =>
+      travels.recordPatches(
+        { count: 1, label: 'initial' },
+        { patches: [], inversePatches: [] }
+      )
+    ).toThrow('recordPatches is only available on a controlled journal');
+  });
+
+  test('requires an apply callback at runtime', () => {
+    expect(() =>
+      createTravelJournal(
+        { count: 0, label: 'initial' },
+        { apply: undefined as unknown as () => State }
+      )
+    ).toThrow('requires a synchronous apply function');
   });
 
   test('detaches recorded patch inputs from later caller mutation', () => {

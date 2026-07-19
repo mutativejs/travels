@@ -1,11 +1,14 @@
 import { describe, expectTypeOf, test } from 'vitest';
 import {
+  createTravelJournal,
   createTravels,
   Travels,
   type JsonValue,
   type PatchableState,
   type StateCompatibilityIssueCode,
+  type TravelJournal,
   type TravelMetadata,
+  type TravelsControlledTransition,
   type TravelsDevtoolsEvent,
   type TravelsEvent,
   type TravelsSerializedHistory,
@@ -117,6 +120,47 @@ describe('Type-level API contracts', () => {
     if (false) {
       // @ts-expect-error positional subscribe callbacks were replaced by TravelsEvent
       travels.subscribe((_state, _patches, _position, _historyLength) => {});
+    }
+  });
+
+  test('controlled journals expose only external-owner-safe operations', () => {
+    type State = { count: number };
+    const journal = createTravelJournal<State>(
+      { count: 0 },
+      {
+        apply(transition) {
+          expectTypeOf(transition).toEqualTypeOf<
+            TravelsControlledTransition<State>
+          >();
+          return transition.state;
+        },
+      }
+    );
+
+    expectTypeOf(journal).toEqualTypeOf<TravelJournal<State>>();
+    expectTypeOf(journal.recordPatches).parameter(0).toEqualTypeOf<State>();
+
+    if (false) {
+      // @ts-expect-error the external runtime owns state changes
+      journal.setState({ count: 1 });
+      // @ts-expect-error reset would bypass the external runtime
+      journal.reset();
+      // @ts-expect-error replacement must go through the external runtime
+      journal.replaceStateWithoutHistory({ count: 1 });
+      // @ts-expect-error standard controls expose reset
+      journal.getControls();
+      // @ts-expect-error controlledApply is reserved for createTravelJournal
+      createTravels(
+        { count: 0 },
+        { controlledApply: (transition) => transition.state }
+      );
+      createTravelJournal(
+        { count: 0 },
+        {
+          // @ts-expect-error controlled application must return synchronously
+          apply: async (transition) => transition.state,
+        }
+      );
     }
   });
 

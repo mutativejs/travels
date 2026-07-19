@@ -21,6 +21,7 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
   - [createTravels](#createtravelsinitialstate-options)
   - [Instance Methods](#instance-methods)
   - [maxHistory option](#maxhistory-option)
+- [Controlled Journal: Integrate an External State Owner](#controlled-journal-integrate-an-external-state-owner)
 - [Mutable Mode: Keep Reactive State In Place](#mutable-mode-keep-reactive-state-in-place)
 - [Archive Mode: Control When Changes Are Saved](#archive-mode-control-when-changes-are-saved)
 - [State Requirements and Compatibility](#state-requirements-and-compatibility)
@@ -236,7 +237,7 @@ branches created and discarded entirely inside the transaction.
 **Parameters:**
 
 - `listener`: Callback receiving one `TravelsEvent`
-  - `type`: The committed operation (`setState`, `archive`, `transaction`, `go`, `reset`, `rebase`, or `replaceStateWithoutHistory`)
+  - `type`: The committed operation (`setState`, `recordPatches`, `archive`, `transaction`, `go`, `reset`, `rebase`, or `replaceStateWithoutHistory`)
   - `state`: The new state
   - `patches`: The lazily materialized event-local state transition patches
   - `position`: The current position in history
@@ -436,6 +437,66 @@ expect(controls.canBack()).toBe(false); // Can't go further back
 controls.reset();
 expect(travels.getState().count).toBe(0); // Back to the original initial state
 ```
+
+## Controlled Journal: Integrate an External State Owner
+
+Use `createTravelJournal()` when a store, state machine, worker, or other
+runtime already owns state and produces a forward/inverse patch pair for each
+commit. The adapter records that pair once instead of asking Travels to run the
+update recipe again. Undo and redo are delegated through the owner's normal
+commit path:
+
+```ts
+import { apply as applyPatches, create, type Draft } from 'mutative';
+import { createTravelJournal } from 'travels';
+
+type State = { count: number };
+let state: State = { count: 0 };
+
+const journal = createTravelJournal(state, {
+  maxHistory: 100,
+  apply({ patches }) {
+    state = applyPatches(state, patches);
+    publishToStoreSubscribers(state);
+    return state;
+  },
+});
+
+function commit(recipe: (draft: Draft<State>) => void) {
+  const [nextState, patches, inversePatches] = create(state, recipe, {
+    enablePatches: true,
+  });
+
+  state = nextState; // Commit through the external owner first.
+  journal.recordPatches(state, { patches, inversePatches });
+}
+
+commit((draft) => {
+  draft.count += 1;
+});
+journal.back();
+```
+
+The external owner remains authoritative:
+
+- `recordPatches(state, entry)` must receive the committed post-update state
+  and the exact forward/inverse patch pair for that transition. Travels
+  validates and detaches retained patch inputs, but intentionally does not
+  replay the pair to prove its relationship to `state`.
+- `apply` must synchronously commit `transition.patches` through the external
+  owner and return its committed state. If it throws or returns a Promise,
+  Travels leaves its state and cursor unchanged. Do not record the delegated
+  undo/redo as a new history entry.
+- The public `TravelJournal` type omits state-owning operations such as
+  `setState()`, `reset()`, transactions, tracking controls, and `getControls()`.
+  Runtime calls to those operations are also rejected. Use `rebase()` to clear
+  the timeline while preserving the current externally owned state.
+- A successful `recordPatches()` notification has event type `recordPatches`.
+  Consumers that exhaustively switch on `TravelsEvent['type']` must handle this
+  member, although standard `createTravels()` use never emits it.
+
+See the [Controlled Journal Guide](docs/controlled-journal.md) for the complete
+commit, navigation, failure, and trust-boundary contract.
 
 ## Mutable Mode: Keep Reactive State In Place
 

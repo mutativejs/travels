@@ -11,7 +11,10 @@ export function createTravels<
   P extends PatchesOption = {},
 >(
   initialState: S,
-  options?: Omit<TravelsOptions<F, true, P>, 'autoArchive'> & {
+  options?: Omit<
+    TravelsOptions<F, true, P>,
+    'autoArchive' | 'controlledApply'
+  > & {
     autoArchive?: true;
   }
 ): Travels<S, F, true, P>;
@@ -25,7 +28,10 @@ export function createTravels<
   P extends PatchesOption = {},
 >(
   initialState: S,
-  options: Omit<TravelsOptions<F, false, P>, 'autoArchive'> & {
+  options: Omit<
+    TravelsOptions<F, false, P>,
+    'autoArchive' | 'controlledApply'
+  > & {
     autoArchive: false;
   }
 ): Travels<S, F, false, P>;
