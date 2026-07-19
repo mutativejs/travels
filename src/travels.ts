@@ -1874,10 +1874,6 @@ export class Travels<
       return;
     }
 
-    assertSupportedRuntimeState(
-      state,
-      this.mutable ? undefined : this.collectionFreeObjects
-    );
     assertSupportedPatchValues(
       patches,
       inversePatches,

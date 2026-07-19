@@ -161,4 +161,27 @@ describe('controlled travel journal', () => {
       { type: 'go', patchCount: 1 },
     ]);
   });
+
+  test('rejects unsupported collection values from external patches', () => {
+    const state = { value: null as null | Map<string, number> };
+    const journal = createTravelJournal(state, {
+      apply: ({ patches }) => apply(state, patches),
+    });
+
+    expect(() =>
+      journal.recordPatches(
+        { value: new Map([['count', 1]]) },
+        {
+          patches: [
+            {
+              op: 'replace',
+              path: ['value'],
+              value: new Map([['count', 1]]),
+            },
+          ],
+          inversePatches: [{ op: 'replace', path: ['value'], value: null }],
+        }
+      )
+    ).toThrow('Map and Set are not supported');
+  });
 });
