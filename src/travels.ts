@@ -267,7 +267,21 @@ const clonePatchGroup = <P extends PatchesOption = {}>(
 ): Patches<P> => {
   const cloned = new Array(patch.length) as Patches<P>;
   for (let index = 0; index < patch.length; index += 1) {
-    cloned[index] = deepCloneValue(patch[index]);
+    const operation = patch[index] as {
+      op: string;
+      path: string | Array<string | number>;
+      value?: unknown;
+    };
+    const detached = {
+      op: operation.op,
+      path: Array.isArray(operation.path)
+        ? [...operation.path]
+        : operation.path,
+    } as typeof operation;
+    if (Object.prototype.hasOwnProperty.call(operation, 'value')) {
+      detached.value = deepCloneValue(operation.value);
+    }
+    cloned[index] = detached as Patches<P>[number];
   }
   const identity = historyEntryIdentities.get(patch);
   if (identity) {

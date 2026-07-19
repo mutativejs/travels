@@ -89,7 +89,11 @@ describe('controlled travel journal', () => {
     journal.recordPatches(authoritativeState, { patches, inversePatches });
 
     (patches[0] as { value?: unknown }).value = 999;
+    patches[0].path[0] = 'label';
+    patches[0].op = 'remove';
     (inversePatches[0] as { value?: unknown }).value = 999;
+    inversePatches[0].path[0] = 'label';
+    inversePatches[0].op = 'remove';
 
     journal.back();
     expect(authoritativeState.count).toBe(0);
