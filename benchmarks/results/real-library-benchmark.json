@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "benchmark": "real-library-undo-redo",
-  "generatedAt": "2026-07-19T13:10:08.474Z",
+  "generatedAt": "2026-07-19T13:47:22.944Z",
   "config": {
     "stateSizeKB": 100,
     "iterations": 100,
     "navigationSteps": 50,
-    "rounds": 7,
+    "rounds": 21,
     "warmupIterations": 20,
     "actualInitialSizeKB": 96.49,
     "measurements": "median/p95",
@@ -17,7 +17,7 @@
     "platform": "darwin 25.5.0 arm64",
     "cpu": "Apple M1 Max",
     "logicalCpus": 10,
-    "coactionSource": "local 0c252e9"
+    "coactionSource": "local d3677d7"
   },
   "implementations": [
     {
@@ -29,20 +29,20 @@
       "referenceSemantics": "immutable root",
       "metrics": {
         "retainedHeapMB": {
-          "median": 0.072,
-          "p95": 0.083
+          "median": 0.071,
+          "p95": 0.078
         },
         "updateMs": {
-          "median": 0.549,
-          "p95": 0.679
+          "median": 0.496,
+          "p95": 0.571
         },
         "undoMs": {
-          "median": 0.276,
-          "p95": 0.318
+          "median": 0.26,
+          "p95": 0.315
         },
         "redoMs": {
-          "median": 0.223,
-          "p95": 0.309
+          "median": 0.204,
+          "p95": 0.265
         },
         "serializedSizeKB": {
           "median": 117.345,
@@ -50,76 +50,202 @@
         },
         "stringifyMs": {
           "median": 0.102,
-          "p95": 0.107
+          "p95": 0.111
         },
         "parseMs": {
-          "median": 0.188,
-          "p95": 0.207
+          "median": 0.176,
+          "p95": 0.224
         }
       },
       "samples": [
         {
           "retainedHeapMB": 0.08,
-          "updateMs": 0.679,
-          "undoMs": 0.301,
-          "redoMs": 0.309,
-          "serializedSizeKB": 117.345,
-          "stringifyMs": 0.106,
-          "parseMs": 0.207
-        },
-        {
-          "retainedHeapMB": 0.083,
-          "updateMs": 0.623,
-          "undoMs": 0.276,
-          "redoMs": 0.231,
-          "serializedSizeKB": 117.345,
-          "stringifyMs": 0.1,
-          "parseMs": 0.188
-        },
-        {
-          "retainedHeapMB": 0.072,
-          "updateMs": 0.519,
-          "undoMs": 0.276,
-          "redoMs": 0.199,
+          "updateMs": 0.68,
+          "undoMs": 0.304,
+          "redoMs": 0.265,
           "serializedSizeKB": 117.345,
           "stringifyMs": 0.099,
-          "parseMs": 0.191
-        },
-        {
-          "retainedHeapMB": 0.07,
-          "updateMs": 0.552,
-          "undoMs": 0.27,
-          "redoMs": 0.207,
-          "serializedSizeKB": 117.345,
-          "stringifyMs": 0.107,
-          "parseMs": 0.175
-        },
-        {
-          "retainedHeapMB": 0.078,
-          "updateMs": 0.549,
-          "undoMs": 0.26,
-          "redoMs": 0.204,
-          "serializedSizeKB": 117.345,
-          "stringifyMs": 0.103,
           "parseMs": 0.181
         },
         {
-          "retainedHeapMB": 0.071,
-          "updateMs": 0.483,
-          "undoMs": 0.24,
-          "redoMs": 0.262,
+          "retainedHeapMB": 0.077,
+          "updateMs": 0.571,
+          "undoMs": 0.286,
+          "redoMs": 0.233,
           "serializedSizeKB": 117.345,
           "stringifyMs": 0.102,
-          "parseMs": 0.193
+          "parseMs": 0.18
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.51,
+          "undoMs": 0.26,
+          "redoMs": 0.204,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.102,
+          "parseMs": 0.176
+        },
+        {
+          "retainedHeapMB": 0.07,
+          "updateMs": 0.509,
+          "undoMs": 0.329,
+          "redoMs": 0.201,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.176
+        },
+        {
+          "retainedHeapMB": 0.078,
+          "updateMs": 0.487,
+          "undoMs": 0.309,
+          "redoMs": 0.217,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.119,
+          "parseMs": 0.17
         },
         {
           "retainedHeapMB": 0.071,
+          "updateMs": 0.503,
+          "undoMs": 0.268,
+          "redoMs": 0.201,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.101,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.478,
+          "undoMs": 0.256,
+          "redoMs": 0.216,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.098,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.07,
           "updateMs": 0.469,
-          "undoMs": 0.318,
-          "redoMs": 0.223,
+          "undoMs": 0.255,
+          "redoMs": 0.204,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.105,
+          "parseMs": 0.173
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.496,
+          "undoMs": 0.286,
+          "redoMs": 0.189,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.103,
+          "parseMs": 0.199
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.518,
+          "undoMs": 0.255,
+          "redoMs": 0.195,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.102,
+          "parseMs": 0.176
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.466,
+          "undoMs": 0.259,
+          "redoMs": 0.224,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.106,
+          "parseMs": 0.197
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.561,
+          "undoMs": 0.262,
+          "redoMs": 0.197,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.111,
+          "parseMs": 0.224
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.475,
+          "undoMs": 0.255,
+          "redoMs": 0.214,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.101,
+          "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.063,
+          "updateMs": 0.504,
+          "undoMs": 0.258,
+          "redoMs": 0.266,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.102,
+          "parseMs": 0.173
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.47,
+          "undoMs": 0.25,
+          "redoMs": 0.191,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.102,
+          "parseMs": 0.177
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.484,
+          "undoMs": 0.263,
+          "redoMs": 0.238,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.106,
+          "parseMs": 0.186
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.519,
+          "undoMs": 0.314,
+          "redoMs": 0.19,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.1,
+          "parseMs": 0.173
+        },
+        {
+          "retainedHeapMB": 0.046,
+          "updateMs": 0.477,
+          "undoMs": 0.248,
+          "redoMs": 0.219,
           "serializedSizeKB": 117.345,
           "stringifyMs": 0.099,
-          "parseMs": 0.17
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.037,
+          "updateMs": 0.461,
+          "undoMs": 0.25,
+          "redoMs": 0.193,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.098,
+          "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.516,
+          "undoMs": 0.315,
+          "redoMs": 0.198,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.169
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.479,
+          "undoMs": 0.259,
+          "redoMs": 0.207,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.108,
+          "parseMs": 0.225
         }
       ]
     },
@@ -132,97 +258,223 @@
       "referenceSemantics": "in-place root",
       "metrics": {
         "retainedHeapMB": {
-          "median": 0.072,
-          "p95": 0.232
+          "median": 0.071,
+          "p95": 0.073
         },
         "updateMs": {
-          "median": 0.533,
-          "p95": 0.742
+          "median": 0.539,
+          "p95": 0.625
         },
         "undoMs": {
-          "median": 0.086,
-          "p95": 0.106
+          "median": 0.081,
+          "p95": 0.122
         },
         "redoMs": {
-          "median": 0.071,
-          "p95": 0.099
+          "median": 0.07,
+          "p95": 0.087
         },
         "serializedSizeKB": {
           "median": 117.345,
           "p95": 117.345
         },
         "stringifyMs": {
-          "median": 0.106,
-          "p95": 0.124
+          "median": 0.104,
+          "p95": 0.115
         },
         "parseMs": {
-          "median": 0.182,
-          "p95": 0.192
+          "median": 0.176,
+          "p95": 0.194
         }
       },
       "samples": [
         {
-          "retainedHeapMB": 0.232,
-          "updateMs": 0.742,
-          "undoMs": 0.094,
-          "redoMs": 0.071,
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.616,
+          "undoMs": 0.125,
+          "redoMs": 0.104,
           "serializedSizeKB": 117.345,
-          "stringifyMs": 0.117,
-          "parseMs": 0.182
+          "stringifyMs": 0.123,
+          "parseMs": 0.172
         },
         {
           "retainedHeapMB": 0.072,
-          "updateMs": 0.636,
+          "updateMs": 0.697,
           "undoMs": 0.101,
-          "redoMs": 0.077,
+          "redoMs": 0.072,
           "serializedSizeKB": 117.345,
-          "stringifyMs": 0.106,
-          "parseMs": 0.166
+          "stringifyMs": 0.111,
+          "parseMs": 0.179
         },
         {
-          "retainedHeapMB": 0.071,
-          "updateMs": 0.533,
-          "undoMs": 0.086,
-          "redoMs": 0.099,
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.625,
+          "undoMs": 0.115,
+          "redoMs": 0.077,
           "serializedSizeKB": 117.345,
-          "stringifyMs": 0.107,
+          "stringifyMs": 0.104,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.07,
+          "updateMs": 0.53,
+          "undoMs": 0.088,
+          "redoMs": 0.073,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.106,
           "parseMs": 0.181
         },
         {
-          "retainedHeapMB": 0.071,
+          "retainedHeapMB": 0.073,
           "updateMs": 0.532,
-          "undoMs": 0.082,
-          "redoMs": 0.086,
+          "undoMs": 0.076,
+          "redoMs": 0.064,
           "serializedSizeKB": 117.345,
-          "stringifyMs": 0.099,
+          "stringifyMs": 0.102,
           "parseMs": 0.183
         },
         {
-          "retainedHeapMB": 0.073,
-          "updateMs": 0.563,
-          "undoMs": 0.106,
-          "redoMs": 0.065,
+          "retainedHeapMB": 0.08,
+          "updateMs": 0.465,
+          "undoMs": 0.074,
+          "redoMs": 0.069,
           "serializedSizeKB": 117.345,
-          "stringifyMs": 0.099,
-          "parseMs": 0.192
+          "stringifyMs": 0.096,
+          "parseMs": 0.162
         },
         {
-          "retainedHeapMB": 0.08,
-          "updateMs": 0.455,
-          "undoMs": 0.072,
+          "retainedHeapMB": 0.07,
+          "updateMs": 0.507,
+          "undoMs": 0.085,
+          "redoMs": 0.069,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.106,
+          "parseMs": 0.19
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.521,
+          "undoMs": 0.088,
           "redoMs": 0.064,
           "serializedSizeKB": 117.345,
-          "stringifyMs": 0.124,
-          "parseMs": 0.182
+          "stringifyMs": 0.109,
+          "parseMs": 0.194
+        },
+        {
+          "retainedHeapMB": 0.07,
+          "updateMs": 0.517,
+          "undoMs": 0.086,
+          "redoMs": 0.076,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.17
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.54,
+          "undoMs": 0.074,
+          "redoMs": 0.084,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.11,
+          "parseMs": 0.176
         },
         {
           "retainedHeapMB": 0.071,
-          "updateMs": 0.52,
+          "updateMs": 0.562,
+          "undoMs": 0.087,
+          "redoMs": 0.076,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.1,
+          "parseMs": 0.176
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.551,
           "undoMs": 0.076,
-          "redoMs": 0.068,
+          "redoMs": 0.087,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.104,
+          "parseMs": 0.191
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.48,
+          "undoMs": 0.092,
+          "redoMs": 0.062,
           "serializedSizeKB": 117.345,
           "stringifyMs": 0.098,
-          "parseMs": 0.166
+          "parseMs": 0.168
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.513,
+          "undoMs": 0.079,
+          "redoMs": 0.065,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.096,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.544,
+          "undoMs": 0.122,
+          "redoMs": 0.07,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.112,
+          "parseMs": 0.195
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.515,
+          "undoMs": 0.079,
+          "redoMs": 0.07,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.1,
+          "parseMs": 0.17
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.549,
+          "undoMs": 0.07,
+          "redoMs": 0.072,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.115,
+          "parseMs": 0.178
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.539,
+          "undoMs": 0.059,
+          "redoMs": 0.05,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.108,
+          "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.542,
+          "undoMs": 0.069,
+          "redoMs": 0.061,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.102,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.07,
+          "updateMs": 0.474,
+          "undoMs": 0.068,
+          "redoMs": 0.078,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.096,
+          "parseMs": 0.185
+        },
+        {
+          "retainedHeapMB": 0.064,
+          "updateMs": 0.547,
+          "undoMs": 0.081,
+          "redoMs": 0.068,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.103,
+          "parseMs": 0.171
         }
       ]
     },
@@ -235,97 +487,223 @@
       "referenceSemantics": "model tree",
       "metrics": {
         "retainedHeapMB": {
-          "median": 0.22,
-          "p95": 0.28
+          "median": 0.217,
+          "p95": 0.234
         },
         "updateMs": {
-          "median": 10.414,
-          "p95": 13.104
+          "median": 10.358,
+          "p95": 11.021
         },
         "undoMs": {
-          "median": 4.384,
-          "p95": 4.641
+          "median": 4.338,
+          "p95": 4.765
         },
         "redoMs": {
-          "median": 3.144,
-          "p95": 3.816
+          "median": 3.047,
+          "p95": 3.222
         },
         "serializedSizeKB": {
           "median": 119.254,
           "p95": 119.254
         },
         "stringifyMs": {
-          "median": 0.127,
-          "p95": 0.147
+          "median": 0.131,
+          "p95": 0.139
         },
         "parseMs": {
-          "median": 0.175,
-          "p95": 0.19
+          "median": 0.17,
+          "p95": 0.188
         }
       },
       "samples": [
         {
-          "retainedHeapMB": 0.28,
-          "updateMs": 13.104,
-          "undoMs": 4.532,
-          "redoMs": 3.816,
+          "retainedHeapMB": 0.268,
+          "updateMs": 12.805,
+          "undoMs": 4.404,
+          "redoMs": 3.974,
           "serializedSizeKB": 119.254,
-          "stringifyMs": 0.125,
-          "parseMs": 0.175
+          "stringifyMs": 0.137,
+          "parseMs": 0.174
         },
         {
           "retainedHeapMB": 0.22,
-          "updateMs": 11.233,
-          "undoMs": 4.26,
-          "redoMs": 3.144,
+          "updateMs": 11,
+          "undoMs": 4.3,
+          "redoMs": 3.109,
           "serializedSizeKB": 119.254,
-          "stringifyMs": 0.147,
-          "parseMs": 0.176
+          "stringifyMs": 0.13,
+          "parseMs": 0.165
         },
         {
           "retainedHeapMB": 0.226,
-          "updateMs": 9.626,
-          "undoMs": 4.186,
-          "redoMs": 2.839,
+          "updateMs": 9.892,
+          "undoMs": 4.433,
+          "redoMs": 2.851,
           "serializedSizeKB": 119.254,
-          "stringifyMs": 0.124,
-          "parseMs": 0.171
+          "stringifyMs": 0.134,
+          "parseMs": 0.164
+        },
+        {
+          "retainedHeapMB": 0.21,
+          "updateMs": 10.818,
+          "undoMs": 4.266,
+          "redoMs": 2.999,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.123,
+          "parseMs": 0.157
+        },
+        {
+          "retainedHeapMB": 0.225,
+          "updateMs": 9.937,
+          "undoMs": 4.239,
+          "redoMs": 2.987,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.127,
+          "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.211,
+          "updateMs": 10.349,
+          "undoMs": 4.508,
+          "redoMs": 3.124,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.139,
+          "parseMs": 0.16
         },
         {
           "retainedHeapMB": 0.208,
-          "updateMs": 10.386,
-          "undoMs": 4.279,
-          "redoMs": 3.354,
+          "updateMs": 9.979,
+          "undoMs": 4.253,
+          "redoMs": 3.022,
           "serializedSizeKB": 119.254,
-          "stringifyMs": 0.132,
+          "stringifyMs": 0.128,
+          "parseMs": 0.166
+        },
+        {
+          "retainedHeapMB": 0.234,
+          "updateMs": 10.651,
+          "undoMs": 4.154,
+          "redoMs": 3.088,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.131,
+          "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.214,
+          "updateMs": 10.151,
+          "undoMs": 4.557,
+          "redoMs": 3.121,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.137,
+          "parseMs": 0.188
+        },
+        {
+          "retainedHeapMB": 0.216,
+          "updateMs": 10.224,
+          "undoMs": 4.765,
+          "redoMs": 3.104,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.148,
           "parseMs": 0.19
         },
         {
-          "retainedHeapMB": 0.222,
-          "updateMs": 9.712,
-          "undoMs": 4.384,
-          "redoMs": 3.144,
+          "retainedHeapMB": 0.221,
+          "updateMs": 10.012,
+          "undoMs": 4.587,
+          "redoMs": 3.222,
           "serializedSizeKB": 119.254,
-          "stringifyMs": 0.119,
-          "parseMs": 0.159
+          "stringifyMs": 0.121,
+          "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.218,
+          "updateMs": 10.358,
+          "undoMs": 4.338,
+          "redoMs": 3.116,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.128,
+          "parseMs": 0.187
         },
         {
           "retainedHeapMB": 0.212,
-          "updateMs": 10.414,
-          "undoMs": 4.641,
-          "redoMs": 3.063,
+          "updateMs": 10.704,
+          "undoMs": 3.997,
+          "redoMs": 2.985,
           "serializedSizeKB": 119.254,
-          "stringifyMs": 0.127,
-          "parseMs": 0.154
+          "stringifyMs": 0.123,
+          "parseMs": 0.187
         },
         {
-          "retainedHeapMB": 0.207,
-          "updateMs": 10.419,
-          "undoMs": 4.43,
-          "redoMs": 3.104,
+          "retainedHeapMB": 0.216,
+          "updateMs": 10.434,
+          "undoMs": 4.27,
+          "redoMs": 2.932,
           "serializedSizeKB": 119.254,
           "stringifyMs": 0.132,
-          "parseMs": 0.178
+          "parseMs": 0.17
+        },
+        {
+          "retainedHeapMB": 0.228,
+          "updateMs": 10.61,
+          "undoMs": 4.82,
+          "redoMs": 3.169,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.133,
+          "parseMs": 0.167
+        },
+        {
+          "retainedHeapMB": 0.227,
+          "updateMs": 9.742,
+          "undoMs": 3.988,
+          "redoMs": 3,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.131,
+          "parseMs": 0.16
+        },
+        {
+          "retainedHeapMB": 0.217,
+          "updateMs": 10.708,
+          "undoMs": 4.335,
+          "redoMs": 3.047,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.121,
+          "parseMs": 0.161
+        },
+        {
+          "retainedHeapMB": 0.212,
+          "updateMs": 10.391,
+          "undoMs": 4.375,
+          "redoMs": 2.973,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.133,
+          "parseMs": 0.17
+        },
+        {
+          "retainedHeapMB": 0.215,
+          "updateMs": 10.225,
+          "undoMs": 4.398,
+          "redoMs": 2.995,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.116,
+          "parseMs": 0.158
+        },
+        {
+          "retainedHeapMB": 0.211,
+          "updateMs": 11.021,
+          "undoMs": 4.493,
+          "redoMs": 3.056,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.131,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.221,
+          "updateMs": 10.276,
+          "undoMs": 4.248,
+          "redoMs": 2.985,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.117,
+          "parseMs": 0.156
         }
       ]
     },
@@ -338,97 +716,223 @@
       "referenceSemantics": "model tree",
       "metrics": {
         "retainedHeapMB": {
-          "median": 3.149,
-          "p95": 3.204
+          "median": 3.137,
+          "p95": 3.165
         },
         "updateMs": {
-          "median": 10.007,
-          "p95": 11.012
+          "median": 9.473,
+          "p95": 11.145
         },
         "undoMs": {
-          "median": 6.009,
-          "p95": 6.538
+          "median": 5.649,
+          "p95": 6.53
         },
         "redoMs": {
-          "median": 4.794,
-          "p95": 6.284
+          "median": 4.712,
+          "p95": 5.316
         },
         "serializedSizeKB": {
           "median": 126.856,
           "p95": 126.856
         },
         "stringifyMs": {
-          "median": 0.162,
-          "p95": 0.187
+          "median": 0.15,
+          "p95": 0.181
         },
         "parseMs": {
-          "median": 0.246,
-          "p95": 0.268
+          "median": 0.228,
+          "p95": 0.256
         }
       },
       "samples": [
         {
-          "retainedHeapMB": 3.204,
-          "updateMs": 11.012,
-          "undoMs": 6.538,
-          "redoMs": 6.284,
+          "retainedHeapMB": 3.199,
+          "updateMs": 11.333,
+          "undoMs": 6.372,
+          "redoMs": 6.145,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.187,
-          "parseMs": 0.243
+          "stringifyMs": 0.158,
+          "parseMs": 0.245
         },
         {
-          "retainedHeapMB": 3.149,
-          "updateMs": 9.651,
-          "undoMs": 6.009,
-          "redoMs": 5.04,
+          "retainedHeapMB": 3.145,
+          "updateMs": 9.894,
+          "undoMs": 6.378,
+          "redoMs": 5.015,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.162,
-          "parseMs": 0.255
+          "stringifyMs": 0.164,
+          "parseMs": 0.24
         },
         {
-          "retainedHeapMB": 3.13,
-          "updateMs": 10.007,
-          "undoMs": 5.168,
-          "redoMs": 4.184,
+          "retainedHeapMB": 3.131,
+          "updateMs": 9.554,
+          "undoMs": 5.075,
+          "redoMs": 4.165,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.162,
-          "parseMs": 0.268
+          "stringifyMs": 0.151,
+          "parseMs": 0.216
         },
         {
           "retainedHeapMB": 3.165,
-          "updateMs": 10.802,
-          "undoMs": 6.521,
-          "redoMs": 4.999,
+          "updateMs": 10.62,
+          "undoMs": 6.53,
+          "redoMs": 5.118,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.154,
-          "parseMs": 0.246
+          "stringifyMs": 0.146,
+          "parseMs": 0.225
         },
         {
-          "retainedHeapMB": 3.151,
-          "updateMs": 9.16,
-          "undoMs": 5.726,
-          "redoMs": 4.794,
+          "retainedHeapMB": 3.141,
+          "updateMs": 8.882,
+          "undoMs": 6.153,
+          "redoMs": 5.067,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.139,
-          "parseMs": 0.206
+          "stringifyMs": 0.147,
+          "parseMs": 0.233
         },
         {
-          "retainedHeapMB": 3.136,
-          "updateMs": 10.016,
-          "undoMs": 6.208,
-          "redoMs": 4.615,
+          "retainedHeapMB": 3.137,
+          "updateMs": 9.872,
+          "undoMs": 6.613,
+          "redoMs": 4.712,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.168,
+          "stringifyMs": 0.15,
+          "parseMs": 0.241
+        },
+        {
+          "retainedHeapMB": 3.127,
+          "updateMs": 8.824,
+          "undoMs": 5.42,
+          "redoMs": 5.031,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.155,
+          "parseMs": 0.217
+        },
+        {
+          "retainedHeapMB": 3.165,
+          "updateMs": 9.473,
+          "undoMs": 5.456,
+          "redoMs": 4.534,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.158,
+          "parseMs": 0.233
+        },
+        {
+          "retainedHeapMB": 3.145,
+          "updateMs": 8.743,
+          "undoMs": 5.433,
+          "redoMs": 4.692,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.181,
+          "parseMs": 0.256
+        },
+        {
+          "retainedHeapMB": 3.12,
+          "updateMs": 8.998,
+          "undoMs": 5.649,
+          "redoMs": 5.158,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.145,
+          "parseMs": 0.222
+        },
+        {
+          "retainedHeapMB": 3.144,
+          "updateMs": 9.458,
+          "undoMs": 5.859,
+          "redoMs": 4.981,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.143,
+          "parseMs": 0.236
+        },
+        {
+          "retainedHeapMB": 3.11,
+          "updateMs": 9.145,
+          "undoMs": 5.948,
+          "redoMs": 4.898,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.141,
+          "parseMs": 0.212
+        },
+        {
+          "retainedHeapMB": 3.129,
+          "updateMs": 11.145,
+          "undoMs": 6.33,
+          "redoMs": 5.028,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.145,
           "parseMs": 0.211
         },
         {
-          "retainedHeapMB": 3.128,
-          "updateMs": 8.774,
-          "undoMs": 5.08,
-          "redoMs": 4.445,
+          "retainedHeapMB": 3.122,
+          "updateMs": 9.351,
+          "undoMs": 5.411,
+          "redoMs": 4.394,
           "serializedSizeKB": 126.856,
-          "stringifyMs": 0.182,
-          "parseMs": 0.254
+          "stringifyMs": 0.186,
+          "parseMs": 0.228
+        },
+        {
+          "retainedHeapMB": 3.147,
+          "updateMs": 9.155,
+          "undoMs": 5.261,
+          "redoMs": 4.179,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.147,
+          "parseMs": 0.268
+        },
+        {
+          "retainedHeapMB": 3.123,
+          "updateMs": 10.246,
+          "undoMs": 5.559,
+          "redoMs": 4.685,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.176,
+          "parseMs": 0.221
+        },
+        {
+          "retainedHeapMB": 3.136,
+          "updateMs": 10.231,
+          "undoMs": 5.419,
+          "redoMs": 4.602,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.143,
+          "parseMs": 0.228
+        },
+        {
+          "retainedHeapMB": 3.157,
+          "updateMs": 9.966,
+          "undoMs": 5.86,
+          "redoMs": 5.316,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.169,
+          "parseMs": 0.218
+        },
+        {
+          "retainedHeapMB": 3.147,
+          "updateMs": 9.234,
+          "undoMs": 5.328,
+          "redoMs": 4.576,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.147,
+          "parseMs": 0.215
+        },
+        {
+          "retainedHeapMB": 3.097,
+          "updateMs": 10.488,
+          "undoMs": 5.793,
+          "redoMs": 4.556,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.151,
+          "parseMs": 0.25
+        },
+        {
+          "retainedHeapMB": 3.126,
+          "updateMs": 9.312,
+          "undoMs": 5.327,
+          "redoMs": 4.578,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.147,
+          "parseMs": 0.229
         }
       ]
     },
@@ -436,102 +940,228 @@
       "id": "coaction",
       "label": "Coaction history",
       "group": "integration",
-      "version": "3.0.0 + 3.0.0 (local 0c252e9)",
+      "version": "3.0.0 + 3.0.0 (local d3677d7)",
       "historyStrategy": "Travels JSON Patch",
       "referenceSemantics": "Coaction store",
       "metrics": {
         "retainedHeapMB": {
-          "median": 0.002,
-          "p95": 0.081
+          "median": 0.003,
+          "p95": 0.024
         },
         "updateMs": {
-          "median": 1.417,
-          "p95": 1.836
+          "median": 1.378,
+          "p95": 1.687
         },
         "undoMs": {
-          "median": 0.592,
-          "p95": 0.749
+          "median": 0.58,
+          "p95": 0.658
         },
         "redoMs": {
-          "median": 0.49,
-          "p95": 0.547
+          "median": 0.474,
+          "p95": 0.574
         },
         "serializedSizeKB": {
           "median": 116.832,
           "p95": 116.832
         },
         "stringifyMs": {
-          "median": 0.113,
-          "p95": 0.122
+          "median": 0.108,
+          "p95": 0.128
         },
         "parseMs": {
-          "median": 0.186,
-          "p95": 0.203
+          "median": 0.182,
+          "p95": 0.197
         }
       },
       "samples": [
         {
-          "retainedHeapMB": -0.057,
-          "updateMs": 1.836,
-          "undoMs": 0.749,
-          "redoMs": 0.528,
-          "serializedSizeKB": 116.832,
-          "stringifyMs": 0.122,
-          "parseMs": 0.192
-        },
-        {
-          "retainedHeapMB": 0.081,
-          "updateMs": 1.598,
-          "undoMs": 0.579,
-          "redoMs": 0.547,
+          "retainedHeapMB": -0.065,
+          "updateMs": 1.84,
+          "undoMs": 0.77,
+          "redoMs": 0.704,
           "serializedSizeKB": 116.832,
           "stringifyMs": 0.115,
-          "parseMs": 0.203
+          "parseMs": 0.182
+        },
+        {
+          "retainedHeapMB": 0.08,
+          "updateMs": 1.687,
+          "undoMs": 0.549,
+          "redoMs": 0.503,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.101,
+          "parseMs": 0.171
         },
         {
           "retainedHeapMB": -0.021,
-          "updateMs": 1.417,
-          "undoMs": 0.594,
-          "redoMs": 0.538,
+          "updateMs": 1.523,
+          "undoMs": 0.541,
+          "redoMs": 0.506,
           "serializedSizeKB": 116.832,
-          "stringifyMs": 0.113,
-          "parseMs": 0.198
+          "stringifyMs": 0.108,
+          "parseMs": 0.164
         },
         {
-          "retainedHeapMB": 0.002,
-          "updateMs": 1.345,
-          "undoMs": 0.592,
-          "redoMs": 0.481,
+          "retainedHeapMB": 0.004,
+          "updateMs": 1.478,
+          "undoMs": 0.589,
+          "redoMs": 0.474,
           "serializedSizeKB": 116.832,
-          "stringifyMs": 0.115,
-          "parseMs": 0.178
+          "stringifyMs": 0.11,
+          "parseMs": 0.176
         },
         {
-          "retainedHeapMB": 0.025,
-          "updateMs": 1.591,
-          "undoMs": 0.638,
-          "redoMs": 0.49,
+          "retainedHeapMB": 0.024,
+          "updateMs": 1.57,
+          "undoMs": 0.595,
+          "redoMs": 0.495,
           "serializedSizeKB": 116.832,
           "stringifyMs": 0.106,
-          "parseMs": 0.183
+          "parseMs": 0.168
         },
         {
           "retainedHeapMB": 0.005,
-          "updateMs": 1.313,
-          "undoMs": 0.56,
-          "redoMs": 0.457,
+          "updateMs": 1.33,
+          "undoMs": 0.554,
+          "redoMs": 0.456,
           "serializedSizeKB": 116.832,
-          "stringifyMs": 0.112,
-          "parseMs": 0.186
+          "stringifyMs": 0.106,
+          "parseMs": 0.191
         },
         {
-          "retainedHeapMB": -0.006,
-          "updateMs": 1.331,
-          "undoMs": 0.543,
-          "redoMs": 0.445,
+          "retainedHeapMB": -0.004,
+          "updateMs": 1.45,
+          "undoMs": 0.553,
+          "redoMs": 0.458,
           "serializedSizeKB": 116.832,
-          "stringifyMs": 0.095,
+          "stringifyMs": 0.102,
+          "parseMs": 0.179
+        },
+        {
+          "retainedHeapMB": -0.004,
+          "updateMs": 1.377,
+          "undoMs": 0.625,
+          "redoMs": 0.471,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.115,
+          "parseMs": 0.189
+        },
+        {
+          "retainedHeapMB": 0.012,
+          "updateMs": 1.394,
+          "undoMs": 0.527,
+          "redoMs": 0.505,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.103,
+          "parseMs": 0.176
+        },
+        {
+          "retainedHeapMB": -0.017,
+          "updateMs": 1.383,
+          "undoMs": 0.535,
+          "redoMs": 0.448,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.099,
+          "parseMs": 0.166
+        },
+        {
+          "retainedHeapMB": -0.034,
+          "updateMs": 1.341,
+          "undoMs": 0.62,
+          "redoMs": 0.419,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.1,
+          "parseMs": 0.183
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 1.33,
+          "undoMs": 0.541,
+          "redoMs": 0.46,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.128,
+          "parseMs": 0.19
+        },
+        {
+          "retainedHeapMB": 0.008,
+          "updateMs": 1.353,
+          "undoMs": 0.57,
+          "redoMs": 0.463,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.109,
+          "parseMs": 0.19
+        },
+        {
+          "retainedHeapMB": -0.04,
+          "updateMs": 1.335,
+          "undoMs": 0.536,
+          "redoMs": 0.466,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.101,
+          "parseMs": 0.197
+        },
+        {
+          "retainedHeapMB": -0.071,
+          "updateMs": 1.386,
+          "undoMs": 0.596,
+          "redoMs": 0.495,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.134,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.006,
+          "updateMs": 1.381,
+          "undoMs": 0.608,
+          "redoMs": 0.503,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.115,
+          "parseMs": 0.194
+        },
+        {
+          "retainedHeapMB": 0.003,
+          "updateMs": 1.351,
+          "undoMs": 0.541,
+          "redoMs": 0.467,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.107,
+          "parseMs": 0.185
+        },
+        {
+          "retainedHeapMB": 0.008,
+          "updateMs": 1.378,
+          "undoMs": 0.58,
+          "redoMs": 0.506,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.113,
           "parseMs": 0.172
+        },
+        {
+          "retainedHeapMB": 0.005,
+          "updateMs": 1.376,
+          "undoMs": 0.651,
+          "redoMs": 0.574,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.117,
+          "parseMs": 0.189
+        },
+        {
+          "retainedHeapMB": -0.001,
+          "updateMs": 1.367,
+          "undoMs": 0.655,
+          "redoMs": 0.503,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.103,
+          "parseMs": 0.175
+        },
+        {
+          "retainedHeapMB": -0.042,
+          "updateMs": 1.357,
+          "undoMs": 0.658,
+          "redoMs": 0.459,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.11,
+          "parseMs": 0.2
         }
       ]
     },
@@ -544,97 +1174,223 @@
       "referenceSemantics": "immutable root",
       "metrics": {
         "retainedHeapMB": {
-          "median": 0.009,
-          "p95": 0.014
+          "median": 0.01,
+          "p95": 0.011
         },
         "updateMs": {
-          "median": 0.096,
-          "p95": 0.11
+          "median": 0.07,
+          "p95": 0.107
         },
         "undoMs": {
-          "median": 0.045,
-          "p95": 0.088
+          "median": 0.036,
+          "p95": 0.078
         },
         "redoMs": {
-          "median": 0.034,
-          "p95": 0.088
+          "median": 0.021,
+          "p95": 0.035
         },
         "serializedSizeKB": {
           "median": 9842.172,
           "p95": 9842.172
         },
         "stringifyMs": {
-          "median": 5.705,
-          "p95": 7.109
+          "median": 5.65,
+          "p95": 6.036
         },
         "parseMs": {
-          "median": 5.621,
-          "p95": 6.979
+          "median": 5.601,
+          "p95": 5.785
         }
       },
       "samples": [
         {
           "retainedHeapMB": 0.009,
-          "updateMs": 0.11,
-          "undoMs": 0.083,
-          "redoMs": 0.034,
+          "updateMs": 0.107,
+          "undoMs": 0.078,
+          "redoMs": 0.033,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 7.109,
-          "parseMs": 6.979
+          "stringifyMs": 7.2,
+          "parseMs": 6.918
         },
         {
           "retainedHeapMB": 0.009,
-          "updateMs": 0.107,
-          "undoMs": 0.088,
+          "updateMs": 0.123,
+          "undoMs": 0.096,
           "redoMs": 0.031,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 5.832,
-          "parseMs": 5.97
+          "stringifyMs": 6.036,
+          "parseMs": 5.699
         },
         {
-          "retainedHeapMB": 0.009,
-          "updateMs": 0.097,
-          "undoMs": 0.045,
-          "redoMs": 0.026,
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.102,
+          "undoMs": 0.036,
+          "redoMs": 0.029,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 5.593,
-          "parseMs": 5.554
+          "stringifyMs": 5.881,
+          "parseMs": 5.653
         },
         {
-          "retainedHeapMB": 0.011,
-          "updateMs": 0.091,
-          "undoMs": 0.037,
-          "redoMs": 0.034,
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.089,
+          "undoMs": 0.038,
+          "redoMs": 0.035,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 5.65,
-          "parseMs": 5.567
+          "stringifyMs": 5.768,
+          "parseMs": 5.624
         },
         {
           "retainedHeapMB": 0.009,
           "updateMs": 0.096,
-          "undoMs": 0.048,
-          "redoMs": 0.045,
+          "undoMs": 0.047,
+          "redoMs": 0.034,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 5.889,
-          "parseMs": 5.595
+          "stringifyMs": 5.545,
+          "parseMs": 5.58
         },
         {
           "retainedHeapMB": -0.086,
-          "updateMs": 0.084,
+          "updateMs": 0.081,
           "undoMs": 0.036,
-          "redoMs": 0.088,
+          "redoMs": 0.051,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 5.7,
-          "parseMs": 5.621
+          "stringifyMs": 5.622,
+          "parseMs": 5.568
         },
         {
-          "retainedHeapMB": 0.014,
-          "updateMs": 0.06,
-          "undoMs": 0.039,
+          "retainedHeapMB": 0.009,
+          "updateMs": 0.066,
+          "undoMs": 0.037,
           "redoMs": 0.026,
           "serializedSizeKB": 9842.172,
-          "stringifyMs": 5.705,
-          "parseMs": 5.646
+          "stringifyMs": 5.791,
+          "parseMs": 5.588
+        },
+        {
+          "retainedHeapMB": -0.009,
+          "updateMs": 0.071,
+          "undoMs": 0.036,
+          "redoMs": 0.025,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.599,
+          "parseMs": 5.601
+        },
+        {
+          "retainedHeapMB": 0.009,
+          "updateMs": 0.074,
+          "undoMs": 0.038,
+          "redoMs": 0.026,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.624,
+          "parseMs": 5.538
+        },
+        {
+          "retainedHeapMB": 0.011,
+          "updateMs": 0.068,
+          "undoMs": 0.035,
+          "redoMs": 0.035,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.596,
+          "parseMs": 5.547
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.075,
+          "undoMs": 0.034,
+          "redoMs": 0.018,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.533,
+          "parseMs": 5.656
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.065,
+          "undoMs": 0.036,
+          "redoMs": 0.021,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.516,
+          "parseMs": 5.49
+        },
+        {
+          "retainedHeapMB": -0.093,
+          "updateMs": 0.07,
+          "undoMs": 0.037,
+          "redoMs": 0.019,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.734,
+          "parseMs": 5.67
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.064,
+          "undoMs": 0.035,
+          "redoMs": 0.019,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.632,
+          "parseMs": 5.564
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.061,
+          "undoMs": 0.036,
+          "redoMs": 0.018,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.549,
+          "parseMs": 5.61
+        },
+        {
+          "retainedHeapMB": -0.023,
+          "updateMs": 0.065,
+          "undoMs": 0.035,
+          "redoMs": 0.018,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.787,
+          "parseMs": 5.785
+        },
+        {
+          "retainedHeapMB": 0.011,
+          "updateMs": 0.07,
+          "undoMs": 0.034,
+          "redoMs": 0.018,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.65,
+          "parseMs": 5.605
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.064,
+          "undoMs": 0.038,
+          "redoMs": 0.019,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.813,
+          "parseMs": 5.507
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.065,
+          "undoMs": 0.036,
+          "redoMs": 0.021,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.626,
+          "parseMs": 5.563
+        },
+        {
+          "retainedHeapMB": -0.076,
+          "updateMs": 0.067,
+          "undoMs": 0.038,
+          "redoMs": 0.018,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.926,
+          "parseMs": 5.513
+        },
+        {
+          "retainedHeapMB": 0.01,
+          "updateMs": 0.067,
+          "undoMs": 0.035,
+          "redoMs": 0.019,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.725,
+          "parseMs": 5.635
         }
       ]
     },
@@ -648,96 +1404,222 @@
       "metrics": {
         "retainedHeapMB": {
           "median": 0.015,
-          "p95": 0.022
+          "p95": 0.023
         },
         "updateMs": {
-          "median": 0.117,
-          "p95": 0.135
+          "median": 0.119,
+          "p95": 0.136
         },
         "undoMs": {
-          "median": 0.05,
-          "p95": 0.052
+          "median": 0.048,
+          "p95": 0.077
         },
         "redoMs": {
-          "median": 0.046,
-          "p95": 0.056
+          "median": 0.045,
+          "p95": 0.051
         },
         "serializedSizeKB": {
           "median": 9745.622,
           "p95": 9745.622
         },
         "stringifyMs": {
-          "median": 5.66,
-          "p95": 6.843
+          "median": 5.628,
+          "p95": 5.85
         },
         "parseMs": {
-          "median": 5.58,
-          "p95": 6.037
+          "median": 5.54,
+          "p95": 5.74
         }
       },
       "samples": [
         {
-          "retainedHeapMB": -0.011,
-          "updateMs": 0.128,
-          "undoMs": 0.052,
-          "redoMs": 0.055,
+          "retainedHeapMB": -0.01,
+          "updateMs": 0.13,
+          "undoMs": 0.045,
+          "redoMs": 0.051,
           "serializedSizeKB": 9745.622,
-          "stringifyMs": 6.843,
-          "parseMs": 5.681
+          "stringifyMs": 6.836,
+          "parseMs": 5.619
         },
         {
-          "retainedHeapMB": 0.014,
-          "updateMs": 0.113,
+          "retainedHeapMB": 0.013,
+          "updateMs": 0.114,
           "undoMs": 0.049,
           "redoMs": 0.046,
           "serializedSizeKB": 9745.622,
-          "stringifyMs": 5.607,
-          "parseMs": 6.037
-        },
-        {
-          "retainedHeapMB": 0.015,
-          "updateMs": 0.114,
-          "undoMs": 0.048,
-          "redoMs": 0.046,
-          "serializedSizeKB": 9745.622,
-          "stringifyMs": 5.66,
-          "parseMs": 5.765
-        },
-        {
-          "retainedHeapMB": 0.022,
-          "updateMs": 0.117,
-          "undoMs": 0.051,
-          "redoMs": 0.046,
-          "serializedSizeKB": 9745.622,
-          "stringifyMs": 5.82,
-          "parseMs": 5.549
-        },
-        {
-          "retainedHeapMB": 0.015,
-          "updateMs": 0.135,
-          "undoMs": 0.05,
-          "redoMs": 0.056,
-          "serializedSizeKB": 9745.622,
-          "stringifyMs": 5.607,
-          "parseMs": 5.483
+          "stringifyMs": 5.591,
+          "parseMs": 5.581
         },
         {
           "retainedHeapMB": 0.015,
           "updateMs": 0.119,
-          "undoMs": 0.051,
+          "undoMs": 0.046,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.85,
+          "parseMs": 5.792
+        },
+        {
+          "retainedHeapMB": 0.022,
+          "updateMs": 0.122,
+          "undoMs": 0.048,
           "redoMs": 0.045,
           "serializedSizeKB": 9745.622,
-          "stringifyMs": 5.633,
-          "parseMs": 5.531
+          "stringifyMs": 5.608,
+          "parseMs": 5.554
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.13,
+          "undoMs": 0.051,
+          "redoMs": 0.047,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.784,
+          "parseMs": 5.537
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.135,
+          "undoMs": 0.077,
+          "redoMs": 0.053,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.734,
+          "parseMs": 5.722
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.115,
+          "undoMs": 0.046,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.763,
+          "parseMs": 5.74
+        },
+        {
+          "retainedHeapMB": 0.023,
+          "updateMs": 0.121,
+          "undoMs": 0.048,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.774,
+          "parseMs": 5.729
+        },
+        {
+          "retainedHeapMB": 0.008,
+          "updateMs": 0.132,
+          "undoMs": 0.056,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.533,
+          "parseMs": 5.459
         },
         {
           "retainedHeapMB": 0.014,
-          "updateMs": 0.117,
+          "updateMs": 0.116,
+          "undoMs": 0.051,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.747,
+          "parseMs": 5.643
+        },
+        {
+          "retainedHeapMB": 0.007,
+          "updateMs": 0.139,
+          "undoMs": 0.05,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.564,
+          "parseMs": 5.661
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.115,
+          "undoMs": 0.045,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.594,
+          "parseMs": 5.493
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.119,
+          "undoMs": 0.044,
+          "redoMs": 0.043,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.629,
+          "parseMs": 5.54
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.114,
+          "undoMs": 0.099,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.579,
+          "parseMs": 5.58
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.136,
+          "undoMs": 0.057,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.628,
+          "parseMs": 5.376
+        },
+        {
+          "retainedHeapMB": 0.007,
+          "updateMs": 0.115,
+          "undoMs": 0.045,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.581,
+          "parseMs": 5.519
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.133,
+          "undoMs": 0.051,
+          "redoMs": 0.044,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.538,
+          "parseMs": 5.509
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.115,
           "undoMs": 0.047,
           "redoMs": 0.045,
           "serializedSizeKB": 9745.622,
-          "stringifyMs": 5.714,
-          "parseMs": 5.58
+          "stringifyMs": 5.705,
+          "parseMs": 5.539
+        },
+        {
+          "retainedHeapMB": 0.014,
+          "updateMs": 0.118,
+          "undoMs": 0.049,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.566,
+          "parseMs": 5.5
+        },
+        {
+          "retainedHeapMB": -0.045,
+          "updateMs": 0.118,
+          "undoMs": 0.047,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.734,
+          "parseMs": 5.443
+        },
+        {
+          "retainedHeapMB": 0.025,
+          "updateMs": 0.11,
+          "undoMs": 0.044,
+          "redoMs": 0.044,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.562,
+          "parseMs": 5.44
         }
       ]
     }
