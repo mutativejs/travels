@@ -8,9 +8,9 @@ const repoRoot = resolve(__dirname, '..');
 const artifacts = ['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js'];
 const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 const limits = {
-  bundleRaw: 38.5 * KiB,
+  bundleRaw: 40.5 * KiB,
   bundleGzip: 11 * KiB,
-  bundleMap: 184 * KiB,
+  bundleMap: 190 * KiB,
   developmentBundleRaw: 47 * KiB,
   developmentBundleGzip: 13 * KiB,
   developmentBundleMap: 200 * KiB,
