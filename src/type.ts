@@ -158,10 +158,22 @@ export type TravelsObserverErrorEvent = {
   error: unknown;
 };
 
+/**
+ * Unified event published to `subscribe()` listeners and the `devtools` hook.
+ *
+ * @remarks
+ * The `type` union is open: minor releases may add new event types, as 2.1.0
+ * added `'recordPatches'`. Keep a `default` branch when switching on
+ * `event.type` instead of asserting exhaustiveness with `never`.
+ */
 export type TravelsEvent<
   S,
   P extends PatchesOption = {},
 > = {
+  /**
+   * The committed operation. This union gains members in minor releases;
+   * handle unrecognized values in a `default` branch.
+   */
   readonly type:
     | 'setState'
     | 'recordPatches'
