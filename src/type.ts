@@ -33,6 +33,29 @@ export type TravelHistoryEntry<P extends PatchesOption = {}> = {
   metadata?: TravelMetadata;
 };
 
+/**
+ * Patch transition delegated to an external state owner by a controlled
+ * Travels journal.
+ */
+export type TravelsControlledTransition<S, P extends PatchesOption = {}> = {
+  /** State known to Travels before the transition is applied. */
+  readonly state: S;
+  /** Composed patches that move from `fromPosition` to `toPosition`. */
+  readonly patches: Patches<P>;
+  /** Composed patches that roll the transition back. */
+  readonly inversePatches: Patches<P>;
+  readonly fromPosition: number;
+  readonly toPosition: number;
+};
+
+/**
+ * Synchronous executor used when another runtime owns the authoritative state.
+ * Return that runtime's committed state after applying `transition.patches`.
+ */
+export type TravelsControlledApply<S, P extends PatchesOption = {}> = (
+  transition: TravelsControlledTransition<S, P>
+) => S;
+
 export type PatchesOption = Exclude<PatchesOptions, boolean>;
 
 /**
@@ -141,6 +164,7 @@ export type TravelsEvent<
 > = {
   readonly type:
     | 'setState'
+    | 'recordPatches'
     | 'archive'
     | 'transaction'
     | 'go'
@@ -230,6 +254,15 @@ export type TravelsOptions<
    * Optional hook for external devtools or debugging timelines.
    */
   devtools?: (event: TravelsEvent<any, P>) => void;
+  /**
+   * Delegate history navigation to an external authoritative state owner.
+   *
+   * @remarks
+   * Intended for integration adapters created with `createTravelJournal()`.
+   * The callback runs before Travels moves its cursor. If it throws, the
+   * Travels state and position remain unchanged.
+   */
+  controlledApply?: TravelsControlledApply<any, P>;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
     /**
      * Configure patch formatting. Patches cannot be disabled because Travels

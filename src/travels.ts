@@ -15,6 +15,7 @@ import type {
   TravelMetadata,
   TravelPatches,
   TravelsBranchDiscardEvent,
+  TravelsControlledApply,
   TravelsDeserializeOptions,
   TravelsEvent,
   TravelsOptions,
@@ -543,6 +544,7 @@ export class Travels<
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
   private onObserverError?: (event: TravelsObserverErrorEvent) => void;
   private devtools?: (event: TravelsEvent<S, P>) => void;
+  private controlledApply?: TravelsControlledApply<S, P>;
   private listeners: Set<Listener<S, P>> = new Set();
   private controlsCache:
     | RebasableTravelsControls<S, F, P>
@@ -588,6 +590,7 @@ export class Travels<
       onBranchDiscard,
       onObserverError,
       devtools,
+      controlledApply,
       patchesOptions,
       ...mutativeOptions
     } = options;
@@ -677,6 +680,9 @@ export class Travels<
     this.onObserverError = onObserverError;
     this.devtools = devtools as
       | ((event: TravelsEvent<S, P>) => void)
+      | undefined;
+    this.controlledApply = controlledApply as
+      | TravelsControlledApply<S, P>
       | undefined;
     this.options = {
       ...mutativeOptions,
@@ -1587,6 +1593,106 @@ export class Travels<
    */
   getState = () => this.state;
 
+  private commitPatchEntry(
+    patches: Patches<P>,
+    inversePatches: Patches<P>,
+    metadata: TravelMetadata | undefined,
+    type: 'setState' | 'recordPatches'
+  ): void {
+    const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
+
+    if (hasNoChanges) {
+      return;
+    }
+
+    const storedMetadata = cloneTravelMetadata(metadata);
+    let branchDiscard: BranchDiscardEffect<P> | undefined;
+
+    if (this.trackingPauseDepth > 0) {
+      this.resetHistoryToCurrentState();
+      this.invalidateHistoryCache();
+      if (process.env.NODE_ENV !== 'production') {
+        this.checkPersistenceCompatibilityAfterCommit(
+          patches,
+          inversePatches,
+          storedMetadata,
+          0,
+          false
+        );
+      }
+      this.emitChange(
+        'replaceStateWithoutHistory',
+        metadata,
+        undefined,
+        createPatchDelta(patches, inversePatches)
+      );
+      return;
+    }
+
+    if (this.isAutoArchiving()) {
+      const notLast = this.position < this.allPatches.patches.length;
+
+      if (notLast) {
+        branchDiscard = this.discardFutureFrom(this.position);
+      }
+
+      this.allPatches.patches.push(patches);
+      this.allPatches.inversePatches.push(inversePatches);
+      this.allMetadata.push(storedMetadata);
+
+      this.position =
+        this.maxHistory < this.allPatches.patches.length
+          ? this.maxHistory
+          : this.position + 1;
+
+      this.trimHistoryToMax();
+    } else {
+      const hasPendingArchive = this.tempPatches.patches.length > 0;
+      const hasFuture = this.position < this.allPatches.patches.length;
+
+      if (hasFuture) {
+        branchDiscard = this.discardFutureFrom(this.position);
+      }
+
+      if (!hasPendingArchive || hasFuture) {
+        this.position =
+          this.maxHistory < this.allPatches.patches.length + 1
+            ? this.maxHistory
+            : this.position + 1;
+        historyEntryIdentities.set(patches, {});
+      }
+
+      if (hasFuture) {
+        this.tempPatches = cloneTravelPatches();
+        this.tempMetadata = undefined;
+      }
+
+      this.tempPatches.patches.push(patches);
+      this.tempPatches.inversePatches.push(inversePatches);
+      if (metadata !== undefined || this.tempMetadata === undefined) {
+        this.tempMetadata = storedMetadata;
+      }
+    }
+
+    this.invalidateHistoryCache();
+    if (process.env.NODE_ENV !== 'production') {
+      const archivedImmediately = this.isAutoArchiving();
+      this.checkPersistenceCompatibilityAfterCommit(
+        patches,
+        inversePatches,
+        storedMetadata,
+        Math.max(0, this.allPatches.patches.length - 1),
+        archivedImmediately
+      );
+    }
+    this.emitChange(
+      type,
+      metadata,
+      branchDiscard,
+      createPatchDelta(patches, inversePatches)
+    );
+  }
+
   /**
    * Update the state
    */
@@ -1599,8 +1705,6 @@ export class Travels<
 
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
-    let branchDiscard: BranchDiscardEffect<P> | undefined;
-    const storedMetadata = cloneTravelMetadata(metadata);
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
@@ -1738,96 +1842,54 @@ export class Travels<
       this.state = nextState;
     }
 
-    const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
+    this.commitPatchEntry(patches, inversePatches, metadata, 'setState');
+  }
 
-    if (hasNoChanges) {
-      return;
+  /**
+   * Record a patch pair that an external authoritative state owner has already
+   * committed.
+   *
+   * @remarks
+   * This avoids running the update recipe through Mutative a second time. The
+   * supplied `state` must be the state after `entry.patches` were applied. Patch
+   * inputs are detached before they are retained, so later caller mutation
+   * cannot rewrite history.
+   */
+  public recordPatches(state: S, entry: TravelHistoryEntry<P>): void {
+    this.assertCanMutate('recordPatches');
+    if (this.transactionDepth > 0) {
+      throw new Error(
+        'Travels: recordPatches cannot be called inside a Travels transaction because the external state owner controls rollback.'
+      );
     }
 
-    if (this.trackingPauseDepth > 0) {
-      this.resetHistoryToCurrentState();
-      this.invalidateHistoryCache();
-      if (process.env.NODE_ENV !== 'production') {
-        this.checkPersistenceCompatibilityAfterCommit(
-          patches,
-          inversePatches,
-          storedMetadata,
-          0,
-          false
+    const patches = clonePatchGroup(entry.patches);
+    const inversePatches = clonePatchGroup(entry.inversePatches);
+    if (patches.length === 0 && inversePatches.length === 0) {
+      if (!Object.is(state, this.state)) {
+        throw new Error(
+          'Travels: recordPatches requires a non-empty patch pair when the state changes.'
         );
       }
-      this.emitChange(
-        'replaceStateWithoutHistory',
-        metadata,
-        undefined,
-        createPatchDelta(patches, inversePatches)
-      );
       return;
     }
 
-    if (this.isAutoArchiving()) {
-      const notLast = this.position < this.allPatches.patches.length;
+    assertSupportedRuntimeState(
+      state,
+      this.mutable ? undefined : this.collectionFreeObjects
+    );
+    assertSupportedPatchValues(
+      patches,
+      inversePatches,
+      this.mutable ? undefined : this.collectionFreeObjects
+    );
 
-      // Remove all patches after the current position
-      if (notLast) {
-        branchDiscard = this.discardFutureFrom(this.position);
-      }
-
-      this.allPatches.patches.push(patches);
-      this.allPatches.inversePatches.push(inversePatches);
-      this.allMetadata.push(storedMetadata);
-
-      this.position =
-        this.maxHistory < this.allPatches.patches.length
-          ? this.maxHistory
-          : this.position + 1;
-
-      this.trimHistoryToMax();
-    } else {
-      const hasPendingArchive = this.tempPatches.patches.length > 0;
-      const hasFuture = this.position < this.allPatches.patches.length;
-
-      // Remove all patches after the current position
-      if (hasFuture) {
-        branchDiscard = this.discardFutureFrom(this.position);
-      }
-
-      if (!hasPendingArchive || hasFuture) {
-        this.position =
-          this.maxHistory < this.allPatches.patches.length + 1
-            ? this.maxHistory
-            : this.position + 1;
-        historyEntryIdentities.set(patches, {});
-      }
-
-      if (hasFuture) {
-        this.tempPatches = cloneTravelPatches();
-        this.tempMetadata = undefined;
-      }
-
-      this.tempPatches.patches.push(patches);
-      this.tempPatches.inversePatches.push(inversePatches);
-      if (metadata !== undefined || this.tempMetadata === undefined) {
-        this.tempMetadata = storedMetadata;
-      }
-    }
-
-    this.invalidateHistoryCache();
-    if (process.env.NODE_ENV !== 'production') {
-      const archivedImmediately = this.isAutoArchiving();
-      this.checkPersistenceCompatibilityAfterCommit(
-        patches,
-        inversePatches,
-        storedMetadata,
-        Math.max(0, this.allPatches.patches.length - 1),
-        archivedImmediately
-      );
-    }
-    this.emitChange(
-      'setState',
-      metadata,
-      branchDiscard,
-      createPatchDelta(patches, inversePatches)
+    this.state = state;
+    this.commitPatchEntry(
+      patches,
+      inversePatches,
+      entry.metadata,
+      'recordPatches'
     );
   }
 
@@ -2224,22 +2286,36 @@ export class Travels<
           'backward'
         );
 
-    // Can only use mutable mode if:
-    // 1. mutable mode is enabled
-    // 2. current state is an object
-    // 3. patches don't contain root-level replacements (which change the entire state)
-    const canGoMutably =
-      this.mutable &&
-      isObjectLike(this.state) &&
-      !patchesToApply.some(isRootReplacement);
-
-    if (canGoMutably) {
-      // For observable state: mutate in place
-      this.journalMutableState(this.state as object, rollbackPatches);
-      apply(this.state as object, patchesToApply, { mutable: true });
+    if (this.controlledApply) {
+      const transition = Object.freeze({
+        state: this.state,
+        patches: patchesToApply,
+        inversePatches: rollbackPatches,
+        fromPosition: this.position,
+        toPosition: nextPosition,
+      });
+      this.state = assertSynchronousResult(
+        this.controlledApply(transition),
+        'controlledApply'
+      );
     } else {
-      // For immutable state or primitive types: create new state
-      this.state = this.applyImmutably(this.state, patchesToApply);
+      // Can only use mutable mode if:
+      // 1. mutable mode is enabled
+      // 2. current state is an object
+      // 3. patches don't contain root-level replacements (which change the entire state)
+      const canGoMutably =
+        this.mutable &&
+        isObjectLike(this.state) &&
+        !patchesToApply.some(isRootReplacement);
+
+      if (canGoMutably) {
+        // For observable state: mutate in place
+        this.journalMutableState(this.state as object, rollbackPatches);
+        apply(this.state as object, patchesToApply, { mutable: true });
+      } else {
+        // For immutable state or primitive types: create new state
+        this.state = this.applyImmutably(this.state, patchesToApply);
+      }
     }
 
     this.position = nextPosition;
