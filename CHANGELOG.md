@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-07-19
+
+### Added
+
+- Add `createTravelJournal()` and the owner-safe `TravelJournal` interface for runtimes that already own state and produce forward/inverse patch pairs. External commits enter through `recordPatches()`; undo, redo, and cursor navigation are synchronously delegated through the required `apply` callback.
+- Publish a `recordPatches` observer/devtools event after an external commit is retained. **TypeScript compatibility:** `TravelsEvent['type']` now includes `'recordPatches'`, so consumers using an exhaustive `switch` with a `never` assertion must add a branch. Standard `createTravels()` timelines never emit this event.
+
+### Fixed
+
+- Clone entry metadata before mutating state so a throwing metadata accessor cannot leave `setState()` or a controlled journal with state, cursor, and retained history out of sync.
+
+### Changed
+
+- Exclude state-owning operations such as `setState()`, `reset()`, transactions, tracking controls, and `getControls()` from controlled journals and reject those operations at runtime. `recordPatches()` is reserved for journals created through `createTravelJournal()`.
+
+### Performance
+
+- Keep controlled external commits proportional to the supplied patch pair by avoiding a second update recipe or full-state diff, and specialize patch detachment for retained journal entries.
+
+### Documentation
+
+- Define the controlled journal's commit ordering, synchronous navigation, failure atomicity, replay-suppression, and state/patch trust boundaries in a dedicated integration guide.
+- Replace simulated comparison claims with a reproducible real-library benchmark across Travels, MST, mobx-keystone, Coaction history, Redux-undo, and Zundo, including generated JSON/SVG results and local Coaction checkout support.
+
 ## [2.0.0] - 2026-07-18
 
 ### Added
