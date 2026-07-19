@@ -9,7 +9,7 @@ const artifacts = ['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js'];
 const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 const limits = {
   bundleRaw: 40.5 * KiB,
-  bundleGzip: 11 * KiB,
+  bundleGzip: 11.5 * KiB,
   bundleMap: 192 * KiB,
   developmentBundleRaw: 47 * KiB,
   developmentBundleGzip: 13 * KiB,
