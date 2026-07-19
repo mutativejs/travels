@@ -130,6 +130,37 @@ describe('Productized history API', () => {
     });
   });
 
+  test.each([
+    { mutable: false, mode: 'immutable' },
+    { mutable: true, mode: 'mutable' },
+  ])(
+    'metadata clone failures leave $mode state and history unchanged',
+    ({ mutable }) => {
+      const initialState = { count: 0 };
+      const travels = createTravels(initialState, { mutable });
+      const updater = vi.fn((draft: { count: number }) => {
+        draft.count = 1;
+      });
+      const metadata = {} as { label?: string };
+      Object.defineProperty(metadata, 'label', {
+        enumerable: true,
+        get() {
+          throw new Error('metadata getter failed');
+        },
+      });
+
+      expect(() => travels.setState(updater, metadata)).toThrow(
+        'metadata getter failed'
+      );
+
+      expect(updater).not.toHaveBeenCalled();
+      expect(travels.getState()).toBe(initialState);
+      expect(travels.getState()).toEqual({ count: 0 });
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getHistoryEntries()).toEqual([]);
+    }
+  );
+
   test('history entry patches are cloned', () => {
     const travels = createTravels({ count: 0 });
 

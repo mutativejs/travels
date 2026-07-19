@@ -1611,6 +1611,7 @@ export class Travels<
     patches: Patches<P>,
     inversePatches: Patches<P>,
     metadata: TravelMetadata | undefined,
+    storedMetadata: TravelMetadata | undefined,
     type: 'setState' | 'recordPatches'
   ): void {
     const hasNoChanges = patches.length === 0 && inversePatches.length === 0;
@@ -1619,7 +1620,6 @@ export class Travels<
       return;
     }
 
-    const storedMetadata = cloneTravelMetadata(metadata);
     let branchDiscard: BranchDiscardEffect<P> | undefined;
 
     if (this.trackingPauseDepth > 0) {
@@ -1719,6 +1719,7 @@ export class Travels<
 
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
+    const storedMetadata = cloneTravelMetadata(metadata);
 
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
@@ -1856,7 +1857,13 @@ export class Travels<
       this.state = nextState;
     }
 
-    this.commitPatchEntry(patches, inversePatches, metadata, 'setState');
+    this.commitPatchEntry(
+      patches,
+      inversePatches,
+      metadata,
+      storedMetadata,
+      'setState'
+    );
   }
 
   /**
@@ -1894,11 +1901,13 @@ export class Travels<
       this.mutable ? undefined : this.collectionFreeObjects
     );
 
+    const storedMetadata = cloneTravelMetadata(entry.metadata);
     this.state = state;
     this.commitPatchEntry(
       patches,
       inversePatches,
       entry.metadata,
+      storedMetadata,
       'recordPatches'
     );
   }

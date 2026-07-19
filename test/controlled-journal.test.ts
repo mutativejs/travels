@@ -101,6 +101,38 @@ describe('controlled travel journal', () => {
     expect(authoritativeState.count).toBe(1);
   });
 
+  test('keeps journal state and history unchanged when metadata cloning fails', () => {
+    const initialState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(initialState, {
+      apply: ({ patches }) => apply(initialState, patches),
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      initialState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    const metadata = {} as { label?: string };
+    Object.defineProperty(metadata, 'label', {
+      enumerable: true,
+      get() {
+        throw new Error('metadata getter failed');
+      },
+    });
+
+    expect(() =>
+      journal.recordPatches(nextState, {
+        patches,
+        inversePatches,
+        metadata,
+      })
+    ).toThrow('metadata getter failed');
+
+    expect(journal.getState()).toBe(initialState);
+    expect(journal.getPosition()).toBe(0);
+    expect(journal.getHistoryEntries()).toEqual([]);
+  });
+
   test('discards a future branch when a new external commit is recorded', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     const discarded = vi.fn();
