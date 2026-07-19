@@ -1,0 +1,745 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "real-library-undo-redo",
+  "generatedAt": "2026-07-19T13:10:08.474Z",
+  "config": {
+    "stateSizeKB": 100,
+    "iterations": 100,
+    "navigationSteps": 50,
+    "rounds": 7,
+    "warmupIterations": 20,
+    "actualInitialSizeKB": 96.49,
+    "measurements": "median/p95",
+    "lowerIsBetter": true
+  },
+  "environment": {
+    "node": "v24.16.0",
+    "platform": "darwin 25.5.0 arm64",
+    "cpu": "Apple M1 Max",
+    "logicalCpus": 10,
+    "coactionSource": "local 0c252e9"
+  },
+  "implementations": [
+    {
+      "id": "travels-immutable",
+      "label": "Travels immutable",
+      "group": "travels",
+      "version": "2.0.0",
+      "historyStrategy": "JSON Patch",
+      "referenceSemantics": "immutable root",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 0.072,
+          "p95": 0.083
+        },
+        "updateMs": {
+          "median": 0.549,
+          "p95": 0.679
+        },
+        "undoMs": {
+          "median": 0.276,
+          "p95": 0.318
+        },
+        "redoMs": {
+          "median": 0.223,
+          "p95": 0.309
+        },
+        "serializedSizeKB": {
+          "median": 117.345,
+          "p95": 117.345
+        },
+        "stringifyMs": {
+          "median": 0.102,
+          "p95": 0.107
+        },
+        "parseMs": {
+          "median": 0.188,
+          "p95": 0.207
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": 0.08,
+          "updateMs": 0.679,
+          "undoMs": 0.301,
+          "redoMs": 0.309,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.106,
+          "parseMs": 0.207
+        },
+        {
+          "retainedHeapMB": 0.083,
+          "updateMs": 0.623,
+          "undoMs": 0.276,
+          "redoMs": 0.231,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.1,
+          "parseMs": 0.188
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.519,
+          "undoMs": 0.276,
+          "redoMs": 0.199,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.191
+        },
+        {
+          "retainedHeapMB": 0.07,
+          "updateMs": 0.552,
+          "undoMs": 0.27,
+          "redoMs": 0.207,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.107,
+          "parseMs": 0.175
+        },
+        {
+          "retainedHeapMB": 0.078,
+          "updateMs": 0.549,
+          "undoMs": 0.26,
+          "redoMs": 0.204,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.103,
+          "parseMs": 0.181
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.483,
+          "undoMs": 0.24,
+          "redoMs": 0.262,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.102,
+          "parseMs": 0.193
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.469,
+          "undoMs": 0.318,
+          "redoMs": 0.223,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.17
+        }
+      ]
+    },
+    {
+      "id": "travels-mutable",
+      "label": "Travels mutable",
+      "group": "travels",
+      "version": "2.0.0",
+      "historyStrategy": "JSON Patch",
+      "referenceSemantics": "in-place root",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 0.072,
+          "p95": 0.232
+        },
+        "updateMs": {
+          "median": 0.533,
+          "p95": 0.742
+        },
+        "undoMs": {
+          "median": 0.086,
+          "p95": 0.106
+        },
+        "redoMs": {
+          "median": 0.071,
+          "p95": 0.099
+        },
+        "serializedSizeKB": {
+          "median": 117.345,
+          "p95": 117.345
+        },
+        "stringifyMs": {
+          "median": 0.106,
+          "p95": 0.124
+        },
+        "parseMs": {
+          "median": 0.182,
+          "p95": 0.192
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": 0.232,
+          "updateMs": 0.742,
+          "undoMs": 0.094,
+          "redoMs": 0.071,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.117,
+          "parseMs": 0.182
+        },
+        {
+          "retainedHeapMB": 0.072,
+          "updateMs": 0.636,
+          "undoMs": 0.101,
+          "redoMs": 0.077,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.106,
+          "parseMs": 0.166
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.533,
+          "undoMs": 0.086,
+          "redoMs": 0.099,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.107,
+          "parseMs": 0.181
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.532,
+          "undoMs": 0.082,
+          "redoMs": 0.086,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.183
+        },
+        {
+          "retainedHeapMB": 0.073,
+          "updateMs": 0.563,
+          "undoMs": 0.106,
+          "redoMs": 0.065,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.099,
+          "parseMs": 0.192
+        },
+        {
+          "retainedHeapMB": 0.08,
+          "updateMs": 0.455,
+          "undoMs": 0.072,
+          "redoMs": 0.064,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.124,
+          "parseMs": 0.182
+        },
+        {
+          "retainedHeapMB": 0.071,
+          "updateMs": 0.52,
+          "undoMs": 0.076,
+          "redoMs": 0.068,
+          "serializedSizeKB": 117.345,
+          "stringifyMs": 0.098,
+          "parseMs": 0.166
+        }
+      ]
+    },
+    {
+      "id": "mst",
+      "label": "MST + UndoManager",
+      "group": "model-tree",
+      "version": "7.3.1 + 6.1.0",
+      "historyStrategy": "JSON Patch",
+      "referenceSemantics": "model tree",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 0.22,
+          "p95": 0.28
+        },
+        "updateMs": {
+          "median": 10.414,
+          "p95": 13.104
+        },
+        "undoMs": {
+          "median": 4.384,
+          "p95": 4.641
+        },
+        "redoMs": {
+          "median": 3.144,
+          "p95": 3.816
+        },
+        "serializedSizeKB": {
+          "median": 119.254,
+          "p95": 119.254
+        },
+        "stringifyMs": {
+          "median": 0.127,
+          "p95": 0.147
+        },
+        "parseMs": {
+          "median": 0.175,
+          "p95": 0.19
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": 0.28,
+          "updateMs": 13.104,
+          "undoMs": 4.532,
+          "redoMs": 3.816,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.125,
+          "parseMs": 0.175
+        },
+        {
+          "retainedHeapMB": 0.22,
+          "updateMs": 11.233,
+          "undoMs": 4.26,
+          "redoMs": 3.144,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.147,
+          "parseMs": 0.176
+        },
+        {
+          "retainedHeapMB": 0.226,
+          "updateMs": 9.626,
+          "undoMs": 4.186,
+          "redoMs": 2.839,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.124,
+          "parseMs": 0.171
+        },
+        {
+          "retainedHeapMB": 0.208,
+          "updateMs": 10.386,
+          "undoMs": 4.279,
+          "redoMs": 3.354,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.132,
+          "parseMs": 0.19
+        },
+        {
+          "retainedHeapMB": 0.222,
+          "updateMs": 9.712,
+          "undoMs": 4.384,
+          "redoMs": 3.144,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.119,
+          "parseMs": 0.159
+        },
+        {
+          "retainedHeapMB": 0.212,
+          "updateMs": 10.414,
+          "undoMs": 4.641,
+          "redoMs": 3.063,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.127,
+          "parseMs": 0.154
+        },
+        {
+          "retainedHeapMB": 0.207,
+          "updateMs": 10.419,
+          "undoMs": 4.43,
+          "redoMs": 3.104,
+          "serializedSizeKB": 119.254,
+          "stringifyMs": 0.132,
+          "parseMs": 0.178
+        }
+      ]
+    },
+    {
+      "id": "mobx-keystone",
+      "label": "mobx-keystone",
+      "group": "model-tree",
+      "version": "1.23.0",
+      "historyStrategy": "array-path patches",
+      "referenceSemantics": "model tree",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 3.149,
+          "p95": 3.204
+        },
+        "updateMs": {
+          "median": 10.007,
+          "p95": 11.012
+        },
+        "undoMs": {
+          "median": 6.009,
+          "p95": 6.538
+        },
+        "redoMs": {
+          "median": 4.794,
+          "p95": 6.284
+        },
+        "serializedSizeKB": {
+          "median": 126.856,
+          "p95": 126.856
+        },
+        "stringifyMs": {
+          "median": 0.162,
+          "p95": 0.187
+        },
+        "parseMs": {
+          "median": 0.246,
+          "p95": 0.268
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": 3.204,
+          "updateMs": 11.012,
+          "undoMs": 6.538,
+          "redoMs": 6.284,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.187,
+          "parseMs": 0.243
+        },
+        {
+          "retainedHeapMB": 3.149,
+          "updateMs": 9.651,
+          "undoMs": 6.009,
+          "redoMs": 5.04,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.162,
+          "parseMs": 0.255
+        },
+        {
+          "retainedHeapMB": 3.13,
+          "updateMs": 10.007,
+          "undoMs": 5.168,
+          "redoMs": 4.184,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.162,
+          "parseMs": 0.268
+        },
+        {
+          "retainedHeapMB": 3.165,
+          "updateMs": 10.802,
+          "undoMs": 6.521,
+          "redoMs": 4.999,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.154,
+          "parseMs": 0.246
+        },
+        {
+          "retainedHeapMB": 3.151,
+          "updateMs": 9.16,
+          "undoMs": 5.726,
+          "redoMs": 4.794,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.139,
+          "parseMs": 0.206
+        },
+        {
+          "retainedHeapMB": 3.136,
+          "updateMs": 10.016,
+          "undoMs": 6.208,
+          "redoMs": 4.615,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.168,
+          "parseMs": 0.211
+        },
+        {
+          "retainedHeapMB": 3.128,
+          "updateMs": 8.774,
+          "undoMs": 5.08,
+          "redoMs": 4.445,
+          "serializedSizeKB": 126.856,
+          "stringifyMs": 0.182,
+          "parseMs": 0.254
+        }
+      ]
+    },
+    {
+      "id": "coaction",
+      "label": "Coaction history",
+      "group": "integration",
+      "version": "3.0.0 + 3.0.0 (local 0c252e9)",
+      "historyStrategy": "Travels JSON Patch",
+      "referenceSemantics": "Coaction store",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 0.002,
+          "p95": 0.081
+        },
+        "updateMs": {
+          "median": 1.417,
+          "p95": 1.836
+        },
+        "undoMs": {
+          "median": 0.592,
+          "p95": 0.749
+        },
+        "redoMs": {
+          "median": 0.49,
+          "p95": 0.547
+        },
+        "serializedSizeKB": {
+          "median": 116.832,
+          "p95": 116.832
+        },
+        "stringifyMs": {
+          "median": 0.113,
+          "p95": 0.122
+        },
+        "parseMs": {
+          "median": 0.186,
+          "p95": 0.203
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": -0.057,
+          "updateMs": 1.836,
+          "undoMs": 0.749,
+          "redoMs": 0.528,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.122,
+          "parseMs": 0.192
+        },
+        {
+          "retainedHeapMB": 0.081,
+          "updateMs": 1.598,
+          "undoMs": 0.579,
+          "redoMs": 0.547,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.115,
+          "parseMs": 0.203
+        },
+        {
+          "retainedHeapMB": -0.021,
+          "updateMs": 1.417,
+          "undoMs": 0.594,
+          "redoMs": 0.538,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.113,
+          "parseMs": 0.198
+        },
+        {
+          "retainedHeapMB": 0.002,
+          "updateMs": 1.345,
+          "undoMs": 0.592,
+          "redoMs": 0.481,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.115,
+          "parseMs": 0.178
+        },
+        {
+          "retainedHeapMB": 0.025,
+          "updateMs": 1.591,
+          "undoMs": 0.638,
+          "redoMs": 0.49,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.106,
+          "parseMs": 0.183
+        },
+        {
+          "retainedHeapMB": 0.005,
+          "updateMs": 1.313,
+          "undoMs": 0.56,
+          "redoMs": 0.457,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.112,
+          "parseMs": 0.186
+        },
+        {
+          "retainedHeapMB": -0.006,
+          "updateMs": 1.331,
+          "undoMs": 0.543,
+          "redoMs": 0.445,
+          "serializedSizeKB": 116.832,
+          "stringifyMs": 0.095,
+          "parseMs": 0.172
+        }
+      ]
+    },
+    {
+      "id": "redux-undo",
+      "label": "Redux-undo",
+      "group": "snapshot",
+      "version": "1.1.0",
+      "historyStrategy": "snapshots",
+      "referenceSemantics": "immutable root",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 0.009,
+          "p95": 0.014
+        },
+        "updateMs": {
+          "median": 0.096,
+          "p95": 0.11
+        },
+        "undoMs": {
+          "median": 0.045,
+          "p95": 0.088
+        },
+        "redoMs": {
+          "median": 0.034,
+          "p95": 0.088
+        },
+        "serializedSizeKB": {
+          "median": 9842.172,
+          "p95": 9842.172
+        },
+        "stringifyMs": {
+          "median": 5.705,
+          "p95": 7.109
+        },
+        "parseMs": {
+          "median": 5.621,
+          "p95": 6.979
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": 0.009,
+          "updateMs": 0.11,
+          "undoMs": 0.083,
+          "redoMs": 0.034,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 7.109,
+          "parseMs": 6.979
+        },
+        {
+          "retainedHeapMB": 0.009,
+          "updateMs": 0.107,
+          "undoMs": 0.088,
+          "redoMs": 0.031,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.832,
+          "parseMs": 5.97
+        },
+        {
+          "retainedHeapMB": 0.009,
+          "updateMs": 0.097,
+          "undoMs": 0.045,
+          "redoMs": 0.026,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.593,
+          "parseMs": 5.554
+        },
+        {
+          "retainedHeapMB": 0.011,
+          "updateMs": 0.091,
+          "undoMs": 0.037,
+          "redoMs": 0.034,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.65,
+          "parseMs": 5.567
+        },
+        {
+          "retainedHeapMB": 0.009,
+          "updateMs": 0.096,
+          "undoMs": 0.048,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.889,
+          "parseMs": 5.595
+        },
+        {
+          "retainedHeapMB": -0.086,
+          "updateMs": 0.084,
+          "undoMs": 0.036,
+          "redoMs": 0.088,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.7,
+          "parseMs": 5.621
+        },
+        {
+          "retainedHeapMB": 0.014,
+          "updateMs": 0.06,
+          "undoMs": 0.039,
+          "redoMs": 0.026,
+          "serializedSizeKB": 9842.172,
+          "stringifyMs": 5.705,
+          "parseMs": 5.646
+        }
+      ]
+    },
+    {
+      "id": "zundo",
+      "label": "Zundo",
+      "group": "snapshot",
+      "version": "2.3.0",
+      "historyStrategy": "snapshots",
+      "referenceSemantics": "immutable root",
+      "metrics": {
+        "retainedHeapMB": {
+          "median": 0.015,
+          "p95": 0.022
+        },
+        "updateMs": {
+          "median": 0.117,
+          "p95": 0.135
+        },
+        "undoMs": {
+          "median": 0.05,
+          "p95": 0.052
+        },
+        "redoMs": {
+          "median": 0.046,
+          "p95": 0.056
+        },
+        "serializedSizeKB": {
+          "median": 9745.622,
+          "p95": 9745.622
+        },
+        "stringifyMs": {
+          "median": 5.66,
+          "p95": 6.843
+        },
+        "parseMs": {
+          "median": 5.58,
+          "p95": 6.037
+        }
+      },
+      "samples": [
+        {
+          "retainedHeapMB": -0.011,
+          "updateMs": 0.128,
+          "undoMs": 0.052,
+          "redoMs": 0.055,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 6.843,
+          "parseMs": 5.681
+        },
+        {
+          "retainedHeapMB": 0.014,
+          "updateMs": 0.113,
+          "undoMs": 0.049,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.607,
+          "parseMs": 6.037
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.114,
+          "undoMs": 0.048,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.66,
+          "parseMs": 5.765
+        },
+        {
+          "retainedHeapMB": 0.022,
+          "updateMs": 0.117,
+          "undoMs": 0.051,
+          "redoMs": 0.046,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.82,
+          "parseMs": 5.549
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.135,
+          "undoMs": 0.05,
+          "redoMs": 0.056,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.607,
+          "parseMs": 5.483
+        },
+        {
+          "retainedHeapMB": 0.015,
+          "updateMs": 0.119,
+          "undoMs": 0.051,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.633,
+          "parseMs": 5.531
+        },
+        {
+          "retainedHeapMB": 0.014,
+          "updateMs": 0.117,
+          "undoMs": 0.047,
+          "redoMs": 0.045,
+          "serializedSizeKB": 9745.622,
+          "stringifyMs": 5.714,
+          "parseMs": 5.58
+        }
+      ]
+    }
+  ]
+}

@@ -45,6 +45,7 @@
     "test:examples": "tsc --project tsconfig.examples.json",
     "test:types": "tsc --noEmit --skipLibCheck",
     "coverage": "vitest run --dir test --coverage",
+    "benchmark:real": "pnpm --dir benchmarks run test:real",
     "benchmark:matrix": "pnpm run build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js",
     "benchmark:full": "pnpm run build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js --full",
     "benchmark:persistence": "pnpm run build && NODE_ENV=production node benchmarks/persistence-validation-benchmark.js",

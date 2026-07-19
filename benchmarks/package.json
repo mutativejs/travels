@@ -6,21 +6,29 @@
   "type": "commonjs",
   "description": "Performance benchmarks for undo/redo libraries",
   "scripts": {
+    "chart:real": "node generate-real-library-chart.js",
     "test:memory": "node --expose-gc memory-performance-test.js",
     "test:real": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc real-library-benchmark.js",
+    "test:real:quick": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc real-library-benchmark.js --quick --no-write",
     "test:matrix": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc matrix-benchmark.js",
     "test:full": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc matrix-benchmark.js --full",
     "test:ci": "pnpm --dir .. run build && NODE_ENV=production node --expose-gc matrix-benchmark.js --ci",
     "test:all": "pnpm run test:memory && pnpm run test:real && pnpm run test:matrix"
   },
   "dependencies": {
+    "@coaction/history": "^3.0.0",
+    "coaction": "^3.0.0",
+    "microdiff": "^1.4.0",
+    "mobx": "^6.16.1",
+    "mobx-keystone": "^1.23.0",
+    "mobx-state-tree": "^7.3.1",
+    "mst-middlewares": "^6.1.0",
+    "mutative": "^1.3.0",
     "redux": "^4.2.1",
     "redux-undo": "^1.1.0",
-    "zustand": "^4.5.0",
-    "zundo": "^2.3.0",
     "travels": "file:../",
-    "mutative": "^1.3.0",
-    "microdiff": "^1.4.0"
+    "zundo": "^2.3.0",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
     "benchmark": "^2.1.4"

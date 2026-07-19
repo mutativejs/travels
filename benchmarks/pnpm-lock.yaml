@@ -8,9 +8,27 @@ importers:
 
   .:
     dependencies:
+      '@coaction/history':
+        specifier: ^3.0.0
+        version: 3.0.0(coaction@3.0.0)
+      coaction:
+        specifier: ^3.0.0
+        version: 3.0.0
       microdiff:
         specifier: ^1.4.0
         version: 1.5.0
+      mobx:
+        specifier: ^6.16.1
+        version: 6.16.1
+      mobx-keystone:
+        specifier: ^1.23.0
+        version: 1.23.0(mobx@6.16.1)
+      mobx-state-tree:
+        specifier: ^7.3.1
+        version: 7.3.1(mobx@6.16.1)
+      mst-middlewares:
+        specifier: ^6.1.0
+        version: 6.1.0(mobx-state-tree@7.3.1(mobx@6.16.1))
       mutative:
         specifier: ^1.3.0
         version: 1.3.0
@@ -40,8 +58,25 @@ packages:
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
 
+  '@coaction/history@3.0.0':
+    resolution: {integrity: sha512-Twd7VCjlADI5g8Z+Rtoj+l6IlGdILGhDxLF6r76Jo6ooZ98mkX7hQoS+eQNc708hXQPV7AiBa4Bs/zjm5xIcBw==}
+    peerDependencies:
+      coaction: ^3.0.0
+
+  alien-signals@3.2.1:
+    resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
+
   benchmark@2.1.4:
     resolution: {integrity: sha512-l9MlfN4M1K/H2fbhfMy3B7vJd6AGKJVQn2h6Sg/Yx+KckoUA7ewS5Vv6TjSq18ooE1kS9hhAlQRH3AkXIh/aOQ==}
+
+  coaction@3.0.0:
+    resolution: {integrity: sha512-G6RMkKqBLmJG9dZxzUIUgBKkFIwZ3ONDLYPMeeyki+M4tlYBk/1xqNxrD+6f0BxoNMdji5rAu7JSVD4WIFZGvg==}
+
+  data-transport@5.0.3:
+    resolution: {integrity: sha512-AncLCdUPeovpoN5dB76E3O8l9kS3rNkTfJmJenyXu8AdSOPs9jAd97DBauZS17YfPOGLDS/mbDBXUavRpKiwJA==}
+
+  fast-deep-equal@3.1.3:
+    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -49,9 +84,32 @@ packages:
   microdiff@1.5.0:
     resolution: {integrity: sha512-Drq+/THMvDdzRYrK0oxJmOKiC24ayUV8ahrt8l3oRK51PWt6gdtrIGrlIH3pT/lFh1z93FbAcidtsHcWbnRz8Q==}
 
+  mobx-keystone@1.23.0:
+    resolution: {integrity: sha512-AQKkq/PSmGBDliwmh4b6chRRbt4D3nqI5Qr/M+SAVKWrdN2wIOVFJSOPk+k/ZLadcviufYVgAsRDQvVlXBmRqA==}
+    peerDependencies:
+      mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
+
+  mobx-state-tree@7.3.1:
+    resolution: {integrity: sha512-SxX7BBWOCN7AdzHzjLAJcMsyUoIPlFy9zOtsfLFRUhB7IviIYGTYYccv9OFSOatLjh7nJwzZ5U3XDRlmbCrtfQ==}
+    peerDependencies:
+      mobx: ^6.3.0
+
+  mobx@6.16.1:
+    resolution: {integrity: sha512-syNcDdX3KT+Jq3je6eGjBhuc24Z68td2VG0zNFqRswaE433D9SNH5VRy/xrGbJsUixfppLLccXhAW9JSf6n+SQ==}
+
+  mst-middlewares@6.1.0:
+    resolution: {integrity: sha512-3vJ+xwoEiB/i69w7kqo9Im6HYXZTlillhFawpeJcZzDG44fMeNEqOy5sbpdAHtcqmPWJQ2by+L9ibbDDRj6jow==}
+    peerDependencies:
+      mobx-state-tree: ^5.0.0 || ^6.0.0 || ^7.0.0
+
   mutative@1.3.0:
     resolution: {integrity: sha512-8MJj6URmOZAV70dpFe1YnSppRTKC4DsMkXQiBDFayLcDI4ljGokHxmpqaBQuDWa4iAxWaJJ1PS8vAmbntjjKmQ==}
     engines: {node: '>=14.0'}
+
+  nanoid@3.3.16:
+    resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
 
   platform@1.3.6:
     resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
@@ -69,12 +127,31 @@ packages:
   travels@file:..:
     resolution: {directory: .., type: directory}
     peerDependencies:
-      mutative: '>=1.0.0'
+      mutative: ^1.3.0
+
+  ts-essentials@9.4.2:
+    resolution: {integrity: sha512-mB/cDhOvD7pg3YCLk2rOtejHjjdSi9in/IBYE13S+8WA5FBSraYf4V/ws55uvs0IvQ/l0wBOlXy5yBNZ9Bl8ZQ==}
+    peerDependencies:
+      typescript: '>=4.1.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ts-toolbelt@9.6.0:
+    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
   use-sync-external-store@1.6.0:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+    hasBin: true
 
   zundo@2.3.0:
     resolution: {integrity: sha512-4GXYxXA17SIKYhVbWHdSEU04P697IMyVGXrC2TnzoyohEAWytFNOKqOp5gTGvaW93F/PM5Y0evbGtOPF0PWQwQ==}
@@ -100,16 +177,57 @@ snapshots:
 
   '@babel/runtime@7.28.4': {}
 
+  '@coaction/history@3.0.0(coaction@3.0.0)':
+    dependencies:
+      coaction: 3.0.0
+
+  alien-signals@3.2.1: {}
+
   benchmark@2.1.4:
     dependencies:
       lodash: 4.17.21
       platform: 1.3.6
 
+  coaction@3.0.0:
+    dependencies:
+      alien-signals: 3.2.1
+      data-transport: 5.0.3
+      mutative: 1.3.0
+
+  data-transport@5.0.3:
+    dependencies:
+      uuid: 9.0.1
+
+  fast-deep-equal@3.1.3: {}
+
   lodash@4.17.21: {}
 
   microdiff@1.5.0: {}
 
+  mobx-keystone@1.23.0(mobx@6.16.1):
+    dependencies:
+      fast-deep-equal: 3.1.3
+      mobx: 6.16.1
+      nanoid: 3.3.16
+      ts-toolbelt: 9.6.0
+      tslib: 2.8.1
+
+  mobx-state-tree@7.3.1(mobx@6.16.1):
+    dependencies:
+      mobx: 6.16.1
+      ts-essentials: 9.4.2
+    transitivePeerDependencies:
+      - typescript
+
+  mobx@6.16.1: {}
+
+  mst-middlewares@6.1.0(mobx-state-tree@7.3.1(mobx@6.16.1)):
+    dependencies:
+      mobx-state-tree: 7.3.1(mobx@6.16.1)
+
   mutative@1.3.0: {}
+
+  nanoid@3.3.16: {}
 
   platform@1.3.6: {}
 
@@ -125,9 +243,17 @@ snapshots:
     dependencies:
       mutative: 1.3.0
 
+  ts-essentials@9.4.2: {}
+
+  ts-toolbelt@9.6.0: {}
+
+  tslib@2.8.1: {}
+
   use-sync-external-store@1.6.0(react@19.2.7):
     dependencies:
       react: 19.2.7
+
+  uuid@9.0.1: {}
 
   zundo@2.3.0(zustand@4.5.7(react@19.2.7)):
     dependencies:

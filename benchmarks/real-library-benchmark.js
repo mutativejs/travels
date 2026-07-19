@@ -1,397 +1,811 @@
 /**
- * Benchmark using real libraries
+ * Real-library undo/redo benchmark.
  *
- * Compare real implementations of Redux-undo, Zundo, and Travels
+ * Every adapter receives the same deterministic document and records one
+ * history entry per two-field update. Store creation is intentionally excluded
+ * so the benchmark focuses on steady-state history recording, navigation, and
+ * persistence footprint rather than model-schema construction.
  */
 
-const { createStore } = require('redux');
-const undoable = require('redux-undo').default;
-const { createStore: create } = require('zustand/vanilla');
-const { temporal } = require('zundo');
-const { createTravels } = require('../dist/index.cjs');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { execFileSync } = require('child_process');
+const { createRequire } = require('module');
 const { performance } = require('perf_hooks');
+const { createStore: createReduxStore } = require('redux');
+const undoable = require('redux-undo').default;
+const { createStore: createZustandStore } = require('zustand/vanilla');
+const { temporal } = require('zundo');
+const {
+  destroy: destroyMst,
+  getSnapshot: getMstSnapshot,
+  types: mstTypes,
+} = require('mobx-state-tree');
+const { UndoManager: MstUndoManager } = require('mst-middlewares');
+const {
+  Model: KeystoneModel,
+  decoratedModel,
+  getSnapshot: getKeystoneSnapshot,
+  modelAction,
+  prop,
+  registerRootStore,
+  undoMiddleware,
+  unregisterRootStore,
+} = require('mobx-keystone');
+const { createTravels } = require('../dist/index.cjs');
+const { writeBenchmarkChart } = require('./generate-real-library-chart');
 
-// ============ Utilities ============
+const cliArgs = process.argv.slice(2);
+const isQuick = cliArgs.includes('--quick');
+const shouldWriteResults = !cliArgs.includes('--no-write');
 
-function generateComplexObject(targetSizeKB = 100) {
-  const obj = {
-    id: Math.random().toString(36),
-    timestamp: Date.now(),
-    metadata: {},
-    items: [],
-    config: {},
+function readStringFlag(name) {
+  const prefix = `${name}=`;
+  return cliArgs.find((value) => value.startsWith(prefix))?.slice(prefix.length);
+}
+
+const localCoactionRepoInput = readStringFlag('--coaction-repo');
+const localCoactionRepo = localCoactionRepoInput
+  ? path.resolve(localCoactionRepoInput)
+  : undefined;
+
+function requireCoaction() {
+  if (!localCoactionRepo) {
+    return {
+      createStore: require('coaction/local').create,
+      history: require('@coaction/history').history,
+      source: 'npm',
+    };
+  }
+  const coreEntry = path.join(
+    localCoactionRepo,
+    'packages/core/dist/local.js'
+  );
+  const historyEntry = path.join(
+    localCoactionRepo,
+    'packages/coaction-history/dist/index.js'
+  );
+  for (const entry of [coreEntry, historyEntry]) {
+    if (!fs.existsSync(entry)) {
+      throw new Error(
+        `Missing local Coaction build at ${entry}. Build coaction and @coaction/history before running this benchmark.`
+      );
+    }
+  }
+
+  // The local history build should exercise the current Travels checkout. Map
+  // its dependency resolution to this benchmark's already-built CJS export
+  // without mutating either repository's node_modules links.
+  const historyRequire = createRequire(historyEntry);
+  const resolvedHistoryTravels = historyRequire.resolve('travels');
+  require.cache[resolvedHistoryTravels] = {
+    id: resolvedHistoryTravels,
+    filename: resolvedHistoryTravels,
+    loaded: true,
+    exports: require('../dist/index.cjs'),
+    children: [],
+    paths: [],
   };
 
-  const stringSize = Math.floor((targetSizeKB * 1024) / 10);
-  for (let i = 0; i < 10; i++) {
-    obj.items.push({
-      id: i,
-      name: `Item ${i}`,
-      description: 'x'.repeat(stringSize),
-      tags: Array(50).fill(0).map((_, j) => `tag-${i}-${j}`),
-      nested: {
-        level1: {
-          level2: {
-            level3: {
-              data: Array(20).fill(0).map((_, k) => ({
-                key: `data-${k}`,
-                value: Math.random(),
-              })),
-            },
+  const revision = execFileSync(
+    'git',
+    ['-C', localCoactionRepo, 'rev-parse', '--short', 'HEAD'],
+    { encoding: 'utf8' }
+  ).trim();
+  const dirty = execFileSync(
+    'git',
+    ['-C', localCoactionRepo, 'status', '--porcelain'],
+    { encoding: 'utf8' }
+  ).trim();
+  return {
+    createStore: require(coreEntry).create,
+    history: require(historyEntry).history,
+    source: `local ${revision}${dirty ? ' (dirty)' : ''}`,
+  };
+}
+
+const {
+  createStore: createCoactionStore,
+  history: coactionHistory,
+  source: coactionSource,
+} = requireCoaction();
+
+function detectCoactionPatchTimeline() {
+  const store = createCoactionStore(() => ({ value: 0 }), {
+    middlewares: [coactionHistory()],
+  });
+  try {
+    return typeof store.history?.getPatches === 'function';
+  } finally {
+    store.destroy?.();
+  }
+}
+
+const coactionHasPatchTimeline = detectCoactionPatchTimeline();
+
+function readPositiveIntegerFlag(name, fallback) {
+  const prefix = `${name}=`;
+  const argument = cliArgs.find((value) => value.startsWith(prefix));
+  if (!argument) return fallback;
+  const parsed = Number(argument.slice(prefix.length));
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`${name} must be a positive integer.`);
+  }
+  return parsed;
+}
+
+const iterations = readPositiveIntegerFlag('--iterations', isQuick ? 20 : 100);
+const config = {
+  stateSizeKB: readPositiveIntegerFlag('--state-size-kb', 100),
+  iterations,
+  navigationSteps: Math.min(
+    iterations,
+    readPositiveIntegerFlag('--navigation-steps', isQuick ? 10 : 50)
+  ),
+  rounds: readPositiveIntegerFlag('--rounds', isQuick ? 3 : 7),
+  warmupIterations: Math.min(iterations, isQuick ? 5 : 20),
+};
+
+function round(value, digits = 3) {
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
+}
+
+function percentile(values, ratio) {
+  const sorted = [...values].sort((left, right) => left - right);
+  const index = Math.ceil(sorted.length * ratio) - 1;
+  return sorted[Math.max(0, Math.min(sorted.length - 1, index))];
+}
+
+function summarize(values) {
+  return {
+    median: round(percentile(values, 0.5)),
+    p95: round(percentile(values, 0.95)),
+  };
+}
+
+function measure(callback) {
+  const startedAt = performance.now();
+  const result = callback();
+  return {
+    result,
+    ms: performance.now() - startedAt,
+  };
+}
+
+function collectHeap() {
+  if (global.gc) global.gc();
+  return process.memoryUsage().heapUsed;
+}
+
+function createItem(index, descriptionSize) {
+  return {
+    id: `item-${index}`,
+    name: `Item ${index}`,
+    description: 'x'.repeat(descriptionSize),
+    tags: Array.from(
+      { length: 8 },
+      (_, tagIndex) => `tag-${index}-${tagIndex}`
+    ),
+    nested: {
+      level1: {
+        level2: {
+          level3: {
+            data: Array.from({ length: 4 }, (_, dataIndex) => ({
+              key: `data-${index}-${dataIndex}`,
+              value: index * 100 + dataIndex,
+            })),
           },
         },
       },
-    });
-  }
-
-  return obj;
-}
-
-function measureMemory(label) {
-  if (global.gc) {
-    global.gc();
-  }
-  const used = process.memoryUsage();
-  console.log(`\n[${label}]`);
-  console.log(`  Heap Used: ${Math.round(used.heapUsed / 1024 / 1024 * 100) / 100} MB`);
-  return used.heapUsed;
-}
-
-function measureTime(fn, label) {
-  const start = performance.now();
-  fn();
-  const end = performance.now();
-  const duration = Math.round((end - start) * 100) / 100;
-  console.log(`  ${label}: ${duration} ms`);
-  return duration;
-}
-
-function measureSerializedSize(data, label) {
-  const serialized = JSON.stringify(data);
-  const sizeKB = Math.round(serialized.length / 1024 * 100) / 100;
-  console.log(`  ${label}: ${sizeKB} KB`);
-  return sizeKB;
-}
-
-// ============ Redux-undo Benchmark ============
-
-function testReduxUndo(iterations = 100) {
-  console.log(`\n${'='.repeat(60)}`);
-  console.log('Redux-undo (real implementation)');
-  console.log('='.repeat(60));
-
-  const initialState = generateComplexObject(100);
-
-  // Create reducer
-  const reducer = (state = initialState, action) => {
-    switch (action.type) {
-      case 'UPDATE':
-        return { ...state, ...action.payload };
-      default:
-        return state;
-    }
+    },
   };
+}
 
-  const memBefore = measureMemory('Initial state');
+function generateComplexObject(targetSizeKB) {
+  const itemCount = 12;
+  const descriptionSize = Math.max(
+    16,
+    Math.floor((targetSizeKB * 1024) / itemCount / 1.08)
+  );
+  return {
+    id: 'document-0',
+    timestamp: 0,
+    metadata: {
+      title: 'Benchmark document',
+      version: 1,
+      flags: { published: false, locked: false },
+    },
+    items: Array.from({ length: itemCount }, (_, index) =>
+      createItem(index, descriptionSize)
+    ),
+    config: {
+      locale: 'en-US',
+      autosave: true,
+    },
+  };
+}
 
-  // Create undoable store
-  const undoableReducer = undoable(reducer);
-  const store = createStore(undoableReducer);
+const MstDocument = mstTypes
+  .model('TravelsBenchmarkDocument', {
+    id: mstTypes.string,
+    timestamp: mstTypes.number,
+    metadata: mstTypes.frozen(),
+    items: mstTypes.frozen(),
+    config: mstTypes.frozen(),
+  })
+  .actions((state) => ({
+    update(id, timestamp) {
+      state.id = id;
+      state.timestamp = timestamp;
+    },
+  }));
 
-  // setState benchmark
-  console.log('\n--- Test 1: Small consecutive updates ---');
-  const setStateTime = measureTime(() => {
-    for (let i = 0; i < iterations; i++) {
+const KeystoneDocument = decoratedModel(
+  'travelsBenchmark/Document',
+  class extends KeystoneModel({
+    id: prop(''),
+    timestamp: prop(0),
+    metadata: prop(() => ({})),
+    items: prop(() => []),
+    config: prop(() => ({})),
+  }) {
+    update(id, timestamp) {
+      this.id = id;
+      this.timestamp = timestamp;
+    }
+  },
+  { update: modelAction }
+);
+
+function createReduxUndo(initialState) {
+  const reducer = (state = initialState, action) => {
+    if (action.type !== 'UPDATE') return state;
+    return {
+      ...state,
+      id: action.id,
+      timestamp: action.timestamp,
+    };
+  };
+  const store = createReduxStore(undoable(reducer));
+  return {
+    update(index) {
       store.dispatch({
         type: 'UPDATE',
-        payload: {
-          id: `modified-${i}`,
-          timestamp: Date.now(),
-        },
+        id: `modified-${index}`,
+        timestamp: index + 1,
       });
-    }
-  }, `${iterations} dispatches`);
-
-  const memAfterSetState = measureMemory('After consecutive updates');
-  const memUsed = Math.round((memAfterSetState - memBefore) / 1024 / 1024 * 100) / 100;
-  console.log(`  Memory increase: ${memUsed} MB`);
-
-  // Undo benchmark
-  console.log('\n--- Test 2: Undo performance ---');
-  const undoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
+    },
+    undo() {
       store.dispatch({ type: '@@redux-undo/UNDO' });
-    }
-  }, '50 undos');
-
-  // Redo benchmark
-  console.log('\n--- Test 3: Redo performance ---');
-  const redoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
+    },
+    redo() {
       store.dispatch({ type: '@@redux-undo/REDO' });
-    }
-  }, '50 redos');
-
-  // Serialization benchmark
-  console.log('\n--- Test 4: Serialization performance ---');
-  const state = store.getState();
-
-  const serializeTime = measureTime(() => {
-    JSON.stringify(state);
-  }, 'JSON.stringify');
-
-  const serializedSize = measureSerializedSize(state, 'Serialized size');
-
-  const deserializeTime = measureTime(() => {
-    JSON.parse(JSON.stringify(state));
-  }, 'JSON.parse');
-
-  return {
-    label: 'Redux-undo',
-    memoryMB: memUsed,
-    setStateTime,
-    undoTime,
-    redoTime,
-    serializeTime,
-    deserializeTime,
-    serializedSizeKB: serializedSize,
+    },
+    getId: () => store.getState().present.id,
+    getHistoryLength: () =>
+      store.getState().past.length + store.getState().future.length,
+    getPersistencePayload: () => store.getState(),
   };
 }
 
-// ============ Zundo Benchmark (no diff) ============
-
-function testZundoNoDialog(iterations = 100) {
-  console.log(`\n${'='.repeat(60)}`);
-  console.log('Zundo (no diff - real implementation)');
-  console.log('='.repeat(60));
-
-  const initialState = generateComplexObject(100);
-  const memBefore = measureMemory('Initial state');
-
-  // Create Zustand store with temporal
-  const useStore = create(
-    temporal((set) => ({
-      ...initialState,
-      update: (payload) => set((state) => ({ ...state, ...payload })),
-    }))
+function createZundo(initialState, benchmarkConfig) {
+  const store = createZustandStore(
+    temporal(
+      (set) => ({
+        ...initialState,
+        update(id, timestamp) {
+          set({ id, timestamp });
+        },
+      }),
+      { limit: benchmarkConfig.iterations }
+    )
   );
-
-  // setState benchmark
-  console.log('\n--- Test 1: Small consecutive updates ---');
-  const setStateTime = measureTime(() => {
-    for (let i = 0; i < iterations; i++) {
-      useStore.getState().update({
-        id: `modified-${i}`,
-        timestamp: Date.now(),
-      });
-    }
-  }, `${iterations} updates`);
-
-  const memAfterSetState = measureMemory('After consecutive updates');
-  const memUsed = Math.round((memAfterSetState - memBefore) / 1024 / 1024 * 100) / 100;
-  console.log(`  Memory increase: ${memUsed} MB`);
-
-  // Undo benchmark
-  console.log('\n--- Test 2: Undo performance ---');
-  const { undo, redo } = useStore.temporal.getState();
-  const undoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
-      undo();
-    }
-  }, '50 undos');
-
-  // Redo benchmark
-  console.log('\n--- Test 3: Redo performance ---');
-  const redoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
-      redo();
-    }
-  }, '50 redos');
-
-  // Serialization benchmark
-  console.log('\n--- Test 4: Serialization performance ---');
-  const temporalState = useStore.temporal.getState();
-
-  const serializeTime = measureTime(() => {
-    JSON.stringify(temporalState);
-  }, 'JSON.stringify');
-
-  const serializedSize = measureSerializedSize(temporalState, 'Serialized size');
-
-  const deserializeTime = measureTime(() => {
-    JSON.parse(JSON.stringify(temporalState));
-  }, 'JSON.parse');
-
+  const history = store.temporal;
   return {
-    label: 'Zundo (no diff)',
-    memoryMB: memUsed,
-    setStateTime,
-    undoTime,
-    redoTime,
-    serializeTime,
-    deserializeTime,
-    serializedSizeKB: serializedSize,
+    update(index) {
+      store.getState().update(`modified-${index}`, index + 1);
+    },
+    undo() {
+      history.getState().undo();
+    },
+    redo() {
+      history.getState().redo();
+    },
+    getId: () => store.getState().id,
+    getHistoryLength: () => {
+      const temporalState = history.getState();
+      return (
+        temporalState.pastStates.length + temporalState.futureStates.length
+      );
+    },
+    getPersistencePayload: () => {
+      const temporalState = history.getState();
+      return {
+        state: store.getState(),
+        past: temporalState.pastStates,
+        future: temporalState.futureStates,
+      };
+    },
+    dispose() {
+      history.destroy?.();
+      store.destroy?.();
+    },
   };
 }
 
-// ============ Travels Benchmark ============
+function createCoaction(initialState, benchmarkConfig) {
+  const store = createCoactionStore(
+    (set) => ({
+      ...initialState,
+      update(id, timestamp) {
+        set((draft) => {
+          draft.id = id;
+          draft.timestamp = timestamp;
+        });
+      },
+    }),
+    { middlewares: [coactionHistory({ limit: benchmarkConfig.iterations })] }
+  );
+  const history = store.history;
+  const getPatchHistory = () => history.getPatches?.();
+  return {
+    update(index) {
+      store.getState().update(`modified-${index}`, index + 1);
+    },
+    undo() {
+      history.undo();
+    },
+    redo() {
+      history.redo();
+    },
+    getId: () => store.getState().id,
+    getHistoryLength: () => {
+      const patchHistory = getPatchHistory();
+      return patchHistory
+        ? patchHistory.patches.length
+        : history.getPast().length + history.getFuture().length;
+    },
+    getPersistencePayload: () => {
+      const patchHistory = getPatchHistory();
+      return patchHistory
+        ? {
+            version: 1,
+            state: store.getPureState(),
+            ...patchHistory,
+          }
+        : {
+            state: store.getPureState(),
+            past: history.getPast(),
+            future: history.getFuture(),
+          };
+    },
+    dispose() {
+      store.destroy();
+    },
+  };
+}
 
-function testTravels(iterations = 100) {
-  console.log(`\n${'='.repeat(60)}`);
-  console.log('Travels (real implementation)');
-  console.log('='.repeat(60));
+function createMst(initialState) {
+  const store = MstDocument.create(initialState);
+  const history = MstUndoManager.create({}, { targetStore: store });
+  return {
+    update(index) {
+      store.update(`modified-${index}`, index + 1);
+    },
+    undo() {
+      history.undo();
+    },
+    redo() {
+      history.redo();
+    },
+    getId: () => store.id,
+    getHistoryLength: () => history.undoLevels + history.redoLevels,
+    getPersistencePayload: () => ({
+      state: getMstSnapshot(store),
+      history: getMstSnapshot(history),
+    }),
+    dispose() {
+      destroyMst(history);
+      destroyMst(store);
+    },
+  };
+}
 
-  const initialState = generateComplexObject(100);
-  const memBefore = measureMemory('Initial state');
+function createMobxKeystone(initialState, benchmarkConfig) {
+  const store = new KeystoneDocument(initialState);
+  registerRootStore(store);
+  const history = undoMiddleware(store, undefined, {
+    maxUndoLevels: benchmarkConfig.iterations,
+    maxRedoLevels: benchmarkConfig.iterations,
+  });
+  return {
+    update(index) {
+      store.update(`modified-${index}`, index + 1);
+    },
+    undo() {
+      history.undo();
+    },
+    redo() {
+      history.redo();
+    },
+    getId: () => store.id,
+    getHistoryLength: () => history.undoLevels + history.redoLevels,
+    getPersistencePayload: () => ({
+      state: getKeystoneSnapshot(store),
+      history: getKeystoneSnapshot(history.store),
+    }),
+    dispose() {
+      history.dispose();
+      unregisterRootStore(store);
+    },
+  };
+}
 
-  const travels = createTravels(initialState);
-
-  // setState benchmark
-  console.log('\n--- Test 1: Small consecutive updates ---');
-  const setStateTime = measureTime(() => {
-    for (let i = 0; i < iterations; i++) {
+function createTravelsAdapter(initialState, benchmarkConfig, mutable) {
+  const originalReference = initialState;
+  const travels = createTravels(initialState, {
+    maxHistory: benchmarkConfig.iterations,
+    mutable,
+    warnOnUnsupportedState: false,
+  });
+  return {
+    update(index) {
       travels.setState((draft) => {
-        draft.id = `modified-${i}`;
-        draft.timestamp = Date.now();
+        draft.id = `modified-${index}`;
+        draft.timestamp = index + 1;
       });
-    }
-  }, `${iterations} setState calls`);
-
-  const memAfterSetState = measureMemory('After consecutive updates');
-  const memUsed = Math.round((memAfterSetState - memBefore) / 1024 / 1024 * 100) / 100;
-  console.log(`  Memory increase: ${memUsed} MB`);
-
-  // Undo benchmark
-  console.log('\n--- Test 2: Undo performance ---');
-  const undoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
+      if (mutable && travels.getState() !== originalReference) {
+        throw new Error('Travels mutable mode replaced the root reference.');
+      }
+    },
+    undo() {
       travels.back();
-    }
-  }, '50 backs');
-
-  // Redo benchmark
-  console.log('\n--- Test 3: Redo performance ---');
-  const redoTime = measureTime(() => {
-    for (let i = 0; i < Math.min(50, iterations); i++) {
+    },
+    redo() {
       travels.forward();
-    }
-  }, '50 forwards');
-
-  // Serialization benchmark
-  console.log('\n--- Test 4: Serialization performance ---');
-  const history = {
-    state: travels.getState(),
-    patches: travels.getPatches(),
-    position: travels.getPosition(),
-  };
-
-  const serializeTime = measureTime(() => {
-    JSON.stringify(history);
-  }, 'JSON.stringify');
-
-  const serializedSize = measureSerializedSize(history, 'Serialized size');
-
-  const deserializeTime = measureTime(() => {
-    JSON.parse(JSON.stringify(history));
-  }, 'JSON.parse');
-
-  return {
-    label: 'Travels',
-    memoryMB: memUsed,
-    setStateTime,
-    undoTime,
-    redoTime,
-    serializeTime,
-    deserializeTime,
-    serializedSizeKB: serializedSize,
+    },
+    getId: () => travels.getState().id,
+    getHistoryLength: () => travels.getPatches().patches.length,
+    getPersistencePayload: () => travels.serialize(),
   };
 }
 
-// ============ Run all benchmarks ============
+function packageVersion(packageName) {
+  let currentDirectory = path.dirname(require.resolve(packageName));
+  while (true) {
+    const manifestPath = path.join(currentDirectory, 'package.json');
+    if (fs.existsSync(manifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      if (manifest.name === packageName) return manifest.version;
+    }
+    const parentDirectory = path.dirname(currentDirectory);
+    if (parentDirectory === currentDirectory) break;
+    currentDirectory = parentDirectory;
+  }
+  throw new Error(`Could not resolve the package version for ${packageName}.`);
+}
 
-function main() {
-  console.log('\n' + '█'.repeat(60));
-  console.log('   Undo/Redo performance comparison (real libraries)');
-  console.log('█'.repeat(60));
-  console.log('\nTest configuration:');
-  console.log('  - Initial object size: ~100 KB');
-  console.log('  - History length: 100');
-  console.log('  - Each update: 2 fields (small changes)');
-  console.log('  - Node version:', process.version);
-  console.log('  - Run: node --expose-gc real-library-benchmark.js');
+function localPackageVersion(relativeManifestPath) {
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(localCoactionRepo, relativeManifestPath), 'utf8')
+  );
+  return manifest.version;
+}
 
-  const results = [];
+const coactionVersion = localCoactionRepo
+  ? `${localPackageVersion('packages/core/package.json')} + ${localPackageVersion(
+      'packages/coaction-history/package.json'
+    )} (${coactionSource})`
+  : `${packageVersion('coaction')} + ${packageVersion('@coaction/history')}`;
 
-  // Run all tests
-  results.push(testReduxUndo(100));
-  results.push(testZundoNoDialog(100));
-  results.push(testTravels(100));
+const adapters = [
+  {
+    id: 'travels-immutable',
+    label: 'Travels immutable',
+    group: 'travels',
+    historyStrategy: 'JSON Patch',
+    referenceSemantics: 'immutable root',
+    version: require('../package.json').version,
+    create: (initialState, benchmarkConfig) =>
+      createTravelsAdapter(initialState, benchmarkConfig, false),
+  },
+  {
+    id: 'travels-mutable',
+    label: 'Travels mutable',
+    group: 'travels',
+    historyStrategy: 'JSON Patch',
+    referenceSemantics: 'in-place root',
+    version: require('../package.json').version,
+    create: (initialState, benchmarkConfig) =>
+      createTravelsAdapter(initialState, benchmarkConfig, true),
+  },
+  {
+    id: 'mst',
+    label: 'MST + UndoManager',
+    group: 'model-tree',
+    historyStrategy: 'JSON Patch',
+    referenceSemantics: 'model tree',
+    version: `${packageVersion('mobx-state-tree')} + ${packageVersion(
+      'mst-middlewares'
+    )}`,
+    create: createMst,
+  },
+  {
+    id: 'mobx-keystone',
+    label: 'mobx-keystone',
+    group: 'model-tree',
+    historyStrategy: 'array-path patches',
+    referenceSemantics: 'model tree',
+    version: packageVersion('mobx-keystone'),
+    create: createMobxKeystone,
+  },
+  {
+    id: 'coaction',
+    label: 'Coaction history',
+    group: coactionHasPatchTimeline ? 'integration' : 'snapshot',
+    historyStrategy: coactionHasPatchTimeline
+      ? 'Travels JSON Patch'
+      : 'snapshots',
+    referenceSemantics: 'Coaction store',
+    version: coactionVersion,
+    create: createCoaction,
+  },
+  {
+    id: 'redux-undo',
+    label: 'Redux-undo',
+    group: 'snapshot',
+    historyStrategy: 'snapshots',
+    referenceSemantics: 'immutable root',
+    version: packageVersion('redux-undo'),
+    create: createReduxUndo,
+  },
+  {
+    id: 'zundo',
+    label: 'Zundo',
+    group: 'snapshot',
+    historyStrategy: 'snapshots',
+    referenceSemantics: 'immutable root',
+    version: packageVersion('zundo'),
+    create: createZundo,
+  },
+];
 
-  // Summary
-  console.log('\n\n' + '█'.repeat(60));
-  console.log('   Benchmark results summary');
-  console.log('█'.repeat(60));
+function assertState(adapter, expectedId, operation) {
+  const actualId = adapter.getId();
+  if (actualId !== expectedId) {
+    throw new Error(
+      `${operation} produced id ${JSON.stringify(actualId)}; expected ${JSON.stringify(
+        expectedId
+      )}.`
+    );
+  }
+}
 
-  console.log('\n| Metric | Redux-undo | Zundo | Travels |');
-  console.log('|------|-----------|-------|---------|');
+function runRound(definition, benchmarkConfig) {
+  const initialState = generateComplexObject(benchmarkConfig.stateSizeKB);
+  const adapter = definition.create(initialState, benchmarkConfig);
+  try {
+    const heapBeforeUpdates = collectHeap();
+    const updateTime = measure(() => {
+      for (let index = 0; index < benchmarkConfig.iterations; index += 1) {
+        adapter.update(index);
+      }
+    }).ms;
+    assertState(
+      adapter,
+      `modified-${benchmarkConfig.iterations - 1}`,
+      `${definition.label} updates`
+    );
 
-  const metrics = [
-    { key: 'memoryMB', label: 'Memory (MB)', lower: true },
-    { key: 'setStateTime', label: 'setState (ms)', lower: true },
-    { key: 'undoTime', label: 'Undo (ms)', lower: true },
-    { key: 'redoTime', label: 'Redo (ms)', lower: true },
-    { key: 'serializedSizeKB', label: 'Serialized size (KB)', lower: true },
-    { key: 'serializeTime', label: 'Serialize (ms)', lower: true },
-    { key: 'deserializeTime', label: 'Deserialize (ms)', lower: true },
-  ];
+    const heapAfterUpdates = collectHeap();
+    const retainedHeapMB = (heapAfterUpdates - heapBeforeUpdates) / 1024 / 1024;
 
-  for (const metric of metrics) {
-    const values = results.map(r => r[metric.key]);
-    const best = metric.lower ? Math.min(...values) : Math.max(...values);
+    const undoTime = measure(() => {
+      for (let index = 0; index < benchmarkConfig.navigationSteps; index += 1) {
+        adapter.undo();
+      }
+    }).ms;
+    const expectedUndoIndex =
+      benchmarkConfig.iterations - benchmarkConfig.navigationSteps - 1;
+    assertState(
+      adapter,
+      expectedUndoIndex >= 0 ? `modified-${expectedUndoIndex}` : 'document-0',
+      `${definition.label} undo`
+    );
 
-    const row = results.map(r => {
-      const value = r[metric.key];
-      const isBest = value === best;
-      return `${value}${isBest ? ' ⭐' : ''}`;
-    });
+    const redoTime = measure(() => {
+      for (let index = 0; index < benchmarkConfig.navigationSteps; index += 1) {
+        adapter.redo();
+      }
+    }).ms;
+    assertState(
+      adapter,
+      `modified-${benchmarkConfig.iterations - 1}`,
+      `${definition.label} redo`
+    );
 
-    console.log(`| ${metric.label} | ${row.join(' | ')} |`);
+    const recordedEntries = adapter.getHistoryLength();
+    if (recordedEntries !== benchmarkConfig.iterations) {
+      throw new Error(
+        `${definition.label} recorded ${recordedEntries} history entries; ` +
+          `expected ${benchmarkConfig.iterations}.`
+      );
+    }
+
+    const persistencePayload = adapter.getPersistencePayload();
+    const serializedMeasurement = measure(() =>
+      JSON.stringify(persistencePayload)
+    );
+    if (typeof serializedMeasurement.result !== 'string') {
+      throw new Error(
+        `${definition.label} persistence payload is not JSON data.`
+      );
+    }
+    const parseTime = measure(() =>
+      JSON.parse(serializedMeasurement.result)
+    ).ms;
+
+    return {
+      retainedHeapMB: round(retainedHeapMB),
+      updateMs: round(updateTime),
+      undoMs: round(undoTime),
+      redoMs: round(redoTime),
+      serializedSizeKB: round(
+        Buffer.byteLength(serializedMeasurement.result) / 1024
+      ),
+      stringifyMs: round(serializedMeasurement.ms),
+      parseMs: round(parseTime),
+    };
+  } finally {
+    adapter.dispose?.();
+  }
+}
+
+const metricKeys = [
+  'retainedHeapMB',
+  'updateMs',
+  'undoMs',
+  'redoMs',
+  'serializedSizeKB',
+  'stringifyMs',
+  'parseMs',
+];
+
+function summarizeSamples(samples) {
+  return Object.fromEntries(
+    metricKeys.map((key) => [
+      key,
+      summarize(samples.map((sample) => sample[key])),
+    ])
+  );
+}
+
+function formatMetric(metric) {
+  return `${metric.median}/${metric.p95}`;
+}
+
+function printSummary(implementations) {
+  console.log('\n## Median/p95 results');
+  console.log(
+    '| Library | Updates (ms) | Undo (ms) | Redo (ms) | Heap (MB) | History (KB) |'
+  );
+  console.log('| --- | ---: | ---: | ---: | ---: | ---: |');
+  for (const implementation of implementations) {
+    const { metrics } = implementation;
+    console.log(
+      `| ${implementation.label} | ${formatMetric(metrics.updateMs)} | ` +
+        `${formatMetric(metrics.undoMs)} | ${formatMetric(metrics.redoMs)} | ` +
+        `${formatMetric(metrics.retainedHeapMB)} | ` +
+        `${formatMetric(metrics.serializedSizeKB)} |`
+    );
+  }
+}
+
+function runBenchmark() {
+  const initialState = generateComplexObject(config.stateSizeKB);
+  const actualInitialSizeKB = round(
+    Buffer.byteLength(JSON.stringify(initialState)) / 1024,
+    2
+  );
+  console.log('Real-library undo/redo benchmark');
+  console.log(`Node: ${process.version}; NODE_ENV=${process.env.NODE_ENV}`);
+  console.log(
+    `State: ${actualInitialSizeKB}KB; updates: ${config.iterations}; ` +
+      `undo/redo: ${config.navigationSteps}; rounds: ${config.rounds}`
+  );
+  console.log(
+    `Implementations: ${adapters.map(({ label }) => label).join(', ')}`
+  );
+  console.log('\nWarming adapters...');
+
+  const warmupConfig = {
+    ...config,
+    iterations: config.warmupIterations,
+    navigationSteps: Math.min(config.navigationSteps, config.warmupIterations),
+  };
+  for (const definition of adapters) {
+    runRound(definition, warmupConfig);
   }
 
-  // Key findings
-  console.log('\n\n' + '█'.repeat(60));
-  console.log('   Key findings');
-  console.log('█'.repeat(60));
+  const samplesById = new Map(
+    adapters.map((definition) => [definition.id, []])
+  );
+  for (let roundIndex = 0; roundIndex < config.rounds; roundIndex += 1) {
+    const offset = roundIndex % adapters.length;
+    const roundOrder = [
+      ...adapters.slice(offset),
+      ...adapters.slice(0, offset),
+    ];
+    console.log(`\nRound ${roundIndex + 1}/${config.rounds}`);
+    for (const definition of roundOrder) {
+      const sample = runRound(definition, config);
+      samplesById.get(definition.id).push(sample);
+      console.log(
+        `  ${definition.label}: update ${sample.updateMs}ms; ` +
+          `undo/redo ${sample.undoMs}/${sample.redoMs}ms; ` +
+          `history ${sample.serializedSizeKB}KB`
+      );
+    }
+  }
 
-  const travelsResult = results.find(r => r.label === 'Travels');
-  const reduxResult = results.find(r => r.label === 'Redux-undo');
-  const zundoResult = results.find(r => r.label === 'Zundo (no diff)');
+  const implementations = adapters.map((definition) => {
+    const samples = samplesById.get(definition.id);
+    return {
+      id: definition.id,
+      label: definition.label,
+      group: definition.group,
+      version: definition.version,
+      historyStrategy: definition.historyStrategy,
+      referenceSemantics: definition.referenceSemantics,
+      metrics: summarizeSamples(samples),
+      samples,
+    };
+  });
 
-  console.log('\n1. **Memory efficiency**');
-  console.log(`   - Travels: ${travelsResult.memoryMB} MB`);
-  console.log(`   - Redux-undo: ${reduxResult.memoryMB} MB`);
-  console.log(`   - Zundo: ${zundoResult.memoryMB} MB`);
-  console.log(`   - Travels vs Redux-undo: saves ${Math.round((1 - travelsResult.memoryMB / reduxResult.memoryMB) * 100)}%`);
-  console.log(`   - Travels vs Zundo: saves ${Math.round((1 - travelsResult.memoryMB / zundoResult.memoryMB) * 100)}%`);
+  const cpu = os.cpus()[0];
+  const report = {
+    schemaVersion: 1,
+    benchmark: 'real-library-undo-redo',
+    generatedAt: new Date().toISOString(),
+    config: {
+      ...config,
+      actualInitialSizeKB,
+      measurements: 'median/p95',
+      lowerIsBetter: true,
+    },
+    environment: {
+      node: process.version,
+      platform: `${os.platform()} ${os.release()} ${os.arch()}`,
+      cpu: cpu?.model ?? 'unknown',
+      logicalCpus: os.cpus().length,
+      coactionSource,
+    },
+    implementations,
+  };
 
-  console.log('\n2. **Persistence efficiency**');
-  console.log(`   - Travels: ${travelsResult.serializedSizeKB} KB`);
-  console.log(`   - Redux-undo: ${reduxResult.serializedSizeKB} KB`);
-  console.log(`   - Zundo: ${zundoResult.serializedSizeKB} KB`);
-  console.log(`   - Travels vs Redux-undo: saves ${Math.round((1 - travelsResult.serializedSizeKB / reduxResult.serializedSizeKB) * 100)}%`);
-  console.log(`   - Travels vs Zundo: saves ${Math.round((1 - travelsResult.serializedSizeKB / zundoResult.serializedSizeKB) * 100)}%`);
+  printSummary(implementations);
+  return report;
+}
 
-  console.log('\n3. **Undo/Redo performance**');
-  console.log(`   - Travels undo: ${travelsResult.undoTime} ms`);
-  console.log(`   - Redux-undo undo: ${reduxResult.undoTime} ms`);
-  console.log(`   - Zundo undo: ${zundoResult.undoTime} ms`);
-
-  console.log('\nNotes:');
-  console.log('  - Performance numbers depend on runtime environment and are for reference only');
-  console.log('  - Real-world performance depends on your specific use cases');
-  console.log('  - Travels shines for large state, small updates, and long histories\n');
+function writeResults(report) {
+  const resultDirectory = path.resolve(__dirname, 'results');
+  const jsonPath = path.join(resultDirectory, 'real-library-benchmark.json');
+  const chartPath = path.join(resultDirectory, 'real-library-benchmark.svg');
+  fs.mkdirSync(resultDirectory, { recursive: true });
+  fs.writeFileSync(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
+  writeBenchmarkChart(report, chartPath);
+  console.log(`\nWrote ${path.relative(process.cwd(), jsonPath)}`);
+  console.log(`Wrote ${path.relative(process.cwd(), chartPath)}`);
 }
 
 if (require.main === module) {
-  main();
+  const report = runBenchmark();
+  if (shouldWriteResults) writeResults(report);
 }
+
+module.exports = {
+  generateComplexObject,
+  runBenchmark,
+};

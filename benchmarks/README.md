@@ -1,310 +1,208 @@
 # Travels Performance & Memory Benchmarks
 
-This directory contains performance and memory benchmarks comparing Redux-undo, Zundo, and Travels.
+This directory contains reproducible benchmarks for Travels history recording,
+navigation, persistence, and validation. It includes both algorithm-level
+scenarios and comparisons against real undo/redo libraries.
 
-## Test Scripts
+## Real-library comparison
 
-### 1. `memory-performance-test.js` - Simulated implementations
+`real-library-benchmark.js` runs the same deterministic workload through seven
+real configurations:
 
-Uses simplified simulated implementations to quickly compare core differences.
+| Configuration                  | History representation | State semantics            |
+| ------------------------------ | ---------------------- | -------------------------- |
+| Travels immutable              | JSON Patch             | Generic immutable root     |
+| Travels mutable                | JSON Patch             | Generic in-place root      |
+| MST + `UndoManager`            | JSON Patch             | MobX-State-Tree model tree |
+| mobx-keystone                  | Array-path patches     | mobx-keystone model tree   |
+| Coaction + `@coaction/history` | Travels JSON Patch     | Coaction store             |
+| Redux-undo                     | Snapshots              | Immutable root             |
+| Zundo                          | Snapshots              | Immutable root             |
 
-**Pros:**
+MST's patch-based `UndoManager` is imported from the community companion
+`mst-middlewares` package. mobx-keystone uses its built-in `undoMiddleware`, and
+Coaction uses `@coaction/history` with its patch-native Travels timeline.
 
-- No dependencies to install
-- Fast to run
-- Clearly shows core algorithm differences
+### Run
 
-**Run:**
+From the repository root:
 
 ```bash
-node --expose-gc memory-performance-test.js
+pnpm --dir benchmarks install --frozen-lockfile
+pnpm benchmark:real
 ```
 
-### 2. `real-library-benchmark.js` - Real libraries
-
-Uses real npm packages to reflect real-world scenarios.
-
-**Pros:**
-
-- Real environment behavior
-- Accurate performance numbers
-- Includes full library overhead
-
-**Run:**
+To benchmark an unreleased local Coaction checkout, build its two packages and
+pass the checkout explicitly. The runner maps that history package to the
+current Travels build without changing either repository's dependency links:
 
 ```bash
-# Install dependencies
-pnpm install --frozen-lockfile
-
-# Run benchmark
-pnpm run test:real
-
-# Or run manually
-node --expose-gc real-library-benchmark.js
+pnpm --dir /path/to/coaction --filter coaction build
+pnpm --dir /path/to/coaction --filter @coaction/history build
+pnpm --dir benchmarks run test:real -- --coaction-repo=/path/to/coaction
 ```
 
-### 3. `matrix-benchmark.js` - Scenario matrix
+The JSON report records the local Git revision and whether its worktree was
+dirty. Without `--coaction-repo`, the installed npm packages are measured.
 
-Runs a multi-scenario synthetic benchmark that compares a full-snapshot history stack with Travels. It covers different state sizes, update shapes, and repeated rounds, then reports `median/p95` for every metric.
+The default run builds the current Travels checkout, warms every adapter, and
+then performs seven interleaved measurement rounds. It writes:
 
-The matrix script reports `setState/update (ms)` as average time per update within each round. The older fixed-scenario scripts report total time for their full update loop.
+- `benchmarks/results/real-library-benchmark.json`: configuration, environment,
+  package versions, every sample, and median/p95 summaries.
+- `benchmarks/results/real-library-benchmark.svg`: a directly labeled chart of
+  the main latency and footprint metrics.
 
-**Run:**
+For a fast validation run that does not replace the checked-in results:
 
 ```bash
-# Default matrix: 10KB, 100KB, 1MB states; 5 rounds
+pnpm --dir benchmarks run test:real:quick
+```
+
+You can also override the default workload:
+
+```bash
+pnpm --dir benchmarks run test:real -- \
+  --state-size-kb=200 \
+  --iterations=200 \
+  --navigation-steps=50 \
+  --rounds=9
+```
+
+Regenerate only the SVG from the existing JSON data with:
+
+```bash
+pnpm --dir benchmarks run chart:real
+```
+
+### Methodology
+
+The default workload uses:
+
+- A deterministic, nested document of approximately 100KB.
+- 100 history entries, each changing the same two root fields.
+- 50 consecutive undo operations followed by 50 redo operations.
+- One warmup pass and seven interleaved measurement rounds.
+- Production builds with explicit garbage collection before retained-heap
+  readings.
+- Median and p95 reporting; lower is better for every metric.
+
+Every adapter must finish with the expected state and exactly one history entry
+per update. The benchmark also checks that Travels mutable mode preserves the
+original root reference.
+
+Store/model construction is excluded from timing and retained-heap deltas. This
+keeps the comparison focused on an already-running editor, but it means the
+chart does not measure schema creation, initial observability conversion,
+rendering, reactions, or framework integration. The persisted-size metric
+always includes the current state plus reachable undo/redo history. Stringify
+and parse timings measure JSON work after each library has exposed its
+persistence payload; they are not full restore timings.
+
+### Latest generated chart
+
+![Real-library undo/redo benchmark](./results/real-library-benchmark.svg)
+
+Use the adjacent JSON file for exact values and environment metadata. Absolute
+latency and heap values vary by machine; the representation-size comparison is
+usually more stable.
+
+## Scenario matrix
+
+`matrix-benchmark.js` compares a full-snapshot history stack with Travels across
+state sizes and update shapes. It isolates the algorithmic trade-off without
+Redux, MobX, or other integration overhead.
+
+| Dimension           | Default matrix                                                              | Full matrix           |
+| ------------------- | --------------------------------------------------------------------------- | --------------------- |
+| State sizes         | 10KB, 100KB, 1MB                                                            | 10KB, 100KB, 1MB, 5MB |
+| Update types        | Small patch, large patch, array insert/delete, deep object, Map/Set runtime | Same                  |
+| Rounds              | 5                                                                           | 7                     |
+| Reported statistics | Median, p95                                                                 | Median, p95           |
+
+Run it from the repository root:
+
+```bash
+# Default matrix
 pnpm run benchmark:matrix
 
-# Full matrix: includes 5MB state and 7 rounds
+# Full matrix
 pnpm run benchmark:full
-
-# Lightweight CI smoke guard
-pnpm run benchmark:ci
 ```
 
-The benchmark commands build the current checkout first and load its explicit
-CommonJS artifact, so results cannot accidentally come from stale `dist`
-output or a separately installed package.
+`setState/update (ms)` is the average time per update within a round. The matrix
+also includes a focused immutable-vs-mutable primitive hot-path measurement.
 
-### 4. `persistence-validation-benchmark.js` - Restore validation cost
+## Persistence validation
 
-Measures the real default structural and explicit semantic
-`Travels.deserialize(...)` paths against a wide-array history. It reports
-median and p95 latency across multiple rounds. Unlike the legacy JSON parsing
-metrics, this includes schema normalization and, for semantic mode, patch
-replay and round-trip comparison.
+`persistence-validation-benchmark.js` measures the real default structural and
+explicit semantic `Travels.deserialize(...)` paths against a wide-array
+history. Unlike a bare `JSON.parse`, semantic validation includes patch replay
+and round-trip comparison.
 
 ```bash
 pnpm run benchmark:persistence
 ```
 
-`benchmark:ci` runs both the scenario matrix and this validation guard.
-
-## Test Scenarios
-
-The original simulated and real-library scripts use the same fixed scenario:
-
-- **Initial object size**: ~100 KB (nested objects, arrays)
-- **Number of operations**: 100 updates
-- **Update type**: Small changes (only 2 fields per update)
-- **Metrics**:
-  - Memory usage
-  - setState/dispatch performance
-  - Undo performance
-  - Redo performance
-  - Serialized size (persistence)
-  - Serialization and JSON parsing performance
-
-The matrix benchmark expands coverage:
-
-| Dimension | Default matrix | Full matrix |
-| --- | --- | --- |
-| State sizes | 10KB, 100KB, 1MB | 10KB, 100KB, 1MB, 5MB |
-| Update types | small patch, large patch, array insert/delete, deep object, Map/Set runtime | same |
-| Rounds | 5 | 7 |
-| Reported statistics | median, p95 | median, p95 |
-
-The CI mode is intentionally smaller: 10KB and 100KB states, 20 updates, 3 rounds, a compact-history size guard, a mutable primitive-update hot-path guard, and a real persistence validation guard. It should catch obvious regressions without pretending that CI runners provide lab-quality latency numbers.
-
-## Why `--expose-gc`?
-
-The `--expose-gc` flag allows manual garbage collection (GC), which helps:
-
-1. Measure memory usage more accurately
-2. Reduce GC timing interference
-3. Produce more stable results
-
-## Metrics Explained
-
-### Memory usage
-
-Measure memory growth after 100 operations.
-
-- **Redux-undo / Zundo**: store full state snapshots
-- **Travels**: store JSON Patch
-
-### setState performance
-
-Measure total time for 100 state updates.
-
-In the matrix benchmark, `setState/update (ms)` is normalized to average milliseconds per update so scenarios with different iteration counts are easier to compare.
-
-### Undo/Redo performance
-
-Measure the time to perform 50 consecutive undos and redos.
-
-### Serialization and restore validation
-
-The legacy comparison scripts measure serialized history size, serialization,
-and JSON parsing. JSON parsing alone is not equivalent to restoring a Travels
-history. `persistence-validation-benchmark.js` separately measures default
-structural and explicit semantic `Travels.deserialize(...)` latency.
-
-**Important when:**
-
-- Persisting to localStorage
-- Using IndexedDB
-- Cross tab/worker messaging
-- Cloud sync
-
-## Expected Results
-
-Based on design principles, expected results:
-
-| Metric             | Redux-undo | Zundo   | Travels  |
-| ------------------ | ---------- | ------- | -------- |
-| Memory             | High       | High    | Low ⭐   |
-| setState           | Fast ⭐    | Fast ⭐ | Medium   |
-| Undo/Redo          | Fast ⭐    | Fast ⭐ | Medium   |
-| Serialized size    | Large      | Large   | Small ⭐ |
-| Serialization time | Slow       | Slow    | Fast ⭐  |
-
-### Why is Travels setState relatively slower?
-
-Because Travels generates JSON Patch, which involves:
-
-1. Calculating the diff
-2. Creating patch objects
-
-**But the overhead is worth it:**
-
-- Much smaller memory footprint
-- Much faster serialization
-- Standardized operation log
-
-### When Travels shines
-
-Travels has clear advantages in:
-
-1. ✅ **Large state, small updates**
-   - 1MB document, change one field
-   - Redux-undo: store two 1MB snapshots
-   - Travels: store one small patch
-
-2. ✅ **Long history**
-   - Keep 100+ history entries
-   - Memory and serialization differences amplify
-
-3. ✅ **Persistence**
-   - localStorage (5-10MB limits)
-   - Cloud sync (less traffic)
-   - Cross-environment messaging
-
-4. ✅ **Operation logs needed**
-   - Auditing
-   - Debugging
-   - User behavior analysis
-
-## Run the CI benchmark suite
+## CI benchmark suite
 
 ```bash
 pnpm run benchmark:ci
 ```
 
-This builds the current checkout and runs:
+The CI suite intentionally stays small and runs:
 
-1. The reduced scenario matrix
-2. The real default-structural/explicit-semantic persistence validation guard
+1. A 10KB/100KB scenario matrix with compact-history and mutable-hot-path
+   guards.
+2. The real structural/semantic persistence-validation guard.
 
-## Latest Results (Node v22.21.1)
+The real-library comparison is not a CI performance gate because shared runners
+do not provide stable enough latency or heap measurements.
 
-The tables below capture a previous run of the simulated and real-library
-comparison scripts with `node --expose-gc`. Their persistence read metric is
-JSON parsing, not `Travels.deserialize(...)`; use the dedicated validation
-benchmark for current restore costs.
+## Legacy simulator
 
-### Simulated implementations (`memory-performance-test.js`)
-
-| Metric               | Redux-undo | Zundo     | Travels  |
-| -------------------- | ---------- | --------- | -------- |
-| Memory (MB)          | 11.8       | 11.8      | **0.32** |
-| setState (ms)        | 42.74      | **41.27** | 88.16    |
-| Undo (ms)            | 0.08       | **0.07**  | 18.65    |
-| Redo (ms)            | 0.12       | **0.02**  | 20.34    |
-| Serialized size (KB) | 11,626.66  | 11,626.46 | **20.6** |
-| Serialize (ms)       | 12.86      | 11.88     | **0.06** |
-| JSON parse (ms)      | 23.6       | 23.55     | **0.14** |
-
-- Travels keeps simulated history sizes tiny (20.6 KB vs ~11 MB snapshots) and serializes >200x faster, while snapshot stores remain unbeatable for undo/redo latency.
-- The Travels simulated setState cost (88 ms for 100 updates) is roughly 2x the snapshot stores, which matches expectations for generating JSON Patch.
-
-### Real libraries (`real-library-benchmark.js`)
-
-| Metric               | Redux-undo | Zundo     | Travels    |
-| -------------------- | ---------- | --------- | ---------- |
-| Memory (MB)          | 0.05       | **0.04**  | 0.16       |
-| setState (ms)        | 0.35       | **0.3**   | 1.81       |
-| Undo (ms)            | 0.25       | **0.12**  | 0.69       |
-| Redo (ms)            | **0.07**   | 0.15      | 0.27       |
-| Serialized size (KB) | 11,742.03  | 11,510.59 | **116.26** |
-| Serialize (ms)       | 12.63      | 11.59     | **0.61**   |
-| JSON parse (ms)      | 28.87      | 22.66     | **0.42**   |
-
-- Even with real packages, Travels shrinks serialized history by roughly 100x and finishes serialization and JSON parsing in well under a millisecond. Full restore validation is reported by the dedicated persistence benchmark.
-- Snapshot-based stacks still win the hot-path operations (setState/undo/redo), so use cases prioritizing raw speed over persistence will still prefer Redux-undo/Zundo.
-
-## Customize parameters
-
-You can modify parameters in the scripts:
-
-```javascript
-// Adjust object size
-const initialState = generateComplexObject(200); // change to 200KB
-
-// Adjust number of operations
-results.push(testTravels(500)); // change to 500 operations
-```
-
-## Environment
-
-- Node.js >= 14
-- Enough memory (4GB+ recommended)
-
-## Notes
-
-1. **Close other apps**: to improve accuracy
-
-2. **Run multiple times**: V8 JIT and GC affect numbers; average results
-
-3. **Relative differences matter**: absolute values vary by environment
-
-4. **Scenario dependent**:
-   - Small state: snapshot-based may be faster
-   - Large changes: diff-based less advantageous
-   - Large state + small changes + long history: Travels best
-
-## Benchmarking best practices
-
-To get accurate results:
+`memory-performance-test.js` contains simplified Redux-undo, Zundo, and Travels
+simulators. It is useful for demonstrating representation differences without
+third-party dependencies, but it should not be cited as real-library
+performance.
 
 ```bash
-# 1. Ensure consistent Node.js version
-node --version
-
-# 2. Prune unused packages from the pnpm store
-pnpm store prune
-
-# 3. Reinstall dependencies
-rm -rf node_modules
-pnpm install --frozen-lockfile
-
-# 4. Restart terminal before running
-# 5. Close other apps
-# 6. Run multiple times and average
-for i in {1..3}; do
-  echo "=== Run $i ==="
-  pnpm run test:real
-  sleep 5
-done
+node --expose-gc benchmarks/memory-performance-test.js
 ```
 
-## Contributing
+## Interpreting metrics
 
-If you find issues or have suggestions, please open an issue or PR!
+### Retained heap
 
-## Resources
+The benchmark forces GC before and after history recording, then reports the
+heap delta. V8 allocation and collection behavior still makes this the noisiest
+metric; repeat runs and prefer large differences over small rankings.
 
-- [Travels repository](https://github.com/mutativejs/travels)
-- [Mutative performance comparison](https://mutative.js.org/docs/getting-started/performance)
-- [Redux-undo](https://github.com/omnidan/redux-undo)
-- [Zundo](https://github.com/charkour/zundo)
+### Update and navigation latency
+
+Update time covers the complete loop that records 100 history entries. Undo and
+redo cover 50 calls each. Model-tree libraries intentionally include their
+runtime protection and patch middleware in these operations.
+
+### Serialized history size
+
+Snapshot histories may share object references efficiently in memory, but JSON
+cannot preserve that sharing and repeats the reachable state for each history
+entry. Patch histories generally trade more work during updates/navigation for
+a smaller durable representation when updates are small relative to the state.
+
+The result is workload-dependent: large replacements reduce the size advantage
+of patches, while large states with small edits and long histories amplify it.
+
+## Benchmarking notes
+
+- Use the same Node version, package lockfile, machine power mode, and workload
+  when comparing runs.
+- Close high-load applications and run multiple times before drawing latency
+  conclusions.
+- Prefer median/p95 and relative orders of magnitude over a single fastest
+  sample.
+- `--expose-gc` reduces, but does not remove, heap-measurement noise.
+- The commands build and import the current checkout's explicit CommonJS
+  artifact, so they cannot silently use a stale `dist` bundle or a registry copy
+  of Travels.
