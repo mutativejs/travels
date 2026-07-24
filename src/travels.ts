@@ -15,7 +15,6 @@ import type {
   TravelMetadata,
   TravelPatches,
   TravelsBranchDiscardEvent,
-  TravelsControlledApply,
   TravelsDeserializeOptions,
   TravelsEvent,
   TravelsOptions,
@@ -34,6 +33,13 @@ import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
 import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
 import {
+  assertSupportedPatchValues,
+  assertSupportedRuntimeState,
+  assertSynchronousResult,
+  freezeAcceptedState,
+  StateDriver,
+} from './internal/state-driver.js';
+import {
   clonePatchGroup,
   clonePatchGroups,
   cloneTravelPatches,
@@ -46,7 +52,6 @@ import {
 } from './internal/patch-utils.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
-  containsMapOrSet,
   isArrayIndex,
   isObjectLike,
   isPlainObject,
@@ -70,83 +75,6 @@ const asyncFunctionTags = new Set([
 const isKnownAsyncFunction = (value: unknown): boolean =>
   typeof value === 'function' &&
   asyncFunctionTags.has(Object.prototype.toString.call(value));
-
-const isPromiseLike = (value: unknown): value is PromiseLike<unknown> =>
-  value !== null &&
-  (typeof value === 'object' || typeof value === 'function') &&
-  typeof (value as { then?: unknown }).then === 'function';
-
-const silenceNativePromiseRejection = (value: PromiseLike<unknown>): void => {
-  if (
-    !(value instanceof Promise) &&
-    Object.prototype.toString.call(value) !== '[object Promise]'
-  ) {
-    return;
-  }
-
-  try {
-    void (value as Promise<unknown>).catch(() => undefined);
-  } catch {
-    // Promise-like objects are rejected without invoking arbitrary `then` code.
-  }
-};
-
-const assertSynchronousResult = <T>(value: T, api: string): T => {
-  if (!isPromiseLike(value)) {
-    return value;
-  }
-
-  silenceNativePromiseRejection(value);
-  throw new TravelsTypeError(
-    'ASYNC_CALLBACK',
-    `Travels: ${api} callback must be synchronous.`
-  );
-};
-
-const assertSupportedRuntimeState = (
-  value: unknown,
-  knownCollectionFree?: WeakSet<object>
-): void => {
-  if (containsMapOrSet(value, new WeakSet<object>(), knownCollectionFree)) {
-    throw new TravelsTypeError(
-      'UNSUPPORTED_STATE',
-      'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
-    );
-  }
-};
-
-const assertSupportedPatchValues = <P extends PatchesOption = {}>(
-  patches: Patches<P>,
-  inversePatches: Patches<P>,
-  knownCollectionFree?: WeakSet<object>
-): [boolean, boolean] => {
-  const groups = [patches, inversePatches] as const;
-  const hasObjectValues: [boolean, boolean] = [false, false];
-  const seen = new WeakSet<object>();
-
-  for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
-    for (const operation of groups[groupIndex]) {
-      const value = (operation as { value?: unknown }).value;
-      if (!isObjectLike(value)) {
-        continue;
-      }
-
-      hasObjectValues[groupIndex] = true;
-      if (containsMapOrSet(value, seen, knownCollectionFree, false)) {
-        throw new TravelsTypeError(
-          'UNSUPPORTED_STATE',
-          'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
-        );
-      }
-    }
-  }
-
-  return hasObjectValues;
-};
-
-const freezeAcceptedState = (state: unknown): void => {
-  void create([state], () => undefined, { enableAutoFreeze: true });
-};
 
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   state: S;
@@ -430,8 +358,8 @@ export class Travels<
   private options: MutativeOptions<PatchesOption | true, F>;
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
-  private controlledApply?: TravelsControlledApply<S, P>;
   private observers: ObserverHub<S, P>;
+  private stateDriver: StateDriver<S, F, P>;
   private controlsCache:
     | RebasableTravelsControls<S, F, P>
     | RebasableManualTravelsControls<S, F, P>
@@ -572,13 +500,16 @@ export class Travels<
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
-    this.controlledApply = controlledApply as
-      | TravelsControlledApply<S, P>
-      | undefined;
     this.options = {
       ...mutativeOptions,
       enablePatches: patchesOptions ?? true,
     };
+    this.stateDriver = new StateDriver<S, F, P>({
+      mutable,
+      mutativeOptions: this.options,
+      controlledApply,
+      collectionFreeObjects: this.collectionFreeObjects,
+    });
 
     const {
       patches: normalizedPatches,
@@ -970,7 +901,7 @@ export class Travels<
       );
     }
     if (
-      this.controlledApply &&
+      this.stateDriver.isControlled &&
       api !== 'recordPatches' &&
       api !== 'go' &&
       api !== 'back' &&
@@ -1410,15 +1341,6 @@ export class Travels<
     this.invalidateHistoryCache();
   }
 
-  private applyImmutably<T>(state: T, patches: Patches<P>): T {
-    const { enablePatches: _enablePatches, ...replayOptions } = this.options;
-    return apply(
-      state as object,
-      patches,
-      replayOptions as Parameters<typeof apply>[2]
-    ) as T;
-  }
-
   /**
    * Get the current state
    */
@@ -1695,7 +1617,7 @@ export class Travels<
    */
   public recordPatches(state: S, entry: TravelHistoryEntry<P>): void {
     this.assertCanMutate('recordPatches');
-    if (!this.controlledApply) {
+    if (!this.stateDriver.isControlled) {
       throw new TravelsError(
         'CONTROLLED_JOURNAL_REQUIRED',
         'Travels: recordPatches is only available on a controlled journal created with createTravelJournal().'
@@ -2048,7 +1970,7 @@ export class Travels<
     // Build future history
     const futureHistory: S[] = [];
     for (let i = this.position; i < patches.length; i++) {
-      currentState = this.applyImmutably(currentState, patches[i]);
+      currentState = this.stateDriver.applyImmutably(currentState, patches[i]);
       futureHistory.push(currentState);
     }
 
@@ -2056,7 +1978,7 @@ export class Travels<
     currentState = this.state;
     const pastHistory: S[] = [];
     for (let i = this.position - 1; i > -1; i--) {
-      currentState = this.applyImmutably(currentState, inversePatches[i]);
+      currentState = this.stateDriver.applyImmutably(currentState, inversePatches[i]);
       pastHistory.push(currentState);
     }
     pastHistory.reverse();
@@ -2155,42 +2077,15 @@ export class Travels<
           'backward'
         );
 
-    if (this.controlledApply) {
-      const transition = Object.freeze({
-        state: this.state,
-        patches: clonePatchGroup(patchesToApply),
-        inversePatches: clonePatchGroup(rollbackPatches),
-        fromPosition: this.position,
-        toPosition: nextPosition,
-      });
-      const controlledState = assertSynchronousResult(
-        this.controlledApply(transition),
-        'controlledApply'
-      );
-      assertSupportedRuntimeState(
-        controlledState,
-        this.mutable ? undefined : this.collectionFreeObjects
-      );
-      this.state = controlledState;
-    } else {
-      // Can only use mutable mode if:
-      // 1. mutable mode is enabled
-      // 2. current state is an object
-      // 3. patches don't contain root-level replacements (which change the entire state)
-      const canGoMutably =
-        this.mutable &&
-        isObjectLike(this.state) &&
-        !patchesToApply.some(isRootReplacement);
-
-      if (canGoMutably) {
-        // For observable state: mutate in place
-        this.journalMutableState(this.state as object, rollbackPatches);
-        apply(this.state as object, patchesToApply, { mutable: true });
-      } else {
-        // For immutable state or primitive types: create new state
-        this.state = this.applyImmutably(this.state, patchesToApply);
-      }
-    }
+    this.state = this.stateDriver.applyNavigation({
+      state: this.state,
+      patches: patchesToApply,
+      inversePatches: rollbackPatches,
+      fromPosition: this.position,
+      toPosition: nextPosition,
+      journalMutableState: (state, inversePatches) =>
+        this.journalMutableState(state, inversePatches),
+    });
 
     this.position = nextPosition;
     this.invalidateHistoryCache();
