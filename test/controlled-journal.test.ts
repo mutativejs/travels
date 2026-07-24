@@ -6,6 +6,7 @@ import {
   Travels,
   TravelsError,
   TravelsTypeError,
+  type TravelHistoryEntry,
 } from '../src/index';
 
 type State = {
