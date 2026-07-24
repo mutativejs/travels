@@ -62,8 +62,9 @@ The returned `TravelJournal` exposes only journal-safe operations:
 
 - external commit ingress: `recordPatches()`;
 - navigation: `back()`, `forward()`, `go()`, `canBack()`, and `canForward()`;
-- reads: `getState()`, `getHistory()`, `getPosition()`, `getPatches()`,
-  `getMetadata()`, `getHistoryEntries()`, `assertPersistenceCompatible()`, and `serialize()`;
+- reads: `getState()`, `getHistory()`, `getHistorySnapshot()`, `getPosition()`,
+  `getPatches()`, `getMetadata()`, `getHistoryEntries()`,
+  `assertPersistenceCompatible()`, and `serialize()`;
 - lifecycle: `subscribe()` and `rebase()`.
 
 State-owning operations (`setState()`, `reset()`, transactions,
@@ -74,7 +75,7 @@ cursor, not the external state.
 
 ## Failure boundaries
 
-Travels makes each journal mutation internally atomic: malformed or one-sided patch pairs, unsafe paths, unsupported patch/state values, metadata cloning failures, and controlled navigation failures do not partially change journal state or history. Controlled patch ingress uses the same accessor-safe structural normalization as persisted history.
+Travels makes each journal mutation internally atomic: malformed, empty, or one-sided patch pairs, unsafe paths, unsupported patch/state values, metadata cloning failures, and controlled navigation failures do not partially change journal state or history. Controlled patch ingress uses the same accessor-safe structural normalization as persisted history.
 
 The external owner and Travels are still two components. If the owner has
 already published a commit and `recordPatches()` then fails, Travels cannot

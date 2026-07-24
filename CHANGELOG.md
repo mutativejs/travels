@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Add `createPatchableTravels()` for applications that want a compile-time JSON-shaped state contract.
 - Add `serialize({ strict: true })` and `assertPersistenceCompatible()` for fail-fast persistence checks.
 - Add structured `onWarning` notifications and stable runtime error codes.
+- Add `getHistorySnapshot()` for callers that need independently mutable, fully detached durable history states.
 
 ### Fixed
 
@@ -17,6 +18,9 @@ All notable changes to this project will be documented in this file.
 - Validate externally committed and externally applied controlled state before changing the internal cursor or state reference.
 - Keep controls history read-only while preserving frozen-state value typing.
 - Keep release workflow dependencies valid after splitting verification jobs.
+- Reject empty or one-sided retained history entries during structural restore and initial-history validation.
+- Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
+- Revalidate patchable-factory inputs at runtime while accepting recursive interface-shaped durable state types.
 
 ### Changed
 
@@ -24,11 +28,14 @@ All notable changes to this project will be documented in this file.
 - Publish CJS through `main`, ESM through `module`, and declare Node.js 20 or newer.
 - Split timeline storage, patch ownership, observer publication, state application, and mutable transaction rollback into focused internal components with development invariant checks.
 - Record package version, Git revision, and dirty-worktree state in real-library benchmark reports.
+- Reconstruct and detach history through a focused internal history view instead of keeping cache logic in the main orchestrator.
+- Build, smoke-test, upload, and publish the same npm tarball artifact across release jobs.
 
 ### Testing
 
 - Add adversarial controlled-journal validation and mutation-isolation coverage.
-- Add a property-based timeline state-machine model, per-file coverage thresholds, and deterministic mutation smoke checks.
+- Add property-based timeline models for immutable, mutable, controlled, manual-archive, transaction, tracking, reset, and rebase behavior.
+- Add per-file coverage thresholds and deterministic mutation smoke checks that distinguish killed mutations from infrastructure failures.
 - Migrate linting to ESLint flat config and split CI into focused quality, runtime, browser, package, coverage, mutation, and benchmark jobs.
 
 ## [2.1.0] - 2026-07-19
