@@ -1,6 +1,7 @@
 import { apply } from 'mutative';
 import type {
   PatchesOption,
+  TravelHistoryEntry,
   TravelMetadata,
   TravelPatches,
   TravelsDeserializeOptions,
@@ -141,6 +142,23 @@ const normalizePatchOperation = (
   return fields;
 };
 
+const normalizePatchGroup = (value: unknown): unknown[] | null => {
+  if (!isStandardDenseArray(value)) {
+    return null;
+  }
+
+  const normalized = new Array(value.length);
+  for (let operationIndex = 0; operationIndex < value.length; operationIndex += 1) {
+    const operation = normalizePatchOperation(value[operationIndex]);
+    if (!operation) {
+      return null;
+    }
+    normalized[operationIndex] = operation;
+  }
+
+  return normalized;
+};
+
 const normalizePatchHistoryEntries = (value: unknown): unknown[][] | null => {
   if (!isStandardDenseArray(value)) {
     return null;
@@ -148,27 +166,58 @@ const normalizePatchHistoryEntries = (value: unknown): unknown[][] | null => {
 
   const normalized = new Array(value.length) as unknown[][];
   for (let entryIndex = 0; entryIndex < value.length; entryIndex += 1) {
-    const entry = value[entryIndex];
-    if (!isStandardDenseArray(entry)) {
+    const entry = normalizePatchGroup(value[entryIndex]);
+    if (!entry) {
       return null;
     }
-
-    const normalizedEntry = new Array(entry.length);
-    for (
-      let operationIndex = 0;
-      operationIndex < entry.length;
-      operationIndex += 1
-    ) {
-      const operation = normalizePatchOperation(entry[operationIndex]);
-      if (!operation) {
-        return null;
-      }
-      normalizedEntry[operationIndex] = operation;
-    }
-    normalized[entryIndex] = normalizedEntry;
+    normalized[entryIndex] = entry;
   }
 
   return normalized;
+};
+
+type TravelHistoryEntryValidation<P extends PatchesOption> =
+  | { error: string }
+  | { error: null; entry: TravelHistoryEntry<P> };
+
+/**
+ * Validate and normalize one externally supplied forward/inverse patch pair.
+ * Accessor-backed or inherited fields are rejected without being evaluated.
+ */
+export const validateTravelHistoryEntry = <P extends PatchesOption = {}>(
+  entry: unknown
+): TravelHistoryEntryValidation<P> => {
+  if (!isObjectRecord(entry) || Array.isArray(entry)) {
+    return {
+      error: `entry must be an object with 'patches' and 'inversePatches' arrays`,
+    };
+  }
+
+  const patchesProperty = getOwnDataProperty(entry, 'patches');
+  const inversePatchesProperty = getOwnDataProperty(entry, 'inversePatches');
+  const patches = normalizePatchGroup(patchesProperty?.value);
+  const inversePatches = normalizePatchGroup(inversePatchesProperty?.value);
+  if (!patches || !inversePatches) {
+    return {
+      error: `entry must have 'patches' and 'inversePatches' arrays of JSON Patch operations`,
+    };
+  }
+
+  if ((patches.length === 0) !== (inversePatches.length === 0)) {
+    return {
+      error: `entry.patches and entry.inversePatches must both be empty or both be non-empty`,
+    };
+  }
+
+  const normalized = {
+    patches,
+    inversePatches,
+  } as TravelHistoryEntry<P>;
+  if (containsMapOrSet(normalized)) {
+    return { error: `entry patches must not contain Map or Set values` };
+  }
+
+  return { error: null, entry: normalized };
 };
 
 type TravelPatchesValidation<P extends PatchesOption> =

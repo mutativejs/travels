@@ -265,6 +265,101 @@ describe('controlled travel journal', () => {
     ]);
   });
 
+  test('rejects malformed controlled patch entries without evaluating accessors', () => {
+    const initialState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(initialState, {
+      apply: ({ state }) => state,
+    });
+    const validInverse = [
+      { op: 'replace', path: ['count'], value: 0 },
+    ] as Patches;
+    const invalidEntries: unknown[] = [
+      {
+        patches: [{ op: 'move', path: ['count'], value: 1 }],
+        inversePatches: validInverse,
+      },
+      {
+        patches: [{ op: 'replace', path: ['count'] }],
+        inversePatches: validInverse,
+      },
+      {
+        patches: [{ op: 'add', path: '', value: 1 }],
+        inversePatches: validInverse,
+      },
+      {
+        patches: [{ op: 'replace', path: ['__proto__'], value: 1 }],
+        inversePatches: validInverse,
+      },
+      {
+        patches: new Array(1),
+        inversePatches: validInverse,
+      },
+      {
+        patches: [{ op: 'replace', path: ['count'], value: 1 }],
+        inversePatches: [],
+      },
+    ];
+
+    const customPath = ['count'] as string[] & { extra?: boolean };
+    customPath.extra = true;
+    invalidEntries.push({
+      patches: [{ op: 'replace', path: customPath, value: 1 }],
+      inversePatches: validInverse,
+    });
+
+    const accessorOperation = {};
+    const opGetter = vi.fn(() => 'replace');
+    Object.defineProperties(accessorOperation, {
+      op: { enumerable: true, get: opGetter },
+      path: { enumerable: true, value: ['count'] },
+      value: { enumerable: true, value: 1 },
+    });
+    invalidEntries.push({
+      patches: [accessorOperation],
+      inversePatches: validInverse,
+    });
+
+    for (const entry of invalidEntries) {
+      expect(() =>
+        journal.recordPatches(
+          { count: 1, label: 'initial' },
+          entry as { patches: Patches; inversePatches: Patches }
+        )
+      ).toThrow('invalid patch entry');
+      expect(journal.getState()).toBe(initialState);
+      expect(journal.getPosition()).toBe(0);
+      expect(journal.getHistoryEntries()).toEqual([]);
+    }
+    expect(opGetter).not.toHaveBeenCalled();
+  });
+
+  test('rejects accessor-backed controlled entry fields without evaluating them', () => {
+    const initialState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(initialState, {
+      apply: ({ state }) => state,
+    });
+    const patchesGetter = vi.fn(() => [
+      { op: 'replace', path: ['count'], value: 1 },
+    ]);
+    const entry = {};
+    Object.defineProperties(entry, {
+      patches: { enumerable: true, get: patchesGetter },
+      inversePatches: {
+        enumerable: true,
+        value: [{ op: 'replace', path: ['count'], value: 0 }],
+      },
+    });
+
+    expect(() =>
+      journal.recordPatches(
+        { count: 1, label: 'initial' },
+        entry as { patches: Patches; inversePatches: Patches }
+      )
+    ).toThrow('invalid patch entry');
+    expect(patchesGetter).not.toHaveBeenCalled();
+    expect(journal.getState()).toBe(initialState);
+  });
+
   test('rejects unsupported collection values from external patches', () => {
     const state = { value: null as null | Map<string, number> };
     const journal = createTravelJournal(state, {

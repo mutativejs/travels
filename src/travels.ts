@@ -28,6 +28,7 @@ import type {
 import {
   deserializeTravelsHistory,
   TRAVELS_HISTORY_SCHEMA_VERSION,
+  validateTravelHistoryEntry,
   validateTravelPatches,
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
@@ -1901,8 +1902,15 @@ export class Travels<
       );
     }
 
-    const patches = clonePatchGroup(entry.patches);
-    const inversePatches = clonePatchGroup(entry.inversePatches);
+    const validation = validateTravelHistoryEntry<P>(entry);
+    if (validation.error) {
+      throw new TypeError(
+        `Travels: recordPatches received an invalid patch entry: ${validation.error}.`
+      );
+    }
+
+    const patches = clonePatchGroup(validation.entry.patches);
+    const inversePatches = clonePatchGroup(validation.entry.inversePatches);
     if (patches.length === 0 && inversePatches.length === 0) {
       if (!Object.is(state, this.state)) {
         throw new Error(
