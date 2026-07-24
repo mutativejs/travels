@@ -18,9 +18,9 @@ const mutations = [
   },
   {
     name: 'mutable transactions replay every rollback journal entry',
-    file: 'src/travels.ts',
-    from: 'index >= snapshot.stateJournalLength;',
-    to: 'index > snapshot.stateJournalLength;',
+    file: 'src/internal/transaction-coordinator.ts',
+    from: 'index >= journalLength;',
+    to: 'index > journalLength;',
     tests: ['test/product-api.test.ts'],
   },
 ];
