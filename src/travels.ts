@@ -34,6 +34,7 @@ import { TravelsError, TravelsTypeError } from './errors.js';
 import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
 import { TransactionCoordinator } from './internal/transaction-coordinator.js';
 import { TimelineStore } from './internal/timeline-store.js';
+import { HistoryView } from './internal/history-view.js';
 import {
   assertSupportedPatchValues,
   assertSupportedRuntimeState,
@@ -358,8 +359,7 @@ export class Travels<
     | RebasableTravelsControls<S, F, P>
     | RebasableManualTravelsControls<S, F, P>
     | null = null;
-  private historyCache: { version: number; history: S[] } | null = null;
-  private historyVersion = 0;
+  private historyView = new HistoryView<S, P>();
   private collectionFreeObjects = new WeakSet<object>();
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
@@ -930,8 +930,7 @@ export class Travels<
   }
 
   private invalidateHistoryCache(): void {
-    this.historyVersion += 1;
-    this.historyCache = null;
+    this.historyView.invalidate();
   }
 
   private isAutoArchiving(): boolean {
@@ -1911,7 +1910,7 @@ export class Travels<
 
   public replaceStateWithoutHistory(updater: Updater<S>): void {
     this.assertCanMutate('replaceStateWithoutHistory');
-    const historyVersionBefore = this.historyVersion;
+    const historyVersionBefore = this.historyView.version;
 
     this.pauseTracking();
     try {
@@ -1923,7 +1922,7 @@ export class Travels<
     assertSupportedRuntimeState(this.state);
 
     if (
-      this.historyVersion === historyVersionBefore &&
+      this.historyView.version === historyVersionBefore &&
       // Mutable stores can change externally before this no-op updater rebases the baseline.
       (this.hasRecordedHistory() || this.mutable)
     ) {
@@ -1998,60 +1997,15 @@ export class Travels<
    * - In production mode, modifying the array or its entries will corrupt the cache.
    */
   public getHistory(): readonly S[] {
-    if (
-      this.historyCache &&
-      this.historyCache.version === this.historyVersion
-    ) {
-      return this.historyCache.history;
-    }
-
-    let currentState = this.state;
-    const _allPatches = this.getAllPatches();
-
-    const patches =
-      !this.isAutoArchiving() && _allPatches.patches.length > this.maxHistory
-        ? _allPatches.patches.slice(
-            _allPatches.patches.length - this.maxHistory
-          )
-        : _allPatches.patches;
-    const inversePatches =
-      !this.isAutoArchiving() &&
-      _allPatches.inversePatches.length > this.maxHistory
-        ? _allPatches.inversePatches.slice(
-            _allPatches.inversePatches.length - this.maxHistory
-          )
-        : _allPatches.inversePatches;
-
-    // Build future history
-    const futureHistory: S[] = [];
-    for (let i = this.position; i < patches.length; i++) {
-      currentState = this.stateDriver.applyImmutably(currentState, patches[i]);
-      futureHistory.push(currentState);
-    }
-
-    // Build past history
-    currentState = this.state;
-    const pastHistory: S[] = [];
-    for (let i = this.position - 1; i > -1; i--) {
-      currentState = this.stateDriver.applyImmutably(currentState, inversePatches[i]);
-      pastHistory.push(currentState);
-    }
-    pastHistory.reverse();
-
-    const history: S[] = [...pastHistory, this.state, ...futureHistory];
-
-    this.historyCache = {
-      version: this.historyVersion,
-      history,
-    };
-
-    // In development mode, freeze the history container to catch push/splice.
-    // Entries remain shared cached snapshots and should be treated as read-only.
-    if (process.env.NODE_ENV !== 'production') {
-      Object.freeze(history);
-    }
-
-    return history;
+    return this.historyView.get({
+      state: this.state,
+      position: this.position,
+      patches: this.getAllPatches(),
+      maxHistory: this.maxHistory,
+      manualMode: !this.isAutoArchiving(),
+      apply: (state, patches) =>
+        this.stateDriver.applyImmutably(state, patches),
+    });
   }
 
   /**
@@ -2061,31 +2015,7 @@ export class Travels<
    * rejects runtime-only values rather than returning a partially shared clone.
    */
   public getHistorySnapshot(): S[] {
-    const history = this.getHistory();
-    const issues: string[] = [];
-    for (let index = 0; index < history.length && issues.length < 20; index += 1) {
-      for (const issue of findStateCompatibilityIssues(history[index], {
-        allowFrozen: true,
-        maxIssues: 20 - issues.length,
-      })) {
-        const path =
-          issue.path === '$'
-            ? `$.history[${index}]`
-            : `$.history[${index}]${issue.path.slice(1)}`;
-        issues.push(`${path}: ${issue.message}`);
-      }
-    }
-
-    if (issues.length > 0) {
-      throw new TravelsTypeError(
-        'PERSISTENCE_INCOMPATIBLE',
-        `Travels: getHistorySnapshot cannot detach non-durable history:\n- ${issues.join(
-          '\n- '
-        )}`
-      );
-    }
-
-    return history.map((state) => deepCloneValue(state) as S);
+    return this.historyView.snapshot(this.getHistory());
   }
 
   /**
