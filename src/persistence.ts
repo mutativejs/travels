@@ -209,15 +209,15 @@ export const validateTravelHistoryEntry = <P extends PatchesOption = {}>(
     };
   }
 
-  const normalized = {
-    patches,
-    inversePatches,
-  } as TravelHistoryEntry<P>;
-  if (containsMapOrSet(normalized)) {
-    return { error: `entry patches must not contain Map or Set values` };
-  }
-
-  return { error: null, entry: normalized };
+  // Patch values are not scanned for collections here. Every caller runs
+  // assertSupportedPatchValues over the same values immediately afterwards,
+  // which walks each value once with a shared visited set and reports
+  // UNSUPPORTED_STATE. Repeating it here doubled the cost of an external
+  // commit and reported the same defect under a second error code.
+  return {
+    error: null,
+    entry: { patches, inversePatches } as TravelHistoryEntry<P>,
+  };
 };
 
 type TravelPatchesValidation<P extends PatchesOption> =

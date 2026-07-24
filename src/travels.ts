@@ -1688,11 +1688,10 @@ export class Travels<
       return;
     }
 
-    assertSupportedPatchValues(
-      patches,
-      inversePatches,
-      this.mutable ? undefined : this.collectionFreeObjects
-    );
+    // Collections need no separate pass here: clonePatchGroupDetached() above
+    // fails closed on every value it cannot rebuild as a primitive, plain
+    // object, array, or Date, so a Map or Set is already rejected by the time
+    // these clones exist.
 
     // Scanning a whole externally owned state is O(state) per commit, so it
     // stays a development diagnostic. serialize(), rebase(), and

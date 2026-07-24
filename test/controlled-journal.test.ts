@@ -683,9 +683,7 @@ describe('controlled travel journal', () => {
           inversePatches: [{ op: 'replace', path: ['value'], value: null }],
         }
       )
-    ).toThrow(
-      'Travels: recordPatches received an invalid patch entry: entry patches must not contain Map or Set values.'
-    );
+    ).toThrow('cannot be safely detached');
   });
 });
 
@@ -741,6 +739,6 @@ describe('controlled journal state validation boundaries', () => {
           inversePatches: [{ op: 'replace', path: ['value'], value: null }],
         }
       )
-    ).toThrow('must not contain Map or Set values');
+    ).toThrow('cannot be safely detached');
   });
 });
