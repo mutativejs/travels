@@ -47,6 +47,12 @@ succeeded. See Breaking Changes for the migration.
 - Scan externally owned state for unsupported collections as a development diagnostic instead of on every controlled commit and navigation in every build. `serialize()`, `rebase()`, and `getHistorySnapshot()` validate the state independently in all builds, and controlled patch values are still validated in all builds, so production keeps the durability guarantees without the per-transition full scan. In development the scan is narrowed by the shared collection cache and the sub-trees each transition writes, with a reused state reference still triggering a full rescan.
 - Raise the package size budgets to match the hardened bundles. Production bundles grow from 39.7 KiB raw / 10.9 KiB gzip on 2.1.0 to 49.3 / 13.4, and development-only timeline invariants are eliminated from production builds.
 
+### Performance
+
+- Keep the hardened timeline at the 2.1.0 per-operation cost. Controlled navigation and external commits had regressed 53x and 5.5x respectively against that line; the whole-state scan behind the first is now a development diagnostic, and external commits walk their patch values once instead of three times.
+- Validate array patch paths inside the dense-array shape walk instead of reading every index descriptor a second time.
+- Add `pnpm run benchmark:hotpath`, a per-operation budget gate covering `setState`, navigation, transactions, and both controlled-journal paths, and run it from `benchmark:ci`. Nothing previously guarded navigation or the controlled journal.
+
 ### Testing
 
 - Add adversarial controlled-journal validation and mutation-isolation coverage.
