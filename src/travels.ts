@@ -19,12 +19,8 @@ import type {
   TravelsDeserializeOptions,
   TravelsEvent,
   TravelsOptions,
-  TravelsObserverErrorEvent,
-  TravelsObserverErrorSource,
   TravelsSerializedHistory,
   TravelsSerializeOptions,
-  TravelsWarning,
-  TravelsWarningCode,
   Updater,
   Value,
 } from './type.js';
@@ -36,6 +32,7 @@ import {
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
+import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
 import {
   clonePatchGroup,
   clonePatchGroups,
@@ -50,19 +47,11 @@ import {
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
   containsMapOrSet,
-  consumePromiseLikeRejection,
   isArrayIndex,
   isObjectLike,
   isPlainObject,
   isValidPatchPath,
 } from './utils.js';
-
-/**
- * Listener callback for state changes
- */
-type Listener<S, P extends PatchesOption = {}> = (
-  event: TravelsEvent<S, P>
-) => void;
 
 type SynchronousFunction<F> = F extends (...args: never[]) => infer R
   ? Extract<R, PromiseLike<unknown>> extends never
@@ -441,11 +430,8 @@ export class Travels<
   private options: MutativeOptions<PatchesOption | true, F>;
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
-  private onObserverError?: (event: TravelsObserverErrorEvent) => void;
-  private onWarning?: (warning: TravelsWarning) => void;
-  private devtools?: (event: TravelsEvent<S, P>) => void;
   private controlledApply?: TravelsControlledApply<S, P>;
-  private listeners: Set<Listener<S, P>> = new Set();
+  private observers: ObserverHub<S, P>;
   private controlsCache:
     | RebasableTravelsControls<S, F, P>
     | RebasableManualTravelsControls<S, F, P>
@@ -474,7 +460,6 @@ export class Travels<
   private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
   private transactionEventPatches: TravelPatches<P> = cloneTravelPatches();
   private transactionStateJournal: MutableStateJournalEntry<P>[] = [];
-  private publishingEffects = false;
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
@@ -496,8 +481,11 @@ export class Travels<
       ...mutativeOptions
     } = options;
 
-    this.onObserverError = onObserverError;
-    this.onWarning = onWarning;
+    this.observers = new ObserverHub<S, P>({
+      devtools: devtools as ((event: TravelsEvent<S, P>) => void) | undefined,
+      onObserverError,
+      onWarning,
+    });
 
     if ((patchesOptions as unknown) === false) {
       throw new TravelsTypeError(
@@ -510,7 +498,7 @@ export class Travels<
     let initialPosition = history?.position ?? inputInitialPosition;
 
     if (history && (inputInitialPatches || inputInitialPosition !== 0)) {
-      this.warn(
+      this.observers.warn(
         'HISTORY_OPTION_OVERRIDE',
         'Travels: history overrides initialPatches and initialPosition.'
       );
@@ -536,7 +524,7 @@ export class Travels<
     }
 
     if (maxHistory === 0) {
-      this.warn(
+      this.observers.warn(
         'HISTORY_DISABLED',
         'Travels: maxHistory is 0, which disables undo/redo history. This is rarely intended.'
       );
@@ -559,7 +547,7 @@ export class Travels<
         );
       }
 
-      this.warn(
+      this.observers.warn(
         'INVALID_INITIAL_PATCHES',
         `Travels: ${initialPatchesValidationError}. Falling back to empty history. ` +
           `Set strictInitialPatches: true to throw instead.`
@@ -584,9 +572,6 @@ export class Travels<
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
-    this.devtools = devtools as
-      | ((event: TravelsEvent<S, P>) => void)
-      | undefined;
     this.controlledApply = controlledApply as
       | TravelsControlledApply<S, P>
       | undefined;
@@ -638,7 +623,7 @@ export class Travels<
       return;
     }
 
-    this.publishEffects(() => {
+    this.observers.publish(() => {
       try {
         const invalidPatchPath =
           subject === 'patch' &&
@@ -673,13 +658,13 @@ export class Travels<
           }
 
           this.compatibilityWarningKeys.add(key);
-          this.warn(
+          this.observers.warn(
             'PERSISTENCE_COMPATIBILITY',
             `Travels ${subject} compatibility warning at ${issuePath}: ${issue.message}`
           );
         }
       } catch (error) {
-        this.reportObserverError('compatibilityCheck', error);
+        this.observers.reportError('compatibilityCheck', error);
       }
     });
   }
@@ -913,7 +898,7 @@ export class Travels<
     const clampedPosition = Math.max(0, Math.min(position, total));
 
     if (invalidInitialPosition || clampedPosition !== position) {
-      this.warn(
+      this.observers.warn(
         'INITIAL_POSITION_CLAMPED',
         `Travels: initialPosition (${initialPosition}) is invalid for available patches (${total}). ` +
           `Using ${clampedPosition} instead.`
@@ -927,7 +912,7 @@ export class Travels<
     }
 
     if (historyLimit === 0) {
-      this.warn(
+      this.observers.warn(
         'HISTORY_DISCARDED',
         `Travels: maxHistory (${this.maxHistory}) discards persisted history.`
       );
@@ -954,7 +939,7 @@ export class Travels<
     const trimmed = cloneTravelPatches(trimmedBase);
     const adjustedPosition = position - windowStart;
 
-    this.warn(
+    this.observers.warn(
       'HISTORY_TRIMMED',
       `Travels: initialPatches length (${total}) exceeds maxHistory (${historyLimit}). ` +
         `Retained ${historyLimit} steps from position ${windowStart}. ` +
@@ -978,7 +963,7 @@ export class Travels<
   }
 
   private assertCanMutate(api: string): void {
-    if (this.publishingEffects) {
+    if (this.observers.isPublishing) {
       throw new TravelsError(
         'REENTRANT_MUTATION',
         `Travels: ${api} cannot be called while observers are being notified.`
@@ -999,90 +984,12 @@ export class Travels<
     }
   }
 
-  private publishEffects(effect: () => void): void {
-    const isRootPublication = !this.publishingEffects;
-    if (isRootPublication) {
-      this.publishingEffects = true;
-    }
-
-    try {
-      effect();
-    } finally {
-      if (isRootPublication) {
-        this.publishingEffects = false;
-      }
-    }
-  }
-
-  private warn(code: TravelsWarningCode, message: string): void {
-    if (this.onWarning) {
-      this.invokeObserver('onWarning', () => this.onWarning?.({ code, message }));
-      return;
-    }
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(message);
-    }
-  }
-
-  private reportObserverError(
-    source: TravelsObserverErrorSource,
-    error: unknown
-  ): void {
-    if (!this.onObserverError) {
-      return;
-    }
-
-    const notify = () => {
-      try {
-        const result = this.onObserverError?.({ source, error });
-        consumePromiseLikeRejection(result, () => undefined);
-      } catch {
-        // Error reporting must never replace the observer failure.
-      }
-    };
-
-    if (this.publishingEffects) {
-      notify();
-    } else {
-      this.publishEffects(notify);
-    }
-  }
-
-  private invokeObserver(
-    source: TravelsObserverErrorSource,
-    observer: () => unknown
-  ): void {
-    let result: unknown;
-    try {
-      result = observer();
-    } catch (error) {
-      this.reportObserverError(source, error);
-      return;
-    }
-
-    consumePromiseLikeRejection(result, (error) =>
-      this.reportObserverError(source, error)
-    );
-  }
-
   /**
    * Subscribe to state changes
    * @returns Unsubscribe function
    */
-  public subscribe = (listener: Listener<S, P>) => {
-    if (listener.length > 1 && !warnedLegacyListeners.has(listener)) {
-      warnedLegacyListeners.add(listener);
-      this.warn(
-        'LEGACY_SUBSCRIBER',
-        'Travels: subscribe listeners receive a single TravelsEvent object. Replace positional (state, patches, position, historyLength) parameters with event destructuring.'
-      );
-    }
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
-    };
-  };
+  public subscribe = (listener: ObserverListener<S, P>) =>
+    this.observers.subscribe(listener);
 
   /**
    * Create one immutable event envelope shared by listeners and devtools.
@@ -1154,7 +1061,7 @@ export class Travels<
 
   private emitBranchDiscard(effect: BranchDiscardEffect<P>): void {
     const onBranchDiscard = this.onBranchDiscard!;
-    this.invokeObserver('onBranchDiscard', () =>
+    this.observers.invoke('onBranchDiscard', () =>
       onBranchDiscard({
         position: effect.position,
         discarded: this.toEntries(effect.patches, effect.metadata),
@@ -1254,7 +1161,7 @@ export class Travels<
       })
     );
 
-    this.publishEffects(() => {
+    this.observers.publish(() => {
       for (const effect of effects) {
         this.emitBranchDiscard(effect);
       }
@@ -1281,25 +1188,24 @@ export class Travels<
       return;
     }
 
-    const listeners = Array.from(this.listeners);
-    const devtools = this.devtools;
+    const { listeners, devtools } = this.observers.snapshot();
     const event =
       listeners.length > 0 || devtools
         ? this.createEvent(type, metadata, changePatches)
         : undefined;
 
-    this.publishEffects(() => {
+    this.observers.publish(() => {
       if (branchDiscard) {
         this.publishBranchDiscard(branchDiscard);
       }
 
       if (event) {
         for (const listener of listeners) {
-          this.invokeObserver('listener', () => listener(event));
+          this.observers.invoke('listener', () => listener(event));
         }
 
         if (devtools) {
-          this.invokeObserver('devtools', () => devtools(event));
+          this.observers.invoke('devtools', () => devtools(event));
         }
       }
     });
@@ -1318,8 +1224,8 @@ export class Travels<
         (this.transactionErrors ??= new Set()).add(travelsError);
       } else {
         const onError = this.onError;
-        this.publishEffects(() => {
-          this.invokeObserver('onError', () => onError(travelsError));
+        this.observers.publish(() => {
+          this.observers.invoke('onError', () => onError(travelsError));
         });
       }
     }
@@ -1665,7 +1571,7 @@ export class Travels<
     if (this.mutable && !canUseMutableRoot && !this.mutableFallbackWarned) {
       this.mutableFallbackWarned = true;
 
-      this.warn(
+      this.observers.warn(
         'MUTABLE_FALLBACK',
         'Travels: mutable mode requires the state root to be an object. Falling back to immutable updates.'
       );
@@ -1707,7 +1613,7 @@ export class Travels<
       if (replacesRoot) {
         if (!this.mutableRootReplaceWarned) {
           this.mutableRootReplaceWarned = true;
-          this.warn(
+          this.observers.warn(
             'MUTABLE_ROOT_REPLACEMENT',
             'Travels: mutable mode cannot apply root replacements in place. Falling back to immutable update for this change.'
           );
@@ -1881,7 +1787,7 @@ export class Travels<
     this.assertCanMutate('archive');
 
     if (this.autoArchive) {
-      this.warn(
+      this.observers.warn(
         'AUTO_ARCHIVE_ENABLED',
         'Travels: auto archive is enabled; archive() has no effect.'
       );
@@ -2178,7 +2084,7 @@ export class Travels<
     this.assertCanMutate('go');
 
     if (typeof nextPosition !== 'number' || !Number.isFinite(nextPosition)) {
-      this.warn(
+      this.observers.warn(
         'INVALID_POSITION',
         `Travels: cannot go to invalid position ${nextPosition}.`
       );
@@ -2187,7 +2093,7 @@ export class Travels<
 
     if (!Number.isInteger(nextPosition)) {
       const normalizedPosition = Math.trunc(nextPosition);
-      this.warn(
+      this.observers.warn(
         'POSITION_CLAMPED',
         `Travels: cannot go to non-integer position ${nextPosition}. Using ${normalizedPosition} instead.`
       );
@@ -2205,7 +2111,7 @@ export class Travels<
     const back = nextPosition < this.position;
 
     if (nextPosition > _allPatches.patches.length) {
-      this.warn(
+      this.observers.warn(
         'POSITION_CLAMPED',
         `Travels: cannot go forward to position ${nextPosition}; using the latest position instead.`
       );
@@ -2213,7 +2119,7 @@ export class Travels<
     }
 
     if (nextPosition < 0) {
-      this.warn(
+      this.observers.warn(
         'POSITION_CLAMPED',
         `Travels: cannot go back to position ${nextPosition}; using position 0 instead.`
       );
