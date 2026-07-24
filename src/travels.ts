@@ -32,7 +32,7 @@ import {
   validateTravelPatches,
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
-import { TravelsError } from './errors.js';
+import { TravelsError, TravelsTypeError } from './errors.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
   containsMapOrSet,
@@ -94,7 +94,10 @@ const assertSynchronousResult = <T>(value: T, api: string): T => {
   }
 
   silenceNativePromiseRejection(value);
-  throw new TypeError(`Travels: ${api} callback must be synchronous.`);
+  throw new TravelsTypeError(
+    'ASYNC_CALLBACK',
+    `Travels: ${api} callback must be synchronous.`
+  );
 };
 
 const assertSupportedRuntimeState = (
@@ -102,7 +105,8 @@ const assertSupportedRuntimeState = (
   knownCollectionFree?: WeakSet<object>
 ): void => {
   if (containsMapOrSet(value, new WeakSet<object>(), knownCollectionFree)) {
-    throw new TypeError(
+    throw new TravelsTypeError(
+      'UNSUPPORTED_STATE',
       'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
     );
   }
@@ -126,7 +130,8 @@ const assertSupportedPatchValues = <P extends PatchesOption = {}>(
 
       hasObjectValues[groupIndex] = true;
       if (containsMapOrSet(value, seen, knownCollectionFree, false)) {
-        throw new TypeError(
+        throw new TravelsTypeError(
+          'UNSUPPORTED_STATE',
           'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
         );
       }
@@ -611,7 +616,8 @@ export class Travels<
     } = options;
 
     if ((patchesOptions as unknown) === false) {
-      throw new TypeError(
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
         'Travels: patchesOptions cannot be false because history requires patches.'
       );
     }
@@ -635,13 +641,15 @@ export class Travels<
       !Number.isFinite(maxHistory) ||
       !Number.isInteger(maxHistory)
     ) {
-      throw new Error(
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
         `Travels: maxHistory must be a non-negative integer, but got ${maxHistory}`
       );
     }
 
     if (maxHistory < 0) {
-      throw new Error(
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
         `Travels: maxHistory must be non-negative, but got ${maxHistory}`
       );
     }
@@ -663,7 +671,10 @@ export class Travels<
 
     if (initialPatchesValidationError) {
       if (strictInitialPatches) {
-        throw new Error(`Travels: ${initialPatchesValidationError}`);
+        throw new TravelsTypeError(
+          'INVALID_PATCH_ENTRY',
+          `Travels: ${initialPatchesValidationError}`
+        );
       }
 
       if (process.env.NODE_ENV !== 'production') {
@@ -1091,7 +1102,8 @@ export class Travels<
 
   private assertCanMutate(api: string): void {
     if (this.publishingEffects) {
-      throw new Error(
+      throw new TravelsError(
+        'REENTRANT_MUTATION',
         `Travels: ${api} cannot be called while observers are being notified.`
       );
     }
@@ -1103,7 +1115,8 @@ export class Travels<
       api !== 'forward' &&
       api !== 'rebase'
     ) {
-      throw new Error(
+      throw new TravelsError(
+        'CONTROLLED_OPERATION_UNAVAILABLE',
         `Travels: ${api} is not available on a controlled journal. Record external commits with recordPatches() and navigate with back(), forward(), or go().`
       );
     }
@@ -1737,7 +1750,10 @@ export class Travels<
     const canUseMutableRoot = this.mutable && isObjectLike(this.state);
     const isFunctionUpdater = typeof updater === 'function';
     if (isFunctionUpdater && isKnownAsyncFunction(updater)) {
-      throw new TypeError('Travels: setState callback must be synchronous.');
+      throw new TravelsTypeError(
+        'ASYNC_CALLBACK',
+        'Travels: setState callback must be synchronous.'
+      );
     }
     const createOptions = this.options.enableAutoFreeze
       ? ({ ...this.options, enableAutoFreeze: false } as typeof this.options)
@@ -1892,19 +1908,22 @@ export class Travels<
   public recordPatches(state: S, entry: TravelHistoryEntry<P>): void {
     this.assertCanMutate('recordPatches');
     if (!this.controlledApply) {
-      throw new Error(
+      throw new TravelsError(
+        'CONTROLLED_JOURNAL_REQUIRED',
         'Travels: recordPatches is only available on a controlled journal created with createTravelJournal().'
       );
     }
     if (this.transactionDepth > 0) {
-      throw new Error(
+      throw new TravelsError(
+        'INVALID_OPERATION',
         'Travels: recordPatches cannot be called inside a Travels transaction because the external state owner controls rollback.'
       );
     }
 
     const validation = validateTravelHistoryEntry<P>(entry);
     if (validation.error) {
-      throw new TypeError(
+      throw new TravelsTypeError(
+        'INVALID_PATCH_ENTRY',
         `Travels: recordPatches received an invalid patch entry: ${validation.error}.`
       );
     }
@@ -1913,7 +1932,8 @@ export class Travels<
     const inversePatches = clonePatchGroup(validation.entry.inversePatches);
     if (patches.length === 0 && inversePatches.length === 0) {
       if (!Object.is(state, this.state)) {
-        throw new Error(
+        throw new TravelsError(
+          'EMPTY_PATCH_ENTRY',
           'Travels: recordPatches requires a non-empty patch pair when the state changes.'
         );
       }

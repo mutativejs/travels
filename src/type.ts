@@ -210,7 +210,18 @@ export type TravelsDevtoolsEvent<
   P extends PatchesOption = {},
 > = TravelsEvent<S, P>;
 
-export type TravelsErrorCode = 'TRANSACTION_FAILED';
+export type TravelsErrorCode =
+  | 'ASYNC_CALLBACK'
+  | 'CONTROLLED_JOURNAL_REQUIRED'
+  | 'CONTROLLED_OPERATION_UNAVAILABLE'
+  | 'EMPTY_PATCH_ENTRY'
+  | 'INVALID_OPERATION'
+  | 'INVALID_OPTION'
+  | 'INVALID_PATCH_ENTRY'
+  | 'PERSISTENCE_INCOMPATIBLE'
+  | 'REENTRANT_MUTATION'
+  | 'TRANSACTION_FAILED'
+  | 'UNSUPPORTED_STATE';
 
 export type TravelsOptions<
   F extends boolean,

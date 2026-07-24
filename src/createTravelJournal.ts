@@ -1,3 +1,4 @@
+import { TravelsTypeError } from './errors.js';
 import { Travels } from './travels.js';
 import type {
   PatchesOption,
@@ -66,7 +67,8 @@ export const createTravelJournal = <
 ): TravelJournal<S, F, P> => {
   const { apply, ...travelsOptions } = options;
   if (typeof apply !== 'function') {
-    throw new TypeError(
+    throw new TravelsTypeError(
+      'INVALID_OPTION',
       'Travels: createTravelJournal requires a synchronous apply function.'
     );
   }

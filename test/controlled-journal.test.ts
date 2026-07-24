@@ -1,6 +1,12 @@
 import { apply, create, type Draft, type Patches } from 'mutative';
 import { describe, expect, test, vi } from 'vitest';
-import { createTravelJournal, createTravels, Travels } from '../src/index';
+import {
+  createTravelJournal,
+  createTravels,
+  Travels,
+  TravelsError,
+  TravelsTypeError,
+} from '../src/index';
 
 type State = {
   count: number;
@@ -127,6 +133,38 @@ describe('controlled travel journal', () => {
         { patches: [], inversePatches: [] }
       )
     ).toThrow('recordPatches is only available on a controlled journal');
+  });
+
+  test('exposes stable error codes for integration failures', () => {
+    const initialState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(initialState, {
+      apply: ({ state }) => state,
+    });
+
+    try {
+      journal.recordPatches(
+        { count: 1, label: 'initial' },
+        {
+          patches: [{ op: 'move', path: ['count'] }] as unknown as Patches,
+          inversePatches: [],
+        }
+      );
+      throw new Error('expected recordPatches to fail');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TravelsTypeError);
+      expect((error as TravelsTypeError).code).toBe('INVALID_PATCH_ENTRY');
+    }
+
+    const widened = journal as unknown as Travels<State>;
+    try {
+      widened.setState({ count: 1, label: 'changed' });
+      throw new Error('expected controlled setState to fail');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TravelsError);
+      expect((error as TravelsError).code).toBe(
+        'CONTROLLED_OPERATION_UNAVAILABLE'
+      );
+    }
   });
 
   test('requires an apply callback at runtime', () => {
