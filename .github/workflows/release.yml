@@ -83,6 +83,20 @@ jobs:
       - run: pnpm run coverage
       - run: pnpm run test:mutation:smoke
       - run: pnpm run benchmark:ci
+      - name: Build exact publish artifact
+        run: |
+          pnpm run build
+          mkdir -p release-artifact
+          npm pack --pack-destination release-artifact
+          mv release-artifact/*.tgz release-artifact/travels.tgz
+          sha256sum release-artifact/travels.tgz
+      - name: Upload exact publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: release-artifact/travels.tgz
+          if-no-files-found: error
+          retention-days: 7
 
   build-pages:
     runs-on: ubuntu-latest
@@ -100,21 +114,25 @@ jobs:
 
   publish-npm:
     runs-on: ubuntu-latest
-    needs: [build-pages]
+    needs: [build-pages, package-checks]
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm install --global npm@11.5.1
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
-      - run: npm publish
+      - name: Download tested package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-package
+          path: release-artifact
+      - name: Publish tested package artifact
+        run: |
+          sha256sum release-artifact/travels.tgz
+          npm publish release-artifact/travels.tgz
         env:
           CI: true
 
