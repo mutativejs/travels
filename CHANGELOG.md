@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+Target release: **3.0.0**. The hardening work below tightens contracts that
+2.x accepted, so several changes reject input or fail builds that previously
+succeeded. See Breaking Changes for the migration.
+
+### Breaking Changes
+
+- `TravelsControls.getHistory()` is typed `readonly Value<S, F>[]` instead of `Value<S, F>[]`. Callers that assigned the result to a mutable array type, or called mutating array methods on it, need to copy it first or use the new `getHistorySnapshot()`. The runtime value was already a shared cache and was already frozen in development.
+- Controlled journals reject patch values that cannot be detached without changing their runtime type, with code `UNCLONEABLE_PATCH_VALUE`. Class instances, accessor-backed values, and other non-plain objects in `recordPatches()` entries or navigation transitions now throw where 2.x accepted them and, at most, warned. Normalize such values to plain data before recording them.
+- Empty and one-sided retained history entries are rejected. `Travels.deserialize()` throws on them, and `initialPatches` containing them falls back to empty history with a warning unless `strictInitialPatches: true` makes it throw. Persisted histories that were hand-built or written by a third party may contain such entries; the schema version is unchanged because Travels itself never produced them.
+- `recordPatches()` reports Map and Set in patch entries as `INVALID_PATCH_ENTRY` rather than `UNSUPPORTED_STATE`, and its message now names the offending entry. Code matching on the previous error code or message needs updating.
+- Warning text for invalid `go()` positions and for `archive()` under auto archive changed. Prefer the new structured `onWarning` callback and its stable `TravelsWarningCode` over matching console output.
+- `main` now resolves to the CJS build and `module` to the ESM build, where 2.x pointed `main` at ESM. Bundlers and runtimes that read `main` without honoring `exports` receive CommonJS instead of ESM.
+- The package declares `engines.node >= 20`.
+
 ### Added
 
 - Add `createPatchableTravels()` for applications that want a compile-time JSON-shaped state contract.
@@ -21,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - Reject empty or one-sided retained history entries during structural restore and initial-history validation.
 - Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
 - Revalidate patchable-factory inputs at runtime while accepting recursive interface-shaped durable state types.
+- Realign restored metadata with restored history in `reset()`, which threw the timeline metadata invariant for instances rehydrated through `initialPatches` without metadata.
 
 ### Changed
 
@@ -30,6 +45,8 @@ All notable changes to this project will be documented in this file.
 - Record package version, Git revision, and dirty-worktree state in real-library benchmark reports.
 - Reconstruct and detach history through a focused internal history view instead of keeping cache logic in the main orchestrator.
 - Build, smoke-test, upload, and publish the same npm tarball artifact across release jobs.
+- Validate externally owned state against the shared collection cache and the sub-trees each transition writes, instead of rescanning the whole graph on every controlled commit and navigation. A reused state reference still triggers a full rescan.
+- Raise the package size budgets to match the hardened bundles. Production bundles grow from 39.7 KiB raw / 10.9 KiB gzip on 2.1.0 to 49.3 / 13.4, and development-only timeline invariants are eliminated from production builds.
 
 ### Testing
 
