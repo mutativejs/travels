@@ -33,7 +33,10 @@ import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
 import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
 import { TransactionCoordinator } from './internal/transaction-coordinator.js';
-import { TimelineStore } from './internal/timeline-store.js';
+import {
+  assertTimelineConsistent,
+  TimelineStore,
+} from './internal/timeline-store.js';
 import { HistoryView } from './internal/history-view.js';
 import {
   assertSupportedExternalState,
@@ -1133,7 +1136,7 @@ export class Travels<
     if (process.env.NODE_ENV === 'production') {
       return;
     }
-    this.timeline.assertConsistent(this.maxHistory);
+    assertTimelineConsistent(this.timeline, this.maxHistory);
   }
 
   private emitChange(

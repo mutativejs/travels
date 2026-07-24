@@ -7,15 +7,21 @@ const KiB = 1024;
 const repoRoot = resolve(__dirname, '..');
 const artifacts = ['dist/index.cjs', 'dist/index.esm.js', 'dist/index.umd.js'];
 const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
+// Budgets sit just above the current artifacts so any unplanned growth fails
+// the build. The step from the 2.1.0 line (40.5 KiB raw / 11.5 KiB gzip) is the
+// hardening work: controlled-journal validation and detachment, persistence
+// compatibility checks, structured warnings and error codes, the patchable
+// factory, and detached history snapshots. Development-only invariants are
+// eliminated from the production bundles rather than counted here.
 const limits = {
-  bundleRaw: 40.5 * KiB,
-  bundleGzip: 11.5 * KiB,
-  bundleMap: 192 * KiB,
-  developmentBundleRaw: 47 * KiB,
-  developmentBundleGzip: 13 * KiB,
-  developmentBundleMap: 200 * KiB,
-  packagePacked: 380 * KiB,
-  packageUnpacked: 1470 * KiB,
+  bundleRaw: 50.5 * KiB,
+  bundleGzip: 14 * KiB,
+  bundleMap: 232 * KiB,
+  developmentBundleRaw: 55 * KiB,
+  developmentBundleGzip: 15 * KiB,
+  developmentBundleMap: 237 * KiB,
+  packagePacked: 470 * KiB,
+  packageUnpacked: 1850 * KiB,
 };
 
 const failures = [];
