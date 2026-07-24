@@ -264,8 +264,12 @@ export const validateTravelPatches = <P extends PatchesOption = {}>(
     ) {
       return {
         error:
-          `patches entry ${entryIndex} must have both forward and inverse operations ` +
-          `or leave both groups empty`,
+          `patches entry ${entryIndex} must have both forward and inverse operations`,
+      };
+    }
+    if (forward[entryIndex].length === 0) {
+      return {
+        error: `patches entry ${entryIndex} must not be empty`,
       };
     }
   }

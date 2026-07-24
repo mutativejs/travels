@@ -589,6 +589,10 @@ describe('Persistence Example - State Persistence', () => {
         patches: [[]],
         inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
       },
+      {
+        patches: [[]],
+        inversePatches: [[]],
+      },
     ]) {
       expect(() =>
         Travels.deserialize<AppState>({
@@ -613,7 +617,7 @@ describe('Persistence Example - State Persistence', () => {
             warnOnUnsupportedState: false,
           }
         )
-      ).toThrow(/must have both forward and inverse operations/);
+      ).toThrow(/must have both forward and inverse operations|must not be empty/);
     }
 
     for (const operation of [

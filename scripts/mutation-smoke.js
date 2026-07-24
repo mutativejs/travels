@@ -29,6 +29,13 @@ const mutations = [
     tests: ['test/persistence.test.ts'],
   },
   {
+    name: 'retained history rejects empty entries',
+    file: 'src/persistence.ts',
+    from: '    if (forward[entryIndex].length === 0) {',
+    to: '    if (false && forward[entryIndex].length === 0) {',
+    tests: ['test/persistence.test.ts'],
+  },
+  {
     name: 'controlled patch values reject functions that cannot be detached',
     file: 'src/internal/patch-utils.ts',
     from: "if (typeof value === 'function') {",
