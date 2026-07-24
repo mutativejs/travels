@@ -1564,3 +1564,103 @@ describe('Persistence Example - State Persistence', () => {
     expect(history.position).toBe(0);
   });
 });
+
+describe('Persistence - snapshot validation contracts', () => {
+  const validPatches = {
+    patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+    inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+  };
+  const expectCode = (snapshot: unknown, code: string) => {
+    try {
+      Travels.deserialize(snapshot);
+      throw new Error('Expected Travels.deserialize to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TravelsPersistenceError);
+      expect((error as TravelsPersistenceError).code).toBe(code);
+    }
+  };
+
+  test('rejects snapshots that are not objects', () => {
+    for (const snapshot of [42, true, null, () => undefined]) {
+      expectCode(snapshot, 'INVALID_SCHEMA');
+    }
+  });
+
+  test('rejects unsupported schema versions', () => {
+    expectCode(
+      {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION + 1,
+        state: { count: 0 },
+        position: 0,
+        patches: { patches: [], inversePatches: [] },
+      },
+      'UNSUPPORTED_VERSION'
+    );
+  });
+
+  test('rejects positions outside the persisted history', () => {
+    for (const position of [-1, 2, 1.5, Number.NaN]) {
+      expectCode(
+        {
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position,
+          patches: validPatches,
+        },
+        'INVALID_SCHEMA'
+      );
+    }
+  });
+
+  test('rejects metadata whose length does not match the history', () => {
+    expectCode(
+      {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 1 },
+        position: 1,
+        patches: validPatches,
+        metadata: [{ label: 'a' }, { label: 'b' }],
+      },
+      'INVALID_SCHEMA'
+    );
+  });
+
+  test('rejects patch operations that are not objects', () => {
+    expectCode(
+      {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: { count: 1 },
+        position: 1,
+        patches: {
+          patches: [['not-an-operation']],
+          inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+        },
+      },
+      'INVALID_PATCHES'
+    );
+  });
+
+  test('wraps a throwing migration as MIGRATION_FAILED with its cause', () => {
+    const cause = new Error('migration exploded');
+    try {
+      Travels.deserialize(
+        {
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 0 },
+          position: 0,
+          patches: { patches: [], inversePatches: [] },
+        },
+        {
+          migrate() {
+            throw cause;
+          },
+        }
+      );
+      throw new Error('Expected Travels.deserialize to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TravelsPersistenceError);
+      expect((error as TravelsPersistenceError).code).toBe('MIGRATION_FAILED');
+      expect((error as TravelsPersistenceError).cause).toBe(cause);
+    }
+  });
+});
