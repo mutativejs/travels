@@ -40,6 +40,27 @@ const cliArgs = process.argv.slice(2);
 const isQuick = cliArgs.includes('--quick');
 const shouldWriteResults = !cliArgs.includes('--no-write');
 
+function repositoryRevision(repositoryPath) {
+  try {
+    const revision = execFileSync(
+      'git',
+      ['-C', repositoryPath, 'rev-parse', '--short=12', 'HEAD'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    const dirty = execFileSync(
+      'git',
+      ['-C', repositoryPath, 'status', '--porcelain'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    return { revision, dirty: dirty.length > 0 };
+  } catch {
+    return { revision: 'unknown', dirty: undefined };
+  }
+}
+
+const travelsManifest = require('../package.json');
+const travelsRepository = repositoryRevision(path.resolve(__dirname, '..'));
+
 function readStringFlag(name) {
   const prefix = `${name}=`;
   return cliArgs.find((value) => value.startsWith(prefix))?.slice(prefix.length);
@@ -507,7 +528,7 @@ const adapters = [
     group: 'travels',
     historyStrategy: 'JSON Patch',
     referenceSemantics: 'immutable root',
-    version: require('../package.json').version,
+    version: travelsManifest.version,
     create: (initialState, benchmarkConfig) =>
       createTravelsAdapter(initialState, benchmarkConfig, false),
   },
@@ -517,7 +538,7 @@ const adapters = [
     group: 'travels',
     historyStrategy: 'JSON Patch',
     referenceSemantics: 'in-place root',
-    version: require('../package.json').version,
+    version: travelsManifest.version,
     create: (initialState, benchmarkConfig) =>
       createTravelsAdapter(initialState, benchmarkConfig, true),
   },
@@ -766,9 +787,15 @@ function runBenchmark() {
 
   const cpu = os.cpus()[0];
   const report = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     benchmark: 'real-library-undo-redo',
     generatedAt: new Date().toISOString(),
+    subject: {
+      package: travelsManifest.name,
+      version: travelsManifest.version,
+      repositoryRevision: travelsRepository.revision,
+      repositoryDirty: travelsRepository.dirty,
+    },
     config: {
       ...config,
       actualInitialSizeKB,

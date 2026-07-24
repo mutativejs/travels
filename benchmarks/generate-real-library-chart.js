@@ -175,9 +175,19 @@ function createBenchmarkSvg(report) {
 
   const { config, environment } = report;
   const generatedDate = new Date(report.generatedAt).toISOString().slice(0, 10);
+  const travelsVersion =
+    report.subject?.version ??
+    report.implementations.find(({ id }) => id === 'travels-immutable')
+      ?.version ??
+    'unknown';
+  const repositoryRevision = report.subject?.repositoryRevision;
+  const subjectLabel = repositoryRevision
+    ? `Travels v${travelsVersion} @ ${repositoryRevision}`
+    : `Travels v${travelsVersion}`;
   const subtitle =
-    `${config.actualInitialSizeKB}KB state · ${config.iterations} updates · ` +
-    `${config.navigationSteps} undo/redo · ${config.rounds} rounds · ${environment.node}`;
+    `${subjectLabel} · ${config.actualInitialSizeKB}KB state · ` +
+    `${config.iterations} updates · ${config.navigationSteps} undo/redo · ` +
+    `${config.rounds} rounds · ${environment.node}`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title description">
   <title id="title">Real-library undo and redo benchmark</title>

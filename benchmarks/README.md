@@ -42,14 +42,16 @@ pnpm --dir /path/to/coaction --filter @coaction/history build
 pnpm --dir benchmarks run test:real -- --coaction-repo=/path/to/coaction
 ```
 
-The JSON report records the local Git revision and whether its worktree was
-dirty. Without `--coaction-repo`, the installed npm packages are measured.
+The JSON report records the Travels package version, repository revision, and
+dirty-worktree state. When `--coaction-repo` is used, it also records the local
+Coaction revision; otherwise the installed npm packages are measured.
 
 The default run builds the current Travels checkout, warms every adapter, and
 then performs seven interleaved measurement rounds. It writes:
 
 - `benchmarks/results/real-library-benchmark.json`: configuration, environment,
-  package versions, every sample, and median/p95 summaries.
+  package versions, Travels source revision, every sample, and median/p95
+  summaries.
 - `benchmarks/results/real-library-benchmark.svg`: a directly labeled chart of
   the main latency and footprint metrics.
 
