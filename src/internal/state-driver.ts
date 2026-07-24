@@ -237,13 +237,17 @@ export class StateDriver<
         ),
         'controlledApply'
       );
-      // A controlled owner may mutate and return a previously seen object, so
-      // the sub-trees it just wrote are always rescanned.
-      assertSupportedExternalState(
-        controlledState,
-        transition.patches,
-        this.collectionFreeObjects
-      );
+      // Scanning a whole externally owned state is O(state) per navigation, so
+      // it stays a development diagnostic. serialize(), rebase(), and
+      // getHistorySnapshot() validate the state independently in every build,
+      // which is where an unsupported value would actually cost something.
+      if (process.env.NODE_ENV !== 'production') {
+        assertSupportedExternalState(
+          controlledState,
+          transition.patches,
+          this.collectionFreeObjects
+        );
+      }
       return controlledState;
     }
 

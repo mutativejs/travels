@@ -1694,9 +1694,13 @@ export class Travels<
       this.mutable ? undefined : this.collectionFreeObjects
     );
 
-    // External owners may mutate and reuse a state reference, so the sub-trees
-    // this entry writes are rescanned even when the cache already saw them.
-    assertSupportedExternalState(state, patches, this.collectionFreeObjects);
+    // Scanning a whole externally owned state is O(state) per commit, so it
+    // stays a development diagnostic. serialize(), rebase(), and
+    // getHistorySnapshot() validate the state independently in every build,
+    // which is where an unsupported value would actually cost something.
+    if (process.env.NODE_ENV !== 'production') {
+      assertSupportedExternalState(state, patches, this.collectionFreeObjects);
+    }
     const entryMetadata = entry.metadata;
     const storedMetadata = cloneTravelMetadata(entryMetadata);
     this.state = state;

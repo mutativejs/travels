@@ -688,3 +688,59 @@ describe('controlled travel journal', () => {
     );
   });
 });
+
+describe('controlled journal state validation boundaries', () => {
+  // The per-transition state scan is a development diagnostic, so the checks
+  // that keep history and persistence sound must not depend on it.
+  test('durable exits reject a smuggled collection on their own', () => {
+    type SmuggledState = { count: number; hidden?: Set<number> };
+    let authoritative: SmuggledState = { count: 0 };
+    const journal = createTravelJournal<SmuggledState>(authoritative, {
+      warnOnUnsupportedState: false,
+      apply: ({ patches }) => {
+        authoritative = apply(authoritative, patches) as SmuggledState;
+        return authoritative;
+      },
+    });
+    journal.recordPatches(
+      { count: 1 },
+      {
+        patches: [{ op: 'replace', path: ['count'], value: 1 }],
+        inversePatches: [{ op: 'replace', path: ['count'], value: 0 }],
+      }
+    );
+
+    // Reach past every commit-time check the way a misbehaving owner would.
+    (journal.getState() as SmuggledState).hidden = new Set([1]);
+
+    expect(() => journal.serialize()).toThrow(
+      'Map and Set are not supported in state'
+    );
+    expect(() => journal.getHistorySnapshot()).toThrow(
+      'cannot detach non-durable history'
+    );
+
+    // Retained history never absorbed it: controlled entries only ever hold
+    // the patch values Travels validated.
+    expect(JSON.stringify(journal.getPatches())).not.toContain('hidden');
+  });
+
+  test('patch values stay validated independently of the state scan', () => {
+    const journal = createTravelJournal<{ value: unknown }>(
+      { value: null },
+      { warnOnUnsupportedState: false, apply: ({ state }) => state }
+    );
+
+    expect(() =>
+      journal.recordPatches(
+        { value: null },
+        {
+          patches: [
+            { op: 'replace', path: ['value'], value: new Set([1]) },
+          ],
+          inversePatches: [{ op: 'replace', path: ['value'], value: null }],
+        }
+      )
+    ).toThrow('must not contain Map or Set values');
+  });
+});

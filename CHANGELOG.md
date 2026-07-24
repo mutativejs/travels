@@ -45,7 +45,7 @@ succeeded. See Breaking Changes for the migration.
 - Record package version, Git revision, and dirty-worktree state in real-library benchmark reports.
 - Reconstruct and detach history through a focused internal history view instead of keeping cache logic in the main orchestrator.
 - Build, smoke-test, upload, and publish the same npm tarball artifact across release jobs.
-- Validate externally owned state against the shared collection cache and the sub-trees each transition writes, instead of rescanning the whole graph on every controlled commit and navigation. A reused state reference still triggers a full rescan.
+- Scan externally owned state for unsupported collections as a development diagnostic instead of on every controlled commit and navigation in every build. `serialize()`, `rebase()`, and `getHistorySnapshot()` validate the state independently in all builds, and controlled patch values are still validated in all builds, so production keeps the durability guarantees without the per-transition full scan. In development the scan is narrowed by the shared collection cache and the sub-trees each transition writes, with a reused state reference still triggering a full rescan.
 - Raise the package size budgets to match the hardened bundles. Production bundles grow from 39.7 KiB raw / 10.9 KiB gzip on 2.1.0 to 49.3 / 13.4, and development-only timeline invariants are eliminated from production builds.
 
 ### Testing
