@@ -2184,9 +2184,12 @@ export class Travels<
 
     this.position = this.initialPosition;
     this.allPatches = cloneTravelPatches(this.initialPatches);
-    this.allMetadata = this.initialMetadata
-      ? cloneTravelMetadataList(this.initialMetadata)
-      : [];
+    // Preloaded history can exist without metadata, so realign against the
+    // restored entry count instead of trusting the captured metadata length.
+    this.allMetadata = alignMetadataToPatchCount(
+      this.initialMetadata,
+      this.allPatches.patches.length
+    );
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
 

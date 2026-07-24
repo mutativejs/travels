@@ -101,6 +101,19 @@ describe('Rehydration maxHistory normalization', () => {
     expect(travels.getState().count).toBe(11);
   });
 
+  test('reset realigns metadata with history preloaded without metadata', () => {
+    const travels = rehydrateCountHistory({
+      totalSteps: 3,
+      maxHistory: 10,
+      position: 3,
+    });
+
+    expect(() => travels.reset()).not.toThrow();
+    expect(travels.getMetadata().length).toBe(
+      travels.getPatches().patches.length
+    );
+  });
+
   test('positions before the retained tail keep a contiguous future window', () => {
     const travels = rehydrateCountHistory({
       totalSteps: 12,
