@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest';
 import {
+  createPatchableTravels,
   createTravelJournal,
   createTravels,
   Travels,
@@ -74,13 +75,17 @@ describe('Type-level API contracts', () => {
       createTravels(state);
 
     const travels = createJsonHistory(jsonState);
+    const patchableTravels = createPatchableTravels(jsonState);
     expectTypeOf(travels.getState().blocks[0].text).toEqualTypeOf<string>();
+    expectTypeOf(patchableTravels.getState()).toEqualTypeOf<typeof jsonState>();
 
     if (false) {
       // @ts-expect-error Map is outside the supported state contract
       createJsonHistory(new Map([['count', 1]]));
       // @ts-expect-error Set is outside the supported state contract
       createJsonHistory(new Set(['selected']));
+      // @ts-expect-error the strict factory excludes runtime-only state
+      createPatchableTravels({ createdAt: new Date() });
     }
   });
 

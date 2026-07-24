@@ -657,7 +657,12 @@ When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its sta
 TypeScript helpers are exported for users who want to enforce the durable subset in their own app code:
 
 ```ts
-import { createTravels, type JsonValue, type PatchableState } from 'travels';
+import {
+  createPatchableTravels,
+  createTravels,
+  type JsonValue,
+  type PatchableState,
+} from 'travels';
 
 const initialDocumentState = {
   title: 'Draft',
@@ -667,7 +672,7 @@ const initialDocumentState = {
 const travels = createTravels(initialDocumentState);
 
 function createHistoryFor<S extends PatchableState>(state: S) {
-  return createTravels(state);
+  return createPatchableTravels(state);
 }
 ```
 
