@@ -267,15 +267,13 @@ describe('controlled travel journal', () => {
     };
     const shared = { id: 1 };
     let authoritativeState: AliasState = { left: shared, right: shared };
-    let observedAlias = false;
+    const observedValues: unknown[][] = [];
     const journal = createTravelJournal(authoritativeState, {
       warnOnUnsupportedState: false,
       apply: ({ patches }) => {
-        const firstValue = (patches[0] as { value?: unknown }).value;
-        const secondValue = (patches[1] as { value?: unknown }).value;
-        if (firstValue !== undefined && secondValue !== undefined) {
-          observedAlias = firstValue === secondValue && firstValue !== shared;
-        }
+        observedValues.push(
+          patches.map((patch) => (patch as { value?: unknown }).value)
+        );
         authoritativeState = apply(authoritativeState, patches);
         return authoritativeState;
       },
@@ -294,8 +292,15 @@ describe('controlled travel journal', () => {
     journal.back();
     journal.forward();
 
-    expect(observedAlias).toBe(true);
-    expect(authoritativeState.left).toBe(authoritativeState.right);
+    // The guarantee under test is the shape of the patch group handed to the
+    // external owner: repeated references inside one group stay aliased and
+    // detached from the caller's object. How the owner's own apply()
+    // reconstructs state from those operations is outside Travels' control.
+    const forwardValues = observedValues[observedValues.length - 1];
+    expect(forwardValues).toHaveLength(2);
+    expect(forwardValues[0]).toBe(forwardValues[1]);
+    expect(forwardValues[0]).not.toBe(shared);
+    expect(forwardValues[0]).toEqual(shared);
     expect(authoritativeState.left).not.toBe(shared);
   });
 

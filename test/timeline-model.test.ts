@@ -1,7 +1,7 @@
 import { apply, create, type Patches } from 'mutative';
 import { describe, expect, test } from 'vitest';
 import fc from 'fast-check';
-import { createTravelJournal, createTravels } from '../src/index';
+import { createTravelJournal, createTravels, TravelsError } from '../src/index';
 
 type ModelOperation =
   | { kind: 'set'; value: number }
@@ -376,7 +376,22 @@ describe('timeline state-machine model', () => {
                   }
                 );
               if (operation.fail) {
-                expect(runTransaction).toThrowError('modeled rollback');
+                // A failed transaction surfaces a TravelsError and keeps the
+                // recipe's own error as its cause.
+                let thrown: unknown;
+                try {
+                  runTransaction();
+                } catch (error) {
+                  thrown = error;
+                }
+                expect(thrown).toBeInstanceOf(TravelsError);
+                expect((thrown as TravelsError).code).toBe(
+                  'TRANSACTION_FAILED'
+                );
+                expect((thrown as TravelsError).cause).toBeInstanceOf(Error);
+                expect(((thrown as TravelsError).cause as Error).message).toBe(
+                  'modeled rollback'
+                );
               } else {
                 expect(runTransaction).not.toThrow();
               }
