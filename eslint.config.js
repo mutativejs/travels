@@ -1,6 +1,5 @@
 import js from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
-import prettierPlugin from 'eslint-plugin-prettier';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 
@@ -42,6 +41,7 @@ const importRules = {
     { devDependencies: true },
   ],
   'import/prefer-default-export': 'off',
+  'import/no-unresolved': 'off',
 };
 
 const sharedRules = {
@@ -51,7 +51,6 @@ const sharedRules = {
   'no-restricted-syntax': 'off',
   'no-underscore-dangle': 'off',
   'no-useless-constructor': 'off',
-  'prettier/prettier': 'error',
 };
 
 export default [
@@ -74,7 +73,6 @@ export default [
     },
     plugins: {
       import: importPlugin,
-      prettier: prettierPlugin,
     },
     settings: {
       'import/resolver': {
@@ -84,7 +82,6 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
       ...importRules,
-      ...prettierPlugin.configs.recommended.rules,
       ...sharedRules,
     },
   },
@@ -102,7 +99,6 @@ export default [
     plugins: {
       '@typescript-eslint': tsPlugin,
       import: importPlugin,
-      prettier: prettierPlugin,
     },
     settings: {
       'import/resolver': {
@@ -113,17 +109,24 @@ export default [
       ...js.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
       ...importRules,
-      ...prettierPlugin.configs.recommended.rules,
       ...sharedRules,
       'no-undef': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+    },
+  },
+  {
+    files: ['test/**/*.{ts,tsx}', 'e2e/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/ban-ts-comment': 'off',
     },
   },
 ];
