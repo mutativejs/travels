@@ -16,7 +16,7 @@ Travels targets modern browsers that support the required standard JavaScript an
 
 ## Peer Dependencies
 
-`mutative` is a peer dependency and is supported at `>=1.0.0`. The test suite runs against the repository's pinned development version.
+`mutative` is a peer dependency and is supported at `^1.3.0`. The test suite runs against the repository's pinned development version.
 
 ## State Compatibility
 

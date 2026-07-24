@@ -50,10 +50,7 @@ The callback receives:
 - `inversePatches`: the composed rollback transition;
 - `fromPosition` and `toPosition`: the cursor movement.
 
-Treat the transition and its nested patch values as read-only. `apply` must
-finish synchronously and return the state actually committed by the owner.
-Travels advances its own state and cursor only after that return. A thrown error
-or Promise-like result leaves the journal state, cursor, and history unchanged.
+The transition contains detached patch operations and values, so accidental callback mutation cannot rewrite retained history. The callback should still treat them as read-only because changing them before the owner commits would change the requested navigation. `apply` must finish synchronously and return the state actually committed by the owner. Travels validates that returned state, then advances its own state and cursor. A thrown error, unsupported state, or Promise-like result leaves the journal state, cursor, and history unchanged.
 
 The owner must suppress normal commit recording while applying delegated
 navigation. Feeding an undo or redo back into `recordPatches()` would create a
@@ -66,7 +63,7 @@ The returned `TravelJournal` exposes only journal-safe operations:
 - external commit ingress: `recordPatches()`;
 - navigation: `back()`, `forward()`, `go()`, `canBack()`, and `canForward()`;
 - reads: `getState()`, `getHistory()`, `getPosition()`, `getPatches()`,
-  `getMetadata()`, `getHistoryEntries()`, and `serialize()`;
+  `getMetadata()`, `getHistoryEntries()`, `assertPersistenceCompatible()`, and `serialize()`;
 - lifecycle: `subscribe()` and `rebase()`.
 
 State-owning operations (`setState()`, `reset()`, transactions,
@@ -77,9 +74,7 @@ cursor, not the external state.
 
 ## Failure boundaries
 
-Travels makes each journal mutation internally atomic: invalid patches,
-unsupported values, metadata cloning failures, and controlled navigation
-failures do not partially change journal state or history.
+Travels makes each journal mutation internally atomic: malformed or one-sided patch pairs, unsafe paths, unsupported patch/state values, metadata cloning failures, and controlled navigation failures do not partially change journal state or history. Controlled patch ingress uses the same accessor-safe structural normalization as persisted history.
 
 The external owner and Travels are still two components. If the owner has
 already published a commit and `recordPatches()` then fails, Travels cannot

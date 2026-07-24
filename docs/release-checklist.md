@@ -11,6 +11,7 @@
    corepack enable
    pnpm install --frozen-lockfile
    pnpm exec playwright install chromium
+   pnpm run lint
    pnpm run size:ci
    pnpm run test:types
    pnpm run test:examples
@@ -19,6 +20,7 @@
    pnpm run test:e2e:types
    pnpm run test:e2e:ci
    pnpm run coverage
+   pnpm run test:mutation:smoke
    pnpm run benchmark:ci
    ```
 

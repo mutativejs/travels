@@ -164,6 +164,7 @@ Creates a new Travels instance.
 | `warnOnUnsupportedState` | boolean        | Development warnings for weak state, retained patch path/value, or metadata persistence semantics                                                                                                                                        | true in development              |
 | `onError`                | function       | Receives typed `TravelsError` failures from core helper APIs                                                                                                                                                                             | undefined                        |
 | `onBranchDiscard`        | function       | Called when a committed edit after undo discards redo entries; root transactions report only entries visible before they began                                                                                                           | undefined                        |
+| `onWarning`              | function       | Receives structured non-fatal warnings with stable codes; otherwise warnings are written to the console only in development                                                                                                                | undefined                        |
 | `onObserverError`        | function       | Receives errors thrown by listeners, devtools, and lifecycle hooks after the transition has committed                                                                                                                                    | undefined                        |
 | `devtools`               | function       | Receives timeline events for external devtools integrations                                                                                                                                                                              | undefined                        |
 | `patchesOptions`         | PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#patches) | `{}`                             |
@@ -258,7 +259,7 @@ Jump to a specific position in the history timeline.
 
 #### `reset(): void`
 
-Reset to the initial state and clear all history.
+Restore the state, cursor, retained history, and metadata captured as this instance's initial baseline. For a fresh instance this is the original state with empty history; for preloaded history it is the validated starting timeline.
 
 #### `rebase(): void`
 

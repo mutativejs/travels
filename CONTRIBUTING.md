@@ -34,4 +34,4 @@ See [`docs/compatibility.md`](docs/compatibility.md) for supported runtimes and 
 
 ## Release Process
 
-See [`docs/release-checklist.md`](docs/release-checklist.md). Changelog and release PRs are prepared by release-please.
+See [`docs/release-checklist.md`](docs/release-checklist.md). Releases are prepared on `main`, tagged manually with the package version, and published by the tag-triggered GitHub Actions workflow.
