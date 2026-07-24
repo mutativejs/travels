@@ -34,7 +34,7 @@ const {
   unregisterRootStore,
 } = require('mobx-keystone');
 const { createTravels } = require('../dist/index.cjs');
-const { writeBenchmarkChart } = require('./generate-real-library-chart');
+const { writeBenchmarkChart } = require('./generate-real-library-chart.js');
 
 const cliArgs = process.argv.slice(2);
 const isQuick = cliArgs.includes('--quick');

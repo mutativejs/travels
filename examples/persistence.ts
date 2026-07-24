@@ -117,7 +117,7 @@ function loadFromStorage(): TravelsSerializedHistory<AppState> | null {
 /**
  * Clear persisted state
  */
-function clearStorage() {
+export function clearStorage() {
   localStorage.removeItem(STORAGE_KEY);
   console.log('✓ Storage cleared');
 }

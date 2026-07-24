@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest';
-import { createTravels, Travels } from '../src/index';
+import { createTravels } from '../src/index';
 
 describe('Position/Boundary Consistency', () => {
   describe('Position integrity after complex navigation', () => {

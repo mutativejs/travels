@@ -44,7 +44,6 @@ describe('maxHistory Boundary Handling', () => {
       isOverflow: boolean;
     }> = [];
 
-    let lastPosition = 0;
     let lastPatchesLength = 0;
 
     travels.subscribe(({ position, historyLength }) => {
@@ -57,7 +56,6 @@ describe('maxHistory Boundary Handling', () => {
 
       events.push({ position, patchesLength, isOverflow });
 
-      lastPosition = position;
       lastPatchesLength = patchesLength;
     });
 

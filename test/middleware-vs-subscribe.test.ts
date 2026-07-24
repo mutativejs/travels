@@ -4,7 +4,7 @@
  * Exploring: Can Subscribe replace Middleware?
  */
 
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { createTravels, Travels } from '../src/index';
 
 describe('Middleware vs Subscribe: Capability Comparison', () => {
@@ -12,7 +12,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     const travels = createTravels({ count: 0 });
     const log: string[] = [];
 
-    travels.subscribe(({ state, patches, position }) => {
+    travels.subscribe(({ state }) => {
       // ✅ Can do: Observe state changes
       log.push(`State changed to: ${state.count}`);
 
@@ -118,7 +118,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     // ❌ Subscribe can only observe results, cannot modify input
     const travels = createTravels<any>({ items: [] });
 
-    travels.subscribe(({ state }) => {
+    travels.subscribe(() => {
       // ❌ Cannot modify setState's input here
       // State is already updated, cannot add timestamp to each item
     });
@@ -229,13 +229,13 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     const original = travels.setState.bind(travels);
 
     // First layer: Logging
-    let setState1 = function (updater: any) {
+    const setState1 = function (updater: any) {
       console.log('Log: setState called');
       return original(updater);
     };
 
     // Second layer: Validation
-    let setState2 = function (updater: any) {
+    const setState2 = function (updater: any) {
       if (typeof updater === 'object' && updater !== null && updater.count < 0) {
         console.error('Validation: count cannot be negative');
         return;
@@ -272,20 +272,20 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
       payload?: any;
     }
 
-    type Middleware<S> = (
+    type Middleware = (
       action: MiddlewareAction,
       next: (action: MiddlewareAction) => void
     ) => void;
 
     // Middleware 1: Logging
-    const loggingMiddleware: Middleware<any> = (action, next) => {
+    const loggingMiddleware: Middleware = (action, next) => {
       console.log('Before:', action.type);
       next(action);
       console.log('After:', action.type);
     };
 
     // Middleware 2: Validation
-    const validationMiddleware: Middleware<any> = (action, next) => {
+    const validationMiddleware: Middleware = (action, next) => {
       if (action.type === 'setState') {
         const state = action.payload;
         if (state?.count < 0) {
@@ -297,7 +297,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     };
 
     // Middleware 3: Performance monitoring
-    const performanceMiddleware: Middleware<any> = (action, next) => {
+    const performanceMiddleware: Middleware = (action, next) => {
       const start = performance.now();
       next(action);
       const end = performance.now();
@@ -311,7 +311,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
     // 4. Execution order is clear
     // 5. Easy to test
 
-    const middlewares = [
+    const _middlewares = [
       loggingMiddleware,
       validationMiddleware,
       performanceMiddleware,
@@ -326,7 +326,7 @@ describe('Middleware vs Subscribe: Capability Comparison', () => {
      * Analysis: Which operations need interception?
      */
 
-    const travels = createTravels({ count: 0 });
+    const _travels = createTravels({ count: 0 });
 
     // Operation 1: setState
     // Need interception? Probably (validation, modification)
@@ -557,7 +557,7 @@ describe('Core question: Capabilities Subscribe cannot replace', () => {
     const travels = createTravels<any>({ items: [] });
 
     // Subscribe cannot modify input
-    travels.subscribe(({ state }) => {
+    travels.subscribe(() => {
       // Cannot modify setState's parameters
     });
 
@@ -617,7 +617,7 @@ describe('Core question: Capabilities Subscribe cannot replace', () => {
     // But nested wrapping can also achieve this
     const original = travels.setState.bind(travels);
 
-    let wrapped1 = function (updater: any) {
+    const wrapped1 = function (updater: any) {
       executionOrder.push('wrapper1-before');
       const result = original(updater);
       executionOrder.push('wrapper1-after');

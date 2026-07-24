@@ -219,8 +219,7 @@ describe('observer publication atomicity', () => {
 
   test('defers nested transaction errors until the root transaction commits', () => {
     const snapshots: Array<{ count: number; position: number }> = [];
-    let travels: ReturnType<typeof createTravels<{ count: number }>>;
-    travels = createTravels(
+    const travels: ReturnType<typeof createTravels<{ count: number }>> = createTravels(
       { count: 0 },
       {
         onError() {
@@ -251,8 +250,7 @@ describe('observer publication atomicity', () => {
 
   test('publishes nested transaction errors only after root rollback', () => {
     const snapshots: Array<{ count: number; position: number }> = [];
-    let travels: ReturnType<typeof createTravels<{ count: number }>>;
-    travels = createTravels(
+    const travels: ReturnType<typeof createTravels<{ count: number }>> = createTravels(
       { count: 0 },
       {
         onError() {
@@ -457,8 +455,7 @@ describe('observer publication atomicity', () => {
 
   test('error observers cannot mutate rollback state or replace failures', () => {
     const observerErrors: TravelsObserverErrorEvent[] = [];
-    let travels: ReturnType<typeof createTravels<{ count: number }>>;
-    travels = createTravels(
+    const travels: ReturnType<typeof createTravels<{ count: number }>> = createTravels(
       { count: 0 },
       {
         onError() {

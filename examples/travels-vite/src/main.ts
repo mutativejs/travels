@@ -1,5 +1,5 @@
 import "./style.css";
-import { setupTravelsCounter } from "./counter.ts";
+import { setupTravelsCounter } from "./counter";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>

@@ -1,5 +1,5 @@
-import { expect, describe, test, beforeEach, vi } from 'vitest';
-import { createTravels, ManualTravelsControls, Travels } from '../src/index';
+import { expect, describe, test, vi } from 'vitest';
+import { createTravels } from '../src/index';
 
 describe('Travels - Auto Archive Mode', () => {
   test('should create travels instance with initial state', () => {

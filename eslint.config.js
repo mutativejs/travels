@@ -107,10 +107,12 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
+      // Turns off the base rules that TypeScript itself already enforces or
+      // that misfire on type-only syntax such as function overloads.
+      ...tsPlugin.configs['flat/eslint-recommended'].rules,
       ...tsPlugin.configs.recommended.rules,
       ...importRules,
       ...sharedRules,
-      'no-undef': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
@@ -121,6 +123,17 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // Object literals with accessors need a lexical receiver because `this`
+      // inside them refers to the literal rather than the enclosing instance.
+      '@typescript-eslint/no-this-alias': ['error', { allowedNames: ['self'] }],
+    },
+  },
+  {
+    // Ambient global declarations rely on `var` to merge across declaration
+    // files; `let` does not declare a global binding the same way.
+    files: ['**/*.d.ts'],
+    rules: {
+      'no-var': 'off',
     },
   },
   {

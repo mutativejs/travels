@@ -141,7 +141,7 @@ describe('Controls Reactive Problem', () => {
     function Counter() {
       const controls = useMemo(() => travels.getControls(), []);
 
-      const state = useSyncExternalStore(
+      useSyncExternalStore(
         travels.subscribe.bind(travels),
         travels.getState.bind(travels)
       );

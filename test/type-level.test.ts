@@ -1,3 +1,5 @@
+/* eslint-disable no-constant-condition -- `if (false)` blocks hold
+   compile-time-only assertions that must never execute at runtime. */
 import { describe, expectTypeOf, test } from 'vitest';
 import {
   createPatchableTravels,

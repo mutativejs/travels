@@ -34,9 +34,8 @@ describe('Edge Cases Coverage', () => {
   });
 
   test('blocks reentrant mutations from warning observers', () => {
-    let travels!: Travels<{ count: number }>;
     let reentrantError: unknown;
-    travels = createTravels(
+    const travels: Travels<{ count: number }> = createTravels(
       { count: 0 },
       {
         onWarning() {
@@ -686,6 +685,7 @@ describe('Edge Cases Coverage', () => {
         });
 
         // Sparse array with gaps and extra properties
+        // eslint-disable-next-line no-sparse-arrays -- the gap is the fixture
         const sparseArray = [10, , 30] as any;
         sparseArray.customProp = 'custom';
 
@@ -742,9 +742,10 @@ describe('Edge Cases Coverage', () => {
         // Various updates that all pass through the system
         const testCases = [
           [2, 3], // Normal array
+          // eslint-disable-next-line no-sparse-arrays -- the gaps are the fixture
           [, , 4], // Sparse array
           Object.assign([5], { extra: true }), // Array with extra property
-          new Array(6, 7), // Array constructor
+          [6, 7], // Array constructor
           Array.from([8, 9]), // Array.from
           [...[10, 11]], // Spread array
         ];

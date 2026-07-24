@@ -406,7 +406,7 @@ export type TravelsOptions<
     patchesOptions?: P;
   };
 
-export type InitialValue<I extends unknown> = I extends (
+export type InitialValue<I> = I extends (
   ...args: unknown[]
 ) => infer R
   ? R

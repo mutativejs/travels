@@ -1267,6 +1267,8 @@ describe('Productized history API', () => {
       updater,
       updater.bind(undefined),
       new Proxy(updater, {}),
+      // A never-yielding async generator is the rejected updater shape here.
+      // eslint-disable-next-line require-yield
       async function* generator() {
         calls += 1;
       },

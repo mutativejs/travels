@@ -382,43 +382,43 @@ function main() {
 
   // Memory usage
   const minMemory = Math.min(...results.map(r => r.memoryMB));
-  console.log(`| Memory (MB) | ${results.map((r, i) =>
+  console.log(`| Memory (MB) | ${results.map((r) =>
     `${r.memoryMB}${r.memoryMB === minMemory ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.memoryMB === minMemory).label} |`);
 
   // setState performance
   const minSetState = Math.min(...results.map(r => r.setStateTime));
-  console.log(`| setState (ms) | ${results.map((r, i) =>
+  console.log(`| setState (ms) | ${results.map((r) =>
     `${r.setStateTime}${r.setStateTime === minSetState ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.setStateTime === minSetState).label} |`);
 
   // Undo performance
   const minUndo = Math.min(...results.map(r => r.undoTime));
-  console.log(`| Undo (ms) | ${results.map((r, i) =>
+  console.log(`| Undo (ms) | ${results.map((r) =>
     `${r.undoTime}${r.undoTime === minUndo ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.undoTime === minUndo).label} |`);
 
   // Redo performance
   const minRedo = Math.min(...results.map(r => r.redoTime));
-  console.log(`| Redo (ms) | ${results.map((r, i) =>
+  console.log(`| Redo (ms) | ${results.map((r) =>
     `${r.redoTime}${r.redoTime === minRedo ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.redoTime === minRedo).label} |`);
 
   // Serialized size
   const minSize = Math.min(...results.map(r => r.serializedSizeKB));
-  console.log(`| Serialized size (KB) | ${results.map((r, i) =>
+  console.log(`| Serialized size (KB) | ${results.map((r) =>
     `${r.serializedSizeKB}${r.serializedSizeKB === minSize ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.serializedSizeKB === minSize).label} |`);
 
   // Serialization time
   const minSerialize = Math.min(...results.map(r => r.serializeTime));
-  console.log(`| Serialize (ms) | ${results.map((r, i) =>
+  console.log(`| Serialize (ms) | ${results.map((r) =>
     `${r.serializeTime}${r.serializeTime === minSerialize ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.serializeTime === minSerialize).label} |`);
 
   // Deserialization time
   const minDeserialize = Math.min(...results.map(r => r.deserializeTime));
-  console.log(`| Deserialize (ms) | ${results.map((r, i) =>
+  console.log(`| Deserialize (ms) | ${results.map((r) =>
     `${r.deserializeTime}${r.deserializeTime === minDeserialize ? ' ⭐' : ''}`
   ).join(' | ')} | ${results.find(r => r.deserializeTime === minDeserialize).label} |`);
 
