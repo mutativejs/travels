@@ -166,23 +166,32 @@ export type TravelsObserverErrorEvent = {
  * added `'recordPatches'`. Keep a `default` branch when switching on
  * `event.type` instead of asserting exhaustiveness with `never`.
  */
+export type TravelsKnownEventType =
+  | 'setState'
+  | 'recordPatches'
+  | 'archive'
+  | 'transaction'
+  | 'go'
+  | 'reset'
+  | 'rebase'
+  | 'replaceStateWithoutHistory';
+
+/**
+ * Event names are intentionally extensible so minor releases can add new
+ * operations without breaking exhaustive TypeScript switches.
+ */
+export type TravelsEventType =
+  | TravelsKnownEventType
+  | (string & Record<never, never>);
+
 export type TravelsEvent<
   S,
   P extends PatchesOption = {},
 > = {
   /**
-   * The committed operation. This union gains members in minor releases;
-   * handle unrecognized values in a `default` branch.
+   * The committed operation. Handle unrecognized values in a `default` branch.
    */
-  readonly type:
-    | 'setState'
-    | 'recordPatches'
-    | 'archive'
-    | 'transaction'
-    | 'go'
-    | 'reset'
-    | 'rebase'
-    | 'replaceStateWithoutHistory';
+  readonly type: TravelsEventType;
   readonly state: S;
   readonly position: number;
   /**

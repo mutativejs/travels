@@ -11,6 +11,7 @@ import {
   type TravelsControlledTransition,
   type TravelsDevtoolsEvent,
   type TravelsEvent,
+  type TravelsEventType,
   type TravelsSerializedHistory,
   type Updater,
 } from '../src/index';
@@ -111,6 +112,13 @@ describe('Type-level API contracts', () => {
     expectTypeOf(travels.getControls().archive)
       .parameter(0)
       .toEqualTypeOf<TravelMetadata | undefined>();
+  });
+
+  test('event type remains open to future minor-release operations', () => {
+    const acceptEventType = (_type: TravelsEventType) => undefined;
+
+    acceptEventType('setState');
+    acceptEventType('futureOperation');
   });
 
   test('subscribe and devtools share one event contract', () => {
