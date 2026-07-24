@@ -32,6 +32,7 @@ import {
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
 import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
+import { TransactionCoordinator } from './internal/transaction-coordinator.js';
 import {
   assertSupportedPatchValues,
   assertSupportedRuntimeState,
@@ -100,11 +101,6 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   eventPatches: TravelPatches<P>;
   eventPatchCount: number;
   stateJournalLength: number;
-};
-
-type MutableStateJournalEntry<P extends PatchesOption = {}> = {
-  state: object;
-  inversePatches: Patches<P>;
 };
 
 type DeferredCompatibilityCheck<P extends PatchesOption = {}> = {
@@ -387,7 +383,7 @@ export class Travels<
   private transactionNeedsCompatibilityCheck = false;
   private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
   private transactionEventPatches: TravelPatches<P> = cloneTravelPatches();
-  private transactionStateJournal: MutableStateJournalEntry<P>[] = [];
+  private transactionCoordinator = new TransactionCoordinator<P>();
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
@@ -1256,9 +1252,11 @@ export class Travels<
     state: object,
     inversePatches: Patches<P>
   ): void {
-    if (this.transactionDepth > 0 && inversePatches.length > 0) {
-      this.transactionStateJournal.push({ state, inversePatches });
-    }
+    this.transactionCoordinator.recordMutableChange(
+      this.transactionDepth,
+      state,
+      inversePatches
+    );
   }
 
   private captureTransactionSnapshot(): TransactionSnapshot<S, P> {
@@ -1294,22 +1292,14 @@ export class Travels<
         inversePatches: this.transactionEventPatches.inversePatches,
       },
       eventPatchCount: this.transactionEventPatches.patches.length,
-      stateJournalLength: this.transactionStateJournal.length,
+      stateJournalLength: this.transactionCoordinator.journalLength,
     };
   }
 
   private restoreTransactionSnapshot(
     snapshot: TransactionSnapshot<S, P>
   ): void {
-    for (
-      let index = this.transactionStateJournal.length - 1;
-      index >= snapshot.stateJournalLength;
-      index -= 1
-    ) {
-      const entry = this.transactionStateJournal[index];
-      apply(entry.state, entry.inversePatches, { mutable: true });
-    }
-    this.transactionStateJournal.length = snapshot.stateJournalLength;
+    this.transactionCoordinator.rollbackTo(snapshot.stateJournalLength);
 
     snapshot.allPatches.patches.length = snapshot.allPatchCount;
     snapshot.allPatches.inversePatches.length = snapshot.allPatchCount;
@@ -1808,8 +1798,9 @@ export class Travels<
         this.transactionHasEffects = transactionSnapshot.hasEffects;
         this.transactionNeedsCompatibilityCheck =
           transactionSnapshot.needsCompatibilityCheck;
-        this.transactionStateJournal.length =
-          transactionSnapshot.stateJournalLength;
+        this.transactionCoordinator.truncateTo(
+          transactionSnapshot.stateJournalLength
+        );
         this.transactionEventPatches.patches.length =
           transactionSnapshot.eventPatchCount;
         this.transactionEventPatches.inversePatches.length =
