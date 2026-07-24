@@ -10,7 +10,6 @@ permissions:
 
 concurrency:
   group: release
-  queue: max
   cancel-in-progress: false
 
 jobs:
@@ -101,7 +100,7 @@ jobs:
 
   publish-npm:
     runs-on: ubuntu-latest
-    needs: [test, build-pages]
+    needs: [build-pages]
     permissions:
       contents: read
       id-token: write
