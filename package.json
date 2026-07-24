@@ -35,6 +35,8 @@
     "dist"
   ],
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:core": "vitest run --dir test",
     "test:browser": "vitest run --dir test test/browser-environment.test.ts --environment jsdom",
