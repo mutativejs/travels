@@ -1672,7 +1672,7 @@ export class Travels<
     }
 
     const validation = validateTravelHistoryEntry<P>(entry);
-    if (validation.error) {
+    if (validation.error !== null) {
       throw new TravelsTypeError(
         'INVALID_PATCH_ENTRY',
         `Travels: recordPatches received an invalid patch entry: ${validation.error}.`
