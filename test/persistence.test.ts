@@ -580,6 +580,42 @@ describe('Persistence Example - State Persistence', () => {
       expect((error as TravelsPersistenceError).code).toBe('INVALID_PATCHES');
     }
 
+    for (const patches of [
+      {
+        patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+        inversePatches: [[]],
+      },
+      {
+        patches: [[]],
+        inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+      },
+    ]) {
+      expect(() =>
+        Travels.deserialize<AppState>({
+          version: TRAVELS_HISTORY_SCHEMA_VERSION,
+          state: { count: 1 },
+          position: 1,
+          patches,
+        })
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsPersistenceError>>({
+          code: 'INVALID_PATCHES',
+        })
+      );
+
+      expect(() =>
+        createTravels(
+          { count: 1 },
+          {
+            initialPatches: patches as TravelPatches,
+            initialPosition: 1,
+            strictInitialPatches: true,
+            warnOnUnsupportedState: false,
+          }
+        )
+      ).toThrow(/must have both forward and inverse operations/);
+    }
+
     for (const operation of [
       { op: 'add', path: ['count'] },
       { op: 'replace', path: ['count'] },

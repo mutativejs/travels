@@ -257,6 +257,19 @@ export const validateTravelPatches = <P extends PatchesOption = {}>(
     };
   }
 
+  for (let entryIndex = 0; entryIndex < forward.length; entryIndex += 1) {
+    if (
+      (forward[entryIndex].length === 0) !==
+      (inverse[entryIndex].length === 0)
+    ) {
+      return {
+        error:
+          `patches entry ${entryIndex} must have both forward and inverse operations ` +
+          `or leave both groups empty`,
+      };
+    }
+  }
+
   return { error: null, patches: normalized };
 };
 
