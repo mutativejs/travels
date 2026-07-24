@@ -2333,8 +2333,8 @@ export class Travels<
     if (this.controlledApply) {
       const transition = Object.freeze({
         state: this.state,
-        patches: patchesToApply,
-        inversePatches: rollbackPatches,
+        patches: clonePatchGroup(patchesToApply),
+        inversePatches: clonePatchGroup(rollbackPatches),
         fromPosition: this.position,
         toPosition: nextPosition,
       });

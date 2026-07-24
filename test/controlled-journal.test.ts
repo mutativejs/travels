@@ -168,6 +168,66 @@ describe('controlled travel journal', () => {
     expect(authoritativeState.count).toBe(1);
   });
 
+  test('isolates retained history from controlled apply patch mutation', () => {
+    let authoritativeState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(authoritativeState, {
+      apply: ({ patches, inversePatches }) => {
+        authoritativeState = apply(authoritativeState, patches);
+        patches[0].op = 'remove';
+        patches[0].path[0] = 'label';
+        (patches[0] as { value?: unknown }).value = 999;
+        inversePatches[0].op = 'remove';
+        inversePatches[0].path[0] = 'label';
+        return authoritativeState;
+      },
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      authoritativeState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    authoritativeState = nextState;
+    journal.recordPatches(authoritativeState, { patches, inversePatches });
+
+    journal.back();
+    expect(authoritativeState).toEqual({ count: 0, label: 'initial' });
+    journal.forward();
+    expect(authoritativeState).toEqual({ count: 1, label: 'initial' });
+    expect(journal.getHistoryEntries()[0].patches).toEqual([
+      { op: 'replace', path: ['count'], value: 1 },
+    ]);
+  });
+
+  test('isolates nested retained patch values from controlled apply mutation', () => {
+    type NestedState = { item: { count: number } };
+    let authoritativeState: NestedState = { item: { count: 0 } };
+    const journal = createTravelJournal(authoritativeState, {
+      apply: ({ patches }) => {
+        authoritativeState = apply(authoritativeState, patches);
+        const value = (patches[0] as { value?: { count?: number } }).value;
+        if (value) value.count = 999;
+        return authoritativeState;
+      },
+    });
+    const [nextState, patches, inversePatches] = create(
+      authoritativeState,
+      (draft) => {
+        draft.item = { count: 1 };
+      },
+      { enablePatches: true }
+    ) as [NestedState, Patches, Patches];
+    authoritativeState = nextState;
+    journal.recordPatches(authoritativeState, { patches, inversePatches });
+
+    journal.back();
+    journal.forward();
+    expect(authoritativeState).toEqual({ item: { count: 1 } });
+    expect(
+      (journal.getHistoryEntries()[0].patches[0] as { value?: unknown }).value
+    ).toEqual({ count: 1 });
+  });
+
   test('keeps journal state and history unchanged when metadata cloning fails', () => {
     const initialState: State = { count: 0, label: 'initial' };
     const journal = createTravelJournal(initialState, {
