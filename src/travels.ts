@@ -522,7 +522,7 @@ export class Travels<
 
     assertSupportedRuntimeState(
       initialState,
-      mutable ? undefined : this.collectionFreeObjects
+      mutable || controlledApply ? undefined : this.collectionFreeObjects
     );
     this.state = initialState;
     // For mutable mode, deep clone initialState to prevent mutations
@@ -1697,10 +1697,9 @@ export class Travels<
       this.mutable ? undefined : this.collectionFreeObjects
     );
 
-    assertSupportedRuntimeState(
-      state,
-      this.mutable ? undefined : this.collectionFreeObjects
-    );
+    // External owners may mutate and reuse a state reference, so controlled
+    // state validation must not trust the immutable-state collection cache.
+    assertSupportedRuntimeState(state);
     const entryMetadata = entry.metadata;
     const storedMetadata = cloneTravelMetadata(entryMetadata);
     this.state = state;

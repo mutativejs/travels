@@ -100,6 +100,29 @@ describe('controlled travel journal', () => {
     expect(journal.getPosition()).toBe(1);
   });
 
+  test('revalidates reused external state references after mutation', () => {
+    type MutableOwnerState = { count: number; unsupported?: Map<string, number> };
+    const authoritativeState: MutableOwnerState = { count: 0 };
+    const journal = createTravelJournal(authoritativeState, {
+      apply({ patches }) {
+        const next = apply(authoritativeState, patches);
+        Object.assign(authoritativeState, next);
+        authoritativeState.unsupported = new Map([['value', 1]]);
+        return authoritativeState;
+      },
+    });
+    authoritativeState.count = 1;
+    journal.recordPatches(authoritativeState, {
+      patches: [{ op: 'replace', path: ['count'], value: 1 }],
+      inversePatches: [{ op: 'replace', path: ['count'], value: 0 }],
+    });
+
+    expect(() => journal.back()).toThrow(
+      'Map and Set are not supported in state'
+    );
+    expect(journal.getPosition()).toBe(1);
+  });
+
   test('rejects state-owning operations even when the journal is widened', () => {
     const journal = createTravelJournal<State>(
       { count: 0, label: 'initial' },

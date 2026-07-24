@@ -157,10 +157,9 @@ export class StateDriver<
         ),
         'controlledApply'
       );
-      assertSupportedRuntimeState(
-        controlledState,
-        this.mutable ? undefined : this.collectionFreeObjects
-      );
+      // A controlled owner may mutate and return a previously seen object.
+      // Re-scan it instead of trusting the immutable-state collection cache.
+      assertSupportedRuntimeState(controlledState);
       return controlledState;
     }
 
