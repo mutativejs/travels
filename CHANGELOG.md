@@ -35,6 +35,7 @@ succeeded. See Breaking Changes for the migration.
 - Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
 - Revalidate patchable-factory inputs at runtime while accepting recursive interface-shaped durable state types.
 - Realign restored metadata with restored history in `reset()`, which threw the timeline metadata invariant for instances rehydrated through `initialPatches` without metadata.
+- Stop publishing the per-module JavaScript tsc emits for `src/internal/`. The build's intermediate cleanup only walked the `dist` root, so six unbundled modules and their source maps shipped alongside the real entry points, adding 15 KiB packed and 69 KiB unpacked.
 
 ### Changed
 

@@ -2,8 +2,14 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
-import { existsSync, readFileSync, readdirSync, unlinkSync } from 'node:fs';
-import { resolve as resolvePath } from 'node:path';
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  rmdirSync,
+  unlinkSync,
+} from 'node:fs';
+import { join as joinPath, resolve as resolvePath } from 'node:path';
 import pkg from './package.json';
 
 const input = './dist/index.js';
@@ -42,20 +48,56 @@ const typescriptSourceMaps = {
   },
 };
 
+/**
+ * Remove the per-module JavaScript tsc emits before bundling.
+ *
+ * The walk has to recurse: source subdirectories emit into matching dist
+ * subdirectories, and anything left there is published as an unbundled module
+ * alongside the real entry points.
+ */
+/**
+ * @param {string} directory
+ * @returns {boolean} whether anything was kept in it
+ */
+const removeIntermediateJavaScript = (directory) => {
+  let keptEntry = false;
+
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = joinPath(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      if (removeIntermediateJavaScript(entryPath)) {
+        keptEntry = true;
+      } else {
+        rmdirSync(entryPath);
+      }
+      continue;
+    }
+
+    // Only top-level names can be final artifacts; nested ones never are.
+    const isTopLevel = directory === distDirectory;
+    const isIntermediateMap =
+      entry.name.endsWith('.js.map') &&
+      !(isTopLevel && finalSourceMaps.has(entry.name));
+    const isIntermediateJavaScript =
+      (entry.name.endsWith('.js') || entry.name.endsWith('.cjs')) &&
+      !(isTopLevel && finalJavaScript.has(entry.name));
+
+    if (isIntermediateMap || isIntermediateJavaScript) {
+      unlinkSync(entryPath);
+    } else {
+      keptEntry = true;
+    }
+  }
+
+  return keptEntry;
+};
+
 /** @type {import('rollup').Plugin} */
 const removeIntermediateArtifacts = {
   name: 'remove-intermediate-artifacts',
   closeBundle() {
-    for (const name of readdirSync(distDirectory)) {
-      const isIntermediateMap =
-        name.endsWith('.js.map') && !finalSourceMaps.has(name);
-      const isIntermediateJavaScript =
-        (name.endsWith('.js') || name.endsWith('.cjs')) &&
-        !finalJavaScript.has(name);
-      if (isIntermediateMap || isIntermediateJavaScript) {
-        unlinkSync(resolvePath(distDirectory, name));
-      }
-    }
+    removeIntermediateJavaScript(distDirectory);
   },
 };
 

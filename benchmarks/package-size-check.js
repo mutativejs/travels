@@ -1,5 +1,5 @@
 const { spawnSync } = require('node:child_process');
-const { readFileSync, readdirSync } = require('node:fs');
+const { readFileSync } = require('node:fs');
 const { posix, resolve } = require('node:path');
 const { gzipSync } = require('node:zlib');
 
@@ -20,8 +20,8 @@ const limits = {
   developmentBundleRaw: 55 * KiB,
   developmentBundleGzip: 15 * KiB,
   developmentBundleMap: 237 * KiB,
-  packagePacked: 470 * KiB,
-  packageUnpacked: 1850 * KiB,
+  packagePacked: 455 * KiB,
+  packageUnpacked: 1780 * KiB,
 };
 
 const failures = [];
@@ -76,23 +76,6 @@ const finalBundleMaps = new Set(
   allArtifacts.map((artifact) => `${artifact}.map`)
 );
 const finalJavaScript = new Set(allArtifacts);
-const distFiles = readdirSync(resolve(repoRoot, 'dist'));
-const unexpectedMaps = distFiles
-  .filter((name) => name.endsWith('.map') && !name.endsWith('.d.ts.map'))
-  .map((name) => `dist/${name}`)
-  .filter((name) => !finalBundleMaps.has(name));
-const unexpectedJavaScript = distFiles
-  .filter((name) => name.endsWith('.js') || name.endsWith('.cjs'))
-  .map((name) => `dist/${name}`)
-  .filter((name) => !finalJavaScript.has(name));
-
-if (unexpectedMaps.length > 0) {
-  failures.push(`unexpected JavaScript source maps: ${unexpectedMaps.join(', ')}`);
-}
-if (unexpectedJavaScript.length > 0) {
-  failures.push(`unexpected JavaScript artifacts: ${unexpectedJavaScript.join(', ')}`);
-}
-
 const packResult = spawnSync(
   'npm',
   ['pack', '--dry-run', '--json', '--ignore-scripts'],
@@ -107,6 +90,31 @@ if (packResult.status !== 0) {
 
 const [pack] = JSON.parse(packResult.stdout);
 const packedFiles = new Set(pack.files.map(({ path }) => path));
+
+// Derive this from what npm would publish rather than from a listing of the
+// dist root. A directory listing misses nested output, which is how six
+// unbundled dist/internal modules were published alongside the real entry
+// points once the sources grew a subdirectory.
+const publishedPaths = pack.files.map(({ path }) => path);
+const unexpectedMaps = publishedPaths.filter(
+  (path) =>
+    path.startsWith('dist/') &&
+    path.endsWith('.map') &&
+    !path.endsWith('.d.ts.map') &&
+    !finalBundleMaps.has(path)
+);
+const unexpectedJavaScript = publishedPaths.filter(
+  (path) =>
+    path.startsWith('dist/') &&
+    (path.endsWith('.js') || path.endsWith('.cjs')) &&
+    !finalJavaScript.has(path)
+);
+if (unexpectedMaps.length > 0) {
+  failures.push(`unexpected JavaScript source maps: ${unexpectedMaps.join(', ')}`);
+}
+if (unexpectedJavaScript.length > 0) {
+  failures.push(`unexpected JavaScript artifacts: ${unexpectedJavaScript.join(', ')}`);
+}
 for (const artifact of allArtifacts) {
   if (!packedFiles.has(artifact) || !packedFiles.has(`${artifact}.map`)) {
     failures.push(`npm package is missing ${artifact} or its source map`);
