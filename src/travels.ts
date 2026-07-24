@@ -33,6 +33,7 @@ import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
 import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
 import { TransactionCoordinator } from './internal/transaction-coordinator.js';
+import { TimelineStore } from './internal/timeline-store.js';
 import {
   assertSupportedPatchValues,
   assertSupportedRuntimeState,
@@ -340,11 +341,7 @@ export class Travels<
    */
   public mutable: boolean;
   private state: S;
-  private position: number;
-  private allPatches: TravelPatches<P>;
-  private allMetadata: Array<TravelMetadata | undefined>;
-  private tempPatches: TravelPatches<P>;
-  private tempMetadata?: TravelMetadata;
+  private timeline = new TimelineStore<P>();
   private maxHistory: number;
   private initialState: S;
   private initialPosition: number;
@@ -384,6 +381,46 @@ export class Travels<
   private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
   private transactionEventPatches: TravelPatches<P> = cloneTravelPatches();
   private transactionCoordinator = new TransactionCoordinator<P>();
+
+  private get position(): number {
+    return this.timeline.position;
+  }
+
+  private set position(value: number) {
+    this.timeline.position = value;
+  }
+
+  private get allPatches(): TravelPatches<P> {
+    return this.timeline.allPatches;
+  }
+
+  private set allPatches(value: TravelPatches<P>) {
+    this.timeline.allPatches = value;
+  }
+
+  private get allMetadata(): Array<TravelMetadata | undefined> {
+    return this.timeline.allMetadata;
+  }
+
+  private set allMetadata(value: Array<TravelMetadata | undefined>) {
+    this.timeline.allMetadata = value;
+  }
+
+  private get tempPatches(): TravelPatches<P> {
+    return this.timeline.tempPatches;
+  }
+
+  private set tempPatches(value: TravelPatches<P>) {
+    this.timeline.tempPatches = value;
+  }
+
+  private get tempMetadata(): TravelMetadata | undefined {
+    return this.timeline.tempMetadata;
+  }
+
+  private set tempMetadata(value: TravelMetadata | undefined) {
+    this.timeline.tempMetadata = value;
+  }
 
   constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
     const {
