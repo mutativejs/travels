@@ -573,6 +573,7 @@ export class Travels<
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
 
+    this.assertInvariants();
     if (process.env.NODE_ENV !== 'production') {
       this.warnAboutPersistenceCompatibility();
     }
@@ -1132,12 +1133,24 @@ export class Travels<
     });
   }
 
+  /**
+   * Fail fast in development when coupled timeline state drifts out of sync.
+   * Production builds avoid the extra checks on every committed operation.
+   */
+  private assertInvariants(): void {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+    this.timeline.assertConsistent(this.maxHistory);
+  }
+
   private emitChange(
     type: TravelsEvent<S, P>['type'],
     metadata?: TravelMetadata,
     branchDiscard?: BranchDiscardEffect<P>,
     changePatches?: TravelPatches<P>
   ): void {
+    this.assertInvariants();
     if (this.transactionDepth > 0) {
       this.transactionHasEffects = true;
       if (changePatches) {
@@ -1366,6 +1379,7 @@ export class Travels<
     this.transactionEventPatches = snapshot.eventPatches;
 
     this.invalidateHistoryCache();
+    this.assertInvariants();
   }
 
   /**

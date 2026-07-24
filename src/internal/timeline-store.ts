@@ -23,9 +23,9 @@ export class TimelineStore<P extends PatchesOption = {}> {
         'Travels invariant: forward and inverse history lengths diverged.'
       );
     }
-    if (this.allMetadata.length > this.allPatches.patches.length) {
+    if (this.allMetadata.length !== this.allPatches.patches.length) {
       throw new Error(
-        'Travels invariant: metadata contains entries without patch history.'
+        'Travels invariant: metadata and retained patch history lengths diverged.'
       );
     }
     if (this.tempPatches.patches.length !== this.tempPatches.inversePatches.length) {
@@ -33,7 +33,24 @@ export class TimelineStore<P extends PatchesOption = {}> {
         'Travels invariant: pending forward and inverse patch lengths diverged.'
       );
     }
-    const visibleLength = Math.min(maxHistory, this.allPatches.patches.length);
+    const pendingEntry = this.tempPatches.patches.length > 0 ? 1 : 0;
+    const visibleLength = Math.min(
+      maxHistory,
+      this.allPatches.patches.length + pendingEntry
+    );
+    if (
+      this.tempPatches.patches.length === 0 &&
+      this.tempMetadata !== undefined
+    ) {
+      throw new Error(
+        'Travels invariant: pending metadata exists without pending patches.'
+      );
+    }
+    if (this.allPatches.patches.length > maxHistory) {
+      throw new Error(
+        `Travels invariant: retained history exceeds maxHistory (${maxHistory}).`
+      );
+    }
     if (this.position < 0 || this.position > visibleLength) {
       throw new Error(
         `Travels invariant: position ${this.position} is outside 0..${visibleLength}.`
