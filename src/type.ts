@@ -151,7 +151,28 @@ export type TravelsObserverErrorSource =
   | 'devtools'
   | 'onBranchDiscard'
   | 'onError'
+  | 'onWarning'
   | 'compatibilityCheck';
+
+export type TravelsWarningCode =
+  | 'AUTO_ARCHIVE_ENABLED'
+  | 'HISTORY_DISABLED'
+  | 'HISTORY_DISCARDED'
+  | 'HISTORY_OPTION_OVERRIDE'
+  | 'HISTORY_TRIMMED'
+  | 'INITIAL_POSITION_CLAMPED'
+  | 'INVALID_INITIAL_PATCHES'
+  | 'INVALID_POSITION'
+  | 'LEGACY_SUBSCRIBER'
+  | 'MUTABLE_FALLBACK'
+  | 'MUTABLE_ROOT_REPLACEMENT'
+  | 'PERSISTENCE_COMPATIBILITY'
+  | 'POSITION_CLAMPED';
+
+export type TravelsWarning = {
+  readonly code: TravelsWarningCode;
+  readonly message: string;
+};
 
 export type TravelsObserverErrorEvent = {
   source: TravelsObserverErrorSource;
@@ -277,6 +298,11 @@ export type TravelsOptions<
    * Root transactions report only entries that were visible before they began.
    */
   onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
+  /**
+   * Receives non-fatal normalization, compatibility, and migration warnings.
+   * Without this hook warnings are written to the console only in development.
+   */
+  onWarning?: (warning: TravelsWarning) => void;
   /**
    * Receives errors thrown by notification hooks. Observer errors never roll
    * back or interrupt an already committed state transition.

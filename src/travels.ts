@@ -22,6 +22,8 @@ import type {
   TravelsObserverErrorEvent,
   TravelsObserverErrorSource,
   TravelsSerializedHistory,
+  TravelsWarning,
+  TravelsWarningCode,
   Updater,
   Value,
 } from './type.js';
@@ -563,6 +565,7 @@ export class Travels<
   private onError?: (error: Error) => void;
   private onBranchDiscard?: (event: TravelsBranchDiscardEvent<P>) => void;
   private onObserverError?: (event: TravelsObserverErrorEvent) => void;
+  private onWarning?: (warning: TravelsWarning) => void;
   private devtools?: (event: TravelsEvent<S, P>) => void;
   private controlledApply?: TravelsControlledApply<S, P>;
   private listeners: Set<Listener<S, P>> = new Set();
@@ -609,11 +612,15 @@ export class Travels<
       onError,
       onBranchDiscard,
       onObserverError,
+      onWarning,
       devtools,
       controlledApply,
       patchesOptions,
       ...mutativeOptions
     } = options;
+
+    this.onObserverError = onObserverError;
+    this.onWarning = onWarning;
 
     if ((patchesOptions as unknown) === false) {
       throw new TravelsTypeError(
@@ -625,12 +632,9 @@ export class Travels<
     let initialPatches = history?.patches ?? inputInitialPatches;
     let initialPosition = history?.position ?? inputInitialPosition;
 
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      history &&
-      (inputInitialPatches || inputInitialPosition !== 0)
-    ) {
-      console.warn(
+    if (history && (inputInitialPatches || inputInitialPosition !== 0)) {
+      this.warn(
+        'HISTORY_OPTION_OVERRIDE',
         'Travels: history overrides initialPatches and initialPosition.'
       );
     }
@@ -654,8 +658,9 @@ export class Travels<
       );
     }
 
-    if (maxHistory === 0 && process.env.NODE_ENV !== 'production') {
-      console.warn(
+    if (maxHistory === 0) {
+      this.warn(
+        'HISTORY_DISABLED',
         'Travels: maxHistory is 0, which disables undo/redo history. This is rarely intended.'
       );
     }
@@ -677,12 +682,11 @@ export class Travels<
         );
       }
 
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `Travels: ${initialPatchesValidationError}. Falling back to empty history. ` +
-            `Set strictInitialPatches: true to throw instead.`
-        );
-      }
+      this.warn(
+        'INVALID_INITIAL_PATCHES',
+        `Travels: ${initialPatchesValidationError}. Falling back to empty history. ` +
+          `Set strictInitialPatches: true to throw instead.`
+      );
 
       initialPatches = undefined;
       initialPosition = 0;
@@ -703,7 +707,6 @@ export class Travels<
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
-    this.onObserverError = onObserverError;
     this.devtools = devtools as
       | ((event: TravelsEvent<S, P>) => void)
       | undefined;
@@ -793,7 +796,8 @@ export class Travels<
           }
 
           this.compatibilityWarningKeys.add(key);
-          console.warn(
+          this.warn(
+            'PERSISTENCE_COMPATIBILITY',
             `Travels ${subject} compatibility warning at ${issuePath}: ${issue.message}`
           );
         }
@@ -1031,11 +1035,9 @@ export class Travels<
     let position = invalidInitialPosition ? 0 : (initialPosition as number);
     const clampedPosition = Math.max(0, Math.min(position, total));
 
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      (invalidInitialPosition || clampedPosition !== position)
-    ) {
-      console.warn(
+    if (invalidInitialPosition || clampedPosition !== position) {
+      this.warn(
+        'INITIAL_POSITION_CLAMPED',
         `Travels: initialPosition (${initialPosition}) is invalid for available patches (${total}). ` +
           `Using ${clampedPosition} instead.`
       );
@@ -1048,11 +1050,10 @@ export class Travels<
     }
 
     if (historyLimit === 0) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `Travels: maxHistory (${this.maxHistory}) discards persisted history.`
-        );
-      }
+      this.warn(
+        'HISTORY_DISCARDED',
+        `Travels: maxHistory (${this.maxHistory}) discards persisted history.`
+      );
 
       return { patches: cloneTravelPatches(), position: 0, metadata: [] };
     }
@@ -1076,13 +1077,12 @@ export class Travels<
     const trimmed = cloneTravelPatches(trimmedBase);
     const adjustedPosition = position - windowStart;
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(
-        `Travels: initialPatches length (${total}) exceeds maxHistory (${historyLimit}). ` +
-          `Retained ${historyLimit} steps from position ${windowStart}. ` +
-          `Position adjusted to ${adjustedPosition}.`
-      );
-    }
+    this.warn(
+      'HISTORY_TRIMMED',
+      `Travels: initialPatches length (${total}) exceeds maxHistory (${historyLimit}). ` +
+        `Retained ${historyLimit} steps from position ${windowStart}. ` +
+        `Position adjusted to ${adjustedPosition}.`
+    );
 
     return {
       patches: trimmed,
@@ -1137,6 +1137,17 @@ export class Travels<
     }
   }
 
+  private warn(code: TravelsWarningCode, message: string): void {
+    if (this.onWarning) {
+      this.invokeObserver('onWarning', () => this.onWarning?.({ code, message }));
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(message);
+    }
+  }
+
   private reportObserverError(
     source: TravelsObserverErrorSource,
     error: unknown
@@ -1183,13 +1194,10 @@ export class Travels<
    * @returns Unsubscribe function
    */
   public subscribe = (listener: Listener<S, P>) => {
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      listener.length > 1 &&
-      !warnedLegacyListeners.has(listener)
-    ) {
+    if (listener.length > 1 && !warnedLegacyListeners.has(listener)) {
       warnedLegacyListeners.add(listener);
-      console.warn(
+      this.warn(
+        'LEGACY_SUBSCRIBER',
         'Travels: subscribe listeners receive a single TravelsEvent object. Replace positional (state, patches, position, historyLength) parameters with event destructuring.'
       );
     }
@@ -1780,11 +1788,10 @@ export class Travels<
     if (this.mutable && !canUseMutableRoot && !this.mutableFallbackWarned) {
       this.mutableFallbackWarned = true;
 
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          'Travels: mutable mode requires the state root to be an object. Falling back to immutable updates.'
-        );
-      }
+      this.warn(
+        'MUTABLE_FALLBACK',
+        'Travels: mutable mode requires the state root to be an object. Falling back to immutable updates.'
+      );
     }
 
     if (useMutable) {
@@ -1821,12 +1828,10 @@ export class Travels<
       inversePatches = detachMutablePatchValues(ip, objectPatchValues[1]);
 
       if (replacesRoot) {
-        if (
-          process.env.NODE_ENV !== 'production' &&
-          !this.mutableRootReplaceWarned
-        ) {
+        if (!this.mutableRootReplaceWarned) {
           this.mutableRootReplaceWarned = true;
-          console.warn(
+          this.warn(
+            'MUTABLE_ROOT_REPLACEMENT',
             'Travels: mutable mode cannot apply root replacements in place. Falling back to immutable update for this change.'
           );
         }
@@ -1999,7 +2004,10 @@ export class Travels<
     this.assertCanMutate('archive');
 
     if (this.autoArchive) {
-      console.warn('Auto archive is enabled, no need to archive manually');
+      this.warn(
+        'AUTO_ARCHIVE_ENABLED',
+        'Travels: auto archive is enabled; archive() has no effect.'
+      );
       return;
     }
 
@@ -2293,14 +2301,18 @@ export class Travels<
     this.assertCanMutate('go');
 
     if (typeof nextPosition !== 'number' || !Number.isFinite(nextPosition)) {
-      console.warn(`Can't go to invalid position ${nextPosition}`);
+      this.warn(
+        'INVALID_POSITION',
+        `Travels: cannot go to invalid position ${nextPosition}.`
+      );
       return;
     }
 
     if (!Number.isInteger(nextPosition)) {
       const normalizedPosition = Math.trunc(nextPosition);
-      console.warn(
-        `Can't go to non-integer position ${nextPosition}. Using ${normalizedPosition} instead.`
+      this.warn(
+        'POSITION_CLAMPED',
+        `Travels: cannot go to non-integer position ${nextPosition}. Using ${normalizedPosition} instead.`
       );
       nextPosition = normalizedPosition;
     }
@@ -2316,12 +2328,18 @@ export class Travels<
     const back = nextPosition < this.position;
 
     if (nextPosition > _allPatches.patches.length) {
-      console.warn(`Can't go forward to position ${nextPosition}`);
+      this.warn(
+        'POSITION_CLAMPED',
+        `Travels: cannot go forward to position ${nextPosition}; using the latest position instead.`
+      );
       nextPosition = _allPatches.patches.length;
     }
 
     if (nextPosition < 0) {
-      console.warn(`Can't go back to position ${nextPosition}`);
+      this.warn(
+        'POSITION_CLAMPED',
+        `Travels: cannot go back to position ${nextPosition}; using position 0 instead.`
+      );
       nextPosition = 0;
     }
 

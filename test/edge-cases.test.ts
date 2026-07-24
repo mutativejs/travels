@@ -2,6 +2,37 @@ import { describe, expect, it, test, vi } from 'vitest';
 import { createTravels, Travels } from '../src/index';
 
 describe('Edge Cases Coverage', () => {
+  test('routes warnings through onWarning without production console output', () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    const consoleWarning = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const warnings: Array<{ code: string; message: string }> = [];
+
+    try {
+      const travels = createTravels(
+        { count: 0 },
+        { onWarning: (warning) => warnings.push(warning) }
+      );
+      travels.go(Number.NaN);
+      travels.go(0.5);
+
+      expect(warnings.map(({ code }) => code)).toEqual([
+        'INVALID_POSITION',
+        'POSITION_CLAMPED',
+      ]);
+      expect(consoleWarning).not.toHaveBeenCalled();
+    } finally {
+      if (previousNodeEnv === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = previousNodeEnv;
+      }
+      consoleWarning.mockRestore();
+    }
+  });
+
   describe('go method with maxHistory and inversePatches slicing', () => {
     it('should handle go() when history management triggers inversePatches slicing', () => {
       // This test covers line 414: the slicing of inversePatches when exceeding maxHistory
