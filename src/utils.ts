@@ -33,7 +33,18 @@ export const isArrayIndex = (key: PropertyKey, length: number): boolean => {
   );
 };
 
-export const isStandardDenseArray = (value: unknown): value is unknown[] => {
+/**
+ * Verify the standard dense-array shape and, optionally, inspect each element
+ * in the same pass.
+ *
+ * Callers that need the element values must not walk the array a second time:
+ * proving the shape already reads every index descriptor, and repeating that
+ * walk doubles the descriptor allocations on hot validation paths.
+ */
+export const isStandardDenseArrayWhere = (
+  value: unknown,
+  isValidElement?: (element: unknown, index: number, length: number) => boolean
+): value is unknown[] => {
   if (!Array.isArray(value)) {
     return false;
   }
@@ -45,28 +56,39 @@ export const isStandardDenseArray = (value: unknown): value is unknown[] => {
 
     const length = value.length;
     const keys = Reflect.ownKeys(value);
-    return (
-      keys.length === length + 1 &&
-      keys.every((key) => {
-        if (key === 'length') {
-          return true;
-        }
-        if (!isArrayIndex(key, length)) {
-          return false;
-        }
+    if (keys.length !== length + 1) {
+      return false;
+    }
 
-        const descriptor = Object.getOwnPropertyDescriptor(value, key);
-        return !!(
-          descriptor &&
-          'value' in descriptor &&
-          descriptor.enumerable
-        );
-      })
-    );
+    for (let index = 0; index < keys.length; index += 1) {
+      const key = keys[index];
+      if (key === 'length') {
+        continue;
+      }
+      if (!isArrayIndex(key, length)) {
+        return false;
+      }
+
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor || !('value' in descriptor) || !descriptor.enumerable) {
+        return false;
+      }
+      if (
+        isValidElement &&
+        !isValidElement(descriptor.value, Number(key), length)
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   } catch {
     return false;
   }
 };
+
+export const isStandardDenseArray = (value: unknown): value is unknown[] =>
+  isStandardDenseArrayWhere(value);
 
 export const getMapOrSetKind = (
   value: object
@@ -208,32 +230,17 @@ export const isValidPatchPath = (path: unknown): boolean => {
     );
   }
 
-  if (!isStandardDenseArray(path)) {
-    return false;
-  }
-
-  for (let index = 0; index < path.length; index += 1) {
-    const descriptor = Object.getOwnPropertyDescriptor(path, String(index));
-    if (!descriptor || !('value' in descriptor)) {
-      return false;
-    }
-
-    const segment = descriptor.value;
+  return isStandardDenseArrayWhere(path, (segment, index, length) => {
     const isJsonPathSegment =
       typeof segment === 'string' ||
       (typeof segment === 'number' &&
         Number.isFinite(segment) &&
         Number.isInteger(segment) &&
         segment >= 0);
-    if (
-      !isJsonPathSegment ||
-      isUnsafePatchPathSegment(segment, index, path.length)
-    ) {
-      return false;
-    }
-  }
-
-  return true;
+    return (
+      isJsonPathSegment && !isUnsafePatchPathSegment(segment, index, length)
+    );
+  });
 };
 
 /**
