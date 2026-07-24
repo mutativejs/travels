@@ -346,7 +346,7 @@ describe('Productized history API', () => {
     expect('archive' in controls!).toBe(false);
     expect('canArchive' in controls!).toBe(false);
     expect(warn).toHaveBeenCalledWith(
-      'Auto archive is enabled, no need to archive manually'
+      'Travels: auto archive is enabled; archive() has no effect.'
     );
     expect(travels.getPatches().patches).toHaveLength(1);
     travels.back();

@@ -422,7 +422,7 @@ describe('Travels - Edge Cases', () => {
     travels.archive();
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      'Auto archive is enabled, no need to archive manually'
+      'Travels: auto archive is enabled; archive() has no effect.'
     );
     consoleSpy.mockRestore();
   });

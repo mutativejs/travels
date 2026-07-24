@@ -678,6 +678,8 @@ describe('controlled travel journal', () => {
           inversePatches: [{ op: 'replace', path: ['value'], value: null }],
         }
       )
-    ).toThrow('Map and Set are not supported');
+    ).toThrow(
+      'Travels: recordPatches received an invalid patch entry: entry patches must not contain Map or Set values.'
+    );
   });
 });

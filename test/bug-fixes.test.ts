@@ -823,7 +823,9 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
     expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1, 2]);
     expect(
       warnSpy.mock.calls.some(([message]) =>
-        String(message).includes("Can't go to non-integer position 1.8")
+        String(message).includes(
+          'Travels: cannot go to non-integer position 1.8'
+        )
       )
     ).toBe(true);
 
@@ -844,7 +846,7 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
     expect(travels.getState()).toBe(currentState);
     expect(
       warnSpy.mock.calls.some(([message]) =>
-        String(message).includes("Can't go to invalid position NaN")
+        String(message).includes('Travels: cannot go to invalid position NaN')
       )
     ).toBe(true);
 
