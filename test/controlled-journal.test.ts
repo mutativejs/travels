@@ -266,6 +266,39 @@ describe('controlled travel journal', () => {
     ).toEqual({ count: 1 });
   });
 
+  test('reads controlled entry metadata only once before committing state', () => {
+    const journal = createTravelJournal(
+      { count: 0 },
+      {
+        apply({ state, patches }) {
+          return apply(state, patches);
+        },
+      }
+    );
+    let metadataReads = 0;
+    const entry = {
+      patches: [{ op: 'replace', path: ['count'], value: 1 }],
+      inversePatches: [{ op: 'replace', path: ['count'], value: 0 }],
+    } as TravelHistoryEntry;
+    Object.defineProperty(entry, 'metadata', {
+      enumerable: true,
+      get() {
+        metadataReads += 1;
+        if (metadataReads > 1) {
+          throw new Error('metadata was read more than once');
+        }
+        return { label: 'increment' };
+      },
+    });
+
+    expect(() => journal.recordPatches({ count: 1 }, entry)).not.toThrow();
+    expect(metadataReads).toBe(1);
+    expect(journal.getState()).toEqual({ count: 1 });
+    expect(journal.getHistoryEntries()[0].metadata).toEqual({
+      label: 'increment',
+    });
+  });
+
   test('keeps journal state and history unchanged when metadata cloning fails', () => {
     const initialState: State = { count: 0, label: 'initial' };
     const journal = createTravelJournal(initialState, {

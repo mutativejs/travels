@@ -1701,12 +1701,13 @@ export class Travels<
       state,
       this.mutable ? undefined : this.collectionFreeObjects
     );
-    const storedMetadata = cloneTravelMetadata(entry.metadata);
+    const entryMetadata = entry.metadata;
+    const storedMetadata = cloneTravelMetadata(entryMetadata);
     this.state = state;
     this.commitPatchEntry(
       patches,
       inversePatches,
-      entry.metadata,
+      entryMetadata,
       storedMetadata,
       'recordPatches'
     );
