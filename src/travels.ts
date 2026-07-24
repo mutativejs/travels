@@ -2426,7 +2426,7 @@ export class Travels<
       get position(): number {
         return self.getPosition();
       },
-      getHistory: () => self.getHistory(),
+      getHistory: () => self.getHistory() as readonly Value<S, F>[],
       get patches(): TravelPatches<P> {
         return self.getPatches();
       },
