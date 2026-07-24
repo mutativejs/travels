@@ -70,6 +70,29 @@ export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 /** State shape supported by Travels' runtime and persistence contracts. */
 export type PatchableState = JsonValue;
 
+type NonPatchableValue<T> = T extends JsonPrimitive
+  ? never
+  : T extends readonly (infer Item)[]
+    ? NonPatchableValue<Item>
+    : T extends (...args: any[]) => unknown
+      ? T
+      : T extends Date | Map<unknown, unknown> | Set<unknown>
+        ? T
+        : T extends object
+          ? Extract<keyof T, symbol> extends never
+            ? { [Key in keyof T]-?: NonPatchableValue<T[Key]> }[keyof T]
+            : T
+          : T;
+
+/**
+ * Preserve an inferred state type only when every reachable property is
+ * statically compatible with the durable patch/persistence contract.
+ * Unlike an index-signature constraint, this accepts ordinary interfaces.
+ */
+export type PatchableInput<T> = [NonPatchableValue<T>] extends [never]
+  ? T
+  : never;
+
 export type TravelsHistory<P extends PatchesOption = {}> = {
   patches: TravelPatches<P>;
   position: number;

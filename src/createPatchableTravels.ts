@@ -1,6 +1,6 @@
 import { Travels } from './travels.js';
 import type {
-  PatchableState,
+  PatchableInput,
   PatchesOption,
   TravelsOptions,
 } from './type.js';
@@ -10,11 +10,11 @@ import type {
  * durable JSON-shaped subset supported by patches and persistence.
  */
 export function createPatchableTravels<
-  S extends PatchableState,
+  S,
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  initialState: S,
+  initialState: PatchableInput<S>,
   options?: Omit<
     TravelsOptions<F, true, P>,
     'autoArchive' | 'controlledApply'
@@ -24,11 +24,11 @@ export function createPatchableTravels<
 ): Travels<S, F, true, P>;
 
 export function createPatchableTravels<
-  S extends PatchableState,
+  S,
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  initialState: S,
+  initialState: PatchableInput<S>,
   options: Omit<
     TravelsOptions<F, false, P>,
     'autoArchive' | 'controlledApply'
@@ -38,13 +38,13 @@ export function createPatchableTravels<
 ): Travels<S, F, false, P>;
 
 export function createPatchableTravels<
-  S extends PatchableState,
+  S,
   F extends boolean,
   A extends boolean,
   P extends PatchesOption = {},
 >(
-  initialState: S,
+  initialState: PatchableInput<S>,
   options: TravelsOptions<F, A, P> = {}
 ): Travels<S, F, A, P> {
-  return new Travels(initialState, options);
+  return new Travels(initialState as S, options);
 }

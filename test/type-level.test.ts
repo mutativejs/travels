@@ -76,6 +76,13 @@ describe('Type-level API contracts', () => {
 
     const travels = createJsonHistory(jsonState);
     const patchableTravels = createPatchableTravels(jsonState);
+    interface DocumentState {
+      title: string;
+      blocks: Array<{ id: string; text: string }>;
+    }
+    const interfaceState: DocumentState = jsonState;
+    const interfaceTravels = createPatchableTravels(interfaceState);
+    expectTypeOf(interfaceTravels.getState()).toEqualTypeOf<DocumentState>();
     expectTypeOf(travels.getState().blocks[0].text).toEqualTypeOf<string>();
     expectTypeOf(patchableTravels.getState()).toEqualTypeOf<typeof jsonState>();
 
