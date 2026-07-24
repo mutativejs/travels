@@ -260,6 +260,45 @@ describe('controlled travel journal', () => {
     }
   });
 
+  test('preserves aliases within a detached controlled patch group', () => {
+    type AliasState = {
+      left: { id: number } | null;
+      right: { id: number } | null;
+    };
+    const shared = { id: 1 };
+    let authoritativeState: AliasState = { left: shared, right: shared };
+    let observedAlias = false;
+    const journal = createTravelJournal(authoritativeState, {
+      warnOnUnsupportedState: false,
+      apply: ({ patches }) => {
+        const firstValue = (patches[0] as { value?: unknown }).value;
+        const secondValue = (patches[1] as { value?: unknown }).value;
+        if (firstValue !== undefined && secondValue !== undefined) {
+          observedAlias = firstValue === secondValue && firstValue !== shared;
+        }
+        authoritativeState = apply(authoritativeState, patches);
+        return authoritativeState;
+      },
+    });
+    journal.recordPatches(authoritativeState, {
+      patches: [
+        { op: 'replace', path: ['left'], value: shared },
+        { op: 'replace', path: ['right'], value: shared },
+      ],
+      inversePatches: [
+        { op: 'replace', path: ['right'], value: null },
+        { op: 'replace', path: ['left'], value: null },
+      ],
+    });
+
+    journal.back();
+    journal.forward();
+
+    expect(observedAlias).toBe(true);
+    expect(authoritativeState.left).toBe(authoritativeState.right);
+    expect(authoritativeState.left).not.toBe(shared);
+  });
+
   test('rejects controlled initial history with uncloneable values', () => {
     const value = () => 'behavior';
 

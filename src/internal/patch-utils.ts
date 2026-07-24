@@ -105,14 +105,27 @@ const cloneDetachedDataProperties = (
       throw uncloneablePatchValue(`${path}.${String(key)}`);
     }
 
-    Object.defineProperty(target, key, {
-      ...descriptor,
-      value: cloneDetachedPatchValue(
-        descriptor.value,
-        seen,
-        `${path}.${String(key)}`
-      ),
-    });
+    try {
+      Object.defineProperty(target, key, {
+        ...descriptor,
+        value: cloneDetachedPatchValue(
+          descriptor.value,
+          seen,
+          `${path}.${String(key)}`
+        ),
+      });
+    } catch (error) {
+      if (error instanceof TravelsTypeError) throw error;
+      throw uncloneablePatchValue(`${path}.${String(key)}`, error);
+    }
+  }
+};
+
+const getClonePrototype = (value: object, path: string): object | null => {
+  try {
+    return Object.getPrototypeOf(value);
+  } catch (error) {
+    throw uncloneablePatchValue(path, error);
   }
 };
 
@@ -133,7 +146,7 @@ const cloneDetachedPatchValue = (
   }
 
   if (Array.isArray(value)) {
-    if (Object.getPrototypeOf(value) !== Array.prototype) {
+    if (getClonePrototype(value, path) !== Array.prototype) {
       throw uncloneablePatchValue(path);
     }
     const cloned: unknown[] = new Array(value.length);
@@ -156,7 +169,7 @@ const cloneDetachedPatchValue = (
   }
 
   if (value instanceof Date) {
-    if (Object.getPrototypeOf(value) !== Date.prototype) {
+    if (getClonePrototype(value, path) !== Date.prototype) {
       throw uncloneablePatchValue(path);
     }
     const cloned = new Date(value.getTime());
@@ -165,7 +178,7 @@ const cloneDetachedPatchValue = (
     return cloned;
   }
 
-  const prototype = Object.getPrototypeOf(value);
+  const prototype = getClonePrototype(value, path);
   if (isPlainObject(value) || prototype === null) {
     const cloned = Object.create(prototype) as Record<PropertyKey, unknown>;
     seen.set(value, cloned);
@@ -187,6 +200,7 @@ export const clonePatchGroupDetached = <P extends PatchesOption = {}>(
   patch: Patches<P>
 ): Patches<P> => {
   const cloned = new Array(patch.length) as Patches<P>;
+  const seen = new WeakMap<object, unknown>();
   for (let index = 0; index < patch.length; index += 1) {
     const operation = patch[index] as {
       op: string;
@@ -202,7 +216,7 @@ export const clonePatchGroupDetached = <P extends PatchesOption = {}>(
     if (Object.prototype.hasOwnProperty.call(operation, 'value')) {
       detached.value = cloneDetachedPatchValue(
         operation.value,
-        new WeakMap<object, unknown>(),
+        seen,
         `operation[${index}].value`
       );
     }
