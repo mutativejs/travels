@@ -158,6 +158,30 @@ export const containsMapOrSet = (
   return false;
 };
 
+/**
+ * Split a JSON Patch path into its segments. Returns undefined when the path
+ * is neither an array nor a JSON Pointer string.
+ */
+export const getPatchPathSegments = (
+  path: unknown
+): Array<string | number> | undefined => {
+  if (Array.isArray(path)) {
+    return path.slice() as Array<string | number>;
+  }
+
+  if (typeof path !== 'string') {
+    return undefined;
+  }
+  if (path === '') {
+    return [];
+  }
+
+  return path
+    .split('/')
+    .slice(1)
+    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
+};
+
 const isUnsafePatchPathSegment = (
   segment: unknown,
   index: number,

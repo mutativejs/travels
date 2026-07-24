@@ -9,7 +9,11 @@ import type {
   PatchesOption,
   TravelsControlledApply,
 } from '../type.js';
-import { containsMapOrSet, isObjectLike } from '../utils.js';
+import {
+  containsMapOrSet,
+  getPatchPathSegments,
+  isObjectLike,
+} from '../utils.js';
 import { clonePatchGroupDetached } from './patch-utils.js';
 import { isRootReplacement } from '../replay.js';
 
@@ -50,6 +54,82 @@ export const assertSupportedRuntimeState = (
   knownCollectionFree?: WeakSet<object>
 ): void => {
   if (containsMapOrSet(value, new WeakSet<object>(), knownCollectionFree)) {
+    throw new TravelsTypeError(
+      'UNSUPPORTED_STATE',
+      'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+    );
+  }
+};
+
+const resolveOwnDataValue = (
+  value: unknown,
+  segments: Array<string | number>
+): { found: boolean; value?: unknown } => {
+  let current = value;
+  for (const segment of segments) {
+    if (!isObjectLike(current)) {
+      return { found: false };
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(
+      current as object,
+      segment as PropertyKey
+    );
+    if (!descriptor || !('value' in descriptor)) {
+      return { found: false };
+    }
+    current = descriptor.value;
+  }
+  return { found: true, value: current };
+};
+
+/**
+ * Validate a state an external owner just committed or returned.
+ *
+ * Rescanning the whole graph uncached is O(state) on every commit and
+ * navigation, which dominates controlled journals over large state. The cost
+ * only buys something when the owner can have mutated an object the cache
+ * already accepted, so the scan is narrowed by how the owner answered:
+ *
+ * - A root the cache has already seen means the owner reused its reference and
+ *   may have mutated anywhere inside it, so the whole graph is rescanned.
+ * - A fresh root is walked through the cache, which skips the structurally
+ *   shared branches the owner did not rebuild, and the sub-trees this
+ *   transition wrote are rescanned unconditionally on top of that.
+ */
+export const assertSupportedExternalState = <P extends PatchesOption = {}>(
+  state: unknown,
+  patches: Patches<P>,
+  knownCollectionFree: WeakSet<object>
+): void => {
+  if (isObjectLike(state) && knownCollectionFree.has(state as object)) {
+    assertSupportedRuntimeState(state);
+    return;
+  }
+
+  const seen = new WeakSet<object>();
+
+  for (const operation of patches) {
+    const segments = getPatchPathSegments((operation as { path: unknown }).path);
+    if (!segments) {
+      // An unreadable path leaves no bounded region to trust: check it all.
+      assertSupportedRuntimeState(state);
+      return;
+    }
+
+    const target = resolveOwnDataValue(state, segments);
+    if (!target.found) {
+      continue;
+    }
+    if (containsMapOrSet(target.value, seen, undefined, false)) {
+      throw new TravelsTypeError(
+        'UNSUPPORTED_STATE',
+        'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
+      );
+    }
+  }
+
+  // `seen` carries the sub-trees above so the cached pass does not repeat them.
+  if (containsMapOrSet(state, seen, knownCollectionFree)) {
     throw new TravelsTypeError(
       'UNSUPPORTED_STATE',
       'Travels: Map and Set are not supported in state. Normalize collections to plain objects or dense arrays.'
@@ -157,9 +237,13 @@ export class StateDriver<
         ),
         'controlledApply'
       );
-      // A controlled owner may mutate and return a previously seen object.
-      // Re-scan it instead of trusting the immutable-state collection cache.
-      assertSupportedRuntimeState(controlledState);
+      // A controlled owner may mutate and return a previously seen object, so
+      // the sub-trees it just wrote are always rescanned.
+      assertSupportedExternalState(
+        controlledState,
+        transition.patches,
+        this.collectionFreeObjects
+      );
       return controlledState;
     }
 

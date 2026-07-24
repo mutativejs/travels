@@ -36,6 +36,7 @@ import { TransactionCoordinator } from './internal/transaction-coordinator.js';
 import { TimelineStore } from './internal/timeline-store.js';
 import { HistoryView } from './internal/history-view.js';
 import {
+  assertSupportedExternalState,
   assertSupportedPatchValues,
   assertSupportedRuntimeState,
   assertSynchronousResult,
@@ -56,6 +57,7 @@ import {
 } from './internal/patch-utils.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
+  getPatchPathSegments,
   isArrayIndex,
   isObjectLike,
   isPlainObject,
@@ -247,26 +249,6 @@ const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
   }
 
   return isPlainObject(current) && isPlainObject(snapshot);
-};
-
-const getPatchPathSegments = (
-  path: unknown
-): Array<string | number> | undefined => {
-  if (Array.isArray(path)) {
-    return path.slice() as Array<string | number>;
-  }
-
-  if (typeof path !== 'string') {
-    return undefined;
-  }
-  if (path === '') {
-    return [];
-  }
-
-  return path
-    .split('/')
-    .slice(1)
-    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
 };
 
 const getOwnDataValueAtPath = (
@@ -1709,9 +1691,9 @@ export class Travels<
       this.mutable ? undefined : this.collectionFreeObjects
     );
 
-    // External owners may mutate and reuse a state reference, so controlled
-    // state validation must not trust the immutable-state collection cache.
-    assertSupportedRuntimeState(state);
+    // External owners may mutate and reuse a state reference, so the sub-trees
+    // this entry writes are rescanned even when the cache already saw them.
+    assertSupportedExternalState(state, patches, this.collectionFreeObjects);
     const entryMetadata = entry.metadata;
     const storedMetadata = cloneTravelMetadata(entryMetadata);
     this.state = state;
