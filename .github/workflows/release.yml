@@ -90,6 +90,11 @@ jobs:
           npm pack --pack-destination release-artifact
           mv release-artifact/*.tgz release-artifact/travels.tgz
           sha256sum release-artifact/travels.tgz
+      - name: Smoke test exact publish artifact
+        run: |
+          mkdir -p release-consumer
+          tar -xzf release-artifact/travels.tgz -C release-consumer
+          node scripts/verify-packed-package.js release-consumer/package
       - name: Upload exact publish artifact
         uses: actions/upload-artifact@v4
         with:
