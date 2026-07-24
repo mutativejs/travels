@@ -1926,6 +1926,10 @@ export class Travels<
       this.mutable ? undefined : this.collectionFreeObjects
     );
 
+    assertSupportedRuntimeState(
+      state,
+      this.mutable ? undefined : this.collectionFreeObjects
+    );
     const storedMetadata = cloneTravelMetadata(entry.metadata);
     this.state = state;
     this.commitPatchEntry(
@@ -2338,10 +2342,15 @@ export class Travels<
         fromPosition: this.position,
         toPosition: nextPosition,
       });
-      this.state = assertSynchronousResult(
+      const controlledState = assertSynchronousResult(
         this.controlledApply(transition),
         'controlledApply'
       );
+      assertSupportedRuntimeState(
+        controlledState,
+        this.mutable ? undefined : this.collectionFreeObjects
+      );
+      this.state = controlledState;
     } else {
       // Can only use mutable mode if:
       // 1. mutable mode is enabled

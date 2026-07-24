@@ -420,6 +420,57 @@ describe('controlled travel journal', () => {
     expect(journal.getState()).toBe(initialState);
   });
 
+  test('rejects unsupported collection values in externally committed state', () => {
+    const initialState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(initialState, {
+      apply: ({ state }) => state,
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      initialState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    const unsupportedState = {
+      ...nextState,
+      hiddenCollection: new Map([['count', 1]]),
+    } as unknown as State;
+
+    expect(() =>
+      journal.recordPatches(unsupportedState, { patches, inversePatches })
+    ).toThrow('Map and Set are not supported');
+    expect(journal.getState()).toBe(initialState);
+    expect(journal.getPosition()).toBe(0);
+    expect(journal.getHistoryEntries()).toEqual([]);
+  });
+
+  test('rejects unsupported state returned by controlled apply atomically', () => {
+    const initialState: State = { count: 0, label: 'initial' };
+    let authoritativeState = initialState;
+    const journal = createTravelJournal(initialState, {
+      apply: ({ patches }) => {
+        authoritativeState = apply(authoritativeState, patches);
+        return {
+          ...authoritativeState,
+          hiddenCollection: new Set([1]),
+        } as unknown as State;
+      },
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      initialState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    authoritativeState = nextState;
+    journal.recordPatches(authoritativeState, { patches, inversePatches });
+
+    expect(() => journal.back()).toThrow('Map and Set are not supported');
+    expect(journal.getState()).toBe(nextState);
+    expect(journal.getPosition()).toBe(1);
+    expect(journal.getHistoryEntries()).toHaveLength(1);
+  });
+
   test('rejects unsupported collection values from external patches', () => {
     const state = { value: null as null | Map<string, number> };
     const journal = createTravelJournal(state, {
