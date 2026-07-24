@@ -50,7 +50,7 @@ The callback receives:
 - `inversePatches`: the composed rollback transition;
 - `fromPosition` and `toPosition`: the cursor movement.
 
-The transition contains detached patch operations and values, so accidental callback mutation cannot rewrite retained history. The callback should still treat them as read-only because changing them before the owner commits would change the requested navigation. `apply` must finish synchronously and return the state actually committed by the owner. Travels validates that returned state, then advances its own state and cursor. A thrown error, unsupported state, or Promise-like result leaves the journal state, cursor, and history unchanged.
+The transition contains detached patch operations and values, so accidental callback mutation cannot rewrite retained history. The callback should still treat them as read-only because changing them before the owner commits would change the requested navigation. `apply` must finish synchronously and return the state actually committed by the owner. Travels validates that returned state, then advances its own state and cursor. A thrown error, unsupported state, or Promise-like result does not advance the cursor, replace the retained state reference, or change history. Travels cannot undo mutations or other side effects the external owner already performed before failing.
 
 The owner must suppress normal commit recording while applying delegated
 navigation. Feeding an undo or redo back into `recordPatches()` would create a
@@ -94,7 +94,7 @@ A successful external commit emits `TravelsEvent` with type `recordPatches`.
 Navigation emits `go`, including calls made through `back()` or `forward()`.
 The event patch groups describe only that event's transition.
 
-Adding `recordPatches` extends the public `TravelsEvent['type']` union. Existing
-applications using only `createTravels()` do not receive the event at runtime,
-but TypeScript consumers with an exhaustive `switch` and a `never` assertion
-must add a branch when upgrading.
+`TravelsEvent['type']` intentionally remains open to future minor-release event
+names. Consumers should handle known operations and keep a `default` branch
+instead of asserting exhaustiveness with `never`. Applications using only
+`createTravels()` do not receive `recordPatches` at runtime.

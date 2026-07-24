@@ -490,15 +490,17 @@ The external owner remains authoritative:
   replay the pair to prove its relationship to `state`.
 - `apply` must synchronously commit `transition.patches` through the external
   owner and return its committed state. If it throws or returns a Promise,
-  Travels leaves its state and cursor unchanged. Do not record the delegated
-  undo/redo as a new history entry.
+  Travels does not advance its cursor or replace its retained state reference;
+  it cannot roll back side effects the external owner already performed. Do not
+  record the delegated undo/redo as a new history entry.
 - The public `TravelJournal` type omits state-owning operations such as
   `setState()`, `reset()`, transactions, tracking controls, and `getControls()`.
   Runtime calls to those operations are also rejected. Use `rebase()` to clear
   the timeline while preserving the current externally owned state.
 - A successful `recordPatches()` notification has event type `recordPatches`.
-  Consumers that exhaustively switch on `TravelsEvent['type']` must handle this
-  member, although standard `createTravels()` use never emits it.
+  `TravelsEvent['type']` is intentionally open for future minor-release event
+  names, so consumers should keep a `default` branch. Standard
+  `createTravels()` use never emits `recordPatches`.
 
 See the [Controlled Journal Guide](docs/controlled-journal.md) for the complete
 commit, navigation, failure, and trust-boundary contract.
