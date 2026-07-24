@@ -54,7 +54,13 @@ export class ObserverHub<S, P extends PatchesOption = {}> {
 
   public warn(code: TravelsWarningCode, message: string): void {
     if (this.onWarning) {
-      this.invoke('onWarning', () => this.onWarning?.({ code, message }));
+      const notify = () =>
+        this.invoke('onWarning', () => this.onWarning?.({ code, message }));
+      if (this.publishing) {
+        notify();
+      } else {
+        this.publish(notify);
+      }
       return;
     }
 

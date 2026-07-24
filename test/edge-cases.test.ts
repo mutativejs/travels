@@ -33,6 +33,28 @@ describe('Edge Cases Coverage', () => {
     }
   });
 
+  test('blocks reentrant mutations from warning observers', () => {
+    let travels: ReturnType<typeof createTravels<{ count: number }>>;
+    let reentrantError: unknown;
+    travels = createTravels(
+      { count: 0 },
+      {
+        onWarning() {
+          try {
+            travels.setState({ count: 1 });
+          } catch (error) {
+            reentrantError = error;
+          }
+        },
+      }
+    );
+
+    travels.go(Number.NaN);
+
+    expect(reentrantError).toMatchObject({ code: 'REENTRANT_MUTATION' });
+    expect(travels.getState()).toEqual({ count: 0 });
+  });
+
   describe('go method with maxHistory and inversePatches slicing', () => {
     it('should handle go() when history management triggers inversePatches slicing', () => {
       // This test covers line 414: the slicing of inversePatches when exceeding maxHistory
