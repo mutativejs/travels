@@ -129,6 +129,9 @@ describe('Type-level API contracts', () => {
     expectTypeOf(controls.getHistory()).toEqualTypeOf<
       readonly { count: number }[]
     >();
+    expectTypeOf(controls.getHistorySnapshot()).toEqualTypeOf<
+      { count: number }[]
+    >();
 
     if (false) {
       // @ts-expect-error history snapshots are shared read-only cache entries

@@ -427,9 +427,13 @@ export interface TravelsControls<
    */
   position: number;
   /**
-   * Get the history of the state
+   * Get the shared read-only history cache.
    */
   getHistory: () => readonly Value<S, F>[];
+  /**
+   * Get fully detached durable history snapshots.
+   */
+  getHistorySnapshot: () => Value<S, F>[];
   /**
    * The patches of the history
    */

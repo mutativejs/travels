@@ -276,6 +276,10 @@ Returns the complete history of states as an array.
 > In development mode, only the array container is frozen; the state entries are shared cached snapshots and are not deep-frozen.
 > In production mode, modifying the array or any entry will corrupt the cache.
 
+#### `getHistorySnapshot(): S[]`
+
+Returns a new array of fully detached history states. This is the safe choice when callers need to mutate, transfer, or retain snapshots independently of Travels' internal reconstruction cache. The method fails with `PERSISTENCE_INCOMPATIBLE` when a history state contains functions, class instances, circular references, or another runtime-only value that cannot be detached without changing semantics.
+
 #### `getPosition(): number`
 
 Returns the current position in the history timeline.

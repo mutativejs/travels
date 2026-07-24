@@ -2055,6 +2055,40 @@ export class Travels<
   }
 
   /**
+   * Return fully detached durable snapshots for every visible history state.
+   *
+   * Unlike getHistory(), this method never exposes the internal cache. It
+   * rejects runtime-only values rather than returning a partially shared clone.
+   */
+  public getHistorySnapshot(): S[] {
+    const history = this.getHistory();
+    const issues: string[] = [];
+    for (let index = 0; index < history.length && issues.length < 20; index += 1) {
+      for (const issue of findStateCompatibilityIssues(history[index], {
+        allowFrozen: true,
+        maxIssues: 20 - issues.length,
+      })) {
+        const path =
+          issue.path === '$'
+            ? `$.history[${index}]`
+            : `$.history[${index}]${issue.path.slice(1)}`;
+        issues.push(`${path}: ${issue.message}`);
+      }
+    }
+
+    if (issues.length > 0) {
+      throw new TravelsTypeError(
+        'PERSISTENCE_INCOMPATIBLE',
+        `Travels: getHistorySnapshot cannot detach non-durable history:\n- ${issues.join(
+          '\n- '
+        )}`
+      );
+    }
+
+    return history.map((state) => deepCloneValue(state) as S);
+  }
+
+  /**
    * Go to a specific position in the history
    */
   public go(nextPosition: number): void {
@@ -2440,6 +2474,7 @@ export class Travels<
         return self.getPosition();
       },
       getHistory: () => self.getHistory() as readonly Value<S, F>[],
+      getHistorySnapshot: () => self.getHistorySnapshot() as Value<S, F>[],
       get patches(): TravelPatches<P> {
         return self.getPatches();
       },

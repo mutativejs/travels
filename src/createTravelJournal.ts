@@ -23,6 +23,7 @@ export type TravelJournal<
   | 'getState'
   | 'recordPatches'
   | 'getHistory'
+  | 'getHistorySnapshot'
   | 'go'
   | 'back'
   | 'forward'
