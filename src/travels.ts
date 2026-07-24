@@ -43,6 +43,7 @@ import {
 } from './internal/state-driver.js';
 import {
   clonePatchGroup,
+  clonePatchGroupDetached,
   clonePatchGroups,
   cloneTravelPatches,
   createPatchDelta,
@@ -518,6 +519,16 @@ export class Travels<
       initialPosition = 0;
     } else if (initialPatchesValidation?.error === null) {
       initialPatches = initialPatchesValidation.patches;
+      if (controlledApply) {
+        initialPatches = {
+          patches: initialPatches.patches.map((patches) =>
+            clonePatchGroupDetached(patches)
+          ),
+          inversePatches: initialPatches.inversePatches.map((patches) =>
+            clonePatchGroupDetached(patches)
+          ),
+        };
+      }
     }
 
     assertSupportedRuntimeState(
@@ -1679,8 +1690,10 @@ export class Travels<
       );
     }
 
-    const patches = clonePatchGroup(validation.entry.patches);
-    const inversePatches = clonePatchGroup(validation.entry.inversePatches);
+    const patches = clonePatchGroupDetached(validation.entry.patches);
+    const inversePatches = clonePatchGroupDetached(
+      validation.entry.inversePatches
+    );
     if (patches.length === 0 && inversePatches.length === 0) {
       if (!Object.is(state, this.state)) {
         throw new TravelsError(

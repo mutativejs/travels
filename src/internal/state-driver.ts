@@ -10,7 +10,7 @@ import type {
   TravelsControlledApply,
 } from '../type.js';
 import { containsMapOrSet, isObjectLike } from '../utils.js';
-import { clonePatchGroup } from './patch-utils.js';
+import { clonePatchGroupDetached } from './patch-utils.js';
 import { isRootReplacement } from '../replay.js';
 
 const isPromiseLike = (value: unknown): value is PromiseLike<unknown> =>
@@ -149,8 +149,8 @@ export class StateDriver<
         this.controlledApply(
           Object.freeze({
             state: transition.state,
-            patches: clonePatchGroup(transition.patches),
-            inversePatches: clonePatchGroup(transition.inversePatches),
+            patches: clonePatchGroupDetached(transition.patches),
+            inversePatches: clonePatchGroupDetached(transition.inversePatches),
             fromPosition: transition.fromPosition,
             toPosition: transition.toPosition,
           })

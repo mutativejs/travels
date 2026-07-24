@@ -230,6 +230,59 @@ describe('controlled travel journal', () => {
     expect(authoritativeState.count).toBe(1);
   });
 
+  test('rejects patch values that cannot be safely detached', () => {
+    const initialState: State & { value?: unknown } = {
+      count: 0,
+      label: 'initial',
+    };
+    const journal = createTravelJournal(initialState, {
+      apply: ({ state }) => state,
+      warnOnUnsupportedState: false,
+    });
+
+    for (const value of [() => 'behavior', new WeakMap<object, unknown>()]) {
+      expect(() =>
+        journal.recordPatches(
+          { ...initialState, value },
+          {
+            patches: [{ op: 'add', path: ['value'], value }],
+            inversePatches: [{ op: 'remove', path: ['value'] }],
+          }
+        )
+      ).toThrowError(
+        expect.objectContaining<Partial<TravelsTypeError>>({
+          code: 'UNCLONEABLE_PATCH_VALUE',
+        })
+      );
+      expect(journal.getState()).toBe(initialState);
+      expect(journal.getPosition()).toBe(0);
+      expect(journal.getHistoryEntries()).toEqual([]);
+    }
+  });
+
+  test('rejects controlled initial history with uncloneable values', () => {
+    const value = () => 'behavior';
+
+    expect(() =>
+      createTravelJournal(
+        { count: 1, label: 'initial', value },
+        {
+          apply: ({ state }) => state,
+          initialPatches: {
+            patches: [[{ op: 'add', path: ['value'], value }]],
+            inversePatches: [[{ op: 'remove', path: ['value'] }]],
+          },
+          initialPosition: 1,
+          warnOnUnsupportedState: false,
+        }
+      )
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsTypeError>>({
+        code: 'UNCLONEABLE_PATCH_VALUE',
+      })
+    );
+  });
+
   test('isolates retained history from controlled apply patch mutation', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     const journal = createTravelJournal(authoritativeState, {

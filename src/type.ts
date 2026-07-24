@@ -271,6 +271,7 @@ export type TravelsErrorCode =
   | 'PERSISTENCE_INCOMPATIBLE'
   | 'REENTRANT_MUTATION'
   | 'TRANSACTION_FAILED'
+  | 'UNCLONEABLE_PATCH_VALUE'
   | 'UNSUPPORTED_STATE';
 
 export type TravelsOptions<

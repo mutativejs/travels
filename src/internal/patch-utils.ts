@@ -1,4 +1,5 @@
 import type { Patches } from 'mutative';
+import { TravelsTypeError } from '../errors.js';
 import type { PatchesOption, TravelPatches } from '../type.js';
 import { isPlainObject } from '../utils.js';
 
@@ -63,6 +64,154 @@ export const deepCloneValue = (
     }
   }
 
+  return cloned;
+};
+
+const uncloneablePatchValue = (
+  path: string,
+  cause?: unknown
+): TravelsTypeError =>
+  new TravelsTypeError(
+    'UNCLONEABLE_PATCH_VALUE',
+    `Travels: patch value at ${path} cannot be safely detached. ` +
+      `Use plain data or a value whose structured clone preserves its runtime type.`,
+    { cause }
+  );
+
+const cloneDetachedDataProperties = (
+  source: object,
+  target: object,
+  seen: WeakMap<object, unknown>,
+  path: string,
+  skip: ReadonlySet<PropertyKey> = new Set()
+): void => {
+  let keys: PropertyKey[];
+  try {
+    keys = Reflect.ownKeys(source);
+  } catch (error) {
+    throw uncloneablePatchValue(path, error);
+  }
+
+  for (const key of keys) {
+    if (skip.has(key)) continue;
+
+    let descriptor: PropertyDescriptor | undefined;
+    try {
+      descriptor = Object.getOwnPropertyDescriptor(source, key);
+    } catch (error) {
+      throw uncloneablePatchValue(`${path}.${String(key)}`, error);
+    }
+    if (!descriptor || !('value' in descriptor)) {
+      throw uncloneablePatchValue(`${path}.${String(key)}`);
+    }
+
+    Object.defineProperty(target, key, {
+      ...descriptor,
+      value: cloneDetachedPatchValue(
+        descriptor.value,
+        seen,
+        `${path}.${String(key)}`
+      ),
+    });
+  }
+};
+
+const cloneDetachedPatchValue = (
+  value: unknown,
+  seen: WeakMap<object, unknown>,
+  path: string
+): unknown => {
+  if (typeof value === 'function') {
+    throw uncloneablePatchValue(path);
+  }
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  if (seen.has(value)) {
+    return seen.get(value);
+  }
+
+  if (Array.isArray(value)) {
+    if (Object.getPrototypeOf(value) !== Array.prototype) {
+      throw uncloneablePatchValue(path);
+    }
+    const cloned: unknown[] = new Array(value.length);
+    seen.set(value, cloned);
+    cloneDetachedDataProperties(
+      value,
+      cloned,
+      seen,
+      path,
+      new Set<PropertyKey>(['length'])
+    );
+    const lengthDescriptor = Object.getOwnPropertyDescriptor(value, 'length');
+    if (lengthDescriptor && 'value' in lengthDescriptor) {
+      Object.defineProperty(cloned, 'length', {
+        ...lengthDescriptor,
+        value: value.length,
+      });
+    }
+    return cloned;
+  }
+
+  if (value instanceof Date) {
+    if (Object.getPrototypeOf(value) !== Date.prototype) {
+      throw uncloneablePatchValue(path);
+    }
+    const cloned = new Date(value.getTime());
+    seen.set(value, cloned);
+    cloneDetachedDataProperties(value, cloned, seen, path);
+    return cloned;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+  if (isPlainObject(value) || prototype === null) {
+    const cloned = Object.create(prototype) as Record<PropertyKey, unknown>;
+    seen.set(value, cloned);
+    cloneDetachedDataProperties(value, cloned, seen, path);
+    return cloned;
+  }
+
+  // Other runtime objects can carry internal slots, identity-sensitive
+  // behavior, or custom prototypes that a clone would silently change.
+  throw uncloneablePatchValue(path);
+};
+
+/**
+ * Clone a patch group for an external boundary. Unlike clonePatchGroup(), this
+ * fails closed when a mutable patch value cannot be fully detached without
+ * changing its runtime type or invoking an accessor.
+ */
+export const clonePatchGroupDetached = <P extends PatchesOption = {}>(
+  patch: Patches<P>
+): Patches<P> => {
+  const cloned = new Array(patch.length) as Patches<P>;
+  for (let index = 0; index < patch.length; index += 1) {
+    const operation = patch[index] as {
+      op: string;
+      path: string | Array<string | number>;
+      value?: unknown;
+    };
+    const detached = {
+      op: operation.op,
+      path: Array.isArray(operation.path)
+        ? [...operation.path]
+        : operation.path,
+    } as typeof operation;
+    if (Object.prototype.hasOwnProperty.call(operation, 'value')) {
+      detached.value = cloneDetachedPatchValue(
+        operation.value,
+        new WeakMap<object, unknown>(),
+        `operation[${index}].value`
+      );
+    }
+    cloned[index] = detached as Patches<P>[number];
+  }
+  const identity = historyEntryIdentities.get(patch);
+  if (identity) {
+    historyEntryIdentities.set(cloned, identity);
+  }
   return cloned;
 };
 
