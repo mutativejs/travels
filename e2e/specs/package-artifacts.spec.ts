@@ -12,6 +12,20 @@ test('fixture imports the package ESM entry in a browser app', async ({ page }) 
   await expect(page.getByTestId('package-ready')).toHaveText('esm-ready:1');
 });
 
+test('package metadata provides legacy and modern resolver entries', () => {
+  const manifest = JSON.parse(
+    readFileSync(resolve(repoRoot, 'package.json'), 'utf8')
+  ) as {
+    main: string;
+    module: string;
+    engines: { node: string };
+  };
+
+  expect(manifest.main).toBe('./dist/index.cjs');
+  expect(manifest.module).toBe('./dist/index.esm.js');
+  expect(manifest.engines.node).toBe('>=20');
+});
+
 test('the built package exposes a working CommonJS entry', () => {
   const script = `
     const { createTravels } = require('travels');

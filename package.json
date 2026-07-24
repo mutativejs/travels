@@ -10,7 +10,8 @@
     "url": "https://github.com/mutativejs/travels.git"
   },
   "source": "./src/index.ts",
-  "main": "./dist/index.esm.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
   "unpkg": "./dist/index.umd.js",
   "exports": {
@@ -72,6 +73,9 @@
     "json-patch"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@rollup/plugin-commonjs": "^28.0.6",
