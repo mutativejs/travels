@@ -32,6 +32,7 @@ export type TravelJournal<
   | 'getPosition'
   | 'getPatches'
   | 'serialize'
+  | 'assertPersistenceCompatible'
   | 'getMetadata'
   | 'getHistoryEntries'
 >;

@@ -102,6 +102,12 @@ export type TravelsReplayOptions = {
 
 export type TravelsHistoryValidationMode = 'semantic' | 'structural';
 
+export type TravelsSerializeOptions = {
+  /** Throw when state, retained patches, or metadata are not durable JSON data. */
+  strict?: boolean;
+};
+
+
 export type TravelsMigration<
   S,
   P extends PatchesOption = {},

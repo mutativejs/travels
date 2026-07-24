@@ -25,6 +25,8 @@ describe('Type-level API contracts', () => {
 
     const travels = createTravels<State>({ title: 'Draft', blocks: [] });
     const snapshot = travels.serialize();
+    travels.serialize({ strict: true });
+    travels.assertPersistenceCompatible();
 
     expectTypeOf(snapshot).toEqualTypeOf<TravelsSerializedHistory<State>>();
 

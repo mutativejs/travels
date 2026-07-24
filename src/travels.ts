@@ -22,6 +22,7 @@ import type {
   TravelsObserverErrorEvent,
   TravelsObserverErrorSource,
   TravelsSerializedHistory,
+  TravelsSerializeOptions,
   TravelsWarning,
   TravelsWarningCode,
   Updater,
@@ -2588,10 +2589,70 @@ export class Travels<
   }
 
   /**
+   * Assert that state, retained patches, and metadata can round-trip through
+   * Travels' JSON persistence contract without normalization or data loss.
+   */
+  public assertPersistenceCompatible(): void {
+    const issues: string[] = [];
+    const collectIssues = (value: unknown, prefix: string): void => {
+      const remaining = 20 - issues.length;
+      if (remaining <= 0) return;
+      for (const issue of findStateCompatibilityIssues(value, {
+        allowFrozen: true,
+        maxIssues: remaining,
+      })) {
+        const path = issue.path === '$' ? prefix : `${prefix}${issue.path.slice(1)}`;
+        issues.push(`${path}: ${issue.message}`);
+      }
+    };
+
+    collectIssues(this.state, '$.state');
+    const patches = this.getPatches();
+    for (const direction of ['patches', 'inversePatches'] as const) {
+      for (let entryIndex = 0; entryIndex < patches[direction].length; entryIndex += 1) {
+        const entry = patches[direction][entryIndex];
+        for (let operationIndex = 0; operationIndex < entry.length; operationIndex += 1) {
+          const operation = entry[operationIndex];
+          const prefix = `$.patches.${direction}[${entryIndex}][${operationIndex}]`;
+          if (!isValidPatchPath(operation.path)) {
+            issues.push(`${prefix}.path: use a durable patch path for persistence.`);
+          }
+          collectIssues(operation, prefix);
+          if (issues.length >= 20) break;
+        }
+        if (issues.length >= 20) break;
+      }
+      if (issues.length >= 20) break;
+    }
+
+    if (issues.length < 20) {
+      this.getMetadata().forEach((metadata, index) => {
+        if (metadata !== undefined && issues.length < 20) {
+          collectIssues(metadata, `$.metadata[${index}]`);
+        }
+      });
+    }
+
+    if (issues.length > 0) {
+      throw new TravelsTypeError(
+        'PERSISTENCE_INCOMPATIBLE',
+        `Travels: persistence compatibility check failed:
+- ${issues.join('
+- ')}`
+      );
+    }
+  }
+
+  /**
    * Serialize the current state, patch history, and position for persistence.
    */
-  public serialize(): TravelsSerializedHistory<S, P> {
+  public serialize(
+    options: TravelsSerializeOptions = {}
+  ): TravelsSerializedHistory<S, P> {
     assertSupportedRuntimeState(this.state);
+    if (options.strict) {
+      this.assertPersistenceCompatible();
+    }
     if (process.env.NODE_ENV !== 'production') {
       if (this.transactionDepth > 0) {
         this.checkPersistenceCompatibilityAfterCommit();

@@ -291,9 +291,13 @@ Returns metadata aligned with `getPatches()` entries, including the pending manu
 
 Returns patch entries with inverse patches and optional metadata, using the same entry set as `getPatches()`. Use this for undo menus, devtools timelines, and audit views.
 
-#### `serialize(): TravelsSerializedHistory`
+#### `serialize(options?): TravelsSerializedHistory`
 
-Returns a versioned persistence snapshot containing the current state, patch history, position, and metadata. The returned state, patches, and metadata are cloned. State, patch values, and metadata must meet the durable-data requirements below; paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/non-negative integers. Callers can then safely pass the snapshot to `JSON.stringify`, storage adapters, or compression. `serialize()` does not itself encode or normalize runtime-only values.
+Returns a versioned persistence snapshot containing the current state, patch history, position, and metadata. The returned state, patches, and metadata are cloned. State, patch values, and metadata must meet the durable-data requirements below; paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/non-negative integers. Callers can then pass the snapshot to `JSON.stringify`, storage adapters, or compression. `serialize()` does not itself encode or normalize runtime-only values. Pass `{ strict: true }` to reject any value that cannot round-trip through the documented JSON persistence contract.
+
+#### `assertPersistenceCompatible(): void`
+
+Checks current state, retained forward/inverse patches, patch paths, and metadata against the durable-data contract. It throws `TravelsTypeError` with code `PERSISTENCE_INCOMPATIBLE` and path-specific diagnostics instead of producing a snapshot that JSON would normalize or lose.
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 

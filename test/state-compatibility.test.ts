@@ -4,6 +4,7 @@ import {
   findStateCompatibilityIssues,
   Travels,
   TravelsError,
+  TravelsTypeError,
   type JsonValue,
   type PatchableState,
   type TravelMetadata,
@@ -98,6 +99,55 @@ describe('State compatibility warnings', () => {
       { code: 'NON_JSON_NUMBER', path: '$.negativeInfinity' },
       { code: 'NON_JSON_NUMBER', path: '$.negativeZero' },
     ]);
+  });
+
+  test('strict serialization rejects non-durable state and metadata', () => {
+    const travels = createTravels(
+      {
+        createdAt: new Date('2025-01-01T00:00:00.000Z'),
+        count: 0,
+      },
+      { warnOnUnsupportedState: false }
+    );
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+      },
+      { requestId: 1n }
+    );
+
+    expect(() => travels.assertPersistenceCompatible()).toThrow(
+      'persistence compatibility check failed'
+    );
+    try {
+      travels.serialize({ strict: true });
+      throw new Error('expected strict serialization to fail');
+    } catch (error) {
+      expect(error).toBeInstanceOf(TravelsTypeError);
+      expect((error as TravelsTypeError).code).toBe(
+        'PERSISTENCE_INCOMPATIBLE'
+      );
+      expect(String((error as Error).message)).toContain('$.state.createdAt');
+      expect(String((error as Error).message)).toContain(
+        '$.metadata[0].requestId'
+      );
+    }
+
+    expect(() => travels.serialize()).not.toThrow();
+  });
+
+  test('strict serialization accepts durable state, patches, and metadata', () => {
+    const travels = createTravels({ count: 0, labels: ['initial'] });
+    travels.setState(
+      (draft) => {
+        draft.count = 1;
+        draft.labels.push('updated');
+      },
+      { source: 'test', timestamp: 1 }
+    );
+
+    expect(() => travels.assertPersistenceCompatible()).not.toThrow();
+    expect(travels.serialize({ strict: true }).state.count).toBe(1);
   });
 
   test('flags non-enumerable array indices lost by snapshot cloning', () => {
