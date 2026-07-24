@@ -14,9 +14,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - run: pnpm install --frozen-lockfile
+      - name: Verify release tag
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version v${version}."
+            exit 1
+          fi
+      - run: pnpm run lint
+      - run: pnpm run test:types
+      - run: pnpm run test:examples
+      - run: pnpm run test:e2e:types
+
+  unit:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
     env:
@@ -28,27 +52,42 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: pnpm install --frozen-lockfile
-      - name: Verify release tag
-        run: |
-          version="$(node -p "require('./package.json').version")"
-          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match package version v${version}."
-            exit 1
-          fi
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm run size:ci
-      - run: pnpm run test:types
-      - run: pnpm run test:examples
       - run: pnpm run test
+
+  browser-e2e:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run test:browser
-      - run: pnpm run test:e2e:types
-      - run: pnpm run test:e2e:ci
+      - run: pnpm run test:e2e
+
+  package-checks:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run size:ci
       - run: pnpm run coverage
+      - run: pnpm run test:mutation:smoke
       - run: pnpm run benchmark:ci
 
   build-pages:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [quality, unit, browser-e2e, package-checks]
     permissions:
       contents: read
     steps:
