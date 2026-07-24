@@ -48,6 +48,12 @@ export default defineConfig({
           functions: 95,
           lines: 95,
         },
+        'src/internal/history-view.ts': {
+          statements: 90,
+          branches: 85,
+          functions: 90,
+          lines: 90,
+        },
         'src/replay.ts': {
           statements: 95,
           branches: 95,
