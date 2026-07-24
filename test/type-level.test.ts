@@ -82,6 +82,13 @@ describe('Type-level API contracts', () => {
     }
     const interfaceState: DocumentState = jsonState;
     const interfaceTravels = createPatchableTravels(interfaceState);
+    interface TreeNode {
+      value: string;
+      children: TreeNode[];
+    }
+    const recursiveState: TreeNode = { value: 'root', children: [] };
+    const recursiveTravels = createPatchableTravels(recursiveState);
+    expectTypeOf(recursiveTravels.getState()).toEqualTypeOf<TreeNode>();
     expectTypeOf(interfaceTravels.getState()).toEqualTypeOf<DocumentState>();
     expectTypeOf(travels.getState().blocks[0].text).toEqualTypeOf<string>();
     expectTypeOf(patchableTravels.getState()).toEqualTypeOf<typeof jsonState>();
@@ -93,6 +100,15 @@ describe('Type-level API contracts', () => {
       createJsonHistory(new Set(['selected']));
       // @ts-expect-error the strict factory excludes runtime-only state
       createPatchableTravels({ createdAt: new Date() });
+      const broadObject: object = { title: 'not statically inspectable' };
+      // @ts-expect-error broad object types are not a durable-state proof
+      createPatchableTravels(broadObject);
+      const unknownState: unknown = jsonState;
+      // @ts-expect-error unknown state must be narrowed before using the strict factory
+      createPatchableTravels(unknownState);
+      const anyState: any = jsonState;
+      // @ts-expect-error any state bypasses the static durable-state contract
+      createPatchableTravels(anyState);
     }
   });
 

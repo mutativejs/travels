@@ -70,24 +70,71 @@ export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 /** State shape supported by Travels' runtime and persistence contracts. */
 export type PatchableState = JsonValue;
 
-type NonPatchableValue<T> = T extends JsonPrimitive
-  ? never
-  : T extends readonly (infer Item)[]
-    ? NonPatchableValue<Item>
-    : T extends (...args: any[]) => unknown
+type PatchableTypeDepth = readonly [
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+];
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+type IsUnknown<T> = IsAny<T> extends true
+  ? false
+  : unknown extends T
+    ? [keyof T] extends [never]
+      ? true
+      : false
+    : false;
+type IsBroadObject<T> = [T] extends [object]
+  ? [object] extends [T]
+    ? [string] extends [T]
+      ? false
+      : true
+    : false
+  : false;
+
+type NonPatchableValue<
+  T,
+  Depth extends readonly unknown[] = PatchableTypeDepth,
+> = IsAny<T> extends true
+  ? T
+  : IsUnknown<T> extends true
+    ? T
+    : IsBroadObject<T> extends true
       ? T
-      : T extends Date | Map<unknown, unknown> | Set<unknown>
-        ? T
-        : T extends object
-          ? Extract<keyof T, symbol> extends never
-            ? { [Key in keyof T]-?: NonPatchableValue<T[Key]> }[keyof T]
-            : T
-          : T;
+      : Depth extends readonly [unknown, ...infer Rest]
+        ? T extends JsonPrimitive
+          ? never
+          : T extends readonly (infer Item)[]
+            ? NonPatchableValue<Item, Rest>
+            : T extends (...args: any[]) => unknown
+              ? T
+              : T extends Date | Map<unknown, unknown> | Set<unknown>
+                ? T
+                : T extends object
+                  ? Extract<keyof T, symbol> extends never
+                    ? {
+                        [Key in keyof T]-?: NonPatchableValue<T[Key], Rest>;
+                      }[keyof T]
+                    : T
+                  : T
+        : never;
 
 /**
- * Preserve an inferred state type only when every reachable property is
+ * Preserve an inferred state type when its reachable properties are
  * statically compatible with the durable patch/persistence contract.
- * Unlike an index-signature constraint, this accepts ordinary interfaces.
+ *
+ * Recursive types are inspected to a finite depth and broad `{}`-shaped
+ * values cannot be proven from their static type alone. The strict factory
+ * therefore also validates the concrete initial value at runtime.
  */
 export type PatchableInput<T> = [NonPatchableValue<T>] extends [never]
   ? T

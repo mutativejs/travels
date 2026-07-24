@@ -1,3 +1,5 @@
+import { findStateCompatibilityIssues } from './compatibility.js';
+import { TravelsTypeError } from './errors.js';
 import { Travels } from './travels.js';
 import type {
   PatchableInput,
@@ -46,5 +48,16 @@ export function createPatchableTravels<
   initialState: PatchableInput<S>,
   options: TravelsOptions<F, A, P> = {}
 ): Travels<S, F, A, P> {
+  const issues = findStateCompatibilityIssues(initialState, {
+    allowFrozen: true,
+  });
+  if (issues.length > 0) {
+    throw new TravelsTypeError(
+      'PERSISTENCE_INCOMPATIBLE',
+      `Travels: createPatchableTravels received non-durable initial state:\n- ${issues
+        .map((issue) => `${issue.path}: ${issue.message}`)
+        .join('\n- ')}`
+    );
+  }
   return new Travels(initialState as S, options);
 }

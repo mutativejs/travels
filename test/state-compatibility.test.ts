@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
+  createPatchableTravels,
   createTravels,
   findStateCompatibilityIssues,
   Travels,
@@ -33,6 +34,21 @@ const createCrossRealmCollection = (
 };
 
 describe('State compatibility warnings', () => {
+  test('strict factory validates broad initial values at runtime', () => {
+    const broadDate: object = new Date('2026-01-01T00:00:00.000Z');
+    const broadMap: {} = new Map([['count', 1]]);
+
+    for (const value of [broadDate, broadMap]) {
+      expect(() => createPatchableTravels(value as never)).toThrowError(
+        expect.objectContaining<Partial<TravelsTypeError>>({
+          code: 'PERSISTENCE_INCOMPATIBLE',
+        })
+      );
+    }
+
+    expect(() => createPatchableTravels({})).not.toThrow();
+  });
+
   test('findStateCompatibilityIssues reports unsupported durable-state values', () => {
     class User {
       name = 'Alice';

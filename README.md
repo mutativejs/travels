@@ -679,7 +679,7 @@ function createHistoryFor<S extends PatchableState>(state: S) {
 }
 ```
 
-`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set. The runtime also fails fast when either collection is found in initial state, a newly generated patch payload, or restored history.
+`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set. `PatchableInput<T>` performs a finite-depth, best-effort static check so recursive interfaces remain usable; broad types such as `{}` cannot prove their contents from TypeScript alone. `createPatchableTravels()` therefore also validates the concrete initial value at runtime and throws `PERSISTENCE_INCOMPATIBLE` for Date, functions, custom instances, non-JSON numbers, collections, and other non-durable values. The regular runtime also fails fast when Map or Set is found in initial state, a newly generated patch payload, or restored history.
 
 These value requirements cover retained patch payloads and custom metadata included by `serialize()`; paths independently obey the structural contract above. An old runtime-only value or path therefore remains relevant after it leaves current state. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses them.
 
