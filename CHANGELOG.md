@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Add `createPatchableTravels()` for applications that want a compile-time JSON-shaped state contract.
+- Add `serialize({ strict: true })` and `assertPersistenceCompatible()` for fail-fast persistence checks.
+- Add structured `onWarning` notifications and stable runtime error codes.
+
+### Fixed
+
+- Validate controlled journal patch entries with the same accessor-safe structural rules used by persisted history, including paired forward/inverse entries and safe durable paths.
+- Detach controlled navigation transitions before invoking the external owner so callback mutation cannot rewrite retained history.
+- Validate externally committed and externally applied controlled state before changing the internal cursor or state reference.
+- Keep controls history read-only while preserving frozen-state value typing.
+- Keep release workflow dependencies valid after splitting verification jobs.
+
+### Changed
+
+- Make observer event names extensible across minor releases and route non-fatal warnings through an explicit callback instead of writing to production consoles.
+- Publish CJS through `main`, ESM through `module`, and declare Node.js 20 or newer.
+- Split timeline storage, patch ownership, observer publication, state application, and mutable transaction rollback into focused internal components with development invariant checks.
+- Record package version, Git revision, and dirty-worktree state in real-library benchmark reports.
+
+### Testing
+
+- Add adversarial controlled-journal validation and mutation-isolation coverage.
+- Add a property-based timeline state-machine model, per-file coverage thresholds, and deterministic mutation smoke checks.
+- Migrate linting to ESLint flat config and split CI into focused quality, runtime, browser, package, coverage, mutation, and benchmark jobs.
+
 ## [2.1.0] - 2026-07-19
 
 ### Added
