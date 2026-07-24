@@ -92,6 +92,19 @@ describe('Type-level API contracts', () => {
     >().toEqualTypeOf<never>();
   });
 
+  test('controls expose history as read-only', () => {
+    const controls = createTravels({ count: 0 }).getControls();
+
+    expectTypeOf(controls.getHistory()).toEqualTypeOf<
+      readonly { count: number }[]
+    >();
+
+    if (false) {
+      // @ts-expect-error history snapshots are shared read-only cache entries
+      controls.getHistory().push({ count: 1 });
+    }
+  });
+
   test('manual controls archive accepts metadata', () => {
     const travels = createTravels({ count: 0 }, { autoArchive: false });
 

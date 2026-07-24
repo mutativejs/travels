@@ -306,7 +306,7 @@ export interface TravelsControls<
   /**
    * Get the history of the state
    */
-  getHistory: () => Value<S, F>[];
+  getHistory: () => readonly Value<S, F>[];
   /**
    * The patches of the history
    */

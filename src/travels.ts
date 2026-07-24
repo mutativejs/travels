@@ -2610,7 +2610,7 @@ export class Travels<
       get position(): number {
         return self.getPosition();
       },
-      getHistory: () => self.getHistory() as Value<S, F>[],
+      getHistory: () => self.getHistory(),
       get patches(): TravelPatches<P> {
         return self.getPatches();
       },
