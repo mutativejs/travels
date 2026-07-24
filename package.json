@@ -46,6 +46,7 @@
     "e2e:serve": "vite e2e/fixtures/travels-app",
     "test:examples": "tsc --project tsconfig.examples.json",
     "test:types": "tsc --noEmit --skipLibCheck",
+    "test:mutation:smoke": "node scripts/mutation-smoke.js",
     "coverage": "vitest run --dir test --coverage",
     "benchmark:real": "pnpm --dir benchmarks run test:real",
     "benchmark:matrix": "pnpm run build && NODE_ENV=production node --expose-gc benchmarks/matrix-benchmark.js",
