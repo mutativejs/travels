@@ -34,7 +34,7 @@ describe('Edge Cases Coverage', () => {
   });
 
   test('blocks reentrant mutations from warning observers', () => {
-    let travels: ReturnType<typeof createTravels<{ count: number }>>;
+    let travels!: Travels<{ count: number }>;
     let reentrantError: unknown;
     travels = createTravels(
       { count: 0 },
