@@ -2636,9 +2636,7 @@ export class Travels<
     if (issues.length > 0) {
       throw new TravelsTypeError(
         'PERSISTENCE_INCOMPATIBLE',
-        `Travels: persistence compatibility check failed:
-- ${issues.join('
-- ')}`
+        `Travels: persistence compatibility check failed:\n- ${issues.join('\n- ')}`
       );
     }
   }
