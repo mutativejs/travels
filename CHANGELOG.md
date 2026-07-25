@@ -2,13 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [2.2.0] - 2026-07-25
 
-Target release: **2.2.0**. The hardening below tightens contracts, but every
-tightening is scoped either to `createTravelJournal()`, added in 2.1.0, or to
-history data Travels itself never produced. Nothing changes for state,
-navigation, transactions, or persistence written by 2.x. See Behavior Changes
-for the two cases that can reject input a 2.1.x program supplied.
+The hardening below tightens contracts, but every tightening is scoped either
+to `createTravelJournal()`, added in 2.1.0, or to history data Travels itself
+never produced. Nothing changes for state, navigation, transactions, or
+persistence written by 2.x. See Behavior Changes for the two cases that can
+reject input a 2.1.x program supplied.
 
 ### Behavior Changes
 
