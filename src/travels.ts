@@ -2394,7 +2394,9 @@ export class Travels<
       get position(): number {
         return self.getPosition();
       },
-      getHistory: () => self.getHistory() as readonly Value<S, F>[],
+      // The cache is frozen in development; the mutable signature is kept for
+      // the 2.x line only because downstream controls types re-export it.
+      getHistory: () => self.getHistory() as Value<S, F>[],
       getHistorySnapshot: () => self.getHistorySnapshot() as Value<S, F>[],
       get patches(): TravelPatches<P> {
         return self.getPatches();

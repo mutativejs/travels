@@ -125,20 +125,29 @@ describe('Type-level API contracts', () => {
     >().toEqualTypeOf<never>();
   });
 
-  test('controls expose history as read-only', () => {
+  test('controls history keeps the 2.x mutable signature', () => {
     const controls = createTravels({ count: 0 }).getControls();
 
-    expectTypeOf(controls.getHistory()).toEqualTypeOf<
-      readonly { count: number }[]
-    >();
+    // Tightening this to `readonly` propagates through use-travel and
+    // zustand-travel, which re-export the controls types under a
+    // `travels: ^2.1.0` peer range. It is deferred to 3.0.0, so the 2.x line
+    // has to keep accepting assignment to a mutable array type.
+    expectTypeOf(controls.getHistory()).toEqualTypeOf<{ count: number }[]>();
+    const assignable: { count: number }[] = controls.getHistory();
+    expectTypeOf(assignable).toEqualTypeOf<{ count: number }[]>();
+
+    // getHistorySnapshot() is the array callers may actually keep or change.
     expectTypeOf(controls.getHistorySnapshot()).toEqualTypeOf<
       { count: number }[]
     >();
+  });
 
-    if (false) {
-      // @ts-expect-error history snapshots are shared read-only cache entries
-      controls.getHistory().push({ count: 1 });
-    }
+  test('the instance history method stays read-only', () => {
+    const travels = createTravels({ count: 0 });
+
+    expectTypeOf(travels.getHistory()).toEqualTypeOf<
+      readonly { count: number }[]
+    >();
   });
 
   test('manual controls archive accepts metadata', () => {

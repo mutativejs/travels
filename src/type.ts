@@ -427,9 +427,17 @@ export interface TravelsControls<
    */
   position: number;
   /**
-   * Get the shared read-only history cache.
+   * Get the shared history cache.
+   *
+   * @remarks
+   * The returned array is Travels' internal cache and is frozen in
+   * development, so treat it and its entries as read-only even though the
+   * type does not say so. The signature stays mutable through the 2.x line
+   * because it is re-exported into downstream controls types; it becomes
+   * `readonly` in 3.0.0. Use {@link getHistorySnapshot} when you need an
+   * array you can keep or change.
    */
-  getHistory: () => readonly Value<S, F>[];
+  getHistory: () => Value<S, F>[];
   /**
    * Get fully detached durable history snapshots.
    */
