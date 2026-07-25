@@ -41,7 +41,7 @@
     "test": "vitest run",
     "test:core": "vitest run --dir test",
     "test:browser": "vitest run --dir test test/browser-environment.test.ts --environment jsdom",
-    "test:e2e:types": "tsc --project tsconfig.e2e.json",
+    "test:e2e:types": "pnpm run build && tsc --project tsconfig.e2e.json",
     "test:e2e": "pnpm run build && playwright test",
     "test:e2e:ci": "playwright test",
     "e2e:serve": "vite e2e/fixtures/travels-app",

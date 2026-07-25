@@ -28,11 +28,6 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run test:types
       - run: pnpm run test:examples
-      # The e2e fixtures import `travels` by package name, so its
-      # declarations have to exist before they can be type-checked. Before CI
-      # was split into parallel jobs, size:ci built them earlier in the same
-      # job; this one has to build them itself.
-      - run: pnpm run build
       - run: pnpm run test:e2e:types
 
   unit:

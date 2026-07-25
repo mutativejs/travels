@@ -34,7 +34,8 @@ reject input a 2.1.x program supplied.
 - Validate controlled journal patch entries with the same accessor-safe structural rules used by persisted history, including paired forward/inverse entries and safe durable paths.
 - Detach controlled navigation transitions before invoking the external owner so callback mutation cannot rewrite retained history.
 - Validate externally committed and externally applied controlled state in development builds before changing the internal cursor or state reference. Production relies on the checks `serialize()`, `rebase()`, and `getHistorySnapshot()` run in every build; see Changed.
-- Keep release workflow dependencies valid after splitting verification jobs.
+- Repair the release workflow's job graph after splitting verification jobs, and drop an unsupported `concurrency` key.
+- Build the package declarations from `test:e2e:types` itself. The e2e fixtures import `travels` by package name, so the script needs `dist/index.d.ts`, and it was the only script needing `dist` that did not build it. A build happened to precede it inside the single pre-split job; afterwards both workflows ran it with none, and the step failed on any clean checkout.
 - Reject empty or one-sided retained history entries during structural restore and initial-history validation.
 - Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
 - Revalidate patchable-factory inputs at runtime while accepting recursive interface-shaped durable state types.
