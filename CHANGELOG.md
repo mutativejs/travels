@@ -4,18 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-Target release: **3.0.0**. The hardening work below tightens contracts that
-2.x accepted, so several changes reject input or fail builds that previously
-succeeded. See Breaking Changes for the migration.
+Target release: **2.2.0**. The hardening below tightens contracts, but every
+tightening is scoped either to `createTravelJournal()`, added in 2.1.0, or to
+history data Travels itself never produced. Nothing changes for state,
+navigation, transactions, or persistence written by 2.x. See Behavior Changes
+for the two cases that can reject input a 2.1.x program supplied.
 
-### Breaking Changes
+### Behavior Changes
 
-- `TravelsControls.getHistory()` is typed `readonly Value<S, F>[]` instead of `Value<S, F>[]`. Callers that assigned the result to a mutable array type, or called mutating array methods on it, need to copy it first or use the new `getHistorySnapshot()`. The runtime value was already a shared cache and was already frozen in development.
-- Controlled journals reject patch values that cannot be detached without changing their runtime type, with code `UNCLONEABLE_PATCH_VALUE`. Class instances, accessor-backed values, `Map`, `Set`, and other non-plain objects in `recordPatches()` entries or navigation transitions now throw where 2.x accepted them or reported them as `UNSUPPORTED_STATE`. Normalize such values to plain data before recording them.
-- Empty and one-sided retained history entries are rejected. `Travels.deserialize()` throws on them, and `initialPatches` containing them falls back to empty history with a warning unless `strictInitialPatches: true` makes it throw. Persisted histories that were hand-built or written by a third party may contain such entries; the schema version is unchanged because Travels itself never produced them.
+- Controlled journals reject patch values that cannot be detached without changing their runtime type, with code `UNCLONEABLE_PATCH_VALUE`. Class instances, accessor-backed values, `Map`, `Set`, and other non-plain objects in `recordPatches()` entries or navigation transitions now throw. 2.1.0 accepted them and structured-cloned them, which dropped the prototype: a recorded class instance replayed as a plain object with its methods gone. The rejection replaces that silent corruption. This affects only `createTravelJournal()`; normalize such values to plain data before recording them.
+- Empty and one-sided retained history entries are rejected. `Travels.deserialize()` throws on them, and `initialPatches` containing them falls back to empty history unless `strictInitialPatches: true` makes it throw. The schema version is unchanged because Travels never produced such entries; only hand-built or third-party histories can contain them.
 - Warning text for invalid `go()` positions and for `archive()` under auto archive changed. Prefer the new structured `onWarning` callback and its stable `TravelsWarningCode` over matching console output.
-- `main` now resolves to the CJS build and `module` to the ESM build, where 2.x pointed `main` at ESM. Bundlers and runtimes that read `main` without honoring `exports` receive CommonJS instead of ESM.
-- The package declares `engines.node >= 20`.
+- `main` now resolves to the CJS build and `module` to the ESM build, where 2.x pointed `main` at ESM. A resolver that reads `main` without honoring `exports` previously received ESM through a CommonJS entry point; it now receives CommonJS.
+- The package declares `engines.node >= 20`, matching the versions 2.1.0 already tested.
+
+### Deferred to 3.0.0
+
+- `TravelsControls.getHistory()` keeps its `Value<S, F>[]` signature. The runtime returns a frozen shared cache, so the accurate type is `readonly Value<S, F>[]`, but `use-travel` and `zustand-travel` re-export the controls types under a `travels: ^2.1.0` peer range, and a minor release would change their published API without anyone opting in. Use `getHistorySnapshot()` for an array you can keep or change; the signature tightens in 3.0.0.
 
 ### Added
 
@@ -29,7 +34,7 @@ succeeded. See Breaking Changes for the migration.
 - Validate controlled journal patch entries with the same accessor-safe structural rules used by persisted history, including paired forward/inverse entries and safe durable paths.
 - Detach controlled navigation transitions before invoking the external owner so callback mutation cannot rewrite retained history.
 - Validate externally committed and externally applied controlled state before changing the internal cursor or state reference.
-- Keep controls history read-only while preserving frozen-state value typing.
+- Preserve frozen-state value typing through the controls history accessor.
 - Keep release workflow dependencies valid after splitting verification jobs.
 - Reject empty or one-sided retained history entries during structural restore and initial-history validation.
 - Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
