@@ -270,15 +270,28 @@ Remove all past and future history and make the current state as the new initial
 
 #### `getHistory(): readonly S[]`
 
-Returns the complete history of states as an array.
+Returns the complete history of states as an array. Use it to read the timeline: render it, map it, measure it, index into it.
 
 > **IMPORTANT**: Treat the returned array and every state entry as read-only. They are cached internally.
 > In development mode, only the array container is frozen; the state entries are shared cached snapshots and are not deep-frozen.
 > In production mode, modifying the array or any entry will corrupt the cache.
 
+The same array is reachable through `getControls().getHistory()`, where it is still typed `S[]` rather than `readonly S[]`. That signature is kept for the 2.x line because `use-travel` and `zustand-travel` re-export the controls types under a `travels: ^2.1.0` peer range; it tightens in 3.0.0. The runtime value is the frozen cache in both cases, so treat it as read-only regardless of what the type permits.
+
 #### `getHistorySnapshot(): S[]`
 
-Returns a new array of fully detached history states. This is the safe choice when callers need to mutate, transfer, or retain snapshots independently of Travels' internal reconstruction cache. The method fails with `PERSISTENCE_INCOMPATIBLE` when a history state contains functions, class instances, circular references, or another runtime-only value that cannot be detached without changing semantics.
+Returns a new array of fully detached history states, and is the method to reach for whenever the array outlives the read: keeping it in component state, sorting or otherwise reordering it, posting it to a worker, or handing it to code that expects to own its input. Nothing it returns is shared with the cache, so later edits to Travels cannot change it and edits to it cannot corrupt Travels.
+
+The method fails with `PERSISTENCE_INCOMPATIBLE` when a history state contains functions, class instances, circular references, or another runtime-only value that cannot be detached without changing semantics. A history that cannot be detached is also a history that cannot be persisted, so the failure is the same signal `serialize()` gives.
+
+```ts
+// Reading the timeline: getHistory() is enough.
+const labels = travels.getHistory().map((state) => state.title);
+
+// Keeping or reshaping it: take a snapshot first.
+const [timeline, setTimeline] = useState(() => travels.getHistorySnapshot());
+const newestFirst = travels.getHistorySnapshot().reverse();
+```
 
 #### `getPosition(): number`
 
