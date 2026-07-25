@@ -33,8 +33,7 @@ for the two cases that can reject input a 2.1.x program supplied.
 
 - Validate controlled journal patch entries with the same accessor-safe structural rules used by persisted history, including paired forward/inverse entries and safe durable paths.
 - Detach controlled navigation transitions before invoking the external owner so callback mutation cannot rewrite retained history.
-- Validate externally committed and externally applied controlled state before changing the internal cursor or state reference.
-- Preserve frozen-state value typing through the controls history accessor.
+- Validate externally committed and externally applied controlled state in development builds before changing the internal cursor or state reference. Production relies on the checks `serialize()`, `rebase()`, and `getHistorySnapshot()` run in every build; see Changed.
 - Keep release workflow dependencies valid after splitting verification jobs.
 - Reject empty or one-sided retained history entries during structural restore and initial-history validation.
 - Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
@@ -51,7 +50,7 @@ for the two cases that can reject input a 2.1.x program supplied.
 - Reconstruct and detach history through a focused internal history view instead of keeping cache logic in the main orchestrator.
 - Build, smoke-test, upload, and publish the same npm tarball artifact across release jobs.
 - Scan externally owned state for unsupported collections as a development diagnostic instead of on every controlled commit and navigation in every build. `serialize()`, `rebase()`, and `getHistorySnapshot()` validate the state independently in all builds, and controlled patch values are still validated in all builds, so production keeps the durability guarantees without the per-transition full scan. In development the scan is narrowed by the shared collection cache and the sub-trees each transition writes, with a reused state reference still triggering a full rescan.
-- Raise the package size budgets to match the hardened bundles. Production bundles grow from 39.7 KiB raw / 10.9 KiB gzip on 2.1.0 to 49.3 / 13.4, and development-only timeline invariants are eliminated from production builds.
+- Raise the package size budgets to match the hardened bundles. Production bundles grow from 39.7 KiB raw / 10.9 KiB gzip on 2.1.0 to 48.2 / 13.3, and development-only timeline invariants are eliminated from production builds.
 
 ### Performance
 
