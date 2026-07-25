@@ -44,6 +44,24 @@ const importRules = {
   'import/no-unresolved': 'off',
 };
 
+/**
+ * Resolver settings shared by both language blocks.
+ *
+ * The plain `node` resolver cannot follow a dependency's own dependencies
+ * under pnpm's non-hoisted layout: `vue` re-exports its public API from
+ * `@vue/runtime-dom`, which exists only inside `.pnpm`, so import/named
+ * reported every named Vue import as missing. That failure never appeared in
+ * a working tree whose node_modules had been hoisted by an earlier install,
+ * only on a clean `--frozen-lockfile` install. The TypeScript resolver reads
+ * the real paths and resolves the re-export chain.
+ */
+const importSettings = {
+  'import/resolver': {
+    typescript: { alwaysTryTypes: true },
+    node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+  },
+};
+
 const sharedRules = {
   'class-methods-use-this': 'off',
   'max-classes-per-file': 'off',
@@ -74,11 +92,7 @@ export default [
     plugins: {
       import: importPlugin,
     },
-    settings: {
-      'import/resolver': {
-        node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
-      },
-    },
+    settings: importSettings,
     rules: {
       ...js.configs.recommended.rules,
       ...importRules,
@@ -100,11 +114,7 @@ export default [
       '@typescript-eslint': tsPlugin,
       import: importPlugin,
     },
-    settings: {
-      'import/resolver': {
-        node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
-      },
-    },
+    settings: importSettings,
     rules: {
       ...js.configs.recommended.rules,
       // Turns off the base rules that TypeScript itself already enforces or

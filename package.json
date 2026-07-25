@@ -95,6 +95,7 @@
     "commitizen": "^4.3.0",
     "dexie": "4.4.2",
     "eslint": "^9.3.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.29.1",
     "fast-check": "^4.7.0",
     "idb": "8.0.3",
