@@ -137,7 +137,8 @@ jobs:
       - name: Publish tested package artifact
         run: |
           sha256sum release-artifact/travels.tgz
-          npm publish release-artifact/travels.tgz
+          # Keep ./ so npm treats this as a local tarball, not a GitHub shorthand.
+          npm publish ./release-artifact/travels.tgz
         env:
           CI: true
 
