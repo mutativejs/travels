@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.2.0] - 2026-07-25
+## [2.2.0] - 2026-07-26
 
 The hardening below tightens contracts, but every tightening is scoped either
 to `createTravelJournal()`, added in 2.1.0, or to history data Travels itself
@@ -38,6 +38,7 @@ reject input a 2.1.x program supplied.
 - Build the package declarations from `test:e2e:types` itself. The e2e fixtures import `travels` by package name, so the script needs `dist/index.d.ts`, and it was the only script needing `dist` that did not build it. A build happened to precede it inside the single pre-split job; afterwards both workflows ran it with none, and the step failed on any clean checkout.
 - Reject empty or one-sided retained history entries during structural restore and initial-history validation.
 - Reject controlled patch values that cannot be detached without changing runtime semantics, and preserve aliases within detached patch graphs.
+- Carry `Object.freeze()`, `Object.seal()`, and `Object.preventExtensions()` across a detached controlled patch value. Copying descriptors reproduced `writable` and `configurable` for properties that already existed but left the clone extensible, so a frozen value replayed to the external owner as one it could add properties to. Persistence snapshots from `getPatches()` still normalize integrity, which JSON cannot carry either.
 - Revalidate patchable-factory inputs at runtime while accepting recursive interface-shaped durable state types.
 - Realign restored metadata with restored history in `reset()`, which threw the timeline metadata invariant for instances rehydrated through `initialPatches` without metadata.
 - Stop publishing the per-module JavaScript tsc emits for `src/internal/`. The build's intermediate cleanup only walked the `dist` root, so six unbundled modules and their source maps shipped alongside the real entry points, adding 15 KiB packed and 69 KiB unpacked.

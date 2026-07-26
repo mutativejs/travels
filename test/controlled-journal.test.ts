@@ -742,3 +742,105 @@ describe('controlled journal state validation boundaries', () => {
     ).toThrow('cannot be safely detached');
   });
 });
+
+describe('controlled journal detached value integrity', () => {
+  const integrityOf = (value: unknown) => ({
+    frozen: Object.isFrozen(value),
+    sealed: Object.isSealed(value),
+    extensible: Object.isExtensible(value),
+  });
+
+  // Assertions stay on the operations Travels hands back to the owner. What
+  // the owner's own apply() rebuilds from them is mutative's business: it
+  // re-materializes patch values instead of writing the given reference
+  // through, so the resulting state is not Travels' to preserve.
+  const recordAndReplay = (source: object) => {
+    let owned: { value: unknown } = { value: null };
+    let replayed: unknown;
+    const journal = createTravelJournal<{ value: unknown }>(owned, {
+      warnOnUnsupportedState: false,
+      apply: ({ patches }) => {
+        replayed = (patches[0] as { value?: unknown }).value;
+        owned = apply(owned, patches) as { value: unknown };
+        return owned;
+      },
+    });
+    journal.recordPatches(
+      { value: source },
+      {
+        patches: [{ op: 'replace', path: ['value'], value: source }],
+        inversePatches: [{ op: 'replace', path: ['value'], value: null }],
+      }
+    );
+    journal.back();
+    journal.forward();
+    return { journal, replayed };
+  };
+
+  test.each([
+    ['a frozen object', () => Object.freeze({ value: 1 })],
+    ['a sealed object', () => Object.seal({ value: 1 })],
+    ['a non-extensible object', () => Object.preventExtensions({ value: 1 })],
+    ['a frozen array', () => Object.freeze([1, 2])],
+    ['an ordinary object', () => ({ value: 1 })],
+  ])('replays %s with its integrity intact', (_label, build) => {
+    const source = build() as object;
+
+    const { replayed } = recordAndReplay(source);
+
+    expect(integrityOf(replayed)).toEqual(integrityOf(source));
+    expect(replayed).toEqual(source);
+    // Carrying the integrity over must not degrade into reusing the original.
+    expect(replayed).not.toBe(source);
+  });
+
+  test('replays a frozen graph that references itself', () => {
+    const source: Record<string, unknown> = { value: 1 };
+    source.self = source;
+    Object.freeze(source);
+
+    // This owner returns its state untouched rather than replaying through
+    // mutative, whose deepClone recurses forever on a cycle. The subject here
+    // is the operation Travels detaches, not what an owner could rebuild.
+    let replayed: unknown;
+    const owned = { value: source };
+    const journal = createTravelJournal<{ value: unknown }>(owned, {
+      warnOnUnsupportedState: false,
+      apply: ({ state, patches }) => {
+        replayed = (patches[0] as { value?: unknown }).value;
+        return state;
+      },
+    });
+    journal.recordPatches(owned, {
+      patches: [{ op: 'replace', path: ['value'], value: source }],
+      inversePatches: [{ op: 'replace', path: ['value'], value: null }],
+    });
+    journal.back();
+    journal.forward(); // the forward operation is the one carrying the graph
+
+    const clone = replayed as Record<string, unknown>;
+    // Freezing has to happen after the cycle is wired, or defining `self`
+    // on an already-frozen clone would have thrown.
+    expect(Object.isFrozen(clone)).toBe(true);
+    expect(clone.self).toBe(clone);
+    expect(clone).not.toBe(source);
+    expect(clone.value).toBe(1);
+  });
+
+  test('normalizes integrity in persistence snapshots', () => {
+    const source = Object.freeze({ value: 1 });
+
+    const { journal } = recordAndReplay(source);
+    const snapshot = journal.getPatches().patches[0][0].value;
+
+    // getPatches() answers for persistence, where integrity cannot survive a
+    // JSON round trip anyway, so it clones through the lenient path and hands
+    // back an ordinary object. Only the replay boundary above preserves it.
+    expect(integrityOf(snapshot)).toEqual({
+      frozen: false,
+      sealed: false,
+      extensible: true,
+    });
+    expect(snapshot).toEqual(source);
+  });
+});

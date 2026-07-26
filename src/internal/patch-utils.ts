@@ -129,6 +129,40 @@ const getClonePrototype = (value: object, path: string): object | null => {
   }
 };
 
+/**
+ * Carry the source's extensibility over to its clone.
+ *
+ * Copying descriptors reproduces `writable` and `configurable` for properties
+ * that already exist, but says nothing about whether new ones may be added, so
+ * a frozen source would otherwise detach into an extensible clone. Apply this
+ * only once the clone's own properties are in place, because each of these
+ * calls forbids the definitions that follow.
+ */
+const preserveClonedIntegrity = (
+  source: object,
+  target: object,
+  path: string
+): void => {
+  try {
+    // Extensibility is a single flag, while isFrozen and isSealed each walk
+    // every own property. An extensible source can be neither, so the ordinary
+    // case settles here instead of paying for two property scans per object.
+    if (Object.isExtensible(source)) {
+      return;
+    }
+
+    if (Object.isFrozen(source)) {
+      Object.freeze(target);
+    } else if (Object.isSealed(source)) {
+      Object.seal(target);
+    } else {
+      Object.preventExtensions(target);
+    }
+  } catch (error) {
+    throw uncloneablePatchValue(path, error);
+  }
+};
+
 const cloneDetachedPatchValue = (
   value: unknown,
   seen: WeakMap<object, unknown>,
@@ -165,6 +199,7 @@ const cloneDetachedPatchValue = (
         value: value.length,
       });
     }
+    preserveClonedIntegrity(value, cloned, path);
     return cloned;
   }
 
@@ -175,6 +210,7 @@ const cloneDetachedPatchValue = (
     const cloned = new Date(value.getTime());
     seen.set(value, cloned);
     cloneDetachedDataProperties(value, cloned, seen, path);
+    preserveClonedIntegrity(value, cloned, path);
     return cloned;
   }
 
@@ -183,6 +219,7 @@ const cloneDetachedPatchValue = (
     const cloned = Object.create(prototype) as Record<PropertyKey, unknown>;
     seen.set(value, cloned);
     cloneDetachedDataProperties(value, cloned, seen, path);
+    preserveClonedIntegrity(value, cloned, path);
     return cloned;
   }
 
