@@ -10,7 +10,8 @@ Travels gives your users the power to undo and redo their actions—essential fo
 
 Works with React, Vue, Zustand, or vanilla JavaScript.
 
-## Table of Contents
+<details>
+<summary><b>Table of Contents</b></summary>
 
 - [Why Travels? Performance That Scales](#why-travels-performance-that-scales)
 - [Choosing the Right Undo Strategy](#choosing-the-right-undo-strategy)
@@ -32,6 +33,8 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
 - [Maintenance](#maintenance)
 - [Related Projects](#related-projects)
 - [License](#license)
+
+</details>
 
 ## Why Travels? Performance That Scales
 
@@ -57,6 +60,9 @@ Travels is not designed to be the fastest possible choice for every hot path. Sn
 | Large state, small updates, long history, persistence, or operation logs | Travels                                                |
 | Collaborative editing, conflict merging, or concurrent multi-user state  | CRDT/OT system; Travels alone does not solve conflicts |
 
+<details>
+<summary><b>Travels fit by priority (trade-off table)</b></summary>
+
 | Priority                                                                   | Travels fit              | Trade-off                                                                                           |
 | -------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------- |
 | Minimize serialized history size                                           | Strong                   | Patch history is compact for small changes to large state                                           |
@@ -64,6 +70,8 @@ Travels is not designed to be the fastest possible choice for every hot path. Sn
 | Lowest setState/undo/redo latency for tiny state                           | Usually not the best fit | Patch generation and patch application add overhead                                                 |
 | Large replace-everything updates                                           | Scenario-dependent       | Large patches can approach snapshot costs                                                           |
 | Framework integration                                                      | Strong                   | Use immutable mode by default; use mutable mode for reactive stores that require identity stability |
+
+</details>
 
 For current benchmark numbers and caveats, see [`benchmarks/README.md`](benchmarks/README.md). The benchmark results intentionally separate hot-path latency from persistence costs because those trade-offs decide whether patch-based history is the right tool.
 
@@ -151,6 +159,9 @@ Creates a new Travels instance.
 
 **Parameters:**
 
+<details>
+<summary><b>All options</b></summary>
+
 | Parameter                | Type           | Description                                                                                                                                                                                                                              | Default                          |
 | ------------------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `initialState`           | S              | Your application's starting state (see [state compatibility](#state-requirements-and-compatibility))                                                                                                                                     | (required)                       |
@@ -171,6 +182,8 @@ Creates a new Travels instance.
 | `enableAutoFreeze`       | boolean        | Prevent accidental state mutations outside setState ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                                                        | false                            |
 | `strict`                 | boolean        | Enable stricter immutability checks ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                                                                        | false                            |
 | `mark`                   | Mark<O, F>[]   | Mark certain objects as immutable ([learn more](https://github.com/unadlib/mutative?tab=readme-ov-file#createstate-fn-options))                                                                                                          | () => void                       |
+
+</details>
 
 **Returns:** `Travels<S, F, A>` - A Travels instance
 
@@ -209,6 +222,9 @@ Metadata is included in persisted snapshots. Keep custom metadata values in the 
 
 Subscribe to state changes. Returns an unsubscribe function.
 
+<details>
+<summary><b>Event envelope and observer guarantees</b></summary>
+
 Each notification creates one shallow-frozen event envelope shared by all
 listeners and the devtools hook. `event.patches` is the event-local
 forward/inverse delta from the previously published state to `event.state`.
@@ -234,6 +250,8 @@ failed transactions publish neither provisional changes nor rollback
 compensation events. `onBranchDiscard` likewise reports only redo entries that
 were visible before the root transaction and are absent after commit, never
 branches created and discarded entirely inside the transaction.
+
+</details>
 
 **Parameters:**
 
@@ -359,6 +377,10 @@ travels.transaction({ label: 'Move Selection' }, () => {
 `batch(...)` is an alias for `transaction(...)`.
 
 Transaction callbacks must also be synchronous. A rejected asynchronous callback rolls the transaction back and reports a `TravelsError` through `onError` when configured.
+
+<details>
+<summary><b>Transaction semantics: nesting, errors, and mutable mode</b></summary>
+
 Nested changes remain private until the root transaction commits, so listeners
 and devtools never observe states that are later rolled back. Branch-discard
 hooks also omit redo entries created only by provisional transaction steps.
@@ -372,6 +394,8 @@ the transaction journal and survive rollback. Route every change that must be
 atomic through `travels.setState(...)`; framework observers bound directly to
 the live object may still observe in-place mutations before the root
 transaction settles even though Travels listeners and devtools do not.
+
+</details>
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 
@@ -408,7 +432,8 @@ The `maxHistory` option limits how many history entries (patches) are kept in me
 - `reset()` can always return to the true initial state, regardless of history trimming
 - Invalid values throw immediately: `maxHistory` must be a non-negative integer
 
-**Example: Understanding the history window**
+<details>
+<summary><b>Example: Understanding the history window</b></summary>
 
 If you set `maxHistory: 3` and make 5 increments, here's what happens:
 
@@ -460,6 +485,8 @@ controls.reset();
 expect(travels.getState().count).toBe(0); // Back to the original initial state
 ```
 
+</details>
+
 ## Controlled Journal: Integrate an External State Owner
 
 Use `createTravelJournal()` when a store, state machine, worker, or other
@@ -499,7 +526,8 @@ commit((draft) => {
 journal.back();
 ```
 
-The external owner remains authoritative:
+<details>
+<summary><b>Contract: what the external owner must guarantee</b></summary>
 
 - `recordPatches(state, entry)` must receive the committed post-update state
   and the exact forward/inverse patch pair for that transition. Travels
@@ -519,6 +547,8 @@ The external owner remains authoritative:
   names, so consumers should keep a `default` branch. Standard
   `createTravels()` use never emits `recordPatches`.
 
+</details>
+
 See the [Controlled Journal Guide](docs/controlled-journal.md) for the complete
 commit, navigation, failure, and trust-boundary contract.
 
@@ -534,7 +564,8 @@ commit, navigation, failure, and trust-boundary contract.
 
 Stick with the default immutable mode for reducer-driven stores (Redux, Zustand) where replacing the root object is the norm.
 
-### Behavior at a Glance
+<details>
+<summary><b>Behavior at a Glance</b></summary>
 
 - `setState` keeps the reference stable as long as the current state root is an object. Primitive roots (number, string, `null`) trigger an automatic immutable fallback plus a dev warning.
 - Function updaters that return a brand-new root (root replacement) also fall back to immutable assignment in mutable mode, with a dev warning.
@@ -545,6 +576,8 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
 - `getHistory()` reconstructs and caches snapshots from the stored patches. Treat the returned array and every entry as read-only; they are not reactive proxies.
 - `subscribe` listeners receive the live mutable object as `event.state`, so `event.state === travels.getState()` stays true.
+
+</details>
 
 ### Example: Pinia/Vue Store
 
@@ -570,7 +603,8 @@ export const useTodosStore = defineStore('todos', () => {
 
 Vue components keep using the original `state` reference while Travels tracks history and provides `controls` for undo/redo.
 
-### Limitations & Tips
+<details>
+<summary><b>Limitations & Tips</b></summary>
 
 **Compatibility Requirements:**
 
@@ -581,6 +615,8 @@ Mutable mode has the same supported-state contract as immutable mode. Map and Se
 - If you often replace the entire root object (e.g., `setState(() => newState)`) the library has to fall back to immutable jumps when navigating history. Prefer mutating the provided draft to keep reference sharing.
 - You can inspect `travels.mutable` at runtime to verify which mode is active.
 - See [`docs/mutable-mode.md`](docs/mutable-mode.md) for a deep dive, integration checklists, and troubleshooting tips.
+
+</details>
 
 ## Archive Mode: Control When Changes Are Saved
 
@@ -656,6 +692,9 @@ Travels supports durable state: plain objects, dense arrays, strings, finite num
 
 When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
+<details>
+<summary><b>Full compatibility matrix</b></summary>
+
 | Value                                     | Immutable runtime                  | Mutable runtime                               | JSON persistence                  | Recommendation                                  |
 | ----------------------------------------- | ---------------------------------- | --------------------------------------------- | --------------------------------- | ----------------------------------------------- |
 | Plain object                              | Supported                          | Supported                                     | Supported                         | Preferred                                       |
@@ -673,6 +712,8 @@ When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its sta
 | Circular reference                        | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs                          |
 | DOM node, ref, observable instance body   | Not supported as durable state     | Not supported as durable state                | Not serializable                  | Store outside Travels state                     |
 | WeakMap / WeakSet                         | Not supported                      | Not supported                                 | Not serializable                  | Store outside Travels state                     |
+
+</details>
 
 TypeScript helpers are exported for users who want to enforce the durable subset in their own app code:
 
@@ -698,11 +739,16 @@ function createHistoryFor<S extends PatchableState>(state: S) {
 
 `PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set. `PatchableInput<T>` performs a finite-depth, best-effort static check so recursive interfaces remain usable; broad types such as `{}` cannot prove their contents from TypeScript alone. `createPatchableTravels()` therefore also validates the concrete initial value at runtime and throws `PERSISTENCE_INCOMPATIBLE` for Date, functions, custom instances, non-JSON numbers, collections, and other non-durable values. The regular runtime also fails fast when Map or Set is found in initial state, a newly generated patch payload, or restored history.
 
+<details>
+<summary><b>Diagnostics, metadata, and build-condition notes</b></summary>
+
 These value requirements cover retained patch payloads and custom metadata included by `serialize()`; paths independently obey the structural contract above. An old runtime-only value or path therefore remains relevant after it leaves current state. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses them.
 
 In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Map/Set rejection is a production invariant and is not disabled by `warnOnUnsupportedState: false`; that option controls diagnostics for the remaining compatibility hazards only.
 
 The published package ships the diagnostics through the `development` export condition: tools that resolve it (the Vite dev server, webpack with `mode: 'development'`, and other bundlers with development conditions enabled) load `dist/index.dev.*` bundles containing the full scanner, while the default and `require` entries stay diagnostic-free for production. Script-tag consumers of the UMD bundle always receive the production build.
+
+</details>
 
 ## Framework Integration
 
@@ -716,7 +762,8 @@ Runnable and copyable integration examples live in [`examples/`](examples/):
 - [`examples/canvas-editor.ts`](examples/canvas-editor.ts)
 - [`examples/local-first-persistence.ts`](examples/local-first-persistence.ts)
 
-### React Integration
+<details>
+<summary><b>React Integration</b></summary>
 
 ```jsx
 import { useSyncExternalStore } from 'react';
@@ -753,7 +800,10 @@ function Counter() {
 }
 ```
 
-### External Form Manager Integration
+</details>
+
+<details>
+<summary><b>External Form Manager Integration</b></summary>
 
 When a form manager or external store remains the single source of truth, Travels can stay as a pure history engine. In that setup, update Travels from the form layer with detached value snapshots, then apply undo/redo results back to the form by reading `travels.getState()` immediately after navigation. With `autoArchive: false`, you can decide when a set of form edits should become one undoable history step.
 
@@ -827,7 +877,10 @@ For `react-hook-form`, `getValues()` maps naturally to `form.getValues()`, and `
 
 This pattern is useful for integrations such as `react-hook-form`, custom form managers, or external stores where you want to avoid two reactive sources of truth. React can still render the form state, but Travels only records and replays history.
 
-### Zustand Integration
+</details>
+
+<details>
+<summary><b>Zustand Integration</b></summary>
 
 ```typescript
 import { create } from 'zustand';
@@ -850,7 +903,10 @@ travels.subscribe(({ state }) => {
 });
 ```
 
-### Vue Integration
+</details>
+
+<details>
+<summary><b>Vue Integration</b></summary>
 
 ```typescript
 import { ref, readonly } from 'vue';
@@ -875,6 +931,8 @@ export function useTravel(initialState, options) {
   };
 }
 ```
+
+</details>
 
 ## Persistence: Saving History to Storage
 
@@ -921,6 +979,9 @@ Every `Travels.deserialize(...)` call validates:
 - patch array shape
 - JSON Patch operation names and paths
 - position bounds
+
+<details>
+<summary><b>Validation semantics, error codes, and integrity notes</b></summary>
 
 Object-form snapshots follow the same shape produced by JSON. Top-level
 `version`, `state`, `patches`, `position`, and optional `metadata` fields, plus
@@ -1012,7 +1073,10 @@ identity, or revisions before calling `Travels.deserialize(...)` when the
 source requires integrity or provenance guarantees; select a known-safe
 snapshot when that external verification fails.
 
-Use `migrate` to upgrade older snapshots before validation:
+</details>
+
+<details>
+<summary><b>Migrating older snapshots (migrate)</b></summary>
 
 ```typescript
 import type { TravelsSerializedHistory } from 'travels';
@@ -1044,6 +1108,8 @@ const history = Travels.deserialize<typeof defaultState>(stored, {
   },
 });
 ```
+
+</details>
 
 For larger histories, store `JSON.stringify(travels.serialize())` in IndexedDB instead of localStorage. If storage size matters, compress the serialized string with a library such as `lz-string` before writing it, then decompress before calling `Travels.deserialize(...)`.
 
