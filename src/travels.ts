@@ -1013,7 +1013,7 @@ export class TravelsCore<
     let snapshot: ReadonlyTravelPatches<P> | undefined;
     const event: TravelsEvent<S, P> = {
       type,
-      state: this.state,
+      state: this.state as ReadonlyState<S>,
       position: this.position,
       historyLength: this.getVisibleHistoryLength(),
       get metadata() {

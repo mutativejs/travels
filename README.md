@@ -236,8 +236,10 @@ Subscribe to state changes. Returns an unsubscribe function.
 <summary><b>Event envelope and observer guarantees</b></summary>
 
 Each notification creates one shallow-frozen event envelope shared by all
-listeners and the devtools hook. Top-level metadata is cloned and frozen on
-first access. `event.patches` is the event-local
+listeners and the devtools hook. `event.state` is the borrowed live state and
+is exposed as `ReadonlyState<S>`; mutating it would bypass patch recording, so
+write only through Travels operations. Top-level metadata is cloned and frozen
+on first access. `event.patches` is the event-local
 forward/inverse delta from the previously published state to `event.state`.
 Root transactions compose their internal steps into one delta; operations that
 do not change state, such as `archive()` and `rebase()`, publish empty patch
@@ -596,7 +598,7 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
 - `getHistory()` reconstructs and caches snapshots from the stored patches. Treat the returned array and every entry as read-only; they are not reactive proxies.
-- `subscribe` listeners receive the live mutable object as `event.state`, so `event.state === travels.getState()` stays true.
+- `subscribe` listeners receive a read-only typed view of the live mutable object as `event.state`, so `event.state === travels.getState()` stays true. Mutate it only through Travels operations.
 
 </details>
 

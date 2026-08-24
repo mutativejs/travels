@@ -303,7 +303,8 @@ export type TravelsEvent<
    * The committed operation. Handle unrecognized values in a `default` branch.
    */
   readonly type: TravelsEventType;
-  readonly state: S;
+  /** Borrowed live state view. Mutate state only through Travels operations. */
+  readonly state: ReadonlyState<S>;
   readonly position: number;
   /**
    * Lazily materialized event-local patches that transform the previously

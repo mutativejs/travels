@@ -246,9 +246,12 @@ describe('Type-level API contracts', () => {
 
     travels.subscribe((event) => {
       expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+      expectTypeOf(event.state).toEqualTypeOf<ReadonlyState<State>>();
       expectTypeOf(event.patches).toEqualTypeOf<ReadonlyTravelPatches>();
 
       if (false) {
+        // @ts-expect-error event state is a borrowed read-only view
+        event.state.count = 1;
         // @ts-expect-error event patch groups are shared read-only views
         event.patches.patches.push([]);
         // @ts-expect-error individual event patch groups are read-only

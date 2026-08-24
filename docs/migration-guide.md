@@ -54,6 +54,7 @@ throw when called.
 instance and controls surfaces, so both the shared array and its entries are
 read-only in TypeScript. `TravelsControls` properties and methods are read-only
 and the controls object is frozen in every build. Observer events expose
+state as a borrowed `ReadonlyState<S>` view and patches as
 `ReadonlyTravelPatches`; their lazily materialized patch containers, groups,
 operations, and array paths are also frozen.
 
