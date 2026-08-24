@@ -84,6 +84,48 @@ const travels = restoreTravels(history);
 Malformed snapshots now throw rather than being discarded. Use
 `Travels.deserialize(..., { fallback })` when recovery is intentional.
 
+### Upgrade the official bindings
+
+`use-travel@3` creates component-owned timelines through `createTravels()`.
+For a restored shared timeline, restore outside React and pass the instance to
+`useTravelStore()`:
+
+```ts
+const snapshot = Travels.deserialize<State>(stored);
+const timeline = restoreTravels(snapshot);
+
+function Editor() {
+  const [state, setState, controls] = useTravelStore(timeline);
+  // ...
+}
+```
+
+`zustand-travel@3` accepts the same pre-created instance as its exclusive
+`timeline` option. The initializer still defines action functions; the supplied
+timeline owns the data baseline:
+
+```ts
+const snapshot = Travels.deserialize<State>(stored);
+const timeline = restoreTravels(snapshot);
+
+const useStore = create<State & Actions>()(
+  travel(
+    (set) => ({
+      ...defaultState,
+      updateTitle: (title) =>
+        set((state) => {
+          state.title = title;
+        }),
+    }),
+    { timeline }
+  )
+);
+```
+
+Both binding v3 packages accept `travels@^2.2.0 || ^3.0.0` so package upgrades
+can be staged. The examples above require Travels 3 because Travels 2 does not
+export `restoreTravels()`.
+
 ### Update observer and runtime compatibility
 
 Use `TravelsEvent` for both subscribers and devtools. The deprecated

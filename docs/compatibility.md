@@ -19,6 +19,22 @@ Travels targets modern browsers that support the required standard JavaScript an
 
 `mutative` is a peer dependency and is supported at `^1.3.0`. The test suite runs against the repository's pinned development version.
 
+## Official Bindings
+
+The v3 official bindings use the public factory capability instead of the
+internal constructor:
+
+| Binding          | Binding version | Supported Travels versions | Restored timeline handoff                        |
+| ---------------- | --------------- | -------------------------- | ------------------------------------------------ |
+| `use-travel`     | `3.x`           | `^2.2.0 \|\| ^3.0.0`       | `restoreTravels(snapshot)` then `useTravelStore` |
+| `zustand-travel` | `3.x`           | `^2.2.0 \|\| ^3.0.0`       | `travel(initializer, { timeline })`              |
+
+The dual peer range permits a staged package rollout; it does not bring the
+Travels 3 restore API to a Travels 2 installation. Applications using the new
+atomic snapshot path must install `travels@3`. Binding-owned timelines remain
+immutable, and the bindings reject the removed split restore options rather
+than silently discarding them.
+
 ## State Compatibility
 
 State, retained patch values, and history metadata are supported when they use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other values are invalid segments. Object-form snapshot fields and patch-container fields must be own data properties; accessors and inherited fields are rejected without evaluation. Restored history containers, patch groups, array paths, and metadata lists must be plain dense arrays without custom own properties or prototypes; frozen plain arrays are accepted. `bigint` makes `JSON.stringify` throw; `NaN` and infinities become `null`, while `-0` becomes `0`. Normalize those values at the application boundary. Array holes, custom properties, and custom or null prototypes are not durable across patch replay and JSON persistence; fill holes with `null` and use plain arrays and objects. Mutative does not draft null-prototype state dictionaries by default, so nested writes may not produce undoable patches. An incompatible value or path retained only in an older patch still makes the snapshot unsafe.

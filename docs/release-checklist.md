@@ -28,6 +28,25 @@
 4. Review persistence schema changes and migration notes.
 5. Confirm `docs/compatibility.md` still matches runtime support.
 6. Commit the version and changelog changes to `main`.
+
+### Coordinated v3 binding release
+
+For a major release that changes the factory or restore boundary, publish in
+dependency order:
+
+1. Finish every Travels gate in this checklist and publish `travels@3` from the
+   exact tested artifact.
+2. Install the published core in clean `use-travel` and `zustand-travel`
+   checkouts; update their lockfiles to the published version and rerun each
+   repository's types, tests, production build, and package smoke test.
+3. Publish the binding majors only after those published-core runs pass.
+4. In a clean consumer, install all three published packages together and
+   smoke test a new timeline plus an atomically restored timeline.
+
+Local sibling links are useful candidate evidence, but they do not replace the
+published-package checks in steps 2 and 4. Do not tag a binding release that
+requires an unpublished core version.
+
 7. Push `main`, then create and push a matching release tag:
 
    ```bash
