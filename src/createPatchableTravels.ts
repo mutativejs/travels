@@ -31,6 +31,16 @@ export function createPatchableTravels<
 
 export function createPatchableTravels<
   S,
+  F extends boolean = false,
+  A extends boolean = true,
+  P extends PatchesOption = {},
+>(
+  initialState: PatchableInput<S>,
+  options: TravelsOptions<F, A, P>
+): Travels<S, F, A, P>;
+
+export function createPatchableTravels<
+  S,
   F extends boolean,
   A extends boolean,
   P extends PatchesOption = {},

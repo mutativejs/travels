@@ -30,6 +30,20 @@ export function createTravels<
 ): Travels<S, F, false, P>;
 
 /**
+ * Create a new Travels instance when the archive mode is selected dynamically
+ * or forwarded through a generic adapter.
+ */
+export function createTravels<
+  S,
+  F extends boolean = false,
+  A extends boolean = true,
+  P extends PatchesOption = {},
+>(
+  initialState: S,
+  options: TravelsOptions<F, A, P>
+): Travels<S, F, A, P>;
+
+/**
  * Create a new Travels instance
  */
 export function createTravels<

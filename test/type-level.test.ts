@@ -15,6 +15,7 @@ import {
   type TravelsControlledTransition,
   type TravelsEvent,
   type TravelsEventType,
+  type TravelsOptions,
   type TravelsSerializedHistory,
   type Updater,
 } from '../src/index';
@@ -173,6 +174,31 @@ describe('Type-level API contracts', () => {
     expectTypeOf(travels.getControls().archive)
       .parameter(0)
       .toEqualTypeOf<TravelMetadata | undefined>();
+  });
+
+  test('factory overloads accept dynamic and generic archive modes', () => {
+    const dynamicMode = true as boolean;
+    const travels = createTravels(
+      { count: 0 },
+      { autoArchive: dynamicMode }
+    );
+    const patchableTravels = createPatchableTravels(
+      { count: 0 },
+      { autoArchive: dynamicMode }
+    );
+    const forwardOptions = <A extends boolean>(
+      options: TravelsOptions<false, A>
+    ) => createTravels({ count: 0 }, options);
+
+    expectTypeOf(travels).toEqualTypeOf<
+      Travels<{ count: number }, false, boolean>
+    >();
+    expectTypeOf(patchableTravels).toEqualTypeOf<
+      Travels<{ count: number }, false, boolean>
+    >();
+    expectTypeOf(forwardOptions({ autoArchive: dynamicMode })).toEqualTypeOf<
+      Travels<{ count: number }, false, boolean>
+    >();
   });
 
   test('event type remains open to future minor-release operations', () => {

@@ -16,6 +16,11 @@ type _RemovedDevtoolsEvent = TravelsDevtoolsEvent<State>;
 type _InternalCore = TravelsCore<State>;
 
 const travels = createTravels<State>({ count: 0 });
+const dynamicArchiveMode = true as boolean;
+const dynamicTravels = createTravels(
+  { count: 0 },
+  { autoArchive: dynamicArchiveMode }
+);
 const snapshot: TravelsSerializedHistory<State> = travels.serialize();
 const restored = Travels.deserialize<State>(snapshot);
 const controls = travels.getControls();
@@ -23,6 +28,7 @@ const sharedHistory: readonly State[] = controls.getHistory();
 const mutableHistory: State[] = controls.getHistorySnapshot();
 void sharedHistory;
 void mutableHistory;
+void dynamicTravels;
 
 travels.subscribe((event) => {
   const patchView: ReadonlyTravelPatches = event.patches;
