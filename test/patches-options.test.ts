@@ -132,6 +132,30 @@ describe('PatchesOptions Configuration', () => {
       // When pathAsArray is false, uses JSON Patch format with / separator
       expect(patch.path).toBe('/nested/value');
     });
+
+    test.each([
+      [true, []],
+      [false, ''],
+    ] as const)(
+      'should format root replacement paths when pathAsArray is %s',
+      (pathAsArray, expectedPath) => {
+        const travels = createTravels(
+          { count: 0 },
+          { patchesOptions: { pathAsArray } }
+        );
+
+        travels.setState({ count: 1 });
+
+        expect(travels.getPatches().patches[0][0].path).toEqual(expectedPath);
+        expect(travels.getPatches().inversePatches[0][0].path).toEqual(
+          expectedPath
+        );
+        travels.back();
+        expect(travels.getState()).toEqual({ count: 0 });
+        travels.forward();
+        expect(travels.getState()).toEqual({ count: 1 });
+      }
+    );
   });
 
   describe('arrayLengthAssignment option', () => {

@@ -178,6 +178,25 @@ const freezeEventPatchGroups = <P extends PatchesOption>(
   return Object.freeze(groups) as unknown as ReadonlyTravelPatches<P>['patches'];
 };
 
+const normalizeEmptyPatchPaths = <P extends PatchesOption>(
+  patches: Patches<P>,
+  pathAsArray: boolean | undefined
+): Patches<P> => {
+  if (
+    pathAsArray !== false ||
+    !patches.some(
+      (patch) => Array.isArray(patch.path) && patch.path.length === 0
+    )
+  ) {
+    return patches;
+  }
+  return patches.map((patch) =>
+    Array.isArray(patch.path) && patch.path.length === 0
+      ? { ...patch, path: '' }
+      : patch
+  ) as Patches<P>;
+};
+
 const isKnownAsyncFunction = (value: unknown): boolean =>
   typeof value === 'function' &&
   asyncFunctionTags.has(Object.prototype.toString.call(value));
@@ -439,6 +458,7 @@ export class TravelsCore<
     | null = null;
   private historyView = new HistoryView<S, P>();
   private collectionFreeObjects = new WeakSet<object>();
+  private patchPathAsArray?: boolean;
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
   private warnOnUnsupportedState: boolean;
@@ -589,6 +609,7 @@ export class TravelsCore<
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
     this.mutableMode = mutable;
+    this.patchPathAsArray = patchesOptions?.pathAsArray;
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
@@ -1691,6 +1712,15 @@ export class TravelsCore<
       this.state = nextState;
     }
 
+    patches = normalizeEmptyPatchPaths(
+      patches,
+      this.patchPathAsArray
+    );
+    inversePatches = normalizeEmptyPatchPaths(
+      inversePatches,
+      this.patchPathAsArray
+    );
+
     this.commitPatchEntry(
       patches,
       inversePatches,
@@ -1736,9 +1766,13 @@ export class TravelsCore<
       );
     }
 
-    const patches = clonePatchGroupDetached(validation.entry.patches);
-    const inversePatches = clonePatchGroupDetached(
-      validation.entry.inversePatches
+    const patches = normalizeEmptyPatchPaths(
+      clonePatchGroupDetached(validation.entry.patches),
+      this.patchPathAsArray
+    );
+    const inversePatches = normalizeEmptyPatchPaths(
+      clonePatchGroupDetached(validation.entry.inversePatches),
+      this.patchPathAsArray
     );
     if (patches.length === 0 && inversePatches.length === 0) {
       if (!Object.is(state, this.state)) {
@@ -2234,6 +2268,15 @@ export class TravelsCore<
       patches = resetPatches;
       inversePatches = resetInversePatches;
     }
+
+    patches = normalizeEmptyPatchPaths(
+      patches,
+      this.patchPathAsArray
+    );
+    inversePatches = normalizeEmptyPatchPaths(
+      inversePatches,
+      this.patchPathAsArray
+    );
 
     this.position = this.baselinePosition;
     this.allPatches = cloneTravelPatches(this.baselinePatches);
