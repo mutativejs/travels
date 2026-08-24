@@ -97,6 +97,8 @@ export interface Travels<
     listener: (event: TravelsEvent<S, P>) => void
   ) => () => void;
   readonly getState: () => S;
+  /** Monotonic token for committed observable timeline transitions. */
+  readonly getRevision: () => number;
   setState<U extends Updater<S>>(
     updater: SynchronousUpdater<S, U>,
     metadata?: TravelMetadata
@@ -457,6 +459,7 @@ export class TravelsCore<
     | RebasableManualTravelsControls<S, F, P>
     | null = null;
   private historyView = new HistoryView<S, P>();
+  private revision = 0;
   private collectionFreeObjects = new WeakSet<object>();
   private patchPathAsArray?: boolean;
   private mutableFallbackWarned = false;
@@ -1248,6 +1251,12 @@ export class TravelsCore<
       return;
     }
 
+    // Advance before notifying so external-store readers see the new token
+    // from inside their subscription callback. History cache invalidation has
+    // a separate counter because failed work can invalidate a cache without
+    // publishing an observable transition.
+    this.revision += 1;
+
     const { listeners, devtools } = this.observers.snapshot();
     const event =
       listeners.length > 0 || devtools
@@ -1469,6 +1478,14 @@ export class TravelsCore<
    * Get the current state
    */
   readonly getState = () => this.state;
+
+  /**
+   * Return a cheap snapshot token for external-store subscriptions.
+   *
+   * It advances exactly once for every committed change event, including
+   * timeline-only operations such as archive and rebase.
+   */
+  readonly getRevision = () => this.revision;
 
   private commitPatchEntry(
     patches: Patches<P>,

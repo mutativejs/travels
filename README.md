@@ -203,6 +203,14 @@ separate `initialState` or `history` option is intentionally not accepted.
 
 Get the current state.
 
+#### `getRevision(): number`
+
+Get an O(1), monotonically increasing token for external-store bindings. It
+advances once for every committed subscriber event, including operations such
+as `archive()` and `rebase()` that can change timeline controls without changing
+the current state reference. No-op updates and failed transactions do not
+advance it.
+
 #### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void), metadata?): void`
 
 Update the state. Supports three styles:

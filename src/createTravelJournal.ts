@@ -29,6 +29,7 @@ export type TravelJournal<
     Travels<S, F, true, P>,
     | 'subscribe'
     | 'getState'
+    | 'getRevision'
     | 'getHistory'
     | 'getHistorySnapshot'
     | 'go'
@@ -101,6 +102,7 @@ const createJournal = <
   const journal: TravelJournal<S, F, P> = {
     subscribe: core.subscribe,
     getState: () => core.getState(),
+    getRevision: () => core.getRevision(),
     recordPatches: (state, entry) =>
       core[RECORD_TRAVEL_JOURNAL_PATCHES](state, entry),
     getHistory: () => core.getHistory(),
