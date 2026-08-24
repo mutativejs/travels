@@ -92,7 +92,7 @@ const exerciseUndoRedo = (api, label) => {
   );
   assert.throws(
     () => api.createTravels({ count: 0 }, { history: restoredHistory }),
-    /restore persisted history atomically/
+    (error) => error?.code === 'INVALID_OPTION'
   );
 
   const journal = api.createTravelJournal(
