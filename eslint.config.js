@@ -77,6 +77,7 @@ export default [
       '**/node_modules/**',
       '**/dist/**',
       '**/coverage/**',
+      '**/api-docs/**',
       '**/docs-site/**',
       '**/playwright-report/**',
       '**/test-results/**',

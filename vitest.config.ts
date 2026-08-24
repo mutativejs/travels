@@ -23,6 +23,7 @@ export default defineConfig({
         'examples/**',
         'node_modules/**',
         'dist/**',
+        'api-docs/**',
         'docs-site/**',
         'e2e/**',
         'use-travel/**',

@@ -59,7 +59,7 @@
     "clean": "rimraf dist",
     "build": "pnpm run clean && tsc --project tsconfig.build.json --skipLibCheck && pnpm run build:prod",
     "build:prod": "NODE_ENV=production rollup --config --bundleConfigAsCjs",
-    "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts",
+    "build:doc": "typedoc --plugin typedoc-plugin-markdown --out api-docs src/index.ts",
     "build:doc:site": "typedoc --out docs-site src/index.ts",
     "commit": "git-cz"
   },
