@@ -5,12 +5,15 @@ import {
   type ReadonlyTravelPatches,
   // @ts-expect-error v3 removed the deprecated devtools event alias
   type TravelsDevtoolsEvent,
+  // @ts-expect-error internal implementation classes are not package exports
+  type TravelsCore,
   type TravelsWarningCode,
   type TravelsSerializedHistory,
 } from 'travels';
 
 type State = { count: number };
 type _RemovedDevtoolsEvent = TravelsDevtoolsEvent<State>;
+type _InternalCore = TravelsCore<State>;
 
 const travels = createTravels<State>({ count: 0 });
 const snapshot: TravelsSerializedHistory<State> = travels.serialize();

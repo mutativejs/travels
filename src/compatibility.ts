@@ -21,6 +21,7 @@ export type StateCompatibilityIssue = {
   message: string;
 };
 
+/** @inline */
 type CompatibilityOptions = {
   allowFrozen?: boolean;
   maxIssues?: number;

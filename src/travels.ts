@@ -68,14 +68,75 @@ import {
   isValidPatchPath,
 } from './utils.js';
 
+/** @inline */
 type SynchronousFunction<F> = F extends (...args: never[]) => infer R
   ? Extract<R, PromiseLike<unknown>> extends never
     ? F
     : never
   : F;
 
+/** @inline */
 type SynchronousUpdater<S, U extends Updater<S>> =
   Updater<S> extends U ? U : SynchronousFunction<U>;
+
+/**
+ * Public state-owning Travels capability surface.
+ *
+ * Controlled journals expose `recordPatches()` through `TravelJournal`
+ * instead. Keeping the two capabilities disjoint prevents state-owning
+ * integrations from calling an operation that requires an external owner.
+ */
+export interface Travels<
+  S,
+  F extends boolean = false,
+  A extends boolean = true,
+  P extends PatchesOption = {},
+> {
+  readonly mutable: boolean;
+  readonly subscribe: (
+    listener: (event: TravelsEvent<S, P>) => void
+  ) => () => void;
+  readonly getState: () => S;
+  setState<U extends Updater<S>>(
+    updater: SynchronousUpdater<S, U>,
+    metadata?: TravelMetadata
+  ): void;
+  archive(metadata?: TravelMetadata): void;
+  transaction<FN extends () => unknown>(
+    metadata: TravelMetadata,
+    fn: FN & SynchronousFunction<FN>
+  ): void;
+  transaction<FN extends () => unknown>(
+    fn: FN & SynchronousFunction<FN>
+  ): void;
+  batch<FN extends () => unknown>(
+    metadata: TravelMetadata,
+    fn: FN & SynchronousFunction<FN>
+  ): void;
+  batch<FN extends () => unknown>(fn: FN & SynchronousFunction<FN>): void;
+  pauseTracking(): void;
+  resumeTracking(): void;
+  replaceStateWithoutHistory(updater: Updater<S>): void;
+  getHistory(): readonly S[];
+  getHistorySnapshot(): S[];
+  go(nextPosition: number): void;
+  back(amount?: number): void;
+  forward(amount?: number): void;
+  reset(): void;
+  rebase(): void;
+  canBack(): boolean;
+  canForward(): boolean;
+  canArchive(): boolean;
+  getPosition(): number;
+  getPatches(): TravelPatches<P>;
+  assertPersistenceCompatible(): void;
+  serialize(options?: TravelsSerializeOptions): TravelsSerializedHistory<S, P>;
+  getMetadata(): Array<TravelMetadata | undefined>;
+  getHistoryEntries(): TravelHistoryEntry<P>[];
+  getControls(): A extends true
+    ? RebasableTravelsControls<S, F, P>
+    : RebasableManualTravelsControls<S, F, P>;
+}
 
 type TravelsCoreOptions<
   S,
@@ -341,11 +402,11 @@ export class TravelsCore<
   F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
-> {
+> implements Travels<S, F, A, P> {
   /**
    * Get the mutable mode
    */
-  public mutable: boolean;
+  public readonly mutable: boolean;
   private state: S;
   private timeline = new TimelineStore<P>();
   private maxHistory: number;
@@ -925,7 +986,7 @@ export class TravelsCore<
    * Subscribe to state changes
    * @returns Unsubscribe function
    */
-  public subscribe = (listener: ObserverListener<S, P>) =>
+  public readonly subscribe = (listener: ObserverListener<S, P>) =>
     this.observers.subscribe(listener);
 
   /**
@@ -1361,7 +1422,7 @@ export class TravelsCore<
   /**
    * Get the current state
    */
-  getState = () => this.state;
+  readonly getState = () => this.state;
 
   private commitPatchEntry(
     patches: Patches<P>,
@@ -2408,21 +2469,6 @@ export class TravelsCore<
       : RebasableManualTravelsControls<S, F, P>;
   }
 }
-
-/**
- * Public state-owning Travels capability surface.
- *
- * Controlled journals expose `recordPatches()` through `TravelJournal`
- * instead. Keeping the two capabilities disjoint prevents state-owning
- * integrations from calling an operation that can only succeed when an
- * external owner supplies `apply`.
- */
-export type Travels<
-  S,
-  F extends boolean = false,
-  A extends boolean = true,
-  P extends PatchesOption = {},
-> = Omit<TravelsCore<S, F, A, P>, typeof RECORD_TRAVEL_JOURNAL_PATCHES>;
 
 /** Persistence namespace retained without exposing the internal constructor. */
 export const Travels = Object.freeze({

@@ -17,16 +17,14 @@ export type TravelPatches<P extends PatchesOption = {}> = {
   inversePatches: Patches<P>[];
 };
 
-type ReadonlyPatchPath<Path> = Path extends readonly (infer Segment)[]
-  ? readonly Segment[]
-  : Path;
-
 /** A read-only patch operation exposed through a shared observer event. */
 export type ReadonlyTravelPatch<P extends PatchesOption = {}> = Omit<
   Readonly<Patch<P>>,
   'path'
 > & {
-  readonly path: ReadonlyPatchPath<Patch<P>['path']>;
+  readonly path: Patch<P>['path'] extends readonly (infer Segment)[]
+    ? readonly Segment[]
+    : Patch<P>['path'];
 };
 
 /** Read-only event-local patch groups shared by all observers of one event. */

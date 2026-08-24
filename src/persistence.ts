@@ -176,6 +176,7 @@ const normalizePatchHistoryEntries = (value: unknown): unknown[][] | null => {
   return normalized;
 };
 
+/** @inline */
 type TravelHistoryEntryValidation<P extends PatchesOption> =
   | { error: string }
   | { error: null; entry: TravelHistoryEntry<P> };
@@ -220,6 +221,7 @@ export const validateTravelHistoryEntry = <P extends PatchesOption = {}>(
   };
 };
 
+/** @inline */
 type TravelPatchesValidation<P extends PatchesOption> =
   | { error: string }
   | { error: null; patches: TravelPatches<P> };
