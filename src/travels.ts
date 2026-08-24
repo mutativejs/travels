@@ -403,10 +403,15 @@ export class TravelsCore<
   A extends boolean = true,
   P extends PatchesOption = {},
 > implements Travels<S, F, A, P> {
+  private readonly mutableMode: boolean;
+
   /**
    * Get the mutable mode
    */
-  public readonly mutable: boolean;
+  public get mutable(): boolean {
+    return this.mutableMode;
+  }
+
   private state: S;
   private timeline = new TimelineStore<P>();
   private maxHistory: number;
@@ -578,7 +583,7 @@ export class TravelsCore<
     this.baselineState = cloneInitialSnapshot(initialState);
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
-    this.mutable = mutable;
+    this.mutableMode = mutable;
     this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
