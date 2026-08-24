@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
-import { createTravels, type TravelPatches } from '../src/index';
+import { createTravels, type ReadonlyTravelPatches } from '../src/index';
 
 type State = { item?: { value: number } };
 
-const expectOriginalInverseValue = (patches: TravelPatches): void => {
+const expectOriginalInverseValue = (patches: ReadonlyTravelPatches): void => {
   expect(patches.inversePatches).toEqual([
     [{ op: 'add', path: ['item'], value: { value: 1 } }],
   ]);
@@ -90,7 +90,7 @@ describe('mutable patch isolation', () => {
       mutable: true,
       warnOnUnsupportedState: false,
     });
-    let eventPatches: TravelPatches | undefined;
+    let eventPatches: ReadonlyTravelPatches | undefined;
     travels.subscribe(({ patches }) => {
       eventPatches ??= patches;
     });

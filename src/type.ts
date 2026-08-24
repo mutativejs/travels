@@ -1,5 +1,6 @@
 import type {
   Options as MutativeOptions,
+  Patch,
   Patches,
   Draft,
   Immutable,
@@ -14,6 +15,24 @@ import type {
 export type TravelPatches<P extends PatchesOption = {}> = {
   patches: Patches<P>[];
   inversePatches: Patches<P>[];
+};
+
+type ReadonlyPatchPath<Path> = Path extends readonly (infer Segment)[]
+  ? readonly Segment[]
+  : Path;
+
+/** A read-only patch operation exposed through a shared observer event. */
+export type ReadonlyTravelPatch<P extends PatchesOption = {}> = Omit<
+  Readonly<Patch<P>>,
+  'path'
+> & {
+  readonly path: ReadonlyPatchPath<Patch<P>['path']>;
+};
+
+/** Read-only event-local patch groups shared by all observers of one event. */
+export type ReadonlyTravelPatches<P extends PatchesOption = {}> = {
+  readonly patches: readonly (readonly ReadonlyTravelPatch<P>[])[];
+  readonly inversePatches: readonly (readonly ReadonlyTravelPatch<P>[])[];
 };
 
 /**
@@ -295,7 +314,7 @@ export type TravelsEvent<
    * Lazily materialized event-local patches that transform the previously
    * published state. Treat the shared snapshot as read-only.
    */
-  readonly patches: TravelPatches<P>;
+  readonly patches: ReadonlyTravelPatches<P>;
   /** Number of entries currently retained in history. */
   readonly historyLength: number;
   readonly metadata?: TravelMetadata;
@@ -416,51 +435,47 @@ export interface TravelsControls<
   /**
    * The current position in the history
    */
-  position: number;
+  readonly position: number;
   /**
    * Get the shared history cache.
    *
    * @remarks
-   * The returned array is Travels' internal cache and is frozen in
-   * development, so treat it and its entries as read-only even though the
-   * type does not say so. The signature stays mutable through the 2.x line
-   * because it is re-exported into downstream controls types; it becomes
-   * `readonly` in 3.0.0. Use {@link getHistorySnapshot} when you need an
-   * array you can keep or change.
+   * The returned array is Travels' shared internal cache. Use
+   * {@link getHistorySnapshot} when you need an array you can keep or change.
    */
-  getHistory: () => Value<S, F>[];
+  readonly getHistory: () => readonly Value<S, F>[];
   /**
    * Get fully detached durable history snapshots.
    */
-  getHistorySnapshot: () => Value<S, F>[];
+  readonly getHistorySnapshot: () => Value<S, F>[];
   /**
    * The patches of the history
    */
-  patches: TravelPatches<P>;
+  readonly patches: TravelPatches<P>;
   /**
    * Go back in the history
    */
-  back: (amount?: number) => void;
+  readonly back: (amount?: number) => void;
   /**
    * Go forward in the history
    */
-  forward: (amount?: number) => void;
+  readonly forward: (amount?: number) => void;
   /**
    * Reset the history
    */
-  reset: () => void;
+  readonly reset: () => void;
   /**
    * Go to a specific position in the history
    */
-  go: (position: number) => void;
+  readonly go: (position: number) => void;
   /**
    * Check if it's possible to go back
    */
-  canBack: () => boolean;
+  readonly canBack: () => boolean;
   /**
    * Check if it's possible to go forward
    */
-  canForward: () => boolean;
+  readonly canForward: () => boolean;
 }
 
 export type RebasableTravelsControls<
@@ -476,7 +491,7 @@ export type RebasableTravelsControls<
    * and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()`
    * calls will return to this new baseline, not the original initial state.
    */
-  rebase: () => void;
+  readonly rebase: () => void;
 };
 
 export interface ManualTravelsControls<
@@ -487,11 +502,11 @@ export interface ManualTravelsControls<
   /**
    * Archive the current state
    */
-  archive: (metadata?: TravelMetadata) => void;
+  readonly archive: (metadata?: TravelMetadata) => void;
   /**
    * Check if it's possible to archive the current state
    */
-  canArchive: () => boolean;
+  readonly canArchive: () => boolean;
 }
 
 export type RebasableManualTravelsControls<
@@ -507,5 +522,5 @@ export type RebasableManualTravelsControls<
    * and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()`
    * calls will return to this new baseline, not the original initial state.
    */
-  rebase: () => void;
+  readonly rebase: () => void;
 };

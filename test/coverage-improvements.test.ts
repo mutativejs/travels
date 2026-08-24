@@ -481,6 +481,7 @@ describe('Coverage Improvements', () => {
       const second = travels.getControls();
 
       expect(first).toBe(second);
+      expect(Object.isFrozen(first)).toBe(true);
     });
 
     test('returns the same controls instance for auto mode', () => {
@@ -497,6 +498,7 @@ describe('Coverage Improvements', () => {
       const second = travels.getControls();
 
       expect(first).toBe(second);
+      expect(Object.isFrozen(first)).toBe(true);
     });
   });
 

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
-  type TravelPatches,
+  type ReadonlyTravelPatches,
   type TravelsEvent,
 } from '../src/index';
 
@@ -26,7 +26,7 @@ describe('subscription patch snapshots', () => {
   });
 
   test('materializes one shared event-local delta on first access', () => {
-    const snapshots: TravelPatches[] = [];
+    const snapshots: ReadonlyTravelPatches[] = [];
     const travels = createTravels({ count: 0 }, { maxHistory: 10 });
 
     travels.subscribe(({ patches }) => {
@@ -41,6 +41,11 @@ describe('subscription patch snapshots', () => {
 
     expect(snapshots).toHaveLength(2);
     expect(snapshots[0]).toBe(snapshots[1]);
+    expect(Object.isFrozen(snapshots[0])).toBe(true);
+    expect(Object.isFrozen(snapshots[0].patches)).toBe(true);
+    expect(Object.isFrozen(snapshots[0].patches[0])).toBe(true);
+    expect(Object.isFrozen(snapshots[0].patches[0][0])).toBe(true);
+    expect(Object.isFrozen(snapshots[0].patches[0][0].path)).toBe(true);
     expect(snapshots[0].patches).toHaveLength(1);
     expect(snapshots[0].inversePatches).toHaveLength(1);
   });
@@ -107,7 +112,7 @@ describe('subscription patch snapshots', () => {
 
   test('keeps patch reads constant as retained history grows', () => {
     let latest:
-      | { patches: TravelPatches; historyLength: number }
+      | { patches: ReadonlyTravelPatches; historyLength: number }
       | undefined;
     const travels = createTravels({ count: 0 }, { maxHistory: 100 });
     travels.subscribe(({ patches, historyLength }) => {
@@ -129,7 +134,7 @@ describe('subscription patch snapshots', () => {
   test('publishes composed transaction deltas and empty archive deltas', () => {
     const events: Array<{
       type: TravelsEvent<unknown>['type'];
-      patches: TravelPatches;
+      patches: ReadonlyTravelPatches;
       historyLength: number;
     }> = [];
     const travels = createTravels(
@@ -168,7 +173,7 @@ describe('subscription patch snapshots', () => {
   });
 
   test('retains the event-time delta across appends and branch replacement', () => {
-    let firstSnapshot: TravelPatches | undefined;
+    let firstSnapshot: ReadonlyTravelPatches | undefined;
     const travels = createTravels({ count: 0 }, { maxHistory: 10 });
 
     travels.subscribe(({ patches }) => {
@@ -194,7 +199,9 @@ describe('subscription patch snapshots', () => {
       [{ op: 'replace', path: ['count'], value: 0 }],
     ]);
 
-    firstSnapshot!.patches[0].length = 0;
+    expect(() => {
+      (firstSnapshot!.patches[0] as unknown as unknown[]).length = 0;
+    }).toThrow(TypeError);
     travels.back();
     expect(travels.getState()).toEqual({ count: 1 });
   });
@@ -227,7 +234,7 @@ describe('subscription patch snapshots', () => {
   });
 
   test('retains an unarchived manual delta across later pending updates', () => {
-    let firstSnapshot: TravelPatches | undefined;
+    let firstSnapshot: ReadonlyTravelPatches | undefined;
     const travels = createTravels(
       { count: 0 },
       { autoArchive: false, maxHistory: 10 }
@@ -250,7 +257,7 @@ describe('subscription patch snapshots', () => {
   });
 
   test('retains mutable root replacement values across later updates', () => {
-    let firstSnapshot: TravelPatches | undefined;
+    let firstSnapshot: ReadonlyTravelPatches | undefined;
     const travels = createTravels<RootSwitchState>(
       { items: [0] },
       { mutable: true, maxHistory: 10, warnOnUnsupportedState: false }

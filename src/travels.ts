@@ -11,6 +11,7 @@ import type {
   PatchesOption,
   RebasableManualTravelsControls,
   RebasableTravelsControls,
+  ReadonlyTravelPatches,
   TravelHistoryEntry,
   TravelMetadata,
   TravelPatches,
@@ -94,6 +95,21 @@ const asyncFunctionTags = new Set([
   '[object AsyncFunction]',
   '[object AsyncGeneratorFunction]',
 ]);
+
+const freezeEventPatchGroups = <P extends PatchesOption>(
+  groups: Patches<P>[]
+): ReadonlyTravelPatches<P>['patches'] => {
+  for (const group of groups) {
+    for (const operation of group) {
+      if (Array.isArray(operation.path)) {
+        Object.freeze(operation.path);
+      }
+      Object.freeze(operation);
+    }
+    Object.freeze(group);
+  }
+  return Object.freeze(groups) as unknown as ReadonlyTravelPatches<P>['patches'];
+};
 
 const isKnownAsyncFunction = (value: unknown): boolean =>
   typeof value === 'function' &&
@@ -967,7 +983,7 @@ export class TravelsCore<
     const inversePatchGroups = changePatches?.inversePatches ?? [];
     const patchCount = patchGroups.length;
     const inversePatchCount = inversePatchGroups.length;
-    let snapshot: TravelPatches<P> | undefined;
+    let snapshot: ReadonlyTravelPatches<P> | undefined;
     const event: TravelsEvent<S, P> = {
       type,
       state: this.state,
@@ -979,20 +995,24 @@ export class TravelsCore<
           return snapshot;
         }
 
-        let materializedPatches: Patches<P>[] | undefined;
-        let materializedInversePatches: Patches<P>[] | undefined;
-        snapshot = {
+        let materializedPatches:
+          | ReadonlyTravelPatches<P>['patches']
+          | undefined;
+        let materializedInversePatches:
+          | ReadonlyTravelPatches<P>['inversePatches']
+          | undefined;
+        snapshot = Object.freeze({
           get patches() {
-            return (materializedPatches ??= clonePatchGroups(
-              patchGroups.slice(0, patchCount)
+            return (materializedPatches ??= freezeEventPatchGroups(
+              clonePatchGroups(patchGroups.slice(0, patchCount))
             ));
           },
           get inversePatches() {
-            return (materializedInversePatches ??= clonePatchGroups(
-              inversePatchGroups.slice(0, inversePatchCount)
+            return (materializedInversePatches ??= freezeEventPatchGroups(
+              clonePatchGroups(inversePatchGroups.slice(0, inversePatchCount))
             ));
           },
-        };
+        });
         return snapshot;
       },
     };
@@ -2401,9 +2421,7 @@ export class TravelsCore<
       get position(): number {
         return self.getPosition();
       },
-      // The cache is frozen in development; the mutable signature is kept for
-      // the 2.x line only because downstream controls types re-export it.
-      getHistory: () => self.getHistory() as Value<S, F>[],
+      getHistory: () => self.getHistory() as readonly Value<S, F>[],
       getHistorySnapshot: () => self.getHistorySnapshot() as Value<S, F>[],
       get patches(): TravelPatches<P> {
         return self.getPatches();
@@ -2418,16 +2436,13 @@ export class TravelsCore<
     };
 
     if (!this.autoArchive) {
-      (controls as RebasableManualTravelsControls<S, F, P>).archive = (
-        metadata?: TravelMetadata
-      ): void => self.archive(metadata);
-      (controls as RebasableManualTravelsControls<S, F, P>).canArchive =
-        (): boolean => self.canArchive();
+      Object.assign(controls, {
+        archive: (metadata?: TravelMetadata): void => self.archive(metadata),
+        canArchive: (): boolean => self.canArchive(),
+      });
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      Object.freeze(controls);
-    }
+    Object.freeze(controls);
 
     this.controlsCache = controls;
 

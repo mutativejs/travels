@@ -21,9 +21,25 @@ const exerciseUndoRedo = (api, label) => {
   assert.throws(() => new api.Travels({ count: 0 }), TypeError);
   const travels = api.createTravels({ count: 0 });
   assert.equal('recordPatches' in travels, false, `${label} state capabilities`);
+  assert.equal(Object.isFrozen(travels.getControls()), true, `${label} controls`);
+  let event;
+  travels.subscribe((nextEvent) => {
+    event = nextEvent;
+  });
   travels.setState((draft) => {
     draft.count = 1;
   });
+  assert.equal(Object.isFrozen(event.patches), true, `${label} event patches`);
+  assert.equal(
+    Object.isFrozen(event.patches.patches),
+    true,
+    `${label} event patch groups`
+  );
+  assert.equal(
+    Object.isFrozen(event.patches.patches[0]),
+    true,
+    `${label} event patch group`
+  );
   assert.equal(travels.getState().count, 1, `${label} update`);
   travels.back();
   assert.equal(travels.getState().count, 0, `${label} undo`);

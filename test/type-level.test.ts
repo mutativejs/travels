@@ -8,6 +8,7 @@ import {
   Travels,
   type JsonValue,
   type PatchableState,
+  type ReadonlyTravelPatches,
   type StateCompatibilityIssueCode,
   type TravelJournal,
   type TravelMetadata,
@@ -135,21 +136,28 @@ describe('Type-level API contracts', () => {
     >().toEqualTypeOf<never>();
   });
 
-  test('controls history keeps the 2.x mutable signature', () => {
+  test('controls expose read-only shared views and mutable snapshots', () => {
     const controls = createTravels({ count: 0 }).getControls();
 
-    // Tightening this to `readonly` propagates through use-travel and
-    // zustand-travel, which re-export the controls types under a
-    // `travels: ^2.1.0` peer range. It is deferred to 3.0.0, so the 2.x line
-    // has to keep accepting assignment to a mutable array type.
-    expectTypeOf(controls.getHistory()).toEqualTypeOf<{ count: number }[]>();
-    const assignable: { count: number }[] = controls.getHistory();
-    expectTypeOf(assignable).toEqualTypeOf<{ count: number }[]>();
+    expectTypeOf(controls.getHistory()).toEqualTypeOf<
+      readonly { count: number }[]
+    >();
 
     // getHistorySnapshot() is the array callers may actually keep or change.
     expectTypeOf(controls.getHistorySnapshot()).toEqualTypeOf<
       { count: number }[]
     >();
+
+    if (false) {
+      // @ts-expect-error shared history is not a mutable caller-owned array
+      controls.getHistory().push({ count: 1 });
+      // @ts-expect-error controls are a stable read-only capability object
+      controls.position = 1;
+      // @ts-expect-error controls are a stable read-only capability object
+      controls.patches = { patches: [], inversePatches: [] };
+      // @ts-expect-error controls methods cannot be replaced
+      controls.back = () => undefined;
+    }
   });
 
   test('the instance history method stays read-only', () => {
@@ -181,6 +189,18 @@ describe('Type-level API contracts', () => {
 
     travels.subscribe((event) => {
       expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+      expectTypeOf(event.patches).toEqualTypeOf<ReadonlyTravelPatches>();
+
+      if (false) {
+        // @ts-expect-error event patch groups are shared read-only views
+        event.patches.patches.push([]);
+        // @ts-expect-error individual event patch groups are read-only
+        event.patches.patches[0].push({ op: 'remove', path: ['count'] });
+        // @ts-expect-error event patch operations are read-only
+        event.patches.patches[0][0].op = 'add';
+        // @ts-expect-error array patch paths are read-only
+        event.patches.patches[0][0].path.push('nested');
+      }
     });
     createTravels<State>(
       { count: 0 },
