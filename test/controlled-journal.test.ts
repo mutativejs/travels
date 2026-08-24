@@ -189,7 +189,21 @@ describe('controlled travel journal', () => {
         { count: 0, label: 'initial' },
         { apply: undefined as unknown as () => State }
       )
-    ).toThrow('requires a synchronous apply function');
+    ).toThrow(
+      'createTravelJournal requires a synchronous apply function'
+    );
+
+    const snapshot = createTravels<State>({
+      count: 0,
+      label: 'initial',
+    }).serialize();
+    expect(() =>
+      restoreTravelJournal(snapshot, {
+        apply: undefined as unknown as () => State,
+      })
+    ).toThrow(
+      'restoreTravelJournal requires a synchronous apply function'
+    );
   });
 
   test('restores one complete journal snapshot', () => {

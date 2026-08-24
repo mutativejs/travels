@@ -82,9 +82,13 @@ const createJournal = <
   });
   const { apply, ...travelsOptions } = options;
   if (typeof apply !== 'function') {
+    const factoryName =
+      source.type === 'initial'
+        ? 'createTravelJournal'
+        : 'restoreTravelJournal';
     throw new TravelsTypeError(
       'INVALID_OPTION',
-      'Travels: createTravelJournal requires a synchronous apply function.'
+      `Travels: ${factoryName} requires a synchronous apply function.`
     );
   }
   const core = new TravelsCore<S, F, true, P>(source, {
