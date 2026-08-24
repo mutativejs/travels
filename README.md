@@ -290,7 +290,7 @@ Remove all past and future history and make the current state as the new initial
 > [!WARNING]
 > This is a **destructive operation**. All previous and future history entries are discarded, and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()` calls will return to this new baseline, not the original initial state.
 
-#### `getHistory(): readonly S[]`
+#### `getHistory(): readonly ReadonlyState<S>[]`
 
 Returns the complete history of states as an array. Use it to read the timeline: render it, map it, measure it, index into it.
 
@@ -299,7 +299,7 @@ Returns the complete history of states as an array. Use it to read the timeline:
 > In production mode, modifying the array or any entry will corrupt the cache.
 
 The same array is reachable through `getControls().getHistory()`. Both methods
-return `readonly S[]` in Travels 3.
+return `readonly ReadonlyState<S>[]` in Travels 3.
 
 #### `getHistorySnapshot(): S[]`
 

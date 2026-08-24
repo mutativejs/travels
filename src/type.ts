@@ -401,6 +401,9 @@ export type Value<S, F extends boolean> = F extends true
   ? Immutable<InitialValue<S>>
   : InitialValue<S>;
 
+/** A state value exposed through a shared read-only view. */
+export type ReadonlyState<S> = Immutable<S>;
+
 export interface TravelsControls<
   S,
   F extends boolean,
@@ -417,11 +420,11 @@ export interface TravelsControls<
    * The returned array is Travels' shared internal cache. Use
    * {@link getHistorySnapshot} when you need an array you can keep or change.
    */
-  readonly getHistory: () => readonly Value<S, F>[];
+  readonly getHistory: () => readonly ReadonlyState<S>[];
   /**
    * Get fully detached durable history snapshots.
    */
-  readonly getHistorySnapshot: () => Value<S, F>[];
+  readonly getHistorySnapshot: () => S[];
   /**
    * The patches of the history
    */

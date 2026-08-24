@@ -11,6 +11,7 @@ import type {
   PatchesOption,
   RebasableManualTravelsControls,
   RebasableTravelsControls,
+  ReadonlyState,
   ReadonlyTravelPatches,
   TravelHistoryEntry,
   TravelMetadata,
@@ -23,7 +24,6 @@ import type {
   TravelsSerializedHistory,
   TravelsSerializeOptions,
   Updater,
-  Value,
 } from './type.js';
 import {
   deserializeTravelsHistory,
@@ -117,7 +117,7 @@ export interface Travels<
   pauseTracking(): void;
   resumeTracking(): void;
   replaceStateWithoutHistory(updater: Updater<S>): void;
-  getHistory(): readonly S[];
+  getHistory(): readonly ReadonlyState<S>[];
   getHistorySnapshot(): S[];
   go(nextPosition: number): void;
   back(amount?: number): void;
@@ -2034,7 +2034,7 @@ export class TravelsCore<
    * - State entries are shared cached snapshots and are not deep-frozen.
    * - In production mode, modifying the array or its entries will corrupt the cache.
    */
-  public getHistory(): readonly S[] {
+  public getHistory(): readonly ReadonlyState<S>[] {
     return this.historyView.get({
       state: this.state,
       position: this.position,
@@ -2043,7 +2043,7 @@ export class TravelsCore<
       manualMode: !this.isAutoArchiving(),
       apply: (state, patches) =>
         this.stateDriver.applyImmutably(state, patches),
-    });
+    }) as readonly ReadonlyState<S>[];
   }
 
   /**
@@ -2053,7 +2053,7 @@ export class TravelsCore<
    * rejects runtime-only values rather than returning a partially shared clone.
    */
   public getHistorySnapshot(): S[] {
-    return this.historyView.snapshot(this.getHistory());
+    return this.historyView.snapshot(this.getHistory() as readonly S[]);
   }
 
   /**
@@ -2444,8 +2444,8 @@ export class TravelsCore<
       get position(): number {
         return self.getPosition();
       },
-      getHistory: () => self.getHistory() as readonly Value<S, F>[],
-      getHistorySnapshot: () => self.getHistorySnapshot() as Value<S, F>[],
+      getHistory: () => self.getHistory(),
+      getHistorySnapshot: () => self.getHistorySnapshot(),
       get patches(): TravelPatches<P> {
         return self.getPatches();
       },

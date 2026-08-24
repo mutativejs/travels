@@ -24,9 +24,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   `TravelJournal` is an explicit facade that does not expose `setState()`,
   `reset()`, transactions, tracking, archive, or `getControls()`.
 - Make `TravelsControls` a read-only capability object and change
-  `TravelsControls.getHistory()` to return `readonly Value<S, F>[]`. Controls
-  are frozen in every build. Use `getHistorySnapshot()` for a detached mutable
-  array.
+  both history surfaces to return `readonly ReadonlyState<S>[]`. Controls are
+  frozen in every build. Use `getHistorySnapshot()` for detached mutable `S[]`
+  values, independently of the auto-freeze option.
 - Expose observer deltas as `ReadonlyTravelPatches`. The shared patch snapshot,
   its group arrays, operations, and array paths are frozen when lazily
   materialized.

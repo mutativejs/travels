@@ -8,6 +8,7 @@ import {
   Travels,
   type JsonValue,
   type PatchableState,
+  type ReadonlyState,
   type ReadonlyTravelPatches,
   type StateCompatibilityIssueCode,
   type TravelJournal,
@@ -140,7 +141,7 @@ describe('Type-level API contracts', () => {
     const controls = createTravels({ count: 0 }).getControls();
 
     expectTypeOf(controls.getHistory()).toEqualTypeOf<
-      readonly { count: number }[]
+      readonly ReadonlyState<{ count: number }>[]
     >();
 
     // getHistorySnapshot() is the array callers may actually keep or change.
@@ -161,11 +162,40 @@ describe('Type-level API contracts', () => {
   });
 
   test('the instance history method stays read-only', () => {
-    const travels = createTravels({ count: 0 });
+    const travels = createTravels({ nested: { count: 0 } });
 
     expectTypeOf(travels.getHistory()).toEqualTypeOf<
-      readonly { count: number }[]
+      readonly ReadonlyState<{ nested: { count: number } }>[]
     >();
+
+    if (false) {
+      // @ts-expect-error shared state entries are read-only as well as the array
+      travels.getHistory()[0].nested.count = 1;
+    }
+  });
+
+  test('auto-freeze does not make detached snapshots read-only', () => {
+    const travels = createTravels(
+      { nested: { count: 0 } },
+      { enableAutoFreeze: true }
+    );
+
+    expectTypeOf(travels.getState()).toEqualTypeOf<{
+      nested: { count: number };
+    }>();
+    expectTypeOf(travels.getHistorySnapshot()).toEqualTypeOf<
+      { nested: { count: number } }[]
+    >();
+    expectTypeOf(travels.getControls().getHistorySnapshot()).toEqualTypeOf<
+      { nested: { count: number } }[]
+    >();
+
+    if (false) {
+      travels.getHistorySnapshot()[0].nested.count = 1;
+      travels.getControls().getHistorySnapshot()[0].nested.count = 1;
+      // @ts-expect-error shared entries stay read-only independently of auto-freeze
+      travels.getControls().getHistory()[0].nested.count = 1;
+    }
   });
 
   test('manual controls archive accepts metadata', () => {

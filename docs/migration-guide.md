@@ -50,14 +50,15 @@ throw when called.
 
 ### Treat shared views as read-only
 
-`getHistory()` now returns `readonly S[]` through both the instance and
-controls surfaces. `TravelsControls` properties and methods are read-only and
-the controls object is frozen in every build. Observer events expose
+`getHistory()` now returns `readonly ReadonlyState<S>[]` through both the
+instance and controls surfaces, so both the shared array and its entries are
+read-only in TypeScript. `TravelsControls` properties and methods are read-only
+and the controls object is frozen in every build. Observer events expose
 `ReadonlyTravelPatches`; their lazily materialized patch containers, groups,
 operations, and array paths are also frozen.
 
 ```ts
-const visible = travels.getControls().getHistory(); // readonly State[]
+const visible = travels.getControls().getHistory(); // readonly ReadonlyState<State>[]
 const owned = travels.getHistorySnapshot(); // State[]; detached and mutable
 ```
 
