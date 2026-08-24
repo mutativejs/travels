@@ -123,9 +123,11 @@ const useStore = create<State & Actions>()(
 );
 ```
 
-Both binding v3 packages accept `travels@^2.2.0 || ^3.0.0` so package upgrades
-can be staged. The examples above require Travels 3 because Travels 2 does not
-export `restoreTravels()`.
+Both binding v3 packages require `travels@^3.0.0`. Publish or install the core
+major first, then upgrade each binding. This keeps the factory overloads,
+`restoreTravels()` boundary, read-only shared views, and returned controls on
+one versioned contract instead of making their behavior depend on peer
+resolution.
 
 ### Update observer and runtime compatibility
 

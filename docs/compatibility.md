@@ -26,14 +26,15 @@ internal constructor:
 
 | Binding          | Binding version | Supported Travels versions | Restored timeline handoff                        |
 | ---------------- | --------------- | -------------------------- | ------------------------------------------------ |
-| `use-travel`     | `3.x`           | `^2.2.0 \|\| ^3.0.0`       | `restoreTravels(snapshot)` then `useTravelStore` |
-| `zustand-travel` | `3.x`           | `^2.2.0 \|\| ^3.0.0`       | `travel(initializer, { timeline })`              |
+| `use-travel`     | `3.x`           | `^3.0.0`                   | `restoreTravels(snapshot)` then `useTravelStore` |
+| `zustand-travel` | `3.x`           | `^3.0.0`                   | `travel(initializer, { timeline })`              |
 
-The dual peer range permits a staged package rollout; it does not bring the
-Travels 3 restore API to a Travels 2 installation. Applications using the new
-atomic snapshot path must install `travels@3`. Binding-owned timelines remain
-immutable, and the bindings reject the removed split restore options rather
-than silently discarding them.
+The binding majors require Travels 3 so their factory overloads, atomic restore
+path, read-only shared views, and control capabilities have one stable contract.
+Publish and install the core major first, then validate and release each binding
+major against that published artifact. Binding-owned timelines remain immutable,
+and the bindings reject removed or incompatible ownership options rather than
+silently discarding them.
 
 ## State Compatibility
 
