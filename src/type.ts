@@ -258,7 +258,6 @@ export type TravelsWarningCode =
   | 'INITIAL_POSITION_CLAMPED'
   | 'INVALID_INITIAL_PATCHES'
   | 'INVALID_POSITION'
-  | 'LEGACY_SUBSCRIBER'
   | 'MUTABLE_FALLBACK'
   | 'MUTABLE_ROOT_REPLACEMENT'
   | 'PERSISTENCE_COMPATIBILITY'
@@ -319,12 +318,6 @@ export type TravelsEvent<
   readonly historyLength: number;
   readonly metadata?: TravelMetadata;
 };
-
-/** @deprecated Use `TravelsEvent`; both observer channels share that contract. */
-export type TravelsDevtoolsEvent<
-  S,
-  P extends PatchesOption = {},
-> = TravelsEvent<S, P>;
 
 export type TravelsErrorCode =
   | 'ASYNC_CALLBACK'

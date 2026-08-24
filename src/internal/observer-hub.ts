@@ -18,8 +18,6 @@ type ObserverHubOptions<S, P extends PatchesOption> = {
   onWarning?: (warning: TravelsWarning) => void;
 };
 
-const warnedLegacyListeners = new WeakSet<Function>();
-
 export class ObserverHub<S, P extends PatchesOption = {}> {
   private readonly listeners = new Set<ObserverListener<S, P>>();
   private readonly devtools?: (event: TravelsEvent<S, P>) => void;
@@ -111,14 +109,6 @@ export class ObserverHub<S, P extends PatchesOption = {}> {
   }
 
   public subscribe(listener: ObserverListener<S, P>): () => void {
-    if (listener.length > 1 && !warnedLegacyListeners.has(listener)) {
-      warnedLegacyListeners.add(listener);
-      this.warn(
-        'LEGACY_SUBSCRIBER',
-        'Travels: subscribe listeners receive a single TravelsEvent object. Replace positional (state, patches, position, historyLength) parameters with event destructuring.'
-      );
-    }
-
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);

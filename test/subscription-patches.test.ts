@@ -50,27 +50,23 @@ describe('subscription patch snapshots', () => {
     expect(snapshots[0].inversePatches).toHaveLength(1);
   });
 
-  test('warns once per legacy positional listener in development', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const travels = createTravels({ count: 0 });
-    const legacyListener = ((state: unknown, patches: unknown) => {
-      void state;
-      void patches;
-    }) as unknown as Parameters<typeof travels.subscribe>[0];
+  test('does not infer a legacy API from listener arity', () => {
+    const onWarning = vi.fn();
+    const withWarningHook = createTravels(
+      { count: 0 },
+      { onWarning }
+    );
+    const twoParameterListener = vi.fn((event: unknown, ignored: unknown) => {
+      void event;
+      void ignored;
+    }) as unknown as Parameters<typeof withWarningHook.subscribe>[0];
 
-    travels.subscribe(legacyListener)();
-    travels.subscribe(legacyListener)();
-    travels.subscribe(({ state }) => {
-      void state;
-    })();
-    travels.subscribe(() => {})();
+    withWarningHook.subscribe(twoParameterListener);
+    withWarningHook.setState({ count: 1 });
 
-    const legacyWarnings = warnSpy.mock.calls
-      .map(([message]) => String(message))
-      .filter((message) => message.includes('single TravelsEvent object'));
-    warnSpy.mockRestore();
-
-    expect(legacyWarnings).toHaveLength(1);
+    expect(twoParameterListener).toHaveBeenCalledOnce();
+    expect(twoParameterListener.mock.calls[0]).toHaveLength(1);
+    expect(onWarning).not.toHaveBeenCalled();
   });
 
   test('shares one frozen event envelope with subscribers and devtools', () => {

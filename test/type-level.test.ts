@@ -13,7 +13,6 @@ import {
   type TravelJournal,
   type TravelMetadata,
   type TravelsControlledTransition,
-  type TravelsDevtoolsEvent,
   type TravelsEvent,
   type TravelsEventType,
   type TravelsSerializedHistory,
@@ -206,7 +205,6 @@ describe('Type-level API contracts', () => {
       { count: 0 },
       {
         devtools(event) {
-          expectTypeOf(event).toEqualTypeOf<TravelsDevtoolsEvent<State>>();
           expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
         },
       }

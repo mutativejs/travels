@@ -3,10 +3,14 @@ import {
   createTravels,
   Travels,
   type ReadonlyTravelPatches,
+  // @ts-expect-error v3 removed the deprecated devtools event alias
+  type TravelsDevtoolsEvent,
+  type TravelsWarningCode,
   type TravelsSerializedHistory,
 } from 'travels';
 
 type State = { count: number };
+type _RemovedDevtoolsEvent = TravelsDevtoolsEvent<State>;
 
 const travels = createTravels<State>({ count: 0 });
 const snapshot: TravelsSerializedHistory<State> = travels.serialize();
@@ -34,6 +38,9 @@ travels.setState((draft) => {
 });
 
 if (false) {
+  // @ts-expect-error the v2 legacy-subscriber warning no longer exists
+  const removedWarning: TravelsWarningCode = 'LEGACY_SUBSCRIBER';
+  void removedWarning;
   // @ts-expect-error shared history is not a caller-owned mutable array
   const mutableSharedHistory: State[] = controls.getHistory();
   void mutableSharedHistory;
