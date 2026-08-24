@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
+  restoreTravels,
   TravelsError,
   type TravelHistoryEntry,
 } from '../src/index';
@@ -652,8 +653,7 @@ describe('Productized history API', () => {
       position: number;
       labels: Array<string | undefined>;
     }> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       maxHistory: 2,
       onBranchDiscard(event) {
         discarded.push({
@@ -697,8 +697,7 @@ describe('Productized history API', () => {
 
     const serialized = original.serialize();
     const travels = restore
-      ? createTravels(serialized.state, {
-          history: serialized,
+      ? restoreTravels(serialized, {
           autoArchive: false,
           onBranchDiscard,
         })
@@ -787,8 +786,7 @@ describe('Productized history API', () => {
       position: number;
       labels: Array<string | undefined>;
     }> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       autoArchive: false,
       maxHistory: 2,
       onBranchDiscard(event) {
@@ -818,8 +816,7 @@ describe('Productized history API', () => {
     source.back();
     const history = source.serialize();
     const discardedLabels: Array<Array<string | undefined>> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       onBranchDiscard(event) {
         discardedLabels.push(
           event.discarded.map((entry) => entry.metadata?.label)
@@ -895,8 +892,7 @@ describe('Productized history API', () => {
     source.back();
     const history = source.serialize();
     const discardedLabels: Array<Array<string | undefined>> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       onBranchDiscard(event) {
         discardedLabels.push(
           event.discarded.map((entry) => entry.metadata?.label)
@@ -954,8 +950,7 @@ describe('Productized history API', () => {
       position: number;
       labels: Array<string | undefined>;
     }> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       onBranchDiscard(event) {
         discarded.push({
           position: event.position,
@@ -983,8 +978,7 @@ describe('Productized history API', () => {
     source.back();
     const history = source.serialize();
     const discardedLabels: Array<Array<string | undefined>> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       onBranchDiscard(event) {
         discardedLabels.push(
           event.discarded.map((entry) => entry.metadata?.label)
@@ -1012,8 +1006,7 @@ describe('Productized history API', () => {
     source.back();
     const history = source.serialize();
     const discardedLabels: Array<Array<string | undefined>> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       onBranchDiscard(event) {
         discardedLabels.push(
           event.discarded.map((entry) => entry.metadata?.label)
@@ -1055,8 +1048,7 @@ describe('Productized history API', () => {
       source.back();
       const history = source.serialize();
       const discardedLabels: Array<Array<string | undefined>> = [];
-      const travels = createTravels(history.state, {
-        history,
+      const travels = restoreTravels(history, {
         onBranchDiscard(event) {
           discardedLabels.push(
             event.discarded.map((entry) => entry.metadata?.label)
@@ -1090,8 +1082,7 @@ describe('Productized history API', () => {
     source.back();
     const history = source.serialize();
     const discardedLabels: Array<Array<string | undefined>> = [];
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       onBranchDiscard(event) {
         discardedLabels.push(
           event.discarded.map((entry) => entry.metadata?.label)

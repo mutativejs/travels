@@ -16,6 +16,11 @@ assert.equal(manifest.types, './dist/index.d.ts');
 
 const exerciseUndoRedo = (api, label) => {
   assert.equal(typeof api.createTravels, 'function', `${label} createTravels`);
+  assert.equal(
+    typeof api.restoreTravels,
+    'function',
+    `${label} restoreTravels`
+  );
   assert.equal(typeof api.Travels?.deserialize, 'function', `${label} deserialize`);
   assert.equal('TravelsCore' in api, false, `${label} internal constructor`);
   assert.throws(() => new api.Travels({ count: 0 }), TypeError);
@@ -47,23 +52,22 @@ const exerciseUndoRedo = (api, label) => {
   assert.equal(travels.getState().count, 1, `${label} redo`);
 
   const restoredHistory = api.Travels.deserialize(travels.serialize());
-  const restored = api.createTravels(restoredHistory.state, {
-    history: restoredHistory,
-  });
+  const restored = api.restoreTravels(restoredHistory);
   restored.back();
   assert.equal(restored.getState().count, 0, `${label} restored history`);
   assert.throws(
     () =>
-      api.createTravels(
-        { count: 0 },
-        {
-          history: {
-            patches: { patches: [], inversePatches: [] },
-            position: 1,
-          },
-        }
-      ),
+      api.restoreTravels({
+        version: 1,
+        state: { count: 0 },
+        patches: { patches: [], inversePatches: [] },
+        position: 1,
+      }),
     /persisted history position 1 is invalid/
+  );
+  assert.throws(
+    () => api.createTravels({ count: 0 }, { history: restoredHistory }),
+    /restore persisted history atomically/
   );
 
   const journal = api.createTravelJournal(
@@ -71,6 +75,11 @@ const exerciseUndoRedo = (api, label) => {
     { apply: ({ state }) => state }
   );
   assert.equal(typeof journal.recordPatches, 'function', `${label} journal commit`);
+  assert.equal(
+    typeof api.restoreTravelJournal,
+    'function',
+    `${label} restore journal`
+  );
   assert.equal('setState' in journal, false, `${label} journal capabilities`);
 };
 

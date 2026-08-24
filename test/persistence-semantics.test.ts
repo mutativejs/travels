@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   type TravelsSerializedHistory,
@@ -66,7 +67,7 @@ describe('persisted history semantic validation', () => {
       },
       { fallback, onError, ...semanticValidation }
     );
-    const restored = createTravels(history.state, { history });
+    const restored = restoreTravels(history);
 
     expect(onError).not.toHaveBeenCalled();
     expect(history.state).toEqual({ count: 1 });
@@ -715,8 +716,7 @@ describe('persisted history semantic validation', () => {
       travels.serialize(),
       semanticValidation
     );
-    const restored = createTravels(history.state, {
-      history,
+    const restored = restoreTravels(history, {
       warnOnUnsupportedState: false,
     });
 
@@ -779,7 +779,7 @@ describe('persisted history semantic validation', () => {
       items: number[];
       count: number;
     }>(serialized, semanticValidation);
-    const restored = createTravels(history.state, { history, maxHistory: 10 });
+    const restored = restoreTravels(history, { maxHistory: 10 });
 
     expect(JSON.stringify(history)).toBe(serialized);
     expect(restored.getHistory()).toEqual(travels.getHistory());
@@ -1004,7 +1004,7 @@ describe('persisted history semantic validation', () => {
       validation: 'semantic',
       replayOptions,
     });
-    const restored = createTravels(history.state, { history });
+    const restored = restoreTravels(history);
 
     expect(snapshot.state).toEqual({ nested: { value: 1 } });
     restored.back();

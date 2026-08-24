@@ -7,7 +7,7 @@
  */
 
 import {
-  createTravels,
+  restoreTravels,
   Travels,
   TRAVELS_HISTORY_SCHEMA_VERSION,
   type TravelsSerializedHistory,
@@ -84,10 +84,7 @@ export async function createLocalFirstDocument(documentId: string) {
   };
 
   const persisted = (await loadSnapshot(documentId, fallback)) ?? fallback;
-  const travels = createTravels(persisted.state, {
-    history: persisted,
-    maxHistory: 1000,
-  });
+  const travels = restoreTravels(persisted, { maxHistory: 1000 });
   const channel = new BroadcastChannel(`travels:${documentId}`);
   let applyingRemoteSnapshot = false;
 

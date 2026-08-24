@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, restoreTravels } from '../src/index';
 
 describe('Position/Boundary Consistency', () => {
   describe('Position integrity after complex navigation', () => {
@@ -158,12 +158,12 @@ describe('Position/Boundary Consistency', () => {
       const patches = travels1.getPatches();
       const position = travels1.getPosition();
 
-      const restored = createTravels(
-        { count: 0 },
-        {
-          history: { patches, position },
-        }
-      );
+      const restored = restoreTravels({
+        version: 1,
+        state: { count: 0 },
+        patches,
+        position,
+      });
 
       expect(restored.getPosition()).toBe(2);
       expect(restored.getState().count).toBe(0);
@@ -189,8 +189,11 @@ describe('Position/Boundary Consistency', () => {
       const currentState = JSON.parse(JSON.stringify(travels1.getState()));
 
       // When restoring, the persisted state should correspond to the persisted position
-      const travels2 = createTravels(currentState, {
-        history: { patches, position },
+      const travels2 = restoreTravels({
+        version: 1,
+        state: currentState,
+        patches,
+        position,
       });
 
       expect(travels2.getPosition()).toBe(2);
@@ -256,15 +259,12 @@ describe('Position/Boundary Consistency', () => {
       expect(travels.getState().value).toBe(3);
 
       expect(() =>
-        createTravels(
-          { value: 0 },
-          {
-            history: {
-              patches: { patches: [], inversePatches: [] },
-              position: 5,
-            },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { value: 0 },
+          patches: { patches: [], inversePatches: [] },
+          position: 5,
+        })
       ).toThrow('persisted history position 5 is invalid');
 
       expect(warnSpy).toHaveBeenCalled();

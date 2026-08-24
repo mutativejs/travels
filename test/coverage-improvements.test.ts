@@ -1,5 +1,5 @@
 import { expect, describe, test, vi } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, restoreTravels } from '../src/index';
 
 /**
  * Additional tests to improve code coverage
@@ -10,46 +10,37 @@ describe('Coverage Improvements', () => {
   describe('Constructor options validation and normalization', () => {
     test('rejects a negative restored position', () => {
       expect(() =>
-        createTravels(
-          { count: 0 },
-          {
-            history: {
-              patches: { patches: [], inversePatches: [] },
-              position: -3,
-            },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { count: 0 },
+          patches: { patches: [], inversePatches: [] },
+          position: -3,
+        } as any)
       ).toThrow('persisted history position -3 is invalid');
     });
 
     test('rejects an invalid restored patch shape', () => {
       expect(() =>
-        createTravels(
-          { count: 0 },
-          {
-            history: {
-              patches: { patches: {} as any, inversePatches: [] },
-              position: 0,
-            },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { count: 0 },
+          patches: { patches: {} as any, inversePatches: [] },
+          position: 0,
+        })
       ).toThrow("patches must have 'patches' and 'inversePatches' arrays");
     });
 
     test('rejects mismatched restored patch arrays', () => {
       expect(() =>
-        createTravels(
-          { count: 0 },
-          {
-            history: {
-              patches: {
-                patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-                inversePatches: [],
-              },
-              position: 0,
-            },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { count: 0 },
+          patches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [],
+          },
+          position: 0,
+        })
       ).toThrow(
         'patches.patches and patches.inversePatches must have the same length'
       );
@@ -57,33 +48,29 @@ describe('Coverage Improvements', () => {
 
     test('rejects a non-numeric restored position', () => {
       expect(() =>
-        createTravels(
-          { count: 42 },
-          {
-            history: {
-              patches: { patches: [], inversePatches: [] },
-              position: Number.NaN,
-            },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { count: 42 },
+          patches: { patches: [], inversePatches: [] },
+          position: Number.NaN,
+        } as any)
       ).toThrow('persisted history position NaN is invalid');
     });
 
     test('warns and discards persisted history when maxHistory is zero', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const travels = createTravels(
-        { count: 0 },
+      const travels = restoreTravels(
         {
-          maxHistory: 0,
-          history: {
-            position: 1,
-            patches: {
-              patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-              inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
-            },
+          version: 1,
+          state: { count: 0 },
+          position: 1,
+          patches: {
+            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
           },
-        }
+        },
+        { maxHistory: 0 }
       );
 
       const warnMessages = warnSpy.mock.calls.map(([message]) =>
@@ -452,10 +439,7 @@ describe('Coverage Improvements', () => {
         value: number;
       }
 
-      const travels = createTravels<State>(
-        { value: 0 },
-        { autoArchive: true }
-      );
+      const travels = createTravels<State>({ value: 0 }, { autoArchive: true });
 
       const first = travels.getControls();
       const second = travels.getControls();
@@ -464,7 +448,6 @@ describe('Coverage Improvements', () => {
       expect(Object.isFrozen(first)).toBe(true);
     });
   });
-
 
   describe('maxHistory in auto-archive mode', () => {
     test('should enforce maxHistory limit in setState with auto-archive (lines 294-300)', () => {

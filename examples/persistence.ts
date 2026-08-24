@@ -7,6 +7,7 @@
 
 import {
   createTravels,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -138,10 +139,7 @@ console.log('=== Initializing Travels ===');
 const persisted = loadFromStorage();
 
 const travels = persisted
-  ? createTravels(persisted.state, {
-      history: persisted,
-      maxHistory: 50,
-    })
+  ? restoreTravels(persisted, { maxHistory: 50 })
   : createTravels(defaultState, { maxHistory: 50 });
 
 console.log('Initial state:', travels.getState());
@@ -198,10 +196,7 @@ console.log('Reloading state from localStorage...\n');
 
 const reloadedData = loadFromStorage();
 if (reloadedData) {
-  const reloadedTravels = createTravels(reloadedData.state, {
-    history: reloadedData,
-    maxHistory: 50,
-  });
+  const reloadedTravels = restoreTravels(reloadedData, { maxHistory: 50 });
 
   console.log('✓ State restored successfully');
   console.log('User:', reloadedTravels.getState().user);
@@ -212,11 +207,17 @@ if (reloadedData) {
   console.log('\n=== Testing undo/redo after reload ===');
   console.log('Going back 2 steps...');
   reloadedTravels.back(2);
-  console.log('Notes count after undo:', reloadedTravels.getState().notes.length);
+  console.log(
+    'Notes count after undo:',
+    reloadedTravels.getState().notes.length
+  );
 
   console.log('\nGoing forward 1 step...');
   reloadedTravels.forward();
-  console.log('Notes count after redo:', reloadedTravels.getState().notes.length);
+  console.log(
+    'Notes count after redo:',
+    reloadedTravels.getState().notes.length
+  );
 
   // View full history
   console.log('\n=== Full history ===');

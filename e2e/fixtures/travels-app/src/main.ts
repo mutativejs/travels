@@ -6,6 +6,7 @@ import { createPinia, defineStore, setActivePinia } from 'pinia';
 import { action, autorun, makeAutoObservable, runInAction } from 'mobx';
 import {
   createTravels,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -331,7 +332,10 @@ const piniaApp = createApp({
           ),
           h(
             'button',
-            { 'data-testid': 'pinia-back', onClick: () => store.controls.back() },
+            {
+              'data-testid': 'pinia-back',
+              onClick: () => store.controls.back(),
+            },
             'Back'
           ),
           h(
@@ -421,18 +425,15 @@ document.querySelector('[data-testid="mobx-toggle-first"]')!.addEventListener(
     });
   })
 );
-document.querySelector('[data-testid="mobx-back"]')!.addEventListener(
-  'click',
-  () => runInAction(() => mobxControls.back())
-);
-document.querySelector('[data-testid="mobx-forward"]')!.addEventListener(
-  'click',
-  () => runInAction(() => mobxControls.forward())
-);
-document.querySelector('[data-testid="mobx-reset"]')!.addEventListener(
-  'click',
-  () => runInAction(() => mobxTravels.reset())
-);
+document
+  .querySelector('[data-testid="mobx-back"]')!
+  .addEventListener('click', () => runInAction(() => mobxControls.back()));
+document
+  .querySelector('[data-testid="mobx-forward"]')!
+  .addEventListener('click', () => runInAction(() => mobxControls.forward()));
+document
+  .querySelector('[data-testid="mobx-reset"]')!
+  .addEventListener('click', () => runInAction(() => mobxTravels.reset()));
 
 type PersistenceState = {
   title: string;
@@ -467,10 +468,10 @@ persistenceRoot.innerHTML = `
 const createPersistenceHistory = () => {
   const stored = localStorage.getItem(persistenceStorageKey);
   if (!stored) {
-    return createTravels<PersistenceState>(
-      createPersistenceFallback().state,
-      { maxHistory: 20, warnOnUnsupportedState: false }
-    );
+    return createTravels<PersistenceState>(createPersistenceFallback().state, {
+      maxHistory: 20,
+      warnOnUnsupportedState: false,
+    });
   }
 
   const history = Travels.deserialize<PersistenceState>(stored, {
@@ -482,8 +483,7 @@ const createPersistenceHistory = () => {
       }
     },
   });
-  return createTravels<PersistenceState>(history.state, {
-    history,
+  return restoreTravels<PersistenceState>(history, {
     maxHistory: 20,
     warnOnUnsupportedState: false,
   });
@@ -579,20 +579,27 @@ const renderMaxHistory = () => {
       .map((state) => state.count)
       .join(',')
   );
-  text('[data-testid="max-can-forward"]', String(maxHistoryTravels.canForward()));
+  text(
+    '[data-testid="max-can-forward"]',
+    String(maxHistoryTravels.canForward())
+  );
 };
 
 maxHistoryTravels.subscribe(renderMaxHistory);
 renderMaxHistory();
 
-document.querySelector('[data-testid="max-step"]')!.addEventListener('click', () => {
-  maxHistoryTravels.setState((draft) => {
-    draft.count += 1;
+document
+  .querySelector('[data-testid="max-step"]')!
+  .addEventListener('click', () => {
+    maxHistoryTravels.setState((draft) => {
+      draft.count += 1;
+    });
   });
-});
-document.querySelector('[data-testid="max-back"]')!.addEventListener('click', () => {
-  maxHistoryControls.back();
-});
+document
+  .querySelector('[data-testid="max-back"]')!
+  .addEventListener('click', () => {
+    maxHistoryControls.back();
+  });
 document
   .querySelector('[data-testid="max-forward"]')!
   .addEventListener('click', () => {
@@ -605,8 +612,10 @@ document
       draft.count *= 10;
     });
   });
-document.querySelector('[data-testid="max-reset"]')!.addEventListener('click', () => {
-  maxHistoryControls.reset();
-});
+document
+  .querySelector('[data-testid="max-reset"]')!
+  .addEventListener('click', () => {
+    maxHistoryControls.reset();
+  });
 
 initPersistenceAdapters();

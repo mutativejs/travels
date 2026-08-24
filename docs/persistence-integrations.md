@@ -1,6 +1,6 @@
 # Persistence Integrations
 
-Travels persistence is storage-agnostic. The only value that needs to be stored is the versioned snapshot returned by `travels.serialize()`. Restore it with `Travels.deserialize(...)`, then pass the validated history back to `createTravels(...)`.
+Travels persistence is storage-agnostic. The only value that needs to be stored is the versioned snapshot returned by `travels.serialize()`. Restore it with `Travels.deserialize(...)`, then pass the validated snapshot to `restoreTravels(...)`.
 
 This guide shows production-oriented adapters for:
 
@@ -26,7 +26,7 @@ Use the whole serialized snapshot as a single storage record. It contains the st
 
 ```ts
 import {
-  createTravels,
+  restoreTravels as restoreTimeline,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -64,10 +64,7 @@ function restoreTravels(raw: unknown) {
     }
   );
 
-  return createTravels(history.state, {
-    history,
-    maxHistory: 100,
-  });
+  return restoreTimeline(history, { maxHistory: 100 });
 }
 ```
 
@@ -529,7 +526,7 @@ For object-form input, top-level snapshot fields and the patch container's `patc
 When integrity or provenance matters, verification MUST happen outside Travels and before deserialization:
 
 ```text
-stored bytes -> verify envelope -> decode snapshot -> Travels.deserialize -> createTravels
+stored bytes -> verify envelope -> decode snapshot -> Travels.deserialize -> restoreTravels
 ```
 
 If external verification fails, discard the unverified snapshot and restore a trusted default or last-known-good generation. Do not rely on `fallback` to discover an internally consistent alternative history.

@@ -5,7 +5,7 @@
  */
 
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { createTravels, Travels } from '../src/index';
+import { createTravels, restoreTravels, Travels } from '../src/index';
 
 describe('Bug #1: canForward() boundary condition in Manual mode', () => {
   interface State {
@@ -786,18 +786,15 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
 
   test('rejects non-integer restored positions', () => {
     expect(() =>
-      createTravels(
-        { count: 0 },
-        {
-          history: {
-            patches: {
-              patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-              inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
-            },
-            position: 0.5,
-          },
-        }
-      )
+      restoreTravels({
+        version: 1,
+        state: { count: 0 },
+        patches: {
+          patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+          inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+        },
+        position: 0.5,
+      } as any)
     ).toThrow('persisted history position 0.5 is invalid');
   });
 
@@ -853,12 +850,12 @@ describe('Bug #8: Rehydrated patches should not share references', () => {
       inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
     };
 
-    const travels = createTravels(
-      { count: 0 },
-      {
-        history: { patches: restoredPatches, position: 0 },
-      }
-    );
+    const travels = restoreTravels({
+      version: 1,
+      state: { count: 0 },
+      patches: restoredPatches,
+      position: 0,
+    });
 
     restoredPatches.patches[0][0].value = 999;
     restoredPatches.inversePatches[0][0].value = -1;
@@ -918,20 +915,17 @@ describe('Bug #10: getPatches() should not expose internal mutable history', () 
 
 describe('Bug #13: mutable mode should detect string root replacement paths', () => {
   test('rehydrated empty-string root patch falls back to immutable apply in back()', () => {
-    const travels = createTravels(
-      { count: 1 },
+    const travels = restoreTravels(
       {
-        mutable: true,
-        history: {
-          patches: {
-            patches: [[{ op: 'replace', path: '', value: { count: 2 } }]],
-            inversePatches: [
-              [{ op: 'replace', path: '', value: { count: 1 } }],
-            ],
-          } as any,
-          position: 1,
-        },
-      }
+        version: 1,
+        state: { count: 1 },
+        patches: {
+          patches: [[{ op: 'replace', path: '', value: { count: 2 } }]],
+          inversePatches: [[{ op: 'replace', path: '', value: { count: 1 } }]],
+        } as any,
+        position: 1,
+      },
+      { mutable: true }
     );
 
     const beforeBackRef = travels.getState();
@@ -946,11 +940,12 @@ describe('Bug #13: mutable mode should detect string root replacement paths', ()
 
 describe('Bug #14: go() should not mutate archived inverse patches', () => {
   test('navigation-triggered auto archive keeps same patch ordering as explicit archive', () => {
-    const initialState: { a?: number; b: number; c?: number; list: number[] } = {
-      a: 1,
-      b: 2,
-      list: [1, 2],
-    };
+    const initialState: { a?: number; b: number; c?: number; list: number[] } =
+      {
+        a: 1,
+        b: 2,
+        list: [1, 2],
+      };
     const applyChanges = (
       travels: Travels<typeof initialState, false, false>
     ) => {
@@ -1010,10 +1005,7 @@ describe('Bug #16: mutable reset should respect root container types', () => {
 
 describe('Replay options', () => {
   test('keeps auto-freeze active across history navigation and reset', () => {
-    const travels = createTravels(
-      { count: 0 },
-      { enableAutoFreeze: true }
-    );
+    const travels = createTravels({ count: 0 }, { enableAutoFreeze: true });
 
     travels.setState((draft) => {
       draft.count = 1;
@@ -1037,30 +1029,27 @@ describe('Restored history validation', () => {
 
   test('rejects malformed patch operations', () => {
     expect(() =>
-      createTravels(
-        { count: 0 },
-        {
-          history: { patches: invalidPatches, position: 0 },
-        }
-      )
+      restoreTravels({
+        version: 1,
+        state: { count: 0 },
+        patches: invalidPatches,
+        position: 0,
+      })
     ).toThrow(/patches/);
   });
 
   test('rejects runtime-only terminal path keys', () => {
     const key = Symbol('runtime-key');
     expect(() =>
-      createTravels<Record<PropertyKey, unknown>>(
-        {},
-        {
-          history: {
-            patches: {
-              patches: [[{ op: 'add', path: [key], value: 1 } as any]],
-              inversePatches: [[{ op: 'remove', path: [key] } as any]],
-            },
-            position: 0,
-          },
-        }
-      )
+      restoreTravels<Record<PropertyKey, unknown>>({
+        version: 1,
+        state: {},
+        patches: {
+          patches: [[{ op: 'add', path: [key], value: 1 } as any]],
+          inversePatches: [[{ op: 'remove', path: [key] } as any]],
+        },
+        position: 0,
+      })
     ).toThrow(/patches/);
   });
 
@@ -1086,12 +1075,12 @@ describe('Restored history validation', () => {
       });
 
       expect(() =>
-        createTravels(
-          { count: 1 },
-          {
-            history: { patches: patches as any, position: 1 },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { count: 1 },
+          patches: patches as any,
+          position: 1,
+        })
       ).toThrow(/patches.*arrays of JSON Patch operations/);
     }
   });
@@ -1106,10 +1095,12 @@ describe('Restored history validation', () => {
       configurable: true,
     });
     expect(() =>
-      createTravels(
-        { count: 1 },
-        { history: { patches: patches as any, position: 1 } }
-      )
+      restoreTravels({
+        version: 1,
+        state: { count: 1 },
+        patches: patches as any,
+        position: 1,
+      })
     ).toThrow(/patches.*arrays of JSON Patch operations/);
   });
 
@@ -1124,20 +1115,15 @@ describe('Restored history validation', () => {
 
     for (const path of [extendedPath, customPrototypePath]) {
       expect(() =>
-        createTravels(
-          { count: 1 },
-          {
-            history: {
-              patches: {
-                patches: [[{ op: 'replace', path, value: 1 }]],
-                inversePatches: [
-                  [{ op: 'replace', path: ['count'], value: 0 }],
-                ],
-              } as any,
-              position: 1,
-            },
-          }
-        )
+        restoreTravels({
+          version: 1,
+          state: { count: 1 },
+          patches: {
+            patches: [[{ op: 'replace', path, value: 1 }]],
+            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          } as any,
+          position: 1,
+        })
       ).toThrow(/patches.*arrays of JSON Patch operations/);
     }
   });

@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   createTravels,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -34,8 +35,7 @@ describe('Browser-oriented persistence behavior', () => {
     const history = Travels.deserialize<BrowserState>(
       localStorage.getItem(storageKey)
     );
-    const restored = createTravels(history.state, {
-      history,
+    const restored = restoreTravels(history, {
       maxHistory: 20,
     });
 

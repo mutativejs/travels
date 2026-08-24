@@ -2,6 +2,7 @@ import { apply, create, type Draft, type Patches } from 'mutative';
 import { describe, expect, test, vi } from 'vitest';
 import {
   createTravelJournal,
+  restoreTravelJournal,
   createTravels,
   TravelsTypeError,
   type TravelHistoryEntry,
@@ -99,7 +100,10 @@ describe('controlled travel journal', () => {
   });
 
   test('revalidates reused external state references after mutation', () => {
-    type MutableOwnerState = { count: number; unsupported?: Map<string, number> };
+    type MutableOwnerState = {
+      count: number;
+      unsupported?: Map<string, number>;
+    };
     const authoritativeState: MutableOwnerState = { count: 0 };
     const journal = createTravelJournal(authoritativeState, {
       apply({ patches }) {
@@ -182,6 +186,44 @@ describe('controlled travel journal', () => {
         { apply: undefined as unknown as () => State }
       )
     ).toThrow('requires a synchronous apply function');
+  });
+
+  test('restores one complete journal snapshot', () => {
+    const source = createTravels<State>({ count: 0, label: 'initial' });
+    source.setState((draft) => {
+      draft.count = 1;
+    });
+    const snapshot = source.serialize();
+    let authoritativeState = snapshot.state;
+    const journal = restoreTravelJournal(snapshot, {
+      apply: ({ patches }) => {
+        authoritativeState = apply(authoritativeState, patches);
+        return authoritativeState;
+      },
+    });
+
+    expect(journal.getState()).toEqual({ count: 1, label: 'initial' });
+    expect(journal.getPosition()).toBe(1);
+    journal.back();
+    expect(authoritativeState).toEqual({ count: 0, label: 'initial' });
+    journal.forward();
+    expect(authoritativeState).toEqual({ count: 1, label: 'initial' });
+  });
+
+  test('rejects the removed split journal restore option at runtime', () => {
+    const source = createTravels<State>({ count: 0, label: 'initial' });
+    const snapshot = source.serialize();
+
+    expect(() =>
+      createTravelJournal(snapshot.state, {
+        apply: ({ state }) => state,
+        history: snapshot,
+      } as never)
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsTypeError>>({
+        code: 'INVALID_OPTION',
+      })
+    );
   });
 
   test('detaches recorded patch inputs from later caller mutation', () => {
@@ -292,17 +334,18 @@ describe('controlled travel journal', () => {
     const value = () => 'behavior';
 
     expect(() =>
-      createTravelJournal(
-        { count: 1, label: 'initial', value },
+      restoreTravelJournal(
+        {
+          version: 1,
+          state: { count: 1, label: 'initial', value },
+          patches: {
+            patches: [[{ op: 'add', path: ['value'], value }]],
+            inversePatches: [[{ op: 'remove', path: ['value'] }]],
+          },
+          position: 1,
+        },
         {
           apply: ({ state }) => state,
-          history: {
-            patches: {
-              patches: [[{ op: 'add', path: ['value'], value }]],
-              inversePatches: [[{ op: 'remove', path: ['value'] }]],
-            },
-            position: 1,
-          },
           warnOnUnsupportedState: false,
         }
       )
@@ -719,9 +762,7 @@ describe('controlled journal state validation boundaries', () => {
       journal.recordPatches(
         { value: null },
         {
-          patches: [
-            { op: 'replace', path: ['value'], value: new Set([1]) },
-          ],
+          patches: [{ op: 'replace', path: ['value'], value: new Set([1]) }],
           inversePatches: [{ op: 'replace', path: ['value'], value: null }],
         }
       )

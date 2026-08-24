@@ -6,6 +6,9 @@ to Travels without rerunning the update recipe or routing navigation around the
 owner's validation and subscription pipeline.
 
 Use `createTravels()` instead when Travels itself should own state updates.
+Restore serialized journal history with
+`restoreTravelJournal(snapshot, { apply })`; the snapshot state and timeline are
+accepted as one atomic input.
 
 ## Data flow
 

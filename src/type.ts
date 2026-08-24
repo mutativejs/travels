@@ -157,18 +157,15 @@ export type PatchableInput<T> = [NonPatchableValue<T>] extends [never]
   ? T
   : never;
 
-export type TravelsHistory<P extends PatchesOption = {}> = {
-  patches: TravelPatches<P>;
-  position: number;
-  metadata?: Array<TravelMetadata | undefined>;
-};
-
 export type TravelsSerializedHistory<
   S,
   P extends PatchesOption = {},
-> = TravelsHistory<P> & {
+> = {
   version: 1;
   state: S;
+  patches: TravelPatches<P>;
+  position: number;
+  metadata?: Array<TravelMetadata | undefined>;
 };
 
 export type TravelsPersistenceErrorCode =
@@ -338,11 +335,6 @@ export type TravelsOptions<
    */
   maxHistory?: number;
   /**
-   * Restore history normalized by `Travels.deserialize(...)`.
-   * Malformed history is rejected instead of silently discarded.
-   */
-  history?: TravelsHistory<P>;
-  /**
    * Whether to automatically archive the current state, by default `true`
    */
   autoArchive?: A;
@@ -406,7 +398,7 @@ export type ReadonlyState<S> = Immutable<S>;
 
 export interface TravelsControls<
   S,
-  F extends boolean,
+  _F extends boolean,
   P extends PatchesOption = {},
 > {
   /**

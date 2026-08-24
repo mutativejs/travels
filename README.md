@@ -20,6 +20,7 @@ Works with React, Vue, Zustand, or vanilla JavaScript.
 - [Core Concepts](#core-concepts)
 - [API Reference](#api-reference)
   - [createTravels](#createtravelsinitialstate-options)
+  - [restoreTravels](#restoretravelssnapshot-options)
   - [Instance Methods](#instance-methods)
   - [maxHistory option](#maxhistory-option)
 - [Controlled Journal: Integrate an External State Owner](#controlled-journal-integrate-an-external-state-owner)
@@ -172,7 +173,6 @@ constructor.
 | ------------------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `initialState`           | S              | Your application's starting state (see [state compatibility](#state-requirements-and-compatibility))                                                                                                                                     | (required)                       |
 | `maxHistory`             | number         | Maximum number of history entries to keep. Older entries are dropped. Must be a non-negative integer (`NaN`, `Infinity`, decimals are rejected).                                                                                         | 10                               |
-| `history`                | TravelsHistory | Restore validated history returned by `Travels.deserialize(...)`; malformed history is rejected instead of silently discarded                                                                                                          | undefined                        |
 | `autoArchive`            | boolean        | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                                                                             | true                             |
 | `mutable`                | boolean        | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                                                                                        | false                            |
 | `warnOnUnsupportedState` | boolean        | Development warnings for weak state, retained patch path/value, or metadata persistence semantics                                                                                                                                        | true in development              |
@@ -189,6 +189,13 @@ constructor.
 </details>
 
 **Returns:** `Travels<S, F, A>` - A Travels instance
+
+### `restoreTravels(snapshot, options?)`
+
+Restores a Travels instance from one complete `TravelsSerializedHistory`.
+Decode untrusted storage with `Travels.deserialize()` first. Creation options
+such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a
+separate `initialState` or `history` option is intentionally not accepted.
 
 ### Instance Methods
 
@@ -342,7 +349,7 @@ Checks current state, retained forward/inverse patches, patch paths, and metadat
 
 #### `Travels.deserialize(snapshot, options?): TravelsSerializedHistory`
 
-Validates and normalizes a persisted snapshot before restoring it with `createTravels(..., { history })`. Accepts either a parsed object or a JSON string. Structural validation is the low-latency default; select `validation: 'semantic'` to replay every entry in both directions and reject patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied. `migrate` and function-valued `fallback` callbacks must return synchronously.
+Validates and normalizes a persisted snapshot before restoring it with `restoreTravels(snapshot)`. Accepts either a parsed object or a JSON string. Structural validation is the low-latency default; select `validation: 'semantic'` to replay every entry in both directions and reject patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied. `migrate` and function-valued `fallback` callbacks must return synchronously.
 
 #### `canBack(): boolean`
 
@@ -533,6 +540,11 @@ commit((draft) => {
 });
 journal.back();
 ```
+
+Restore a persisted controlled timeline with
+`restoreTravelJournal(snapshot, { apply })`; like `restoreTravels()`, it accepts
+the complete snapshot as one atomic input rather than a separate state/history
+pair.
 
 <details>
 <summary><b>Contract: what the external owner must guarantee</b></summary>
@@ -948,7 +960,12 @@ export function useTravel(initialState, options) {
 To persist state across browser sessions or page reloads, use the versioned snapshot API. A snapshot contains the current state, patch history, position, and schema version.
 
 ```typescript
-import { createTravels, Travels, TravelsPersistenceError } from 'travels';
+import {
+  createTravels,
+  restoreTravels,
+  Travels,
+  TravelsPersistenceError,
+} from 'travels';
 
 function saveToStorage(travels) {
   localStorage.setItem('travels:document', JSON.stringify(travels.serialize()));
@@ -973,10 +990,7 @@ function loadFromStorage() {
     },
   });
 
-  return createTravels(history.state, {
-    history,
-    maxHistory: 50,
-  });
+  return restoreTravels(history, { maxHistory: 50 });
 }
 ```
 

@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   createPatchableTravels,
   createTravels,
+  restoreTravels,
   findStateCompatibilityIssues,
   Travels,
   TravelsError,
@@ -140,9 +141,7 @@ describe('State compatibility warnings', () => {
       throw new Error('expected strict serialization to fail');
     } catch (error) {
       expect(error).toBeInstanceOf(TravelsTypeError);
-      expect((error as TravelsTypeError).code).toBe(
-        'PERSISTENCE_INCOMPATIBLE'
-      );
+      expect((error as TravelsTypeError).code).toBe('PERSISTENCE_INCOMPATIBLE');
       expect(String((error as Error).message)).toContain('$.state.createdAt');
       expect(String((error as Error).message)).toContain(
         '$.metadata[0].requestId'
@@ -428,7 +427,7 @@ describe('State compatibility warnings', () => {
     const snapshot = source.serialize();
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    createTravels(snapshot.state, { history: snapshot });
+    restoreTravels(snapshot);
 
     expect(warnSpy).toHaveBeenCalledOnce();
     expect(warnSpy).toHaveBeenCalledWith(
@@ -449,7 +448,7 @@ describe('State compatibility warnings', () => {
       validation: 'semantic',
     });
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const restored = createTravels(snapshot.state, { history: snapshot });
+    const restored = restoreTravels(snapshot);
 
     expect(warnSpy).toHaveBeenCalledOnce();
     expect(warnSpy).toHaveBeenCalledWith(
@@ -478,18 +477,15 @@ describe('State compatibility warnings', () => {
     (_label, terminalSegment) => {
       const path = [terminalSegment] as unknown as string[];
       expect(() =>
-        createTravels<Record<PropertyKey, unknown>>(
-          {},
-          {
-            history: {
-              patches: {
-                patches: [[{ op: 'replace', path, value: 1 }]],
-                inversePatches: [[{ op: 'replace', path, value: 0 }]],
-              },
-              position: 0,
-            },
-          }
-        )
+        restoreTravels<Record<PropertyKey, unknown>>({
+          version: 1,
+          state: {},
+          patches: {
+            patches: [[{ op: 'replace', path, value: 1 }]],
+            inversePatches: [[{ op: 'replace', path, value: 0 }]],
+          },
+          position: 0,
+        })
       ).toThrow(/patches/);
     }
   );
@@ -519,7 +515,7 @@ describe('State compatibility warnings', () => {
       validation: 'semantic',
     });
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const restored = createTravels(snapshot.state, { history: snapshot });
+    const restored = restoreTravels(snapshot);
     const warnings = warnSpy.mock.calls.map(([message]) => String(message));
 
     expect(warnings).toHaveLength(4);
@@ -977,13 +973,13 @@ describe('State compatibility warnings', () => {
     const root = { child };
     const knownCollectionFree = new WeakSet<object>();
 
-    expect(
-      containsMapOrSet(root, new WeakSet(), knownCollectionFree)
-    ).toBe(false);
+    expect(containsMapOrSet(root, new WeakSet(), knownCollectionFree)).toBe(
+      false
+    );
     const descriptorSpy = vi.spyOn(Object, 'getOwnPropertyDescriptor');
-    expect(
-      containsMapOrSet(root, new WeakSet(), knownCollectionFree)
-    ).toBe(false);
+    expect(containsMapOrSet(root, new WeakSet(), knownCollectionFree)).toBe(
+      false
+    );
     const repeatedReads = descriptorSpy.mock.calls.filter(
       ([candidate]) => candidate === root || candidate === child
     );
@@ -1094,20 +1090,21 @@ describe('State compatibility warnings', () => {
       const collection = createCrossRealmCollection(kind);
 
       expect(() =>
-        createTravels(
-          { value: null as unknown },
+        restoreTravels(
           {
-            history: {
-              patches: {
-                patches: [
-                  [{ op: 'replace', path: ['value'], value: collection }],
-                ],
-                inversePatches: [
-                  [{ op: 'replace', path: ['value'], value: null }],
-                ],
-              },
-              position: 0,
+            version: 1,
+            state: { value: null as unknown },
+            patches: {
+              patches: [
+                [{ op: 'replace', path: ['value'], value: collection }],
+              ],
+              inversePatches: [
+                [{ op: 'replace', path: ['value'], value: null }],
+              ],
             },
+            position: 0,
+          },
+          {
             warnOnUnsupportedState: false,
           }
         )
@@ -1153,10 +1150,7 @@ describe('State compatibility warnings', () => {
     ['Set', () => new Proxy(new Set(), {})],
   ] as const)('rejects a same-realm proxy around %s', (_kind, createValue) => {
     expect(() =>
-      createTravels(
-        { value: createValue() },
-        { warnOnUnsupportedState: false }
-      )
+      createTravels({ value: createValue() }, { warnOnUnsupportedState: false })
     ).toThrow('Travels: Map and Set are not supported in state.');
   });
 
@@ -1261,20 +1255,19 @@ describe('State compatibility warnings', () => {
 
   test('rejects collection-bearing imported patches before history cloning', () => {
     expect(() =>
-      createTravels(
-        { value: null as Set<number> | null },
+      restoreTravels(
         {
-          history: {
-            patches: {
-              patches: [
-                [{ op: 'replace', path: ['value'], value: new Set([1]) }],
-              ],
-              inversePatches: [
-                [{ op: 'replace', path: ['value'], value: null }],
-              ],
-            },
-            position: 1,
+          version: 1,
+          state: { value: null as Set<number> | null },
+          patches: {
+            patches: [
+              [{ op: 'replace', path: ['value'], value: new Set([1]) }],
+            ],
+            inversePatches: [[{ op: 'replace', path: ['value'], value: null }]],
           },
+          position: 1,
+        },
+        {
           warnOnUnsupportedState: false,
         }
       )

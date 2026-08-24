@@ -3,7 +3,7 @@ import { openDB, type DBSchema } from 'idb';
 import localforage from 'localforage';
 import localspace from 'localspace';
 import {
-  createTravels,
+  restoreTravels as restoreTimeline,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -64,8 +64,7 @@ const restoreTravels = (
     }
   );
 
-  return createTravels(history.state, {
-    history,
+  return restoreTimeline(history, {
     maxHistory: 100,
     warnOnUnsupportedState: false,
   });
@@ -454,7 +453,11 @@ const initAdapterPanel = async (root: HTMLElement, name: AdapterName) => {
       `${name}-adapter-state`,
       `${state.title}|${state.blocks.map((block) => block.text).join(',')}`
     );
-    setPanelText(root, `${name}-adapter-position`, String(travels.getPosition()));
+    setPanelText(
+      root,
+      `${name}-adapter-position`,
+      String(travels.getPosition())
+    );
     await renderInfo(root, name, adapter);
   };
 

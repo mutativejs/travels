@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import fc from 'fast-check';
-import { createTravels, Travels } from '../src/index';
+import { createTravels, restoreTravels, Travels } from '../src/index';
 
 type ModelState = {
   counter: number;
@@ -93,8 +93,7 @@ const applyOperation = (state: ModelState, operation: Operation): void => {
       return;
     case 'replaceItem':
       if (state.items.length > 0) {
-        state.items[operation.index % state.items.length].text =
-          operation.text;
+        state.items[operation.index % state.items.length].text = operation.text;
       }
       return;
     case 'noOp':
@@ -154,8 +153,7 @@ describe('Property-based history invariants', () => {
           const history = Travels.deserialize<ModelState>(
             JSON.stringify(travels.serialize())
           );
-          const restored = createTravels(history.state, {
-            history,
+          const restored = restoreTravels(history, {
             maxHistory: operations.length + 1,
             warnOnUnsupportedState: false,
           });
@@ -272,8 +270,7 @@ describe('Property-based history invariants', () => {
           });
 
           if (
-            JSON.stringify(travels.getState()) !==
-            JSON.stringify(beforeNewEdit)
+            JSON.stringify(travels.getState()) !== JSON.stringify(beforeNewEdit)
           ) {
             expect(travels.canForward()).toBe(false);
           }

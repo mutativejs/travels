@@ -1,5 +1,5 @@
 import { expect, describe, test, vi } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, restoreTravels } from '../src/index';
 
 describe('Travels - Auto Archive Mode', () => {
   test('should create travels instance with initial state', () => {
@@ -175,8 +175,11 @@ describe('Travels - Auto Archive Mode', () => {
     const state = travels1.getState();
 
     // Create new instance with persisted data
-    const travels2 = createTravels(state, {
-      history: { patches, position },
+    const travels2 = restoreTravels({
+      version: 1,
+      state,
+      patches,
+      position,
     });
 
     expect(travels2.getState()).toEqual({ count: 2 });

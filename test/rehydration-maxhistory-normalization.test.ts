@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { createTravels } from '../src/index';
+import { restoreTravels } from '../src/index';
 
 type CountState = { count: number };
 
 const buildCountHistory = (steps: number) => {
-  const patches: Array<Array<{ op: 'replace'; path: (string | number)[]; value: number }>> = [];
+  const patches: Array<
+    Array<{ op: 'replace'; path: (string | number)[]; value: number }>
+  > = [];
   const inversePatches: Array<
     Array<{ op: 'replace'; path: (string | number)[]; value: number }>
   > = [];
@@ -28,12 +30,14 @@ const rehydrateCountHistory = ({
   position: number;
   current?: number;
 }) =>
-  createTravels<CountState>(
-    { count: current },
+  restoreTravels<CountState>(
     {
-      maxHistory,
-      history: { patches: buildCountHistory(totalSteps), position },
-    }
+      version: 1,
+      state: { count: current },
+      patches: buildCountHistory(totalSteps),
+      position,
+    },
+    { maxHistory }
   );
 
 describe('Rehydration maxHistory normalization', () => {

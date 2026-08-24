@@ -2,6 +2,7 @@ import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsTypeError } from './errors.js';
 import { TravelsCore, type Travels } from './travels.js';
 import type { PatchableInput, PatchesOption, TravelsOptions } from './type.js';
+import { assertNoHistoryOption } from './internal/factory-options.js';
 
 /**
  * Create a Travels instance whose state is statically constrained to the
@@ -48,6 +49,7 @@ export function createPatchableTravels<
   initialState: PatchableInput<S>,
   options: TravelsOptions<F, A, P> = {}
 ): Travels<S, F, A, P> {
+  assertNoHistoryOption(options, 'restoreTravels');
   const issues = findStateCompatibilityIssues(initialState, {
     allowFrozen: true,
   });
@@ -59,5 +61,8 @@ export function createPatchableTravels<
         .join('\n- ')}`
     );
   }
-  return new TravelsCore(initialState as S, options);
+  return new TravelsCore<S, F, A, P>(
+    { type: 'initial', state: initialState as S },
+    options
+  );
 }

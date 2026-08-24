@@ -5,6 +5,7 @@ import {
   createPatchableTravels,
   createTravelJournal,
   createTravels,
+  restoreTravels,
   Travels,
   type JsonValue,
   type PatchableState,
@@ -68,15 +69,18 @@ describe('Type-level API contracts', () => {
 
       const maybeAsyncMigration = (
         _input: unknown
-      ): TravelsSerializedHistory<State> |
-        Promise<TravelsSerializedHistory<State>> => snapshot;
+      ):
+        | TravelsSerializedHistory<State>
+        | Promise<TravelsSerializedHistory<State>> => snapshot;
       Travels.deserialize<State>(snapshot, {
         // @ts-expect-error Promise unions must also be rejected
         migrate: maybeAsyncMigration,
       });
+      // @ts-expect-error restore state and history can no longer diverge
+      createTravels(history.state, { history });
     }
 
-    createTravels(history.state, { history });
+    restoreTravels(history);
   });
 
   test('JsonValue and PatchableState constrain reusable helpers', () => {
@@ -127,8 +131,9 @@ describe('Type-level API contracts', () => {
   });
 
   test('state compatibility issue codes match scanner output', () => {
-    expectTypeOf<Extract<StateCompatibilityIssueCode, 'PATCH_PATH'>>()
-      .toEqualTypeOf<never>();
+    expectTypeOf<
+      Extract<StateCompatibilityIssueCode, 'PATCH_PATH'>
+    >().toEqualTypeOf<never>();
     expectTypeOf<
       Extract<
         StateCompatibilityIssueCode,
@@ -208,10 +213,7 @@ describe('Type-level API contracts', () => {
 
   test('factory overloads accept dynamic and generic archive modes', () => {
     const dynamicMode = true as boolean;
-    const travels = createTravels(
-      { count: 0 },
-      { autoArchive: dynamicMode }
-    );
+    const travels = createTravels({ count: 0 }, { autoArchive: dynamicMode });
     const patchableTravels = createPatchableTravels(
       { count: 0 },
       { autoArchive: dynamicMode }
@@ -336,9 +338,7 @@ describe('Type-level API contracts', () => {
         });
       });
 
-      const maybeAsyncUpdater = (
-        draft: State
-      ): void | Promise<void> => {
+      const maybeAsyncUpdater = (draft: State): void | Promise<void> => {
         draft.count = 2;
       };
       // @ts-expect-error Promise unions must also be rejected

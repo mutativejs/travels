@@ -68,9 +68,9 @@ caller-owned retained-history snapshot.
 
 ### Restore through one validated path
 
-Remove `initialPatches`, `initialPosition`, and `strictInitialPatches`. Decode
-stored input with `Travels.deserialize()` and pass its result through
-`history`:
+Remove the state-less `TravelsHistory` input type plus `history`,
+`initialPatches`, `initialPosition`, and `strictInitialPatches`. Decode stored
+input with `Travels.deserialize()` and restore the complete snapshot atomically:
 
 ```ts
 const history = Travels.deserialize<State>(stored, {
@@ -78,10 +78,10 @@ const history = Travels.deserialize<State>(stored, {
   fallback: emptySnapshot,
 });
 
-const travels = createTravels(history.state, { history });
+const travels = restoreTravels(history);
 ```
 
-Malformed `history` now throws rather than being discarded. Use
+Malformed snapshots now throw rather than being discarded. Use
 `Travels.deserialize(..., { fallback })` when recovery is intentional.
 
 ### Update observer and runtime compatibility
@@ -112,7 +112,7 @@ Zundo integrates directly with Zustand stores. Travels can be used as a separate
 1. Keep Zustand as the UI store.
 2. Call `travels.setState(...)` inside store actions.
 3. Sync `travels.getState()` back into Zustand after state changes.
-4. Use `Travels.deserialize(...)` and the `history` option for persisted history.
+4. Use `Travels.deserialize(...)` and `restoreTravels(...)` for persisted history.
 
 See [`examples/zustand.ts`](../examples/zustand.ts).
 
@@ -189,17 +189,18 @@ Do not replay old patch history generated from Map/Set mutations. Such history c
 
 Older hand-rolled persistence usually saved `{ state, patches, position }`. Convert it with `migrate`:
 
-Travels 3 has one restore path. Pass the result of `Travels.deserialize(...)`
-through `history`; the former `initialPatches`, `initialPosition`, and
-`strictInitialPatches` options no longer exist. Malformed `history` input now
-throws instead of silently starting with an empty timeline.
+Travels 3 has one restore path. Pass the complete result of
+`Travels.deserialize(...)` to `restoreTravels()`; the former `history`,
+`initialPatches`, `initialPosition`, and `strictInitialPatches` options no
+longer exist. Malformed snapshots throw instead of silently starting with an
+empty timeline.
 
 ```ts
 const history = Travels.deserialize<State>(stored, {
   validation: 'semantic',
 });
 
-const travels = createTravels(history.state, { history });
+const travels = restoreTravels(history);
 ```
 
 Migration and function-valued fallback callbacks must return synchronously.

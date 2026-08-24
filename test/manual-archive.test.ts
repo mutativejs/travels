@@ -1,5 +1,5 @@
 import { expect, describe, test, beforeEach } from 'vitest';
-import { createTravels, Travels } from '../src/index';
+import { createTravels, restoreTravels, Travels } from '../src/index';
 
 /**
  * Test suite for manual-archive.ts example
@@ -432,11 +432,15 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
       }
     `);
 
-    const rehydrated = createTravels(travels.getState(), {
-      maxHistory: 3,
-      autoArchive: false,
-      history: { patches: basePatches, position: travels.getPosition() },
-    });
+    const rehydrated = restoreTravels(
+      {
+        version: 1,
+        state: travels.getState(),
+        patches: basePatches,
+        position: travels.getPosition(),
+      },
+      { maxHistory: 3, autoArchive: false }
+    );
 
     rehydrated.back();
     expect(rehydrated.getState()).toBe(4);

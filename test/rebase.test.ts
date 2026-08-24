@@ -1,5 +1,5 @@
 import { expect, describe, test } from 'vitest';
-import { createTravels } from '../src/index';
+import { createTravels, restoreTravels } from '../src/index';
 
 describe('rebase()', () => {
   interface State {
@@ -14,9 +14,15 @@ describe('rebase()', () => {
   test('resets position to 0 and clears history', () => {
     const travels = createTravels<State>(initial);
 
-    travels.setState((d) => { d.count = 1; });
-    travels.setState((d) => { d.count = 2; });
-    travels.setState((d) => { d.count = 3; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
+    travels.setState((d) => {
+      d.count = 2;
+    });
+    travels.setState((d) => {
+      d.count = 3;
+    });
 
     expect(travels.getHistory()).toHaveLength(4);
 
@@ -32,7 +38,10 @@ describe('rebase()', () => {
   test('preserves current state value after rebase', () => {
     const travels = createTravels<State>(initial);
 
-    travels.setState((d) => { d.count = 5; d.text = 'changed'; });
+    travels.setState((d) => {
+      d.count = 5;
+      d.text = 'changed';
+    });
     travels.rebase();
 
     expect(travels.getState()).toEqual({ count: 5, text: 'changed' });
@@ -42,12 +51,18 @@ describe('rebase()', () => {
     const travels = createTravels<State>(initial);
     const controls = travels.getControls();
 
-    travels.setState((d) => { d.count = 1; });
-    travels.setState((d) => { d.count = 2; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
+    travels.setState((d) => {
+      d.count = 2;
+    });
 
     controls.rebase();
 
-    travels.setState((d) => { d.count = 3; });
+    travels.setState((d) => {
+      d.count = 3;
+    });
     controls.reset();
 
     expect(travels.getState().count).toBe(2);
@@ -57,11 +72,17 @@ describe('rebase()', () => {
   test('new history accumulates normally after rebase', () => {
     const travels = createTravels<State>(initial);
 
-    travels.setState((d) => { d.count = 1; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
     travels.rebase();
 
-    travels.setState((d) => { d.count = 2; });
-    travels.setState((d) => { d.count = 3; });
+    travels.setState((d) => {
+      d.count = 2;
+    });
+    travels.setState((d) => {
+      d.count = 3;
+    });
 
     expect(travels.getHistory()).toHaveLength(3);
     expect(travels.canBack()).toBe(true);
@@ -75,9 +96,15 @@ describe('rebase()', () => {
   test('rebase at mid-history discards future and past entries', () => {
     const travels = createTravels<State>(initial);
 
-    travels.setState((d) => { d.count = 1; });
-    travels.setState((d) => { d.count = 2; });
-    travels.setState((d) => { d.count = 3; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
+    travels.setState((d) => {
+      d.count = 2;
+    });
+    travels.setState((d) => {
+      d.count = 3;
+    });
 
     // Navigate back to count = 1
     travels.go(1);
@@ -98,8 +125,12 @@ describe('rebase()', () => {
     const travels = createTravels<State>(initial, { autoArchive: false });
     const controls = travels.getControls();
 
-    travels.setState((d) => { d.count = 1; });
-    travels.setState((d) => { d.count = 2; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
+    travels.setState((d) => {
+      d.count = 2;
+    });
 
     expect(controls.canArchive()).toBe(true);
 
@@ -117,9 +148,13 @@ describe('rebase()', () => {
     const travels = createTravels<State>(initial, { autoArchive: false });
     const controls = travels.getControls();
 
-    travels.setState((d) => { d.count = 3; });
+    travels.setState((d) => {
+      d.count = 3;
+    });
     controls.rebase();
-    travels.setState((d) => { d.count = 9; });
+    travels.setState((d) => {
+      d.count = 9;
+    });
     controls.reset();
 
     expect(travels.getState().count).toBe(3);
@@ -131,7 +166,9 @@ describe('rebase()', () => {
     const data: State = { count: 0, text: 'initial' };
     const travels = createTravels(data, { mutable: true });
 
-    travels.setState((d) => { d.count = 1; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
     expect(travels.getState()).toBe(data);
 
     travels.rebase();
@@ -145,10 +182,14 @@ describe('rebase()', () => {
     const data: State = { count: 0, text: 'initial' };
     const travels = createTravels(data, { mutable: true });
 
-    travels.setState((d) => { d.count = 1; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
     travels.rebase();
 
-    travels.setState((d) => { d.count = 2; });
+    travels.setState((d) => {
+      d.count = 2;
+    });
     expect(data.count).toBe(2);
 
     travels.reset();
@@ -161,9 +202,15 @@ describe('rebase()', () => {
   test('rebase with maxHistory: 2 resets capacity for new history', () => {
     const travels = createTravels<State>(initial, { maxHistory: 2 });
 
-    travels.setState((d) => { d.count = 1; });
-    travels.setState((d) => { d.count = 2; });
-    travels.setState((d) => { d.count = 3; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
+    travels.setState((d) => {
+      d.count = 2;
+    });
+    travels.setState((d) => {
+      d.count = 3;
+    });
 
     // Only last 2 steps kept
     expect(travels.getHistory()).toHaveLength(3);
@@ -171,9 +218,15 @@ describe('rebase()', () => {
     travels.rebase();
 
     // After rebase the capacity is fresh
-    travels.setState((d) => { d.count = 4; });
-    travels.setState((d) => { d.count = 5; });
-    travels.setState((d) => { d.count = 6; });
+    travels.setState((d) => {
+      d.count = 4;
+    });
+    travels.setState((d) => {
+      d.count = 5;
+    });
+    travels.setState((d) => {
+      d.count = 6;
+    });
 
     expect(travels.getHistory()).toHaveLength(3); // maxHistory=2 → 3 entries
     expect(travels.getState().count).toBe(6);
@@ -183,15 +236,19 @@ describe('rebase()', () => {
 
   test('rebase discards restored history so reset no longer restores it', () => {
     const seed = createTravels<State>(initial);
-    seed.setState((d) => { d.count = 1; });
-    seed.setState((d) => { d.count = 2; });
+    seed.setState((d) => {
+      d.count = 1;
+    });
+    seed.setState((d) => {
+      d.count = 2;
+    });
 
-    const travels = createTravels<State>(
-      { count: 10, text: 'initial' },
-      {
-        history: { patches: seed.getPatches(), position: 0 },
-      }
-    );
+    const travels = restoreTravels<State>({
+      version: 1,
+      state: { count: 10, text: 'initial' },
+      patches: seed.getPatches(),
+      position: 0,
+    });
 
     expect(travels.getState().count).toBe(10);
     // Check that restored entries are stored in history.
@@ -203,7 +260,9 @@ describe('rebase()', () => {
     expect(travels.getHistory()).toHaveLength(1);
 
     // reset() now returns to the new baseline, not the restored history.
-    travels.setState((d) => { d.count = 99; });
+    travels.setState((d) => {
+      d.count = 99;
+    });
     travels.reset();
     expect(travels.getState().count).toBe(10);
   });
@@ -213,7 +272,9 @@ describe('rebase()', () => {
   test('calling rebase() twice is safe', () => {
     const travels = createTravels<State>(initial);
 
-    travels.setState((d) => { d.count = 1; });
+    travels.setState((d) => {
+      d.count = 1;
+    });
     travels.rebase();
     travels.rebase();
 

@@ -147,6 +147,10 @@ type TravelsCoreOptions<
   controlledApply?: TravelsControlledApply<S, P>;
 };
 
+type TravelsCoreSource<S, P extends PatchesOption> =
+  | { type: 'initial'; state: S }
+  | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> };
+
 export const RECORD_TRAVEL_JOURNAL_PATCHES = Symbol(
   'Travels.recordTravelJournalPatches'
 );
@@ -493,10 +497,12 @@ export class TravelsCore<
     this.timeline.tempMetadata = value;
   }
 
-  constructor(initialState: S, options: TravelsCoreOptions<S, F, A, P> = {}) {
+  constructor(
+    source: TravelsCoreSource<S, P>,
+    options: TravelsCoreOptions<S, F, A, P> = {}
+  ) {
     const {
       maxHistory = 10,
-      history,
       autoArchive = true as A,
       mutable = false,
       warnOnUnsupportedState = process.env.NODE_ENV !== 'production',
@@ -549,23 +555,18 @@ export class TravelsCore<
       );
     }
 
+    const restoredHistory =
+      source.type === 'snapshot'
+        ? deserializeTravelsHistory<S, P>(source.snapshot, {
+            validation: 'structural',
+          })
+        : undefined;
+    const startingState =
+      source.type === 'snapshot' ? restoredHistory!.state : source.state;
     assertSupportedRuntimeState(
-      initialState,
+      startingState,
       mutable || controlledApply ? undefined : this.collectionFreeObjects
     );
-
-    const restoredHistory = history
-      ? deserializeTravelsHistory<S, P>(
-          {
-            version: TRAVELS_HISTORY_SCHEMA_VERSION,
-            state: initialState,
-            patches: history.patches,
-            position: history.position,
-            metadata: history.metadata,
-          },
-          { validation: 'structural' }
-        )
-      : undefined;
     let restoredPatches = restoredHistory?.patches;
     if (restoredPatches && controlledApply) {
       restoredPatches = {
@@ -578,9 +579,9 @@ export class TravelsCore<
       };
     }
 
-    this.state = initialState;
+    this.state = startingState;
     // For mutable mode, deep clone initialState to prevent mutations
-    this.baselineState = cloneInitialSnapshot(initialState);
+    this.baselineState = cloneInitialSnapshot(startingState);
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
     this.mutableMode = mutable;

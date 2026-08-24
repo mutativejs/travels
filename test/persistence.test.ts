@@ -1,6 +1,7 @@
 import { expect, describe, test, beforeEach, afterEach, vi } from 'vitest';
 import {
   createTravels,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -121,8 +122,7 @@ describe('Persistence Example - State Persistence', () => {
     const stored = localStorage.getItem(STORAGE_KEY);
     const history = Travels.deserialize<AppState>(stored);
 
-    const reloadedTravels = createTravels(history.state, {
-      history,
+    const reloadedTravels = restoreTravels(history, {
       maxHistory: 50,
     });
 
@@ -176,8 +176,7 @@ describe('Persistence Example - State Persistence', () => {
     const stored = localStorage.getItem(STORAGE_KEY);
     const history = Travels.deserialize<AppState>(stored);
 
-    const reloadedTravels = createTravels(history.state, {
-      history,
+    const reloadedTravels = restoreTravels(history, {
       maxHistory: 50,
     });
 
@@ -213,8 +212,7 @@ describe('Persistence Example - State Persistence', () => {
     // Save and reload
     const data = Travels.deserialize<AppState>(initialTravels.serialize());
 
-    const reloadedTravels = createTravels(data.state, {
-      history: data,
+    const reloadedTravels = restoreTravels(data, {
       maxHistory: 50,
     });
 
@@ -223,6 +221,30 @@ describe('Persistence Example - State Persistence', () => {
     expect(history[0].user.name).toBe('Guest');
     expect(history[1].user.name).toBe('Alice');
     expect(history[2].user.preferences.theme).toBe('dark');
+  });
+
+  test('restores snapshot state and history through one atomic input', () => {
+    const source = createTravels({ count: 0 });
+    source.setState((draft) => {
+      draft.count = 1;
+    });
+    const snapshot = source.serialize();
+    const restored = restoreTravels(snapshot);
+
+    expect(restored.getState()).toEqual({ count: 1 });
+    expect(restored.getPosition()).toBe(1);
+    restored.back();
+    expect(restored.getState()).toEqual({ count: 0 });
+    restored.forward();
+    expect(restored.getState()).toEqual({ count: 1 });
+
+    expect(() =>
+      createTravels(snapshot.state, { history: snapshot } as never)
+    ).toThrowError(
+      expect.objectContaining({
+        code: 'INVALID_OPTION',
+      })
+    );
   });
 
   test('should export data for backup', () => {
@@ -303,8 +325,7 @@ describe('Persistence Example - State Persistence', () => {
     // Persist and reload
     const data = Travels.deserialize<AppState>(travels.serialize());
 
-    const reloadedTravels = createTravels(data.state, {
-      history: data,
+    const reloadedTravels = restoreTravels(data, {
       maxHistory: 50,
     });
 
@@ -351,7 +372,7 @@ describe('Persistence Example - State Persistence', () => {
     expect(travels.getPatches().patches).toHaveLength(1);
   });
 
-  test('Travels.deserialize() should restore history through the history option', () => {
+  test('Travels.deserialize() should restore one complete snapshot', () => {
     const initialTravels = createTravels<AppState>(
       {
         user: {
@@ -377,8 +398,7 @@ describe('Persistence Example - State Persistence', () => {
 
     const stored = JSON.stringify(initialTravels.serialize());
     const history = Travels.deserialize<AppState>(stored);
-    const reloadedTravels = createTravels(history.state, {
-      history,
+    const reloadedTravels = restoreTravels(history, {
       maxHistory: 50,
     });
 
@@ -408,9 +428,8 @@ describe('Persistence Example - State Persistence', () => {
     expect(snapshot.metadata).toHaveLength(snapshot.patches.patches.length);
 
     const history = Travels.deserialize<typeof snapshot.state>(snapshot);
-    const reloadedTravels = createTravels(history.state, {
+    const reloadedTravels = restoreTravels(history, {
       autoArchive: false,
-      history,
     });
 
     expect(reloadedTravels.getState()).toEqual({ count: 1 });
@@ -434,9 +453,8 @@ describe('Persistence Example - State Persistence', () => {
     const history = Travels.deserialize<{ items: string[] }>(
       JSON.stringify(travels.serialize())
     );
-    const reloadedTravels = createTravels(history.state, {
+    const reloadedTravels = restoreTravels(history, {
       autoArchive: false,
-      history,
       maxHistory: 10,
     });
 
@@ -472,13 +490,14 @@ describe('Persistence Example - State Persistence', () => {
     const history = Travels.deserialize<{ count: number }>(
       JSON.stringify(snapshot)
     );
-    const restored = createTravels(history.state, {
+    const restored = restoreTravels(history, {
       autoArchive: false,
-      history,
       maxHistory: 2,
     });
 
-    expect(restored.getHistory().map((state) => state.count)).toEqual([1, 2, 3]);
+    expect(restored.getHistory().map((state) => state.count)).toEqual([
+      1, 2, 3,
+    ]);
     restored.back();
     expect(restored.getState()).toEqual({ count: 2 });
     restored.forward();
@@ -491,11 +510,11 @@ describe('Persistence Example - State Persistence', () => {
       draft.count = 1;
     });
 
-    const reloadedTravels = createTravels(initialTravels.getState(), {
-      history: {
-        patches: initialTravels.getPatches(),
-        position: initialTravels.getPosition(),
-      },
+    const reloadedTravels = restoreTravels({
+      version: TRAVELS_HISTORY_SCHEMA_VERSION,
+      state: initialTravels.getState(),
+      patches: initialTravels.getPatches(),
+      position: initialTravels.getPosition(),
     });
 
     const snapshot = reloadedTravels.serialize();
@@ -591,14 +610,18 @@ describe('Persistence Example - State Persistence', () => {
       );
 
       expect(() =>
-        createTravels(
-          { count: 1 },
+        restoreTravels(
           {
-            history: { patches: patches as TravelPatches, position: 1 },
-            warnOnUnsupportedState: false,
-          }
+            version: TRAVELS_HISTORY_SCHEMA_VERSION,
+            state: { count: 1 },
+            patches: patches as TravelPatches,
+            position: 1,
+          },
+          { warnOnUnsupportedState: false }
         )
-      ).toThrow(/must have both forward and inverse operations|must not be empty/);
+      ).toThrow(
+        /must have both forward and inverse operations|must not be empty/
+      );
     }
 
     for (const operation of [
@@ -823,7 +846,7 @@ describe('Persistence Example - State Persistence', () => {
 
     expect(history.metadata).toEqual([undefined]);
 
-    const travels = createTravels(history.state, { history });
+    const travels = restoreTravels(history);
     expect(travels.getMetadata()).toEqual([undefined]);
   });
 
@@ -1037,15 +1060,14 @@ describe('Persistence Example - State Persistence', () => {
         })
       );
       expect(() =>
-        createTravels(
-          { count: 0 },
+        restoreTravels(
           {
-            history: {
-              patches: patchHistory as TravelPatches,
-              position: 0,
-            },
-            warnOnUnsupportedState: false,
-          }
+            version: TRAVELS_HISTORY_SCHEMA_VERSION,
+            state: { count: 0 },
+            patches: patchHistory as TravelPatches,
+            position: 0,
+          },
+          { warnOnUnsupportedState: false }
         )
       ).toThrow(/patches.*JSON Patch operations/);
       expect(getter).not.toHaveBeenCalled();
@@ -1164,12 +1186,14 @@ describe('Persistence Example - State Persistence', () => {
         })
       );
       expect(() =>
-        createTravels(
-          { value: null },
+        restoreTravels(
           {
-            history: { patches, position: 0 },
-            warnOnUnsupportedState: false,
-          }
+            version: TRAVELS_HISTORY_SCHEMA_VERSION,
+            state: { value: null },
+            patches,
+            position: 0,
+          },
+          { warnOnUnsupportedState: false }
         )
       ).toThrow(/patches.*JSON Patch operations/);
       expect(getter).not.toHaveBeenCalled();
@@ -1200,9 +1224,7 @@ describe('Persistence Example - State Persistence', () => {
       position: 0,
       patches: {
         patches: [[operation]],
-        inversePatches: [
-          [{ op: 'replace', path: ['count'], value: 0 }],
-        ],
+        inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
       },
     });
 
@@ -1211,8 +1233,7 @@ describe('Persistence Example - State Persistence', () => {
       path: ['count'],
       value: 1,
     });
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       warnOnUnsupportedState: false,
     });
     travels.forward();
@@ -1249,8 +1270,7 @@ describe('Persistence Example - State Persistence', () => {
         metadata: Object.freeze([undefined]),
       }) as unknown
     );
-    const travels = createTravels(history.state, {
-      history,
+    const travels = restoreTravels(history, {
       warnOnUnsupportedState: false,
     });
 
@@ -1275,7 +1295,7 @@ describe('Persistence Example - State Persistence', () => {
       constructor: string;
       prototype: string;
     }>(JSON.stringify(travels.serialize()));
-    const restored = createTravels(history.state, { history });
+    const restored = restoreTravels(history);
 
     expect(restored.getState()).toEqual({
       constructor: 'updated-document',
@@ -1291,7 +1311,12 @@ describe('Persistence Example - State Persistence', () => {
   });
 
   test('Travels.deserialize() permits terminal reserved-looking patch paths', () => {
-    const paths = [['constructor'], ['prototype'], '/constructor', '/prototype'];
+    const paths = [
+      ['constructor'],
+      ['prototype'],
+      '/constructor',
+      '/prototype',
+    ];
 
     for (const path of paths) {
       expect(() =>

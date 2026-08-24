@@ -24,18 +24,20 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   `TravelJournal` is an explicit facade that does not expose `setState()`,
   `reset()`, transactions, tracking, archive, or `getControls()`.
 - Make `TravelsControls` a read-only capability object and change
-  both history surfaces to return `readonly ReadonlyState<S>[]`. Controls are
-  frozen in every build. Use `getHistorySnapshot()` for detached mutable `S[]`
-  values, independently of the auto-freeze option.
+  both shared `getHistory()` surfaces to return
+  `readonly ReadonlyState<S>[]`. Controls are frozen in every build. Use
+  `getHistorySnapshot()` for detached mutable `S[]` values, independently of
+  the auto-freeze option.
 - Expose observer deltas as `ReadonlyTravelPatches`. The shared patch snapshot,
   its group arrays, operations, and array paths are frozen when lazily
   materialized.
 - Remove the deprecated `TravelsDevtoolsEvent` alias and the
   `LEGACY_SUBSCRIBER` arity warning. Subscribers and devtools use
   `TravelsEvent` exclusively.
-- Remove `initialPatches`, `initialPosition`, and `strictInitialPatches` from
-  `TravelsOptions`. Restore through `Travels.deserialize()` and the single
-  `history` option; malformed history now throws instead of silently starting
+- Remove the split `TravelsHistory` type plus `history`, `initialPatches`,
+  `initialPosition`, and `strictInitialPatches` from `TravelsOptions`. Restore
+  one complete `TravelsSerializedHistory` through `Travels.deserialize()` and
+  `restoreTravels()`; malformed history now throws instead of silently starting
   from an empty timeline.
 - Require Node.js 22 or newer. CI and release verification cover Node.js 22 and
   24.
@@ -50,12 +52,13 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 ### Changed
 
 - Rename the internal restored reset state to a baseline model, keeping
-  transaction rollback, `reset()`, and `rebase()` aligned with the unified
-  history option.
-- Validate supplied `history` structurally at construction time even when a
-  JavaScript caller bypasses TypeScript. Persistence from storage should still
-  go through `Travels.deserialize(..., { validation: 'semantic' })` when its
-  provenance is not trusted.
+  transaction rollback, `reset()`, and `rebase()` aligned with atomic snapshot
+  restoration.
+- Validate complete restore snapshots structurally even when a JavaScript caller
+  bypasses TypeScript, and reject the removed `history` option at runtime.
+  Persistence from storage should still go through
+  `Travels.deserialize(..., { validation: 'semantic' })` when its provenance is
+  not trusted.
 - Update persistence examples, browser fixtures, API documentation, and the
   release workflows for the 3.0 contracts.
 - Recalibrate only the development sourcemap and npm package-envelope budgets

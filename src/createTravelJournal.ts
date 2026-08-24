@@ -9,7 +9,9 @@ import type {
   TravelHistoryEntry,
   TravelsControlledApply,
   TravelsOptions,
+  TravelsSerializedHistory,
 } from './type.js';
+import { assertNoHistoryOption } from './internal/factory-options.js';
 
 /**
  * Public surface for a timeline whose state is owned by another runtime.
@@ -62,12 +64,14 @@ export type TravelJournalOptions<
  * The returned interface excludes state-owning Travels operations that could
  * bypass the external owner.
  */
-export const createTravelJournal = <
+const createJournal = <
   S,
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  initialState: S,
+  source:
+    | { type: 'initial'; state: S }
+    | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> },
   options: TravelJournalOptions<S, F, P>
 ): TravelJournal<S, F, P> => {
   const { apply, ...travelsOptions } = options;
@@ -77,7 +81,7 @@ export const createTravelJournal = <
       'Travels: createTravelJournal requires a synchronous apply function.'
     );
   }
-  const core = new TravelsCore(initialState, {
+  const core = new TravelsCore<S, F, true, P>(source, {
     ...travelsOptions,
     autoArchive: true,
     mutable: false,
@@ -106,4 +110,28 @@ export const createTravelJournal = <
   };
 
   return journal;
+};
+
+export const createTravelJournal = <
+  S,
+  F extends boolean = false,
+  P extends PatchesOption = {},
+>(
+  initialState: S,
+  options: TravelJournalOptions<S, F, P>
+): TravelJournal<S, F, P> => {
+  assertNoHistoryOption(options, 'restoreTravelJournal');
+  return createJournal({ type: 'initial', state: initialState }, options);
+};
+
+/** Restore an externally owned journal from one complete persisted snapshot. */
+export const restoreTravelJournal = <
+  S,
+  F extends boolean = false,
+  P extends PatchesOption = {},
+>(
+  snapshot: TravelsSerializedHistory<S, P>,
+  options: TravelJournalOptions<S, F, P>
+): TravelJournal<S, F, P> => {
+  return createJournal({ type: 'snapshot', snapshot }, options);
 };
