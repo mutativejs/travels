@@ -16,17 +16,19 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // adds explicit public capabilities, atomic restore factories, and its
 // migration guide. Public factory option guards and read-only observer docs add
 // source-map and package bytes, while unreachable implementation declarations
-// are pruned. Those deliberate bytes are budgeted without widening the
-// production JavaScript raw or gzip limits.
+// are pruned. Synchronous history-free updater declarations and factory-specific
+// journal diagnostics and normalized root patch paths add deliberate runtime,
+// source-map, and package bytes while keeping production JavaScript within its
+// existing raw and gzip limits.
 const limits = {
   bundleRaw: 50.5 * KiB,
   bundleGzip: 14 * KiB,
-  bundleMap: 238.5 * KiB,
-  developmentBundleRaw: 55.5 * KiB,
+  bundleMap: 240.5 * KiB,
+  developmentBundleRaw: 56 * KiB,
   developmentBundleGzip: 15 * KiB,
-  developmentBundleMap: 244.5 * KiB,
-  packagePacked: 462 * KiB,
-  packageUnpacked: 1810 * KiB,
+  developmentBundleMap: 246.5 * KiB,
+  packagePacked: 465 * KiB,
+  packageUnpacked: 1823 * KiB,
 };
 
 const failures = [];
