@@ -32,9 +32,9 @@ single-generation integration path.
 Patch groups and metadata are cloned before Travels retains them. The supplied
 state remains the external owner's state reference and is not cloned.
 
-## Navigation contract
+## Navigation and reset contract
 
-`back()`, `forward()`, and `go()` compose the necessary retained patches and
+`back()`, `forward()`, `go()`, and `reset()` compose the necessary patches and
 invoke the required `apply` callback:
 
 ```ts
@@ -58,28 +58,37 @@ The transition contains detached patch operations and values, so accidental call
 In development builds Travels also scans the returned state for `Map` and `Set`, and an unsupported state is rejected with the same atomicity: the cursor, retained state reference, and history are unchanged. That scan is proportional to the whole state, so production builds skip it and pay nothing per navigation. It is a diagnostic that tells an owner early which transition introduced an unsupported value, not the guarantee that keeps persistence sound: `serialize()`, `rebase()`, and `getHistorySnapshot()` validate the state in every build, and controlled patch values are validated in every build, so an unsupported value can never reach retained history or a persisted snapshot. Develop against a development build to keep the early signal. Travels cannot undo mutations or other side effects the external owner already performed before failing.
 
 The owner must suppress normal commit recording while applying delegated
-navigation. Feeding an undo or redo back into `recordPatches()` would create a
-new entry instead of moving the existing cursor.
+navigation or reset. Feeding those changes back into `recordPatches()` would
+create a new entry instead of moving or clearing the existing timeline.
+
+Set `autoArchive: false` when several external commits should become one undo
+step. Each `recordPatches()` call updates the pending current state;
+`archive(metadata?)` composes the pending patch groups, and `canArchive()`
+reports whether any work is pending. Archiving changes only journal history and
+does not invoke `apply` because the external owner already committed the state.
 
 ## Public surface
 
 The returned `TravelJournal` exposes only journal-safe operations:
 
 - external commit ingress: `recordPatches()`;
-- navigation: `back()`, `forward()`, `go()`, `canBack()`, and `canForward()`;
+- navigation: `back()`, `forward()`, `go()`, `reset()`, `canBack()`, and
+  `canForward()`;
 - reads: `getState()`, `getHistory()`, `getHistorySnapshot()`, `getPosition()`,
   `getPatches()`, `getMetadata()`, `getHistoryEntries()`,
   `assertPersistenceCompatible()`, and `serialize()`;
-- lifecycle: `subscribe()` and `rebase()`.
+- lifecycle: `subscribe()` and `rebase()`;
+- manual journals only: `archive()` and `canArchive()`.
 
 The facade is a frozen read-only capability object in every build; its methods
 cannot be replaced at runtime.
 
-State-owning operations (`setState()`, `reset()`, transactions,
-`replaceStateWithoutHistory()`, archive/tracking controls, and `getControls()`)
-are absent from both the public type and the runtime facade. `rebase()` is the
-safe way to clear retained history because it changes only the journal
-baseline and cursor, not the external state.
+State-owning operations (`setState()`, transactions,
+`replaceStateWithoutHistory()`, tracking controls, and `getControls()`) are
+absent from both the public type and the runtime facade. `rebase()` is the safe
+way to clear retained history while keeping the current external state as the
+new baseline; `reset()` instead asks the external owner to restore the existing
+baseline.
 
 ## Failure boundaries
 

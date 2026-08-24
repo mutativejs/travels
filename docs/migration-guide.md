@@ -26,8 +26,8 @@ at runtime.
 
 A state-owning timeline created with `createTravels()` exposes state updates
 but no `recordPatches()`. An externally owned timeline created with
-`createTravelJournal()` exposes `recordPatches()` and navigation, but none of
-the state-owning methods.
+`createTravelJournal()` exposes `recordPatches()`, navigation, and reset, but
+none of the state-owning update methods.
 
 ```ts
 const journal = createTravelJournal(authoritativeState, {

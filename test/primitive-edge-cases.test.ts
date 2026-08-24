@@ -130,6 +130,16 @@ describe('Primitive types edge cases with mutable mode', () => {
     expect(travels.getPosition()).toBe(0);
   });
 
+  test('reset distinguishes an undefined baseline from missing state', () => {
+    const travels = createTravels<number | undefined>(undefined);
+
+    travels.setState(() => 1);
+    travels.reset();
+
+    expect(travels.getState()).toBeUndefined();
+    expect(travels.getPosition()).toBe(0);
+  });
+
   test('transition from primitive to object throws no errors', () => {
     const travels = createTravels<number | { count: number }>(0, {
       mutable: true,

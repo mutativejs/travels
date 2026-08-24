@@ -518,8 +518,8 @@ expect(travels.getState().count).toBe(0); // Back to the original initial state
 Use `createTravelJournal()` when a store, state machine, worker, or other
 runtime already owns state and produces a forward/inverse patch pair for each
 commit. The adapter records that pair once instead of asking Travels to run the
-update recipe again. Undo and redo are delegated through the owner's normal
-commit path:
+update recipe again. Navigation and reset are delegated through the owner's
+normal commit path:
 
 ```ts
 import { apply as applyPatches, create, type Draft } from 'mutative';
@@ -568,11 +568,14 @@ pair.
   owner and return its committed state. If it throws or returns a Promise,
   Travels does not advance its cursor or replace its retained state reference;
   it cannot roll back side effects the external owner already performed. Do not
-  record the delegated undo/redo as a new history entry.
+  record delegated navigation or reset as a new history entry.
 - The public `TravelJournal` type omits state-owning operations such as
-  `setState()`, `reset()`, transactions, tracking controls, and `getControls()`.
-  Those properties are absent from the runtime facade as well. Use `rebase()`
-  to clear the timeline while preserving the current externally owned state.
+  `setState()`, transactions, tracking controls, and `getControls()`. Those
+  properties are absent from the runtime facade as well. `reset()` applies the
+  journal baseline through the owner. With `autoArchive: false`, `archive()`
+  and `canArchive()` group pending external commits just like a manual
+  state-owning timeline. Use `rebase()` to clear the timeline while preserving
+  the current externally owned state.
 - A successful `recordPatches()` notification has event type `recordPatches`.
   `TravelsEvent['type']` is intentionally open for future minor-release event
   names, so consumers should keep a `default` branch. Standard

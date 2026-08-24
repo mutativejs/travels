@@ -1012,9 +1012,11 @@ export class TravelsCore<
     if (
       this.stateDriver.isControlled &&
       api !== 'recordPatches' &&
+      api !== 'archive' &&
       api !== 'go' &&
       api !== 'back' &&
       api !== 'forward' &&
+      api !== 'reset' &&
       api !== 'rebase'
     ) {
       throw new TravelsError(
@@ -2252,6 +2254,7 @@ export class TravelsCore<
 
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
+    let nextImmutableState: { value: S } | undefined;
     const canResetMutably =
       this.mutable && canSynchronizeMutableRoots(this.state, this.baselineState);
 
@@ -2284,12 +2287,12 @@ export class TravelsCore<
       const [nextState, resetPatches, resetInversePatches] = create(
         this.state,
         () =>
-          isObjectLike(target)
-            ? (rawReturn(target as object) as S)
+          isObjectLike(target) || target === undefined
+            ? (rawReturn(target as object | undefined) as S)
             : (target as S),
         this.options
       ) as unknown as [S, Patches<P>, Patches<P>];
-      this.state = nextState;
+      nextImmutableState = { value: nextState };
       patches = resetPatches;
       inversePatches = resetInversePatches;
     }
@@ -2302,6 +2305,20 @@ export class TravelsCore<
       inversePatches,
       this.patchPathAsArray
     );
+
+    if (this.stateDriver.isControlled) {
+      this.state = this.stateDriver.applyNavigation({
+        state: this.state,
+        patches,
+        inversePatches,
+        fromPosition: this.position,
+        toPosition: this.baselinePosition,
+        journalMutableState: (state, rollbackPatches) =>
+          this.journalMutableState(state, rollbackPatches),
+      });
+    } else if (nextImmutableState !== undefined) {
+      this.state = nextImmutableState.value;
+    }
 
     this.position = this.baselinePosition;
     this.allPatches = cloneTravelPatches(this.baselinePatches);

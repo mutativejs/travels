@@ -17,6 +17,73 @@ const produceCommit = (state: State, recipe: (draft: Draft<State>) => void) =>
   create(state, recipe, { enablePatches: true }) as [State, Patches, Patches];
 
 describe('controlled travel journal', () => {
+  test('supports manual archive ownership without applying state twice', () => {
+    let authoritativeState: State = { count: 0, label: 'initial' };
+    const journal = createTravelJournal(authoritativeState, {
+      autoArchive: false as const,
+      apply: ({ patches }) => {
+        authoritativeState = apply(authoritativeState, patches);
+        return authoritativeState;
+      },
+    });
+
+    for (const count of [1, 2]) {
+      const [nextState, patches, inversePatches] = produceCommit(
+        authoritativeState,
+        (draft) => {
+          draft.count = count;
+        }
+      );
+      authoritativeState = nextState;
+      journal.recordPatches(nextState, { patches, inversePatches });
+    }
+
+    expect(journal.canArchive()).toBe(true);
+    expect(journal.getHistory()).toEqual([
+      { count: 0, label: 'initial' },
+      { count: 2, label: 'initial' },
+    ]);
+
+    journal.archive({ label: 'two edits' });
+
+    expect(journal.canArchive()).toBe(false);
+    expect(journal.getMetadata()).toEqual([{ label: 'two edits' }]);
+    journal.back();
+    expect(authoritativeState).toEqual({ count: 0, label: 'initial' });
+  });
+
+  test('resets through the external owner and rolls back on apply failure', () => {
+    let authoritativeState: State = { count: 0, label: 'initial' };
+    let rejectReset = false;
+    const journal = createTravelJournal(authoritativeState, {
+      apply: ({ patches }) => {
+        if (rejectReset) throw new Error('reset rejected');
+        authoritativeState = apply(authoritativeState, patches);
+        return authoritativeState;
+      },
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      authoritativeState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    authoritativeState = nextState;
+    journal.recordPatches(nextState, { patches, inversePatches });
+
+    rejectReset = true;
+    expect(() => journal.reset()).toThrow('reset rejected');
+    expect(journal.getState()).toEqual({ count: 1, label: 'initial' });
+    expect(journal.getPosition()).toBe(1);
+
+    rejectReset = false;
+    journal.reset();
+    expect(authoritativeState).toEqual({ count: 0, label: 'initial' });
+    expect(journal.getState()).toBe(authoritativeState);
+    expect(journal.getPosition()).toBe(0);
+    expect(journal.canForward()).toBe(false);
+  });
+
   test('records externally committed patches and delegates navigation', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     const applyTransition = vi.fn(({ patches }: { patches: Patches }) => {
@@ -125,14 +192,13 @@ describe('controlled travel journal', () => {
     expect(journal.getPosition()).toBe(1);
   });
 
-  test('does not expose state-owning operations at runtime', () => {
+  test('exposes only externally safe operations at runtime', () => {
     const journal = createTravelJournal<State>(
       { count: 0, label: 'initial' },
       { apply: ({ state }) => state }
     );
     const stateOwningOperations = [
       'setState',
-      'reset',
       'replaceStateWithoutHistory',
       'transaction',
       'batch',
@@ -146,6 +212,7 @@ describe('controlled travel journal', () => {
       expect(operation in journal).toBe(false);
     }
 
+    expect(typeof journal.reset).toBe('function');
     expect(Object.isFrozen(journal)).toBe(true);
     expect(() => {
       (journal as { back: () => void }).back = () => undefined;

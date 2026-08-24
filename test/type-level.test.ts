@@ -23,6 +23,25 @@ import {
 } from '../src/index';
 
 describe('Type-level API contracts', () => {
+  test('journal capabilities follow archive mode', () => {
+    const automatic = createTravelJournal(
+      { count: 0 },
+      { apply: ({ state }) => state }
+    );
+    automatic.reset();
+    if (false) {
+      // @ts-expect-error automatic journals do not expose manual archive controls
+      automatic.archive();
+    }
+
+    const manual = createTravelJournal(
+      { count: 0 },
+      { autoArchive: false as const, apply: ({ state }) => state }
+    );
+    manual.archive();
+    expectTypeOf(manual.canArchive()).toEqualTypeOf<boolean>();
+  });
+
   test('serialize and deserialize preserve generic state shape', () => {
     type State = {
       title: string;
@@ -297,12 +316,11 @@ describe('Type-level API contracts', () => {
 
     expectTypeOf(journal).toEqualTypeOf<TravelJournal<State>>();
     expectTypeOf(journal.recordPatches).parameter(0).toEqualTypeOf<State>();
+    expectTypeOf(journal.reset).toEqualTypeOf<() => void>();
 
     if (false) {
       // @ts-expect-error the external runtime owns state changes
       journal.setState({ count: 1 });
-      // @ts-expect-error reset would bypass the external runtime
-      journal.reset();
       // @ts-expect-error replacement must go through the external runtime
       journal.replaceStateWithoutHistory({ count: 1 });
       // @ts-expect-error standard controls expose reset
