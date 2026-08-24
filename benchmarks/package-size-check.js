@@ -13,22 +13,19 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // compatibility checks, structured warnings and error codes, the patchable
 // factory, and detached history snapshots. Development-only invariants are
 // eliminated from the production bundles rather than counted here. Travels 3
-// adds explicit public capabilities, atomic restore factories, and its
-// migration guide. Public factory option guards and read-only observer docs add
-// source-map and package bytes, while unreachable implementation declarations
-// are pruned. Synchronous history-free updater declarations and factory-specific
-// journal diagnostics and normalized generated/restored root patch paths add
-// deliberate runtime, source-map, and package bytes while keeping production
-// JavaScript within its existing raw and gzip limits.
+// adds explicit public capabilities, atomic restore factories, cheap committed
+// revision tokens, the complete controlled-journal lifecycle, and its migration
+// guide. Production gzip retains its existing cap; the raw, source-map, and
+// package limits account for that deliberate public surface and its source.
 const limits = {
-  bundleRaw: 50.5 * KiB,
+  bundleRaw: 50.75 * KiB,
   bundleGzip: 14 * KiB,
-  bundleMap: 241 * KiB,
-  developmentBundleRaw: 56 * KiB,
+  bundleMap: 243.25 * KiB,
+  developmentBundleRaw: 56.25 * KiB,
   developmentBundleGzip: 15 * KiB,
-  developmentBundleMap: 247 * KiB,
-  packagePacked: 465.5 * KiB,
-  packageUnpacked: 1826 * KiB,
+  developmentBundleMap: 249.25 * KiB,
+  packagePacked: 470.25 * KiB,
+  packageUnpacked: 1843 * KiB,
 };
 
 const failures = [];
