@@ -4,6 +4,7 @@ import type {
   TravelsSerializedHistory,
 } from './type.js';
 import { TravelsCore, type Travels } from './travels.js';
+import { assertPublicFactoryOptions } from './internal/factory-options.js';
 
 /** Restore an auto-archiving timeline from one complete persisted snapshot. */
 export function restoreTravels<
@@ -49,5 +50,9 @@ export function restoreTravels<
   snapshot: TravelsSerializedHistory<S, P>,
   options: TravelsOptions<F, A, P> = {}
 ): Travels<S, F, A, P> {
+  assertPublicFactoryOptions(options, {
+    capability: 'state',
+    restoreFactory: 'restoreTravels',
+  });
   return new TravelsCore<S, F, A, P>({ type: 'snapshot', snapshot }, options);
 }

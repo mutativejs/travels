@@ -1,6 +1,6 @@
 import type { PatchesOption, TravelsOptions } from './type.js';
 import { TravelsCore, type Travels } from './travels.js';
-import { assertNoHistoryOption } from './internal/factory-options.js';
+import { assertPublicFactoryOptions } from './internal/factory-options.js';
 
 /**
  * Create a new Travels instance with auto archive mode
@@ -53,7 +53,10 @@ export function createTravels<
   A extends boolean,
   P extends PatchesOption = {},
 >(initialState: S, options: TravelsOptions<F, A, P> = {}): Travels<S, F, A, P> {
-  assertNoHistoryOption(options, 'restoreTravels');
+  assertPublicFactoryOptions(options, {
+    capability: 'state',
+    restoreFactory: 'restoreTravels',
+  });
   return new TravelsCore<S, F, A, P>(
     { type: 'initial', state: initialState },
     options

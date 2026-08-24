@@ -11,7 +11,7 @@ import type {
   TravelsOptions,
   TravelsSerializedHistory,
 } from './type.js';
-import { assertNoHistoryOption } from './internal/factory-options.js';
+import { assertPublicFactoryOptions } from './internal/factory-options.js';
 
 /**
  * Public surface for a timeline whose state is owned by another runtime.
@@ -76,6 +76,10 @@ const createJournal = <
     | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> },
   options: TravelJournalOptions<S, F, P>
 ): TravelJournal<S, F, P> => {
+  assertPublicFactoryOptions(options, {
+    capability: 'journal',
+    restoreFactory: 'restoreTravelJournal',
+  });
   const { apply, ...travelsOptions } = options;
   if (typeof apply !== 'function') {
     throw new TravelsTypeError(
@@ -122,7 +126,6 @@ export const createTravelJournal = <
   initialState: S,
   options: TravelJournalOptions<S, F, P>
 ): TravelJournal<S, F, P> => {
-  assertNoHistoryOption(options, 'restoreTravelJournal');
   return createJournal({ type: 'initial', state: initialState }, options);
 };
 
