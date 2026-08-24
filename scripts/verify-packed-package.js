@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { apply, create } from 'mutative';
 
 const packageRoot = resolve(process.argv[2] ?? 'release-consumer/package');
 const manifest = JSON.parse(
@@ -47,11 +48,17 @@ const exerciseUndoRedo = (api, label) => {
   travels.subscribe((nextEvent) => {
     event = nextEvent;
   });
+  const initialRevision = travels.getRevision();
   travels.setState(
     (draft) => {
       draft.count = 1;
     },
     { label: 'increment' }
+  );
+  assert.equal(
+    travels.getRevision(),
+    initialRevision + 1,
+    `${label} committed revision`
   );
   assert.equal(Object.isFrozen(event.metadata), true, `${label} event metadata`);
   assert.equal(Object.isFrozen(event.patches), true, `${label} event patches`);
@@ -107,6 +114,31 @@ const exerciseUndoRedo = (api, label) => {
   );
   assert.equal(Object.isFrozen(journal), true, `${label} journal facade`);
   assert.equal('setState' in journal, false, `${label} journal capabilities`);
+  assert.equal(typeof journal.reset, 'function', `${label} journal reset`);
+  assert.equal('archive' in journal, false, `${label} automatic journal`);
+
+  let ownedState = { count: 0 };
+  const manualJournal = api.createTravelJournal(ownedState, {
+    autoArchive: false,
+    apply: ({ patches }) => {
+      ownedState = apply(ownedState, patches);
+      return ownedState;
+    },
+  });
+  const [nextState, patches, inversePatches] = create(
+    ownedState,
+    (draft) => {
+      draft.count = 1;
+    },
+    { enablePatches: true }
+  );
+  ownedState = nextState;
+  manualJournal.recordPatches(nextState, { patches, inversePatches });
+  assert.equal(manualJournal.canArchive(), true, `${label} pending archive`);
+  manualJournal.archive();
+  assert.equal(manualJournal.canArchive(), false, `${label} archived journal`);
+  manualJournal.reset();
+  assert.equal(ownedState.count, 0, `${label} delegated journal reset`);
 };
 
 const require = createRequire(import.meta.url);
