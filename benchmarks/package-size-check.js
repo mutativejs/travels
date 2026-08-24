@@ -14,18 +14,19 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // factory, and detached history snapshots. Development-only invariants are
 // eliminated from the production bundles rather than counted here. Travels 3
 // adds explicit public capabilities, atomic restore factories, and its
-// migration guide. Unreachable implementation declarations are pruned; the
-// remaining source-map and documentation bytes are budgeted without widening
-// the production JavaScript raw or gzip limits.
+// migration guide. Public factory option guards and read-only observer docs add
+// source-map and package bytes, while unreachable implementation declarations
+// are pruned. Those deliberate bytes are budgeted without widening the
+// production JavaScript raw or gzip limits.
 const limits = {
   bundleRaw: 50.5 * KiB,
   bundleGzip: 14 * KiB,
-  bundleMap: 238 * KiB,
-  developmentBundleRaw: 55 * KiB,
+  bundleMap: 238.5 * KiB,
+  developmentBundleRaw: 55.5 * KiB,
   developmentBundleGzip: 15 * KiB,
-  developmentBundleMap: 244 * KiB,
-  packagePacked: 458 * KiB,
-  packageUnpacked: 1800 * KiB,
+  developmentBundleMap: 244.5 * KiB,
+  packagePacked: 462 * KiB,
+  packageUnpacked: 1810 * KiB,
 };
 
 const failures = [];
