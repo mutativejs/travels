@@ -151,6 +151,7 @@ type TravelsCoreSource<S, P extends PatchesOption> =
   | { type: 'initial'; state: S }
   | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> };
 
+/** @internal */
 export const RECORD_TRAVEL_JOURNAL_PATCHES = Symbol(
   'Travels.recordTravelJournalPatches'
 );
@@ -399,7 +400,8 @@ const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
 };
 
 /**
- * Core Travels class for managing undo/redo history
+ * Core Travels class for managing undo/redo history.
+ * @internal
  */
 export class TravelsCore<
   S,
@@ -2038,9 +2040,9 @@ export class TravelsCore<
    * @remarks
    * **IMPORTANT**: Treat the returned array and every state entry as read-only.
    * They are cached internally.
-   * - In development mode, only the array container is frozen.
+   * - The array container is frozen in every build.
    * - State entries are shared cached snapshots and are not deep-frozen.
-   * - In production mode, modifying the array or its entries will corrupt the cache.
+   * - Modifying an entry after casting away its type can corrupt the cache.
    */
   public getHistory(): readonly ReadonlyState<S>[] {
     return this.historyView.get({

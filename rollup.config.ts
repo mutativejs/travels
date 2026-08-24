@@ -9,7 +9,12 @@ import {
   rmdirSync,
   unlinkSync,
 } from 'node:fs';
-import { join as joinPath, resolve as resolvePath } from 'node:path';
+import {
+  dirname as dirnamePath,
+  join as joinPath,
+  resolve as resolvePath,
+  sep as pathSeparator,
+} from 'node:path';
 import pkg from './package.json';
 
 const input = './dist/index.js';
@@ -28,6 +33,45 @@ const finalJavaScript = new Set([
   'index.dev.cjs',
   'index.dev.esm.js',
 ]);
+
+/** @returns {Set<string>} */
+const getPublicDeclarationArtifacts = () => {
+  /** @type {Set<string>} */
+  const publicArtifacts = new Set();
+  const pending = [resolvePath(distDirectory, 'index.d.ts')];
+
+  while (pending.length > 0) {
+    const declarationPath = pending.pop();
+    if (!declarationPath || publicArtifacts.has(declarationPath)) {
+      continue;
+    }
+
+    publicArtifacts.add(declarationPath);
+    const mapPath = `${declarationPath}.map`;
+    if (existsSync(mapPath)) {
+      publicArtifacts.add(mapPath);
+    }
+
+    const source = readFileSync(declarationPath, 'utf8');
+    for (const match of source.matchAll(
+      /\b(?:from|import)\s*['"](\.[^'"]+)['"]/g
+    )) {
+      const specifierPath = resolvePath(dirnamePath(declarationPath), match[1]);
+      const importedDeclaration = specifierPath.endsWith('.js')
+        ? `${specifierPath.slice(0, -3)}.d.ts`
+        : `${specifierPath}.d.ts`;
+      if (
+        importedDeclaration.startsWith(`${distDirectory}${pathSeparator}`) &&
+        existsSync(importedDeclaration) &&
+        !publicArtifacts.has(importedDeclaration)
+      ) {
+        pending.push(importedDeclaration);
+      }
+    }
+  }
+
+  return publicArtifacts;
+};
 
 /** @type {import('rollup').Plugin} */
 const typescriptSourceMaps = {
@@ -49,24 +93,25 @@ const typescriptSourceMaps = {
 };
 
 /**
- * Remove the per-module JavaScript tsc emits before bundling.
+ * Remove the per-module JavaScript and unreachable declarations tsc emits
+ * before bundling.
  *
  * The walk has to recurse: source subdirectories emit into matching dist
  * subdirectories, and anything left there is published as an unbundled module
  * alongside the real entry points.
- */
-/**
+ *
  * @param {string} directory
+ * @param {ReadonlySet<string>} publicDeclarations
  * @returns {boolean} whether anything was kept in it
  */
-const removeIntermediateJavaScript = (directory) => {
+const removeIntermediateBuildArtifacts = (directory, publicDeclarations) => {
   let keptEntry = false;
 
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const entryPath = joinPath(directory, entry.name);
 
     if (entry.isDirectory()) {
-      if (removeIntermediateJavaScript(entryPath)) {
+      if (removeIntermediateBuildArtifacts(entryPath, publicDeclarations)) {
         keptEntry = true;
       } else {
         rmdirSync(entryPath);
@@ -82,8 +127,15 @@ const removeIntermediateJavaScript = (directory) => {
     const isIntermediateJavaScript =
       (entry.name.endsWith('.js') || entry.name.endsWith('.cjs')) &&
       !(isTopLevel && finalJavaScript.has(entry.name));
+    const isUnusedDeclaration =
+      (entry.name.endsWith('.d.ts') || entry.name.endsWith('.d.ts.map')) &&
+      !publicDeclarations.has(entryPath);
 
-    if (isIntermediateMap || isIntermediateJavaScript) {
+    if (
+      isIntermediateMap ||
+      isIntermediateJavaScript ||
+      isUnusedDeclaration
+    ) {
       unlinkSync(entryPath);
     } else {
       keptEntry = true;
@@ -97,7 +149,10 @@ const removeIntermediateJavaScript = (directory) => {
 const removeIntermediateArtifacts = {
   name: 'remove-intermediate-artifacts',
   closeBundle() {
-    removeIntermediateJavaScript(distDirectory);
+    removeIntermediateBuildArtifacts(
+      distDirectory,
+      getPublicDeclarationArtifacts()
+    );
   },
 };
 

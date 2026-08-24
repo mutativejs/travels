@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "stripInternal": true,
     "inlineSourceMap": false,
     "inlineSources": true,
     "sourceMap": true

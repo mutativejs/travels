@@ -62,9 +62,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   not trusted.
 - Update persistence examples, browser fixtures, API documentation, and the
   release workflows for the 3.0 contracts.
-- Recalibrate only the development sourcemap and npm package-envelope budgets
-  for the explicit interface and migration guide; production bundle limits are
-  unchanged.
+- Strip the implementation class and internal module graph from published
+  declarations, prune unreachable declaration artifacts, and recalibrate the
+  source-map/package-envelope budgets for the explicit interfaces, atomic
+  restore factories, and migration guide. Production JavaScript raw and gzip
+  limits remain unchanged.
 
 ## [2.2.0] - 2026-07-26
 

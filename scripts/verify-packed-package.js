@@ -14,6 +14,22 @@ assert.equal(manifest.main, './dist/index.cjs');
 assert.equal(manifest.module, './dist/index.esm.js');
 assert.equal(manifest.types, './dist/index.d.ts');
 
+const travelsDeclaration = await readFile(
+  resolve(packageRoot, 'dist/travels.d.ts'),
+  'utf8'
+);
+for (const internalName of [
+  'TravelsCore',
+  'RECORD_TRAVEL_JOURNAL_PATCHES',
+  './internal/',
+]) {
+  assert.equal(
+    travelsDeclaration.includes(internalName),
+    false,
+    `public declarations hide ${internalName}`
+  );
+}
+
 const exerciseUndoRedo = (api, label) => {
   assert.equal(typeof api.createTravels, 'function', `${label} createTravels`);
   assert.equal(

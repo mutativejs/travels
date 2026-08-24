@@ -13,18 +13,19 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // compatibility checks, structured warnings and error codes, the patchable
 // factory, and detached history snapshots. Development-only invariants are
 // eliminated from the production bundles rather than counted here. Travels 3
-// adds an explicit public capability interface and ships its migration guide;
-// those declaration/source-map and documentation bytes are budgeted in the
-// development maps and package envelope without widening production limits.
+// adds explicit public capabilities, atomic restore factories, and its
+// migration guide. Unreachable implementation declarations are pruned; the
+// remaining source-map and documentation bytes are budgeted without widening
+// the production JavaScript raw or gzip limits.
 const limits = {
   bundleRaw: 50.5 * KiB,
   bundleGzip: 14 * KiB,
-  bundleMap: 232 * KiB,
+  bundleMap: 238 * KiB,
   developmentBundleRaw: 55 * KiB,
   developmentBundleGzip: 15 * KiB,
-  developmentBundleMap: 239 * KiB,
+  developmentBundleMap: 244 * KiB,
   packagePacked: 458 * KiB,
-  packageUnpacked: 1790 * KiB,
+  packageUnpacked: 1800 * KiB,
 };
 
 const failures = [];
@@ -99,6 +100,29 @@ const packedFiles = new Set(pack.files.map(({ path }) => path));
 // unbundled dist/internal modules were published alongside the real entry
 // points once the sources grew a subdirectory.
 const publishedPaths = pack.files.map(({ path }) => path);
+const internalDeclarations = publishedPaths.filter(
+  (path) =>
+    path.startsWith('dist/internal/') &&
+    (path.endsWith('.d.ts') || path.endsWith('.d.ts.map'))
+);
+if (internalDeclarations.length > 0) {
+  failures.push(
+    `internal declarations were published: ${internalDeclarations.join(', ')}`
+  );
+}
+const travelsDeclaration = readFileSync(
+  resolve(repoRoot, 'dist/travels.d.ts'),
+  'utf8'
+);
+for (const leakedName of [
+  'TravelsCore',
+  'RECORD_TRAVEL_JOURNAL_PATCHES',
+  './internal/',
+]) {
+  if (travelsDeclaration.includes(leakedName)) {
+    failures.push(`dist/travels.d.ts exposes internal name ${leakedName}`);
+  }
+}
 const unexpectedMaps = publishedPaths.filter(
   (path) =>
     path.startsWith('dist/') &&
