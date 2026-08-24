@@ -23,7 +23,7 @@ test('package metadata provides legacy and modern resolver entries', () => {
 
   expect(manifest.main).toBe('./dist/index.cjs');
   expect(manifest.module).toBe('./dist/index.esm.js');
-  expect(manifest.engines.node).toBe('>=20');
+  expect(manifest.engines.node).toBe('>=22');
 });
 
 test('the built package exposes a working CommonJS entry', () => {

@@ -4,11 +4,12 @@
 
 Travels is tested on:
 
-- Node.js 20.x
 - Node.js 22.x
+- Node.js 24.x
 - jsdom browser-like environment through Vitest
 
-The package is distributed as ESM, CJS, UMD, and TypeScript declarations.
+Node.js 22 is the minimum supported runtime. The package is distributed as
+ESM, CJS, UMD, and TypeScript declarations.
 
 ## Browser Support
 
