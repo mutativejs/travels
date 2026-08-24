@@ -3,8 +3,6 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   createTravelJournal,
   createTravels,
-  Travels,
-  TravelsError,
   TravelsTypeError,
   type TravelHistoryEntry,
 } from '../src/index';
@@ -123,40 +121,35 @@ describe('controlled travel journal', () => {
     expect(journal.getPosition()).toBe(1);
   });
 
-  test('rejects state-owning operations even when the journal is widened', () => {
+  test('does not expose state-owning operations at runtime', () => {
     const journal = createTravelJournal<State>(
       { count: 0, label: 'initial' },
       { apply: ({ state }) => state }
-    ) as unknown as Travels<State>;
-    const unsupportedOperations = [
-      () => journal.setState({ count: 1, label: 'changed' }),
-      () => journal.reset(),
-      () => journal.replaceStateWithoutHistory({ count: 1, label: 'changed' }),
-      () => journal.transaction(() => undefined),
-      () => journal.batch(() => undefined),
-      () => journal.pauseTracking(),
-      () => journal.resumeTracking(),
-      () => journal.archive(),
-      () => journal.getControls().reset(),
+    );
+    const stateOwningOperations = [
+      'setState',
+      'reset',
+      'replaceStateWithoutHistory',
+      'transaction',
+      'batch',
+      'pauseTracking',
+      'resumeTracking',
+      'archive',
+      'getControls',
     ];
 
-    for (const operation of unsupportedOperations) {
-      expect(operation).toThrow('is not available on a controlled journal');
+    for (const operation of stateOwningOperations) {
+      expect(operation in journal).toBe(false);
     }
 
     expect(journal.getState()).toEqual({ count: 0, label: 'initial' });
     expect(journal.getPosition()).toBe(0);
   });
 
-  test('reserves recordPatches for controlled journals', () => {
+  test('exposes recordPatches only on controlled journals', () => {
     const travels = createTravels({ count: 0, label: 'initial' });
 
-    expect(() =>
-      travels.recordPatches(
-        { count: 1, label: 'initial' },
-        { patches: [], inversePatches: [] }
-      )
-    ).toThrow('recordPatches is only available on a controlled journal');
+    expect('recordPatches' in travels).toBe(false);
   });
 
   test('exposes stable error codes for integration failures', () => {
@@ -179,16 +172,7 @@ describe('controlled travel journal', () => {
       expect((error as TravelsTypeError).code).toBe('INVALID_PATCH_ENTRY');
     }
 
-    const widened = journal as unknown as Travels<State>;
-    try {
-      widened.setState({ count: 1, label: 'changed' });
-      throw new Error('expected controlled setState to fail');
-    } catch (error) {
-      expect(error).toBeInstanceOf(TravelsError);
-      expect((error as TravelsError).code).toBe(
-        'CONTROLLED_OPERATION_UNAVAILABLE'
-      );
-    }
+    expect('setState' in journal).toBe(false);
   });
 
   test('requires an apply callback at runtime', () => {

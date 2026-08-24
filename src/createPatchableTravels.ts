@@ -1,11 +1,7 @@
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsTypeError } from './errors.js';
-import { Travels } from './travels.js';
-import type {
-  PatchableInput,
-  PatchesOption,
-  TravelsOptions,
-} from './type.js';
+import { TravelsCore, type Travels } from './travels.js';
+import type { PatchableInput, PatchesOption, TravelsOptions } from './type.js';
 
 /**
  * Create a Travels instance whose state is statically constrained to the
@@ -17,10 +13,7 @@ export function createPatchableTravels<
   P extends PatchesOption = {},
 >(
   initialState: PatchableInput<S>,
-  options?: Omit<
-    TravelsOptions<F, true, P>,
-    'autoArchive' | 'controlledApply'
-  > & {
+  options?: Omit<TravelsOptions<F, true, P>, 'autoArchive'> & {
     autoArchive?: true;
   }
 ): Travels<S, F, true, P>;
@@ -31,10 +24,7 @@ export function createPatchableTravels<
   P extends PatchesOption = {},
 >(
   initialState: PatchableInput<S>,
-  options: Omit<
-    TravelsOptions<F, false, P>,
-    'autoArchive' | 'controlledApply'
-  > & {
+  options: Omit<TravelsOptions<F, false, P>, 'autoArchive'> & {
     autoArchive: false;
   }
 ): Travels<S, F, false, P>;
@@ -59,5 +49,5 @@ export function createPatchableTravels<
         .join('\n- ')}`
     );
   }
-  return new Travels(initialState as S, options);
+  return new TravelsCore(initialState as S, options);
 }

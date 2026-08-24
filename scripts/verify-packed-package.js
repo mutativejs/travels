@@ -16,7 +16,11 @@ assert.equal(manifest.types, './dist/index.d.ts');
 
 const exerciseUndoRedo = (api, label) => {
   assert.equal(typeof api.createTravels, 'function', `${label} createTravels`);
+  assert.equal(typeof api.Travels?.deserialize, 'function', `${label} deserialize`);
+  assert.equal('TravelsCore' in api, false, `${label} internal constructor`);
+  assert.throws(() => new api.Travels({ count: 0 }), TypeError);
   const travels = api.createTravels({ count: 0 });
+  assert.equal('recordPatches' in travels, false, `${label} state capabilities`);
   travels.setState((draft) => {
     draft.count = 1;
   });
@@ -25,6 +29,13 @@ const exerciseUndoRedo = (api, label) => {
   assert.equal(travels.getState().count, 0, `${label} undo`);
   travels.forward();
   assert.equal(travels.getState().count, 1, `${label} redo`);
+
+  const journal = api.createTravelJournal(
+    { count: 0 },
+    { apply: ({ state }) => state }
+  );
+  assert.equal(typeof journal.recordPatches, 'function', `${label} journal commit`);
+  assert.equal('setState' in journal, false, `${label} journal capabilities`);
 };
 
 const require = createRequire(import.meta.url);

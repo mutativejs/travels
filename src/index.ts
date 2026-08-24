@@ -1,5 +1,5 @@
 export * from './type.js';
-export * from './travels.js';
+export { Travels } from './travels.js';
 export * from './createTravels.js';
 export * from './createPatchableTravels.js';
 export * from './createTravelJournal.js';

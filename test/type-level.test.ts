@@ -39,6 +39,16 @@ describe('Type-level API contracts', () => {
     Travels.deserialize<State>(snapshot, { validation: 'structural' });
     Travels.deserialize<State>(snapshot, { validation: 'semantic' });
     if (false) {
+      // @ts-expect-error state-owned instances do not expose journal commits
+      travels.recordPatches(
+        { title: 'Draft', blocks: [] },
+        {
+          patches: [],
+          inversePatches: [],
+        }
+      );
+      // @ts-expect-error Travels is a persistence namespace, not a constructor
+      new Travels({ title: 'Draft', blocks: [] });
       // @ts-expect-error validation modes are a closed public contract
       Travels.deserialize<State>(snapshot, { validation: 'unknown' });
       Travels.deserialize<State>(snapshot, {

@@ -1,7 +1,12 @@
 import { TravelsTypeError } from './errors.js';
-import { Travels } from './travels.js';
+import {
+  RECORD_TRAVEL_JOURNAL_PATCHES,
+  TravelsCore,
+  type Travels,
+} from './travels.js';
 import type {
   PatchesOption,
+  TravelHistoryEntry,
   TravelsControlledApply,
   TravelsOptions,
 } from './type.js';
@@ -21,7 +26,6 @@ export type TravelJournal<
   Travels<S, F, true, P>,
   | 'subscribe'
   | 'getState'
-  | 'recordPatches'
   | 'getHistory'
   | 'getHistorySnapshot'
   | 'go'
@@ -36,16 +40,15 @@ export type TravelJournal<
   | 'assertPersistenceCompatible'
   | 'getMetadata'
   | 'getHistoryEntries'
->;
+> & {
+  recordPatches: (state: S, entry: TravelHistoryEntry<P>) => void;
+};
 
 export type TravelJournalOptions<
   S,
   F extends boolean = false,
   P extends PatchesOption = {},
-> = Omit<
-  TravelsOptions<F, true, P>,
-  'autoArchive' | 'controlledApply' | 'mutable'
-> & {
+> = Omit<TravelsOptions<F, true, P>, 'autoArchive' | 'mutable'> & {
   /** Apply a navigation transition through the external state owner. */
   apply: TravelsControlledApply<S, P>;
 };
@@ -74,10 +77,33 @@ export const createTravelJournal = <
       'Travels: createTravelJournal requires a synchronous apply function.'
     );
   }
-  return new Travels(initialState, {
+  const core = new TravelsCore(initialState, {
     ...travelsOptions,
     autoArchive: true,
     mutable: false,
     controlledApply: apply,
   });
+
+  const journal: TravelJournal<S, F, P> = {
+    subscribe: core.subscribe,
+    getState: () => core.getState(),
+    recordPatches: (state, entry) =>
+      core[RECORD_TRAVEL_JOURNAL_PATCHES](state, entry),
+    getHistory: () => core.getHistory(),
+    getHistorySnapshot: () => core.getHistorySnapshot(),
+    go: (position) => core.go(position),
+    back: (amount) => core.back(amount),
+    forward: (amount) => core.forward(amount),
+    rebase: () => core.rebase(),
+    canBack: () => core.canBack(),
+    canForward: () => core.canForward(),
+    getPosition: () => core.getPosition(),
+    getPatches: () => core.getPatches(),
+    serialize: (serializeOptions) => core.serialize(serializeOptions),
+    assertPersistenceCompatible: () => core.assertPersistenceCompatible(),
+    getMetadata: () => core.getMetadata(),
+    getHistoryEntries: () => core.getHistoryEntries(),
+  };
+
+  return journal;
 };

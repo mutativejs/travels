@@ -1,6 +1,5 @@
 import type { PatchesOption, TravelsOptions } from './type.js';
-import { Travels } from './travels.js';
-
+import { TravelsCore, type Travels } from './travels.js';
 
 /**
  * Create a new Travels instance with auto archive mode
@@ -11,10 +10,7 @@ export function createTravels<
   P extends PatchesOption = {},
 >(
   initialState: S,
-  options?: Omit<
-    TravelsOptions<F, true, P>,
-    'autoArchive' | 'controlledApply'
-  > & {
+  options?: Omit<TravelsOptions<F, true, P>, 'autoArchive'> & {
     autoArchive?: true;
   }
 ): Travels<S, F, true, P>;
@@ -28,10 +24,7 @@ export function createTravels<
   P extends PatchesOption = {},
 >(
   initialState: S,
-  options: Omit<
-    TravelsOptions<F, false, P>,
-    'autoArchive' | 'controlledApply'
-  > & {
+  options: Omit<TravelsOptions<F, false, P>, 'autoArchive'> & {
     autoArchive: false;
   }
 ): Travels<S, F, false, P>;
@@ -45,5 +38,5 @@ export function createTravels<
   A extends boolean,
   P extends PatchesOption = {},
 >(initialState: S, options: TravelsOptions<F, A, P> = {}): Travels<S, F, A, P> {
-  return new Travels(initialState, options);
+  return new TravelsCore(initialState, options);
 }

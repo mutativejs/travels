@@ -1,5 +1,5 @@
 import { describe, expect, it, test, vi } from 'vitest';
-import { createTravels, Travels } from '../src/index';
+import { createTravels, type Travels } from '../src/index';
 
 describe('Edge Cases Coverage', () => {
   test('routes warnings through onWarning without production console output', () => {
@@ -547,7 +547,7 @@ describe('Edge Cases Coverage', () => {
 
         try {
           // Create initial travels instance with array state
-          const travels = new Travels([1, 2, 3], {
+          const travels = createTravels([1, 2, 3], {
             autoArchive: true,
             mutable: true,
           });
@@ -606,7 +606,7 @@ describe('Edge Cases Coverage', () => {
       });
 
       test('should handle edge case where Array.isArray behavior changes', () => {
-        const travels = new Travels([1, 2], {
+        const travels = createTravels([1, 2], {
           autoArchive: true,
           mutable: true,
         });
@@ -632,7 +632,7 @@ describe('Edge Cases Coverage', () => {
           },
         });
 
-        const travels = new Travels(arrayLike as any, {
+        const travels = createTravels(arrayLike as any, {
           autoArchive: true,
           mutable: true,
         });
@@ -652,7 +652,7 @@ describe('Edge Cases Coverage', () => {
 
     describe('Type coercion edge cases', () => {
       test('should handle array-like objects in mutable mode', () => {
-        const travels = new Travels([1, 2, 3], {
+        const travels = createTravels([1, 2, 3], {
           autoArchive: true,
           mutable: true,
         });
@@ -679,7 +679,7 @@ describe('Edge Cases Coverage', () => {
       });
 
       test('should handle sparse arrays with non-standard properties', () => {
-        const travels = new Travels([1, 2, 3], {
+        const travels = createTravels([1, 2, 3], {
           autoArchive: true,
           mutable: true,
         });
@@ -699,7 +699,7 @@ describe('Edge Cases Coverage', () => {
 
     describe('Runtime type manipulation', () => {
       test('should handle objects that change type during check', () => {
-        const travels = new Travels(
+        const travels = createTravels(
           { x: 1 },
           { autoArchive: true, mutable: true }
         );
@@ -719,7 +719,7 @@ describe('Edge Cases Coverage', () => {
         }
 
         const customArray = new MyArray(1, 2, 3);
-        const travels = new Travels(customArray as any, {
+        const travels = createTravels(customArray as any, {
           autoArchive: true,
           mutable: true,
         });
@@ -737,7 +737,10 @@ describe('Edge Cases Coverage', () => {
         // because Array.isArray is checked before calling hasOnlyArrayIndices
         // This test documents that understanding
 
-        const travels = new Travels([1], { autoArchive: true, mutable: true });
+        const travels = createTravels([1], {
+          autoArchive: true,
+          mutable: true,
+        });
 
         // Various updates that all pass through the system
         const testCases = [
@@ -760,7 +763,7 @@ describe('Edge Cases Coverage', () => {
 
     describe('hasOnlyArrayIndices - non-array input (travels.ts:70-71)', () => {
       test('should handle non-array object with setState', () => {
-        const travels = new Travels(
+        const travels = createTravels(
           { data: { foo: 'bar' } },
           { autoArchive: true }
         );
@@ -775,7 +778,7 @@ describe('Edge Cases Coverage', () => {
       });
 
       test('should handle primitive state update', () => {
-        const travels = new Travels({ count: 0 }, { autoArchive: true });
+        const travels = createTravels({ count: 0 }, { autoArchive: true });
 
         // Non-array value replacement
         travels.setState({ count: 1 });
@@ -788,7 +791,7 @@ describe('Edge Cases Coverage', () => {
       test('should reject array with symbol keys in mutable value update', () => {
         // Create an initial array state
         const initialArray = [1, 2, 3];
-        const travels = new Travels(initialArray, {
+        const travels = createTravels(initialArray, {
           autoArchive: true,
           mutable: true,
         });
@@ -817,7 +820,7 @@ describe('Edge Cases Coverage', () => {
         const stateArray = [1, 2, 3];
         (stateArray as any)[sym] = 'hidden';
 
-        const travels = new Travels(stateArray, {
+        const travels = createTravels(stateArray, {
           autoArchive: true,
           mutable: true,
         });
@@ -833,7 +836,7 @@ describe('Edge Cases Coverage', () => {
     describe('isPlainObject - Object.create(null) (utils.ts:16-17)', () => {
       test('should accept Object.create(null) updater as plain object in mutable mode', () => {
         // Initial state is a normal plain object
-        const travels = new Travels(
+        const travels = createTravels(
           { count: 0 },
           { autoArchive: true, mutable: true }
         );
@@ -855,7 +858,7 @@ describe('Edge Cases Coverage', () => {
       });
 
       test('should handle Object.create(null) updater in immutable mode', () => {
-        const travels = new Travels(
+        const travels = createTravels(
           { x: 1 },
           { autoArchive: true, mutable: false }
         );
@@ -875,7 +878,7 @@ describe('Edge Cases Coverage', () => {
 
       test('should recognize Object.create(null) with proto check', () => {
         // This test ensures that the proto === null check (line 16) is executed
-        const travels = new Travels(
+        const travels = createTravels(
           { data: 1 },
           { autoArchive: true, mutable: true }
         );
@@ -894,7 +897,7 @@ describe('Edge Cases Coverage', () => {
 
     describe('Combined edge cases for full coverage', () => {
       test('should handle all edge cases in sequence', () => {
-        const travels = new Travels(
+        const travels = createTravels(
           {
             arr: [1, 2],
             obj: {},
@@ -934,7 +937,7 @@ describe('Edge Cases Coverage', () => {
       });
 
       test('should handle manual archive mode with edge cases', () => {
-        const travels = new Travels({ test: [] }, { autoArchive: false });
+        const travels = createTravels({ test: [] }, { autoArchive: false });
 
         const sym = Symbol('test');
         const arr = [1, 2, 3];
@@ -956,7 +959,7 @@ describe('Edge Cases Coverage', () => {
       });
 
       test('should cover mutable mode with all edge cases', () => {
-        const travels = new Travels(
+        const travels = createTravels(
           {
             data: [1],
             config: {},

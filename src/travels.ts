@@ -15,6 +15,7 @@ import type {
   TravelMetadata,
   TravelPatches,
   TravelsBranchDiscardEvent,
+  TravelsControlledApply,
   TravelsDeserializeOptions,
   TravelsEvent,
   TravelsOptions,
@@ -75,6 +76,19 @@ type SynchronousFunction<F> = F extends (...args: never[]) => infer R
 
 type SynchronousUpdater<S, U extends Updater<S>> =
   Updater<S> extends U ? U : SynchronousFunction<U>;
+
+type TravelsCoreOptions<
+  S,
+  F extends boolean,
+  A extends boolean,
+  P extends PatchesOption,
+> = TravelsOptions<F, A, P> & {
+  controlledApply?: TravelsControlledApply<S, P>;
+};
+
+export const RECORD_TRAVEL_JOURNAL_PATCHES = Symbol(
+  'Travels.recordTravelJournalPatches'
+);
 
 const asyncFunctionTags = new Set([
   '[object AsyncFunction]',
@@ -307,22 +321,12 @@ const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
 /**
  * Core Travels class for managing undo/redo history
  */
-export class Travels<
+export class TravelsCore<
   S,
   F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
 > {
-  /**
-   * Validate and normalize a persisted Travels history snapshot.
-   */
-  public static deserialize<S, P extends PatchesOption = {}>(
-    snapshot: unknown,
-    options?: TravelsDeserializeOptions<S, P>
-  ): TravelsSerializedHistory<S, P> {
-    return deserializeTravelsHistory(snapshot, options);
-  }
-
   /**
    * Get the mutable mode
    */
@@ -408,7 +412,7 @@ export class Travels<
     this.timeline.tempMetadata = value;
   }
 
-  constructor(initialState: S, options: TravelsOptions<F, A, P> = {}) {
+  constructor(initialState: S, options: TravelsCoreOptions<S, F, A, P> = {}) {
     const {
       maxHistory = 10,
       history,
@@ -1651,7 +1655,10 @@ export class Travels<
    * inputs are detached before they are retained, so later caller mutation
    * cannot rewrite history.
    */
-  public recordPatches(state: S, entry: TravelHistoryEntry<P>): void {
+  public [RECORD_TRAVEL_JOURNAL_PATCHES](
+    state: S,
+    entry: TravelHistoryEntry<P>
+  ): void {
     this.assertCanMutate('recordPatches');
     if (!this.stateDriver.isControlled) {
       throw new TravelsError(
@@ -2429,3 +2436,28 @@ export class Travels<
       : RebasableManualTravelsControls<S, F, P>;
   }
 }
+
+/**
+ * Public state-owning Travels capability surface.
+ *
+ * Controlled journals expose `recordPatches()` through `TravelJournal`
+ * instead. Keeping the two capabilities disjoint prevents state-owning
+ * integrations from calling an operation that can only succeed when an
+ * external owner supplies `apply`.
+ */
+export type Travels<
+  S,
+  F extends boolean = false,
+  A extends boolean = true,
+  P extends PatchesOption = {},
+> = Omit<TravelsCore<S, F, A, P>, typeof RECORD_TRAVEL_JOURNAL_PATCHES>;
+
+/** Persistence namespace retained without exposing the internal constructor. */
+export const Travels = Object.freeze({
+  deserialize<S, P extends PatchesOption = {}>(
+    snapshot: unknown,
+    options?: TravelsDeserializeOptions<S, P>
+  ): TravelsSerializedHistory<S, P> {
+    return deserializeTravelsHistory(snapshot, options);
+  },
+});

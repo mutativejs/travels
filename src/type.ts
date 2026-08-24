@@ -389,15 +389,6 @@ export type TravelsOptions<
    * Optional hook for external devtools or debugging timelines.
    */
   devtools?: (event: TravelsEvent<any, P>) => void;
-  /**
-   * Delegate history navigation to an external authoritative state owner.
-   *
-   * @remarks
-   * Intended for integration adapters created with `createTravelJournal()`.
-   * The callback runs before Travels moves its cursor. If it throws, the
-   * Travels state and position remain unchanged.
-   */
-  controlledApply?: TravelsControlledApply<any, P>;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
     /**
      * Configure patch formatting. Patches cannot be disabled because Travels
