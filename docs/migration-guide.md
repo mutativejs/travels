@@ -1,5 +1,97 @@
 # Migration Guide
 
+## From 2.x to 3.0
+
+Travels 3 separates state ownership, external journals, shared views, and
+persistence restoration into distinct public capabilities.
+
+### Create timelines through factories
+
+`Travels` is no longer constructible. It remains the namespace for
+`Travels.deserialize()`.
+
+```ts
+// 2.x
+const travels = new Travels(initialState, options);
+
+// 3.0
+const travels = createTravels(initialState, options);
+```
+
+Use `createPatchableTravels()` when the initial state should be constrained to
+the durable JSON-shaped state contract at compile time and checked immediately
+at runtime.
+
+### Choose one state owner
+
+A state-owning timeline created with `createTravels()` exposes state updates
+but no `recordPatches()`. An externally owned timeline created with
+`createTravelJournal()` exposes `recordPatches()` and navigation, but none of
+the state-owning methods.
+
+```ts
+const journal = createTravelJournal(authoritativeState, {
+  apply(transition) {
+    authoritativeState = commitThroughOwner(transition.patches);
+    return authoritativeState;
+  },
+});
+
+journal.recordPatches(nextState, {
+  patches,
+  inversePatches,
+  metadata: { label: 'External edit' },
+});
+```
+
+Remove `controlledApply` from ordinary `TravelsOptions`. State-only methods are
+absent from the returned journal object instead of existing as methods that
+throw when called.
+
+### Treat shared views as read-only
+
+`getHistory()` now returns `readonly S[]` through both the instance and
+controls surfaces. `TravelsControls` properties and methods are read-only and
+the controls object is frozen in every build. Observer events expose
+`ReadonlyTravelPatches`; their lazily materialized patch containers, groups,
+operations, and array paths are also frozen.
+
+```ts
+const visible = travels.getControls().getHistory(); // readonly State[]
+const owned = travels.getHistorySnapshot(); // State[]; detached and mutable
+```
+
+Patch operation values can contain nested objects, so observers should still
+treat the complete event as read-only. Use `getPatches()` for a detached,
+caller-owned retained-history snapshot.
+
+### Restore through one validated path
+
+Remove `initialPatches`, `initialPosition`, and `strictInitialPatches`. Decode
+stored input with `Travels.deserialize()` and pass its result through
+`history`:
+
+```ts
+const history = Travels.deserialize<State>(stored, {
+  validation: 'semantic',
+  fallback: emptySnapshot,
+});
+
+const travels = createTravels(history.state, { history });
+```
+
+Malformed `history` now throws rather than being discarded. Use
+`Travels.deserialize(..., { fallback })` when recovery is intentional.
+
+### Update observer and runtime compatibility
+
+Use `TravelsEvent` for both subscribers and devtools. The deprecated
+`TravelsDevtoolsEvent` alias and the listener-arity-based
+`LEGACY_SUBSCRIBER` warning have been removed. Positional listeners must be
+rewritten to accept the single event object.
+
+Travels 3 requires Node.js 22 or newer and is tested on Node.js 22 and 24.
+
 ## From Redux-undo
 
 Redux-undo stores whole state snapshots. Travels stores JSON Patch entries.
@@ -54,11 +146,12 @@ travels.subscribe(
 ```
 
 One shallow-frozen event object is shared by all observers for a notification.
-Its `patches` property remains an event-local delta, is materialized lazily,
-and must be treated as read-only. Call `travels.getPatches()` when full retained
-history is required. `TravelsDevtoolsEvent` remains as a deprecated type alias
-for `TravelsEvent`. Callbacks that ignore their arguments, such as external store
-invalidation functions, can remain unchanged.
+Its `patches` property remains an event-local delta and is materialized lazily;
+the patch containers, groups, operations, and array paths are frozen. Call
+`travels.getPatches()` when full retained history is required.
+`TravelsDevtoolsEvent` was a deprecated alias in 2.x and is removed in 3.0.
+Callbacks that ignore their arguments, such as external store invalidation
+functions, can remain unchanged.
 
 ## From Map/Set State
 

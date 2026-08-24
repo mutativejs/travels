@@ -1,7 +1,7 @@
 {
   "name": "travels",
   "description": "A framework-agnostic patch-based state history engine for durable undo/redo, persistence, and external state integration.",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "packageManager": "pnpm@10.34.5",
   "type": "module",
   "author": "unadlib",

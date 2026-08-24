@@ -83,6 +83,8 @@ npm install travels mutative
 pnpm add travels mutative
 ```
 
+Travels 3 requires Node.js 22 or newer for server-side use.
+
 #### Integrations
 
 - Zustand: [zustand-travel](https://github.com/mutativejs/zustand-travel) - A powerful and high-performance time-travel middleware for Zustand
@@ -157,6 +159,10 @@ Before diving into the API, understanding these terms will help:
 
 Creates a new Travels instance.
 
+Use this factory instead of `new Travels(...)`. The exported `Travels` value
+is a persistence namespace for `Travels.deserialize()` and is not a
+constructor.
+
 **Parameters:**
 
 <details>
@@ -228,10 +234,11 @@ forward/inverse delta from the previously published state to `event.state`.
 Root transactions compose their internal steps into one delta; operations that
 do not change state, such as `archive()` and `rebase()`, publish empty patch
 arrays. The patch snapshot is materialized lazily and its forward/inverse
-directions are cloned independently. Treat the state, patches, and metadata as
-read-only; mutating nested values can affect other observers handling the same
-event. Use `getPatches()` explicitly when a full retained history snapshot is
-required.
+directions are cloned independently. Its containers, patch groups, operations,
+and array paths are frozen. Treat the state, patch values, and metadata as
+read-only too; mutating nested values can affect other observers handling the
+same event. Use `getPatches()` explicitly when a full retained history snapshot
+is required.
 
 Notifications run only after state, position, and history have committed. An
 observer exception is isolated from other observers and is reported through
@@ -291,7 +298,8 @@ Returns the complete history of states as an array. Use it to read the timeline:
 > In development mode, only the array container is frozen; the state entries are shared cached snapshots and are not deep-frozen.
 > In production mode, modifying the array or any entry will corrupt the cache.
 
-The same array is reachable through `getControls().getHistory()`, where it is still typed `S[]` rather than `readonly S[]`. That signature is kept for the 2.x line because `use-travel` and `zustand-travel` re-export the controls types under a `travels: ^2.1.0` peer range; it tightens in 3.0.0. The runtime value is the frozen cache in both cases, so treat it as read-only regardless of what the type permits.
+The same array is reachable through `getControls().getHistory()`. Both methods
+return `readonly S[]` in Travels 3.
 
 #### `getHistorySnapshot(): S[]`
 
@@ -404,7 +412,10 @@ Replace or mutate state without creating a history entry, then clear history and
 
 #### `getControls(): RebasableTravelsControls | RebasableManualTravelsControls`
 
-Returns a controls object containing all navigation methods and current state, including `rebase()`. Useful for passing to UI components without exposing the entire Travels instance. The controls object is cached and should be treated as read-only (it is frozen in development).
+Returns a cached, frozen controls object containing navigation methods and
+current timeline views, including `rebase()`. Its properties and methods are
+read-only, making it suitable for UI components that should not receive the
+entire Travels instance.
 
 ```typescript
 const travels = createTravels({ count: 0 });
@@ -537,8 +548,8 @@ journal.back();
   record the delegated undo/redo as a new history entry.
 - The public `TravelJournal` type omits state-owning operations such as
   `setState()`, `reset()`, transactions, tracking controls, and `getControls()`.
-  Runtime calls to those operations are also rejected. Use `rebase()` to clear
-  the timeline while preserving the current externally owned state.
+  Those properties are absent from the runtime facade as well. Use `rebase()`
+  to clear the timeline while preserving the current externally owned state.
 - A successful `recordPatches()` notification has event type `recordPatches`.
   `TravelsEvent['type']` is intentionally open for future minor-release event
   names, so consumers should keep a `default` branch. Standard
@@ -749,7 +760,8 @@ The published package ships the diagnostics through the `development` export con
 
 ## Framework Integration
 
-Runnable and copyable integration examples live in [`examples/`](examples/):
+Runnable and copyable integration examples live in the
+[examples directory](https://github.com/mutativejs/travels/tree/main/examples):
 
 - [`examples/zustand.ts`](examples/zustand.ts)
 - [`examples/vue.ts`](examples/vue.ts)
@@ -762,7 +774,7 @@ Runnable and copyable integration examples live in [`examples/`](examples/):
 <details>
 <summary><b>React Integration</b></summary>
 
-```jsx
+```tsx
 import { useSyncExternalStore } from 'react';
 import { createTravels } from 'travels';
 

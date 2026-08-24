@@ -71,9 +71,9 @@ The returned `TravelJournal` exposes only journal-safe operations:
 
 State-owning operations (`setState()`, `reset()`, transactions,
 `replaceStateWithoutHistory()`, archive/tracking controls, and `getControls()`)
-are absent from the public type and rejected at runtime. `rebase()` is the safe
-way to clear retained history because it changes only the journal baseline and
-cursor, not the external state.
+are absent from both the public type and the runtime facade. `rebase()` is the
+safe way to clear retained history because it changes only the journal
+baseline and cursor, not the external state.
 
 ## Failure boundaries
 

@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2026-08-24
+
+Travels 3 makes its public capabilities match the ownership model already used
+internally: state-owning timelines, externally owned journals, shared read
+views, and persistence restoration now have distinct, explicit contracts. See
+the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
+
+### Breaking Changes
+
+- Replace the public `Travels` constructor with the `createTravels()` and
+  `createPatchableTravels()` factories. The `Travels` value is now a frozen
+  persistence namespace containing `Travels.deserialize()`.
+- Publish `Travels` as an explicit state-owning capability interface and make
+  its `mutable` mode flag read-only. Mutable behavior is fixed when the factory
+  creates the underlying state driver and cannot be changed afterwards.
+- Remove `controlledApply` from `TravelsOptions`. Create externally owned
+  timelines with `createTravelJournal(initialState, { apply })` instead.
+- Separate state and journal capabilities at runtime as well as in TypeScript.
+  State-owning timelines no longer expose `recordPatches()`, while a
+  `TravelJournal` is an explicit facade that does not expose `setState()`,
+  `reset()`, transactions, tracking, archive, or `getControls()`.
+- Make `TravelsControls` a read-only capability object and change
+  `TravelsControls.getHistory()` to return `readonly Value<S, F>[]`. Controls
+  are frozen in every build. Use `getHistorySnapshot()` for a detached mutable
+  array.
+- Expose observer deltas as `ReadonlyTravelPatches`. The shared patch snapshot,
+  its group arrays, operations, and array paths are frozen when lazily
+  materialized.
+- Remove the deprecated `TravelsDevtoolsEvent` alias and the
+  `LEGACY_SUBSCRIBER` arity warning. Subscribers and devtools use
+  `TravelsEvent` exclusively.
+- Remove `initialPatches`, `initialPosition`, and `strictInitialPatches` from
+  `TravelsOptions`. Restore through `Travels.deserialize()` and the single
+  `history` option; malformed history now throws instead of silently starting
+  from an empty timeline.
+- Require Node.js 22 or newer. CI and release verification cover Node.js 22 and
+  24.
+
+### Added
+
+- Add `ReadonlyTravelPatch` and `ReadonlyTravelPatches` for observer-facing
+  patch views.
+- Add package-level type and runtime smoke checks for the factory-only API,
+  capability separation, read-only shared views, and unified restore path.
+
+### Changed
+
+- Rename the internal restored reset state to a baseline model, keeping
+  transaction rollback, `reset()`, and `rebase()` aligned with the unified
+  history option.
+- Validate supplied `history` structurally at construction time even when a
+  JavaScript caller bypasses TypeScript. Persistence from storage should still
+  go through `Travels.deserialize(..., { validation: 'semantic' })` when its
+  provenance is not trusted.
+- Update persistence examples, browser fixtures, API documentation, and the
+  release workflows for the 3.0 contracts.
+
 ## [2.2.0] - 2026-07-26
 
 The hardening below tightens contracts, but every tightening is scoped either
