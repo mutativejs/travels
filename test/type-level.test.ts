@@ -342,6 +342,11 @@ describe('Type-level API contracts', () => {
         draft.count = 1;
       });
 
+      // @ts-expect-error history-free state callbacks must be synchronous
+      travels.replaceStateWithoutHistory(async (draft) => {
+        draft.count = 1;
+      });
+
       // @ts-expect-error transactions must be synchronous
       travels.transaction(async () => {
         travels.setState((draft) => {
@@ -354,6 +359,8 @@ describe('Type-level API contracts', () => {
       };
       // @ts-expect-error Promise unions must also be rejected
       travels.setState(maybeAsyncUpdater);
+      // @ts-expect-error Promise unions must also be rejected for history-free updates
+      travels.replaceStateWithoutHistory(maybeAsyncUpdater);
 
       const maybeAsyncTransaction = (): void | Promise<void> => undefined;
       // @ts-expect-error Promise unions must also be rejected

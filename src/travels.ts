@@ -116,7 +116,9 @@ export interface Travels<
   batch<FN extends () => unknown>(fn: FN & SynchronousFunction<FN>): void;
   pauseTracking(): void;
   resumeTracking(): void;
-  replaceStateWithoutHistory(updater: Updater<S>): void;
+  replaceStateWithoutHistory<U extends Updater<S>>(
+    updater: SynchronousUpdater<S, U>
+  ): void;
   getHistory(): readonly ReadonlyState<S>[];
   getHistorySnapshot(): S[];
   go(nextPosition: number): void;
@@ -1956,6 +1958,9 @@ export class TravelsCore<
     this.trackingPauseDepth = Math.max(0, this.trackingPauseDepth - 1);
   }
 
+  public replaceStateWithoutHistory<U extends Updater<S>>(
+    updater: SynchronousUpdater<S, U>
+  ): void;
   public replaceStateWithoutHistory(updater: Updater<S>): void {
     this.assertCanMutate('replaceStateWithoutHistory');
     const historyVersionBefore = this.historyView.version;
