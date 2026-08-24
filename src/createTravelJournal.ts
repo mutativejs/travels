@@ -104,36 +104,36 @@ const createJournal = <
     mutable: false,
     controlledApply: apply,
   });
+  const bind = <Args extends unknown[], Result>(
+    method: (...args: Args) => Result
+  ): ((...args: Args) => Result) => method.bind(core);
 
   const journal = {
     subscribe: core.subscribe,
-    getState: () => core.getState(),
-    getRevision: () => core.getRevision(),
-    recordPatches: (state: S, entry: TravelHistoryEntry<P>) =>
-      core[RECORD_TRAVEL_JOURNAL_PATCHES](state, entry),
-    getHistory: () => core.getHistory(),
-    getHistorySnapshot: () => core.getHistorySnapshot(),
-    go: (position: number) => core.go(position),
-    back: (amount?: number) => core.back(amount),
-    forward: (amount?: number) => core.forward(amount),
-    reset: () => core.reset(),
-    rebase: () => core.rebase(),
-    canBack: () => core.canBack(),
-    canForward: () => core.canForward(),
-    getPosition: () => core.getPosition(),
-    getPatches: () => core.getPatches(),
-    serialize: (serializeOptions?: Parameters<typeof core.serialize>[0]) =>
-      core.serialize(serializeOptions),
-    assertPersistenceCompatible: () => core.assertPersistenceCompatible(),
-    getMetadata: () => core.getMetadata(),
-    getHistoryEntries: () => core.getHistoryEntries(),
+    getState: core.getState,
+    getRevision: core.getRevision,
+    recordPatches: bind(core[RECORD_TRAVEL_JOURNAL_PATCHES]),
+    getHistory: bind(core.getHistory),
+    getHistorySnapshot: bind(core.getHistorySnapshot),
+    go: bind(core.go),
+    back: bind(core.back),
+    forward: bind(core.forward),
+    reset: bind(core.reset),
+    rebase: bind(core.rebase),
+    canBack: bind(core.canBack),
+    canForward: bind(core.canForward),
+    getPosition: bind(core.getPosition),
+    getPatches: bind(core.getPatches),
+    serialize: bind(core.serialize),
+    assertPersistenceCompatible: bind(core.assertPersistenceCompatible),
+    getMetadata: bind(core.getMetadata),
+    getHistoryEntries: bind(core.getHistoryEntries),
   };
 
   if (!autoArchive) {
     Object.assign(journal, {
-      archive: (metadata?: Parameters<typeof core.archive>[0]) =>
-        core.archive(metadata),
-      canArchive: () => core.canArchive(),
+      archive: bind(core.archive),
+      canArchive: bind(core.canArchive),
     });
   }
 

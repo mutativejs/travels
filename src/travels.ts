@@ -2254,7 +2254,7 @@ export class TravelsCore<
 
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
-    let nextImmutableState: { value: S } | undefined;
+    let nextState = this.state;
     const canResetMutably =
       this.mutable && canSynchronizeMutableRoots(this.state, this.baselineState);
 
@@ -2284,7 +2284,7 @@ export class TravelsCore<
     } else {
       // For immutable state: restore from a snapshot clone.
       const target = cloneInitialSnapshot(this.baselineState);
-      const [nextState, resetPatches, resetInversePatches] = create(
+      const [resetState, resetPatches, resetInversePatches] = create(
         this.state,
         () =>
           isObjectLike(target) || target === undefined
@@ -2292,7 +2292,7 @@ export class TravelsCore<
             : (target as S),
         this.options
       ) as unknown as [S, Patches<P>, Patches<P>];
-      nextImmutableState = { value: nextState };
+      nextState = resetState;
       patches = resetPatches;
       inversePatches = resetInversePatches;
     }
@@ -2316,8 +2316,8 @@ export class TravelsCore<
         journalMutableState: (state, rollbackPatches) =>
           this.journalMutableState(state, rollbackPatches),
       });
-    } else if (nextImmutableState !== undefined) {
-      this.state = nextImmutableState.value;
+    } else if (!canResetMutably) {
+      this.state = nextState;
     }
 
     this.position = this.baselinePosition;
