@@ -58,6 +58,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   provenance is not trusted.
 - Update persistence examples, browser fixtures, API documentation, and the
   release workflows for the 3.0 contracts.
+- Recalibrate only the development sourcemap and npm package-envelope budgets
+  for the explicit interface and migration guide; production bundle limits are
+  unchanged.
 
 ## [2.2.0] - 2026-07-26
 

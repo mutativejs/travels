@@ -12,16 +12,19 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // hardening work: controlled-journal validation and detachment, persistence
 // compatibility checks, structured warnings and error codes, the patchable
 // factory, and detached history snapshots. Development-only invariants are
-// eliminated from the production bundles rather than counted here.
+// eliminated from the production bundles rather than counted here. Travels 3
+// adds an explicit public capability interface and ships its migration guide;
+// those declaration/source-map and documentation bytes are budgeted in the
+// development maps and package envelope without widening production limits.
 const limits = {
   bundleRaw: 50.5 * KiB,
   bundleGzip: 14 * KiB,
   bundleMap: 232 * KiB,
   developmentBundleRaw: 55 * KiB,
   developmentBundleGzip: 15 * KiB,
-  developmentBundleMap: 237 * KiB,
-  packagePacked: 455 * KiB,
-  packageUnpacked: 1780 * KiB,
+  developmentBundleMap: 239 * KiB,
+  packagePacked: 458 * KiB,
+  packageUnpacked: 1790 * KiB,
 };
 
 const failures = [];
