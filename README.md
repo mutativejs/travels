@@ -166,10 +166,7 @@ Creates a new Travels instance.
 | ------------------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `initialState`           | S              | Your application's starting state (see [state compatibility](#state-requirements-and-compatibility))                                                                                                                                     | (required)                       |
 | `maxHistory`             | number         | Maximum number of history entries to keep. Older entries are dropped. Must be a non-negative integer (`NaN`, `Infinity`, decimals are rejected).                                                                                         | 10                               |
-| `initialPatches`         | TravelPatches  | Restore saved patches when loading from storage                                                                                                                                                                                          | {patches: [],inversePatches: []} |
-| `strictInitialPatches`   | boolean        | Whether invalid `initialPatches` should throw. When `false`, invalid patches are discarded and history starts empty                                                                                                                      | false                            |
-| `initialPosition`        | number         | Restore position when loading from storage                                                                                                                                                                                               | 0                                |
-| `history`                | TravelsHistory | Restore validated history returned by `Travels.deserialize(...)`; overrides `initialPatches` and `initialPosition`                                                                                                                       | undefined                        |
+| `history`                | TravelsHistory | Restore validated history returned by `Travels.deserialize(...)`; malformed history is rejected instead of silently discarded                                                                                                          | undefined                        |
 | `autoArchive`            | boolean        | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                                                                             | true                             |
 | `mutable`                | boolean        | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                                                                                        | false                            |
 | `warnOnUnsupportedState` | boolean        | Development warnings for weak state, retained patch path/value, or metadata persistence semantics                                                                                                                                        | true in development              |
@@ -967,7 +964,6 @@ function loadFromStorage() {
   return createTravels(history.state, {
     history,
     maxHistory: 50,
-    strictInitialPatches: true,
   });
 }
 ```

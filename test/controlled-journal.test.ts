@@ -296,11 +296,13 @@ describe('controlled travel journal', () => {
         { count: 1, label: 'initial', value },
         {
           apply: ({ state }) => state,
-          initialPatches: {
-            patches: [[{ op: 'add', path: ['value'], value }]],
-            inversePatches: [[{ op: 'remove', path: ['value'] }]],
+          history: {
+            patches: {
+              patches: [[{ op: 'add', path: ['value'], value }]],
+              inversePatches: [[{ op: 'remove', path: ['value'] }]],
+            },
+            position: 1,
           },
-          initialPosition: 1,
           warnOnUnsupportedState: false,
         }
       )

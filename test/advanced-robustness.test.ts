@@ -150,7 +150,7 @@ describe('Position/Boundary Consistency', () => {
       expect(travels.canBack()).toBe(false);
     });
 
-    test('initialPosition does not auto-apply patches on init', () => {
+    test('restored position does not auto-apply patches on init', () => {
       const travels1 = createTravels({ count: 0 });
       travels1.setState({ count: 1 });
       travels1.setState({ count: 2 });
@@ -161,8 +161,7 @@ describe('Position/Boundary Consistency', () => {
       const restored = createTravels(
         { count: 0 },
         {
-          initialPatches: patches,
-          initialPosition: position,
+          history: { patches, position },
         }
       );
 
@@ -191,8 +190,7 @@ describe('Position/Boundary Consistency', () => {
 
       // When restoring, the persisted state should correspond to the persisted position
       const travels2 = createTravels(currentState, {
-        initialPatches: patches,
-        initialPosition: position,
+        history: { patches, position },
       });
 
       expect(travels2.getPosition()).toBe(2);
@@ -257,10 +255,17 @@ describe('Position/Boundary Consistency', () => {
       expect(travels.getPosition()).toBe(3);
       expect(travels.getState().value).toBe(3);
 
-      const clamped = createTravels({ value: 0 }, { initialPosition: 5 });
-      clamped.back();
-      expect(clamped.getPosition()).toBe(0);
-      expect(clamped.getState().value).toBe(0);
+      expect(() =>
+        createTravels(
+          { value: 0 },
+          {
+            history: {
+              patches: { patches: [], inversePatches: [] },
+              position: 5,
+            },
+          }
+        )
+      ).toThrow('persisted history position 5 is invalid');
 
       expect(warnSpy).toHaveBeenCalled();
       warnSpy.mockRestore();

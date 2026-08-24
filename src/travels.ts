@@ -29,7 +29,6 @@ import {
   deserializeTravelsHistory,
   TRAVELS_HISTORY_SCHEMA_VERSION,
   validateTravelHistoryEntry,
-  validateTravelPatches,
 } from './persistence.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
@@ -125,10 +124,10 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   tempPatches: TravelPatches<P>;
   tempPatchCount: number;
   tempMetadata?: TravelMetadata;
-  initialState: S;
-  initialPosition: number;
-  initialPatches?: TravelPatches<P>;
-  initialMetadata?: Array<TravelMetadata | undefined>;
+  baselineState: S;
+  baselinePosition: number;
+  baselinePatches?: TravelPatches<P>;
+  baselineMetadata?: Array<TravelMetadata | undefined>;
   trackingPauseDepth: number;
   branchDiscards: BranchDiscardEffect<P>[];
   branchDiscardCount: number;
@@ -350,10 +349,10 @@ export class TravelsCore<
   private state: S;
   private timeline = new TimelineStore<P>();
   private maxHistory: number;
-  private initialState: S;
-  private initialPosition: number;
-  private initialPatches?: TravelPatches<P>;
-  private initialMetadata?: Array<TravelMetadata | undefined>;
+  private baselineState: S;
+  private baselinePosition: number;
+  private baselinePatches?: TravelPatches<P>;
+  private baselineMetadata?: Array<TravelMetadata | undefined>;
   private readonly autoArchive: A;
   private options: MutativeOptions<PatchesOption | true, F>;
   private onError?: (error: Error) => void;
@@ -432,9 +431,6 @@ export class TravelsCore<
     const {
       maxHistory = 10,
       history,
-      initialPatches: inputInitialPatches,
-      initialPosition: inputInitialPosition = 0,
-      strictInitialPatches = false,
       autoArchive = true as A,
       mutable = false,
       warnOnUnsupportedState = process.env.NODE_ENV !== 'production',
@@ -458,16 +454,6 @@ export class TravelsCore<
       throw new TravelsTypeError(
         'INVALID_OPTION',
         'Travels: patchesOptions cannot be false because history requires patches.'
-      );
-    }
-
-    let initialPatches = history?.patches ?? inputInitialPatches;
-    let initialPosition = history?.position ?? inputInitialPosition;
-
-    if (history && (inputInitialPatches || inputInitialPosition !== 0)) {
-      this.observers.warn(
-        'HISTORY_OPTION_OVERRIDE',
-        'Travels: history overrides initialPatches and initialPosition.'
       );
     }
 
@@ -497,52 +483,38 @@ export class TravelsCore<
       );
     }
 
-    const initialPatchesValidation = initialPatches
-      ? validateTravelPatches<P>(initialPatches)
-      : undefined;
-    const initialPatchesValidationError =
-      initialPatchesValidation?.error?.replace(
-        /(^|\s)patches(?=\.| must)/g,
-        '$1initialPatches'
-      ) ?? null;
-
-    if (initialPatchesValidationError) {
-      if (strictInitialPatches) {
-        throw new TravelsTypeError(
-          'INVALID_PATCH_ENTRY',
-          `Travels: ${initialPatchesValidationError}`
-        );
-      }
-
-      this.observers.warn(
-        'INVALID_INITIAL_PATCHES',
-        `Travels: ${initialPatchesValidationError}. Falling back to empty history. ` +
-          `Set strictInitialPatches: true to throw instead.`
-      );
-
-      initialPatches = undefined;
-      initialPosition = 0;
-    } else if (initialPatchesValidation?.error === null) {
-      initialPatches = initialPatchesValidation.patches;
-      if (controlledApply) {
-        initialPatches = {
-          patches: initialPatches.patches.map((patches) =>
-            clonePatchGroupDetached(patches)
-          ),
-          inversePatches: initialPatches.inversePatches.map((patches) =>
-            clonePatchGroupDetached(patches)
-          ),
-        };
-      }
-    }
-
     assertSupportedRuntimeState(
       initialState,
       mutable || controlledApply ? undefined : this.collectionFreeObjects
     );
+
+    const restoredHistory = history
+      ? deserializeTravelsHistory<S, P>(
+          {
+            version: TRAVELS_HISTORY_SCHEMA_VERSION,
+            state: initialState,
+            patches: history.patches,
+            position: history.position,
+            metadata: history.metadata,
+          },
+          { validation: 'structural' }
+        )
+      : undefined;
+    let restoredPatches = restoredHistory?.patches;
+    if (restoredPatches && controlledApply) {
+      restoredPatches = {
+        patches: restoredPatches.patches.map((patches) =>
+          clonePatchGroupDetached(patches)
+        ),
+        inversePatches: restoredPatches.inversePatches.map((patches) =>
+          clonePatchGroupDetached(patches)
+        ),
+      };
+    }
+
     this.state = initialState;
     // For mutable mode, deep clone initialState to prevent mutations
-    this.initialState = cloneInitialSnapshot(initialState);
+    this.baselineState = cloneInitialSnapshot(initialState);
     this.maxHistory = maxHistory;
     this.autoArchive = autoArchive;
     this.mutable = mutable;
@@ -564,27 +536,27 @@ export class TravelsCore<
       patches: normalizedPatches,
       position: normalizedPosition,
       metadata: normalizedMetadata,
-    } = this.normalizeInitialHistory(
-      initialPatches,
-      initialPosition,
-      history?.metadata
+    } = this.normalizeRestoredHistory(
+      restoredPatches,
+      restoredHistory?.position ?? 0,
+      restoredHistory?.metadata
     );
 
     this.allPatches = normalizedPatches;
     this.allMetadata = normalizedMetadata;
-    if (initialPatches) {
+    if (restoredPatches) {
       normalizedPatches.patches.forEach((patches) => {
         setHistoryEntryIdentity(patches);
       });
     }
-    this.initialPatches = initialPatches
+    this.baselinePatches = restoredPatches
       ? cloneTravelPatches(normalizedPatches)
       : undefined;
-    this.initialMetadata = history?.metadata
+    this.baselineMetadata = restoredHistory?.metadata
       ? normalizedMetadata.slice()
       : undefined;
     this.position = normalizedPosition;
-    this.initialPosition = normalizedPosition;
+    this.baselinePosition = normalizedPosition;
 
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
@@ -858,35 +830,20 @@ export class TravelsCore<
     });
   }
 
-  private normalizeInitialHistory(
-    initialPatches: TravelPatches<P> | undefined,
-    initialPosition: number,
+  private normalizeRestoredHistory(
+    restoredPatches: TravelPatches<P> | undefined,
+    restoredPosition: number,
     metadata?: Array<TravelMetadata | undefined>
   ): {
     patches: TravelPatches<P>;
     position: number;
     metadata: Array<TravelMetadata | undefined>;
   } {
-    const cloned = cloneTravelPatches(initialPatches);
+    const cloned = cloneTravelPatches(restoredPatches);
     const total = cloned.patches.length;
     const alignedMetadata = alignMetadataToPatchCount(metadata, total);
     const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
-    const invalidInitialPosition =
-      typeof initialPosition !== 'number' ||
-      !Number.isFinite(initialPosition) ||
-      !Number.isInteger(initialPosition);
-    let position = invalidInitialPosition ? 0 : (initialPosition as number);
-    const clampedPosition = Math.max(0, Math.min(position, total));
-
-    if (invalidInitialPosition || clampedPosition !== position) {
-      this.observers.warn(
-        'INITIAL_POSITION_CLAMPED',
-        `Travels: initialPosition (${initialPosition}) is invalid for available patches (${total}). ` +
-          `Using ${clampedPosition} instead.`
-      );
-    }
-
-    position = clampedPosition;
+    const position = restoredPosition;
 
     if (total === 0) {
       return { patches: cloned, position: 0, metadata: [] };
@@ -922,7 +879,7 @@ export class TravelsCore<
 
     this.observers.warn(
       'HISTORY_TRIMMED',
-      `Travels: initialPatches length (${total}) exceeds maxHistory (${historyLimit}). ` +
+      `Travels: restored history length (${total}) exceeds maxHistory (${historyLimit}). ` +
         `Retained ${historyLimit} steps from position ${windowStart}. ` +
         `Position adjusted to ${adjustedPosition}.`
     );
@@ -1290,10 +1247,10 @@ export class TravelsCore<
   }
 
   private resetHistoryToCurrentState(): void {
-    this.initialState = cloneInitialSnapshot(this.state);
-    this.initialPosition = 0;
-    this.initialPatches = undefined;
-    this.initialMetadata = undefined;
+    this.baselineState = cloneInitialSnapshot(this.state);
+    this.baselinePosition = 0;
+    this.baselinePatches = undefined;
+    this.baselineMetadata = undefined;
     this.position = 0;
     this.allPatches = cloneTravelPatches();
     this.allMetadata = [];
@@ -1304,10 +1261,10 @@ export class TravelsCore<
   private hasRecordedHistory(): boolean {
     return (
       this.position !== 0 ||
-      this.initialPosition !== 0 ||
-      !!this.initialPatches?.patches.length ||
-      !!this.initialPatches?.inversePatches.length ||
-      !!this.initialMetadata?.length ||
+      this.baselinePosition !== 0 ||
+      !!this.baselinePatches?.patches.length ||
+      !!this.baselinePatches?.inversePatches.length ||
+      !!this.baselineMetadata?.length ||
       this.allPatches.patches.length > 0 ||
       this.allPatches.inversePatches.length > 0 ||
       this.allMetadata.length > 0 ||
@@ -1345,10 +1302,10 @@ export class TravelsCore<
       },
       tempPatchCount: this.tempPatches.patches.length,
       tempMetadata: this.tempMetadata,
-      initialState: this.initialState,
-      initialPosition: this.initialPosition,
-      initialPatches: this.initialPatches,
-      initialMetadata: this.initialMetadata,
+      baselineState: this.baselineState,
+      baselinePosition: this.baselinePosition,
+      baselinePatches: this.baselinePatches,
+      baselineMetadata: this.baselineMetadata,
       trackingPauseDepth: this.trackingPauseDepth,
       branchDiscards: this.transactionBranchDiscards,
       branchDiscardCount: this.transactionBranchDiscards.length,
@@ -1386,10 +1343,10 @@ export class TravelsCore<
     this.allMetadata = snapshot.allMetadata;
     this.tempPatches = snapshot.tempPatches;
     this.tempMetadata = snapshot.tempMetadata;
-    this.initialState = snapshot.initialState;
-    this.initialPosition = snapshot.initialPosition;
-    this.initialPatches = snapshot.initialPatches;
-    this.initialMetadata = snapshot.initialMetadata;
+    this.baselineState = snapshot.baselineState;
+    this.baselinePosition = snapshot.baselinePosition;
+    this.baselinePatches = snapshot.baselinePatches;
+    this.baselineMetadata = snapshot.baselineMetadata;
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
     this.transactionBranchDiscards = snapshot.branchDiscards;
     this.transactionHasEffects = snapshot.hasEffects;
@@ -2156,7 +2113,7 @@ export class TravelsCore<
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
     const canResetMutably =
-      this.mutable && canSynchronizeMutableRoots(this.state, this.initialState);
+      this.mutable && canSynchronizeMutableRoots(this.state, this.baselineState);
 
     if (canResetMutably) {
       // For observable state: use patch system to reset to initial state
@@ -2168,10 +2125,10 @@ export class TravelsCore<
           for (const key of Object.keys(draft as object)) {
             delete (draft as any)[key];
           }
-          // Deep copy all properties from initialState
-          deepClone(this.initialState, draft);
-          if (Array.isArray(draft) && Array.isArray(this.initialState)) {
-            (draft as any[]).length = (this.initialState as any[]).length;
+          // Deep copy all properties from the reset baseline.
+          deepClone(this.baselineState, draft);
+          if (Array.isArray(draft) && Array.isArray(this.baselineState)) {
+            (draft as any[]).length = (this.baselineState as any[]).length;
           }
         },
         this.options
@@ -2183,7 +2140,7 @@ export class TravelsCore<
       apply(this.state as object, patches, { mutable: true });
     } else {
       // For immutable state: restore from a snapshot clone.
-      const target = cloneInitialSnapshot(this.initialState);
+      const target = cloneInitialSnapshot(this.baselineState);
       const [nextState, resetPatches, resetInversePatches] = create(
         this.state,
         () =>
@@ -2197,12 +2154,12 @@ export class TravelsCore<
       inversePatches = resetInversePatches;
     }
 
-    this.position = this.initialPosition;
-    this.allPatches = cloneTravelPatches(this.initialPatches);
+    this.position = this.baselinePosition;
+    this.allPatches = cloneTravelPatches(this.baselinePatches);
     // Preloaded history can exist without metadata, so realign against the
     // restored entry count instead of trusting the captured metadata length.
     this.allMetadata = alignMetadataToPatchCount(
-      this.initialMetadata,
+      this.baselineMetadata,
       this.allPatches.patches.length
     );
     this.tempPatches = cloneTravelPatches();
@@ -2242,10 +2199,10 @@ export class TravelsCore<
     this.assertCanMutate('rebase');
     assertSupportedRuntimeState(this.state);
 
-    this.initialState = cloneInitialSnapshot(this.state);
-    this.initialPosition = 0;
-    this.initialPatches = undefined;
-    this.initialMetadata = undefined;
+    this.baselineState = cloneInitialSnapshot(this.state);
+    this.baselinePosition = 0;
+    this.baselinePatches = undefined;
+    this.baselineMetadata = undefined;
 
     this.position = 0;
     this.allPatches = cloneTravelPatches();

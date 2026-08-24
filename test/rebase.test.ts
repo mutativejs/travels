@@ -179,9 +179,9 @@ describe('rebase()', () => {
     expect(travels.getState().count).toBe(6);
   });
 
-  // ─── initialPatches interaction ───────────────────────────────────────────
+  // ─── restored history interaction ─────────────────────────────────────────
 
-  test('rebase discards initialPatches so reset no longer restores them', () => {
+  test('rebase discards restored history so reset no longer restores it', () => {
     const seed = createTravels<State>(initial);
     seed.setState((d) => { d.count = 1; });
     seed.setState((d) => { d.count = 2; });
@@ -189,12 +189,12 @@ describe('rebase()', () => {
     const travels = createTravels<State>(
       { count: 10, text: 'initial' },
       {
-       initialPatches: seed.getPatches(),
+        history: { patches: seed.getPatches(), position: 0 },
       }
     );
 
     expect(travels.getState().count).toBe(10);
-    // check that initialPatches are stored in history
+    // Check that restored entries are stored in history.
     expect(travels.getHistory()).toHaveLength(3);
 
     travels.rebase();
@@ -202,7 +202,7 @@ describe('rebase()', () => {
     expect(travels.getPosition()).toBe(0);
     expect(travels.getHistory()).toHaveLength(1);
 
-    // reset() now returns to the new baseline state, not the original position=0 from initialPatches
+    // reset() now returns to the new baseline, not the restored history.
     travels.setState((d) => { d.count = 99; });
     travels.reset();
     expect(travels.getState().count).toBe(10);

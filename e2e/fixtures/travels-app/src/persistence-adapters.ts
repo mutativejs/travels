@@ -67,7 +67,6 @@ const restoreTravels = (
   return createTravels(history.state, {
     history,
     maxHistory: 100,
-    strictInitialPatches: true,
     warnOnUnsupportedState: false,
   });
 };

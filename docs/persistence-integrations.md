@@ -67,7 +67,6 @@ function restoreTravels(raw: unknown) {
   return createTravels(history.state, {
     history,
     maxHistory: 100,
-    strictInitialPatches: true,
   });
 }
 ```

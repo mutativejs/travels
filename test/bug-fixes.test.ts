@@ -784,29 +784,21 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
     );
   });
 
-  test('normalizes non-integer initialPosition values', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    const travels = createTravels(
-      { count: 0 },
-      {
-        initialPatches: {
-          patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-          inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
-        },
-        initialPosition: 0.5 as number,
-      }
-    );
-
-    expect(travels.getPosition()).toBe(0);
-    expect(travels.getHistory().map((state) => state.count)).toEqual([0, 1]);
-    expect(
-      warnSpy.mock.calls.some(([message]) =>
-        String(message).includes('initialPosition (0.5) is invalid')
+  test('rejects non-integer restored positions', () => {
+    expect(() =>
+      createTravels(
+        { count: 0 },
+        {
+          history: {
+            patches: {
+              patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+              inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+            },
+            position: 0.5,
+          },
+        }
       )
-    ).toBe(true);
-
-    warnSpy.mockRestore();
+    ).toThrow('persisted history position 0.5 is invalid');
   });
 
   test('go() truncates non-integer positions safely', () => {
@@ -855,8 +847,8 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
 });
 
 describe('Bug #8: Rehydrated patches should not share references', () => {
-  test('mutating external initialPatches does not affect internal history', () => {
-    const initialPatches = {
+  test('mutating external restored patches does not affect internal history', () => {
+    const restoredPatches = {
       patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
       inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
     };
@@ -864,13 +856,12 @@ describe('Bug #8: Rehydrated patches should not share references', () => {
     const travels = createTravels(
       { count: 0 },
       {
-        initialPatches,
-        initialPosition: 0,
+        history: { patches: restoredPatches, position: 0 },
       }
     );
 
-    initialPatches.patches[0][0].value = 999;
-    initialPatches.inversePatches[0][0].value = -1;
+    restoredPatches.patches[0][0].value = 999;
+    restoredPatches.inversePatches[0][0].value = -1;
 
     travels.forward();
     expect(travels.getState().count).toBe(1);
@@ -931,11 +922,15 @@ describe('Bug #13: mutable mode should detect string root replacement paths', ()
       { count: 1 },
       {
         mutable: true,
-        initialPatches: {
-          patches: [[{ op: 'replace', path: '', value: { count: 2 } }]],
-          inversePatches: [[{ op: 'replace', path: '', value: { count: 1 } }]],
-        } as any,
-        initialPosition: 1,
+        history: {
+          patches: {
+            patches: [[{ op: 'replace', path: '', value: { count: 2 } }]],
+            inversePatches: [
+              [{ op: 'replace', path: '', value: { count: 1 } }],
+            ],
+          } as any,
+          position: 1,
+        },
       }
     );
 
@@ -1034,48 +1029,39 @@ describe('Replay options', () => {
   });
 });
 
-describe('Initial patch validation', () => {
+describe('Restored history validation', () => {
   const invalidPatches = {
     patches: [[{ op: 'explode', path: ['count'], value: 1 }]],
     inversePatches: [[{ op: 'explode', path: ['count'], value: 0 }]],
   } as any;
 
-  test('strict mode rejects malformed patch operations', () => {
+  test('rejects malformed patch operations', () => {
     expect(() =>
       createTravels(
         { count: 0 },
         {
-          initialPatches: invalidPatches,
-          strictInitialPatches: true,
+          history: { patches: invalidPatches, position: 0 },
         }
       )
-    ).toThrow(/initialPatches/);
+    ).toThrow(/patches/);
   });
 
-  test('non-strict mode discards malformed patch operations', () => {
-    const travels = createTravels(
-      { count: 0 },
-      { initialPatches: invalidPatches, initialPosition: 1 }
-    );
-
-    expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
-    expect(travels.getPosition()).toBe(0);
-  });
-
-  test('strict mode rejects runtime-only terminal path keys', () => {
+  test('rejects runtime-only terminal path keys', () => {
     const key = Symbol('runtime-key');
     expect(() =>
       createTravels<Record<PropertyKey, unknown>>(
         {},
         {
-          initialPatches: {
-            patches: [[{ op: 'add', path: [key], value: 1 } as any]],
-            inversePatches: [[{ op: 'remove', path: [key] } as any]],
+          history: {
+            patches: {
+              patches: [[{ op: 'add', path: [key], value: 1 } as any]],
+              inversePatches: [[{ op: 'remove', path: [key] } as any]],
+            },
+            position: 0,
           },
-          strictInitialPatches: true,
         }
       )
-    ).toThrow(/initialPatches/);
+    ).toThrow(/patches/);
   });
 
   test('array method overrides are rejected instead of invoked', () => {
@@ -1103,16 +1089,14 @@ describe('Initial patch validation', () => {
         createTravels(
           { count: 1 },
           {
-            initialPatches: patches as any,
-            initialPosition: 1,
-            strictInitialPatches: true,
+            history: { patches: patches as any, position: 1 },
           }
         )
-      ).toThrow(/initialPatches.*arrays of JSON Patch operations/);
+      ).toThrow(/patches.*arrays of JSON Patch operations/);
     }
   });
 
-  test('non-strict mode safely discards an extended patch array', () => {
+  test('rejects an extended patch array', () => {
     const patches = {
       patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
       inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
@@ -1121,22 +1105,15 @@ describe('Initial patch validation', () => {
       value: undefined,
       configurable: true,
     });
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    const travels = createTravels(
-      { count: 1 },
-      { initialPatches: patches as any, initialPosition: 1 }
-    );
-
-    expect(travels.getPatches()).toEqual({
-      patches: [],
-      inversePatches: [],
-    });
-    expect(travels.getPosition()).toBe(0);
-    warn.mockRestore();
+    expect(() =>
+      createTravels(
+        { count: 1 },
+        { history: { patches: patches as any, position: 1 } }
+      )
+    ).toThrow(/patches.*arrays of JSON Patch operations/);
   });
 
-  test('strict mode rejects extended and custom-prototype path arrays', () => {
+  test('rejects extended and custom-prototype path arrays', () => {
     const extendedPath = ['count'];
     Object.defineProperty(extendedPath, 'slice', {
       value: undefined,
@@ -1150,15 +1127,18 @@ describe('Initial patch validation', () => {
         createTravels(
           { count: 1 },
           {
-            initialPatches: {
-              patches: [[{ op: 'replace', path, value: 1 }]],
-              inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
-            } as any,
-            initialPosition: 1,
-            strictInitialPatches: true,
+            history: {
+              patches: {
+                patches: [[{ op: 'replace', path, value: 1 }]],
+                inversePatches: [
+                  [{ op: 'replace', path: ['count'], value: 0 }],
+                ],
+              } as any,
+              position: 1,
+            },
           }
         )
-      ).toThrow(/initialPatches.*arrays of JSON Patch operations/);
+      ).toThrow(/patches.*arrays of JSON Patch operations/);
     }
   });
 });

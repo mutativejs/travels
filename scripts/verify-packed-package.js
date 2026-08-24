@@ -46,6 +46,26 @@ const exerciseUndoRedo = (api, label) => {
   travels.forward();
   assert.equal(travels.getState().count, 1, `${label} redo`);
 
+  const restoredHistory = api.Travels.deserialize(travels.serialize());
+  const restored = api.createTravels(restoredHistory.state, {
+    history: restoredHistory,
+  });
+  restored.back();
+  assert.equal(restored.getState().count, 0, `${label} restored history`);
+  assert.throws(
+    () =>
+      api.createTravels(
+        { count: 0 },
+        {
+          history: {
+            patches: { patches: [], inversePatches: [] },
+            position: 1,
+          },
+        }
+      ),
+    /persisted history position 1 is invalid/
+  );
+
   const journal = api.createTravelJournal(
     { count: 0 },
     { apply: ({ state }) => state }

@@ -158,7 +158,6 @@ describe('Property-based history invariants', () => {
             history,
             maxHistory: operations.length + 1,
             warnOnUnsupportedState: false,
-            strictInitialPatches: true,
           });
 
           expect(restored.getState()).toEqual(travels.getState());

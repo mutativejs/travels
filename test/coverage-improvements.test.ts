@@ -8,104 +8,65 @@ import { createTravels } from '../src/index';
 
 describe('Coverage Improvements', () => {
   describe('Constructor options validation and normalization', () => {
-    test('logs a warning when initialPosition is negative', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      createTravels({ count: 0 }, { initialPosition: -3 });
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        'Travels: initialPosition (-3) is invalid for available patches (0). Using 0 instead.'
-      );
-
-      warnSpy.mockRestore();
-    });
-
-    test('falls back to empty history when initialPatches shape is invalid', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      const travels = createTravels(
-        { count: 0 },
-        {
-          initialPatches: { patches: {} as any, inversePatches: [] as any },
-          initialPosition: 3,
-        }
-      );
-
-      expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
-      expect(travels.getPosition()).toBe(0);
-      expect(
-        warnSpy.mock.calls.some(
-          ([message]) =>
-            String(message).includes(
-              "initialPatches must have 'patches' and 'inversePatches' arrays"
-            ) && String(message).includes('Falling back to empty history.')
-        )
-      ).toBe(true);
-
-      warnSpy.mockRestore();
-    });
-
-    test('falls back to empty history when initialPatches lengths mismatch', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      const travels = createTravels(
-        { count: 0 },
-        {
-          initialPatches: {
-            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-            inversePatches: [],
-          },
-        }
-      );
-
-      expect(travels.getPatches()).toEqual({ patches: [], inversePatches: [] });
-      expect(travels.getPosition()).toBe(0);
-      expect(
-        warnSpy.mock.calls.some(([message]) =>
-          String(message).includes(
-            'initialPatches.patches and initialPatches.inversePatches must have the same length. Falling back to empty history.'
-          )
-        )
-      ).toBe(true);
-
-      warnSpy.mockRestore();
-    });
-
-    test('throws for invalid initialPatches when strictInitialPatches is true', () => {
+    test('rejects a negative restored position', () => {
       expect(() =>
         createTravels(
           { count: 0 },
           {
-            strictInitialPatches: true,
-            initialPatches: { patches: {} as any, inversePatches: [] as any },
+            history: {
+              patches: { patches: [], inversePatches: [] },
+              position: -3,
+            },
           }
         )
-      ).toThrow(
-        `Travels: initialPatches must have 'patches' and 'inversePatches' arrays`
-      );
+      ).toThrow('persisted history position -3 is invalid');
     });
 
-    test('throws for mismatched initialPatches when strictInitialPatches is true', () => {
+    test('rejects an invalid restored patch shape', () => {
       expect(() =>
         createTravels(
           { count: 0 },
           {
-            strictInitialPatches: true,
-            initialPatches: {
-              patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-              inversePatches: [],
+            history: {
+              patches: { patches: {} as any, inversePatches: [] },
+              position: 0,
+            },
+          }
+        )
+      ).toThrow("patches must have 'patches' and 'inversePatches' arrays");
+    });
+
+    test('rejects mismatched restored patch arrays', () => {
+      expect(() =>
+        createTravels(
+          { count: 0 },
+          {
+            history: {
+              patches: {
+                patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+                inversePatches: [],
+              },
+              position: 0,
             },
           }
         )
       ).toThrow(
-        'Travels: initialPatches.patches and initialPatches.inversePatches must have the same length'
+        'patches.patches and patches.inversePatches must have the same length'
       );
     });
 
-    test('normalizes non-numeric initialPosition values to zero', () => {
-      const travels = createTravels({ count: 42 }, { initialPosition: Number.NaN });
-
-      expect(travels.getPosition()).toBe(0);
+    test('rejects a non-numeric restored position', () => {
+      expect(() =>
+        createTravels(
+          { count: 42 },
+          {
+            history: {
+              patches: { patches: [], inversePatches: [] },
+              position: Number.NaN,
+            },
+          }
+        )
+      ).toThrow('persisted history position NaN is invalid');
     });
 
     test('warns and discards persisted history when maxHistory is zero', () => {
@@ -115,10 +76,12 @@ describe('Coverage Improvements', () => {
         { count: 0 },
         {
           maxHistory: 0,
-          initialPosition: 1,
-          initialPatches: {
-            patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
-            inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+          history: {
+            position: 1,
+            patches: {
+              patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
+              inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
+            },
           },
         }
       );

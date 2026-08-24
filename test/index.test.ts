@@ -165,7 +165,7 @@ describe('Travels - Auto Archive Mode', () => {
     expect(states.length).toBe(3); // No new state after unsubscribe
   });
 
-  test('should support initial patches and position', () => {
+  test('should restore history and position', () => {
     const travels1 = createTravels({ count: 0 });
     travels1.setState({ count: 1 });
     travels1.setState({ count: 2 });
@@ -176,8 +176,7 @@ describe('Travels - Auto Archive Mode', () => {
 
     // Create new instance with persisted data
     const travels2 = createTravels(state, {
-      initialPatches: patches,
-      initialPosition: position,
+      history: { patches, position },
     });
 
     expect(travels2.getState()).toEqual({ count: 2 });

@@ -41,6 +41,15 @@ if (false) {
   // @ts-expect-error the v2 legacy-subscriber warning no longer exists
   const removedWarning: TravelsWarningCode = 'LEGACY_SUBSCRIBER';
   void removedWarning;
+  // @ts-expect-error invalid restored patches are errors, not warnings
+  const removedPatchWarning: TravelsWarningCode = 'INVALID_INITIAL_PATCHES';
+  void removedPatchWarning;
+  // @ts-expect-error restored history is the only persistence option
+  createTravels({ count: 0 }, { initialPatches: { patches: [], inversePatches: [] } });
+  // @ts-expect-error restored history owns its position
+  createTravels({ count: 0 }, { initialPosition: 0 });
+  // @ts-expect-error invalid history always fails closed
+  createTravels({ count: 0 }, { strictInitialPatches: true });
   // @ts-expect-error shared history is not a caller-owned mutable array
   const mutableSharedHistory: State[] = controls.getHistory();
   void mutableSharedHistory;

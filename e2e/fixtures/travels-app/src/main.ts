@@ -485,7 +485,6 @@ const createPersistenceHistory = () => {
   return createTravels<PersistenceState>(history.state, {
     history,
     maxHistory: 20,
-    strictInitialPatches: true,
     warnOnUnsupportedState: false,
   });
 };

@@ -435,8 +435,7 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
     const rehydrated = createTravels(travels.getState(), {
       maxHistory: 3,
       autoArchive: false,
-      initialPatches: basePatches,
-      initialPosition: travels.getPosition(),
+      history: { patches: basePatches, position: travels.getPosition() },
     });
 
     rehydrated.back();

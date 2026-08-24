@@ -37,7 +37,6 @@ describe('Browser-oriented persistence behavior', () => {
     const restored = createTravels(history.state, {
       history,
       maxHistory: 20,
-      strictInitialPatches: true,
     });
 
     expect(restored.getState()).toEqual(travels.getState());

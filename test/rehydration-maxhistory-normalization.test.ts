@@ -32,8 +32,7 @@ const rehydrateCountHistory = ({
     { count: current },
     {
       maxHistory,
-      initialPatches: buildCountHistory(totalSteps),
-      initialPosition: position,
+      history: { patches: buildCountHistory(totalSteps), position },
     }
   );
 

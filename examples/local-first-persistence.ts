@@ -87,7 +87,6 @@ export async function createLocalFirstDocument(documentId: string) {
   const travels = createTravels(persisted.state, {
     history: persisted,
     maxHistory: 1000,
-    strictInitialPatches: true,
   });
   const channel = new BroadcastChannel(`travels:${documentId}`);
   let applyingRemoteSnapshot = false;

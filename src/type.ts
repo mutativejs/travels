@@ -253,10 +253,7 @@ export type TravelsWarningCode =
   | 'AUTO_ARCHIVE_ENABLED'
   | 'HISTORY_DISABLED'
   | 'HISTORY_DISCARDED'
-  | 'HISTORY_OPTION_OVERRIDE'
   | 'HISTORY_TRIMMED'
-  | 'INITIAL_POSITION_CLAMPED'
-  | 'INVALID_INITIAL_PATCHES'
   | 'INVALID_POSITION'
   | 'MUTABLE_FALLBACK'
   | 'MUTABLE_ROOT_REPLACEMENT'
@@ -343,24 +340,10 @@ export type TravelsOptions<
    */
   maxHistory?: number;
   /**
-   * The initial position in the history, by default `0`
-   */
-  initialPosition?: number;
-  /**
-   * The initial patches of the history
-   */
-  initialPatches?: TravelPatches<P>;
-  /**
-   * Restore validated serialized history. This is equivalent to passing
-   * initialPatches and initialPosition directly, but preserves the first-class
-   * persistence API shape returned by `Travels.deserialize(...)`.
+   * Restore history normalized by `Travels.deserialize(...)`.
+   * Malformed history is rejected instead of silently discarded.
    */
   history?: TravelsHistory<P>;
-  /**
-   * Whether to throw when `initialPatches` is invalid.
-   * When false (default), invalid patches are discarded and history starts empty.
-   */
-  strictInitialPatches?: boolean;
   /**
    * Whether to automatically archive the current state, by default `true`
    */

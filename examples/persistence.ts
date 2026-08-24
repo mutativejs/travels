@@ -141,7 +141,6 @@ const travels = persisted
   ? createTravels(persisted.state, {
       history: persisted,
       maxHistory: 50,
-      strictInitialPatches: true,
     })
   : createTravels(defaultState, { maxHistory: 50 });
 
@@ -202,7 +201,6 @@ if (reloadedData) {
   const reloadedTravels = createTravels(reloadedData.state, {
     history: reloadedData,
     maxHistory: 50,
-    strictInitialPatches: true,
   });
 
   console.log('✓ State restored successfully');

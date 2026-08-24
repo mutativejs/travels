@@ -95,6 +95,19 @@ Do not replay old patch history generated from Map/Set mutations. Such history c
 
 Older hand-rolled persistence usually saved `{ state, patches, position }`. Convert it with `migrate`:
 
+Travels 3 has one restore path. Pass the result of `Travels.deserialize(...)`
+through `history`; the former `initialPatches`, `initialPosition`, and
+`strictInitialPatches` options no longer exist. Malformed `history` input now
+throws instead of silently starting with an empty timeline.
+
+```ts
+const history = Travels.deserialize<State>(stored, {
+  validation: 'semantic',
+});
+
+const travels = createTravels(history.state, { history });
+```
+
 Migration and function-valued fallback callbacks must return synchronously.
 Complete asynchronous storage or network work before calling
 `Travels.deserialize(...)`; Promise-like callback results are rejected as

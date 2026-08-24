@@ -112,20 +112,17 @@ describe('Persistence Example - State Persistence', () => {
     });
 
     // Save to storage
-    const data = {
-      state: initialTravels.getState(),
-      patches: initialTravels.getPatches(),
-      position: initialTravels.getPosition(),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(initialTravels.serialize())
+    );
 
     // Load from storage
     const stored = localStorage.getItem(STORAGE_KEY);
-    const parsedData = JSON.parse(stored!);
+    const history = Travels.deserialize<AppState>(stored);
 
-    const reloadedTravels = createTravels(parsedData.state, {
-      initialPatches: parsedData.patches,
-      initialPosition: parsedData.position,
+    const reloadedTravels = createTravels(history.state, {
+      history,
       maxHistory: 50,
     });
 
@@ -170,20 +167,17 @@ describe('Persistence Example - State Persistence', () => {
     });
 
     // Save to storage
-    const data = {
-      state: initialTravels.getState(),
-      patches: initialTravels.getPatches(),
-      position: initialTravels.getPosition(),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(initialTravels.serialize())
+    );
 
     // Load from storage
     const stored = localStorage.getItem(STORAGE_KEY);
-    const parsedData = JSON.parse(stored!);
+    const history = Travels.deserialize<AppState>(stored);
 
-    const reloadedTravels = createTravels(parsedData.state, {
-      initialPatches: parsedData.patches,
-      initialPosition: parsedData.position,
+    const reloadedTravels = createTravels(history.state, {
+      history,
       maxHistory: 50,
     });
 
@@ -217,15 +211,10 @@ describe('Persistence Example - State Persistence', () => {
     });
 
     // Save and reload
-    const data = {
-      state: initialTravels.getState(),
-      patches: initialTravels.getPatches(),
-      position: initialTravels.getPosition(),
-    };
+    const data = Travels.deserialize<AppState>(initialTravels.serialize());
 
     const reloadedTravels = createTravels(data.state, {
-      initialPatches: data.patches,
-      initialPosition: data.position,
+      history: data,
       maxHistory: 50,
     });
 
@@ -312,15 +301,10 @@ describe('Persistence Example - State Persistence', () => {
     expect(travels.getState().notes[0].content).toContain('Action item');
 
     // Persist and reload
-    const data = {
-      state: travels.getState(),
-      patches: travels.getPatches(),
-      position: travels.getPosition(),
-    };
+    const data = Travels.deserialize<AppState>(travels.serialize());
 
     const reloadedTravels = createTravels(data.state, {
-      initialPatches: data.patches,
-      initialPosition: data.position,
+      history: data,
       maxHistory: 50,
     });
 
@@ -396,7 +380,6 @@ describe('Persistence Example - State Persistence', () => {
     const reloadedTravels = createTravels(history.state, {
       history,
       maxHistory: 50,
-      strictInitialPatches: true,
     });
 
     expect(reloadedTravels.getState().user.name).toBe('Alice');
@@ -611,9 +594,7 @@ describe('Persistence Example - State Persistence', () => {
         createTravels(
           { count: 1 },
           {
-            initialPatches: patches as TravelPatches,
-            initialPosition: 1,
-            strictInitialPatches: true,
+            history: { patches: patches as TravelPatches, position: 1 },
             warnOnUnsupportedState: false,
           }
         )
@@ -1059,12 +1040,14 @@ describe('Persistence Example - State Persistence', () => {
         createTravels(
           { count: 0 },
           {
-            initialPatches: patchHistory as TravelPatches,
-            strictInitialPatches: true,
+            history: {
+              patches: patchHistory as TravelPatches,
+              position: 0,
+            },
             warnOnUnsupportedState: false,
           }
         )
-      ).toThrow(/initialPatches.*JSON Patch operations/);
+      ).toThrow(/patches.*JSON Patch operations/);
       expect(getter).not.toHaveBeenCalled();
     }
   );
@@ -1184,12 +1167,11 @@ describe('Persistence Example - State Persistence', () => {
         createTravels(
           { value: null },
           {
-            initialPatches: patches,
-            strictInitialPatches: true,
+            history: { patches, position: 0 },
             warnOnUnsupportedState: false,
           }
         )
-      ).toThrow(/initialPatches.*JSON Patch operations/);
+      ).toThrow(/patches.*JSON Patch operations/);
       expect(getter).not.toHaveBeenCalled();
     }
   );
@@ -1231,7 +1213,6 @@ describe('Persistence Example - State Persistence', () => {
     });
     const travels = createTravels(history.state, {
       history,
-      strictInitialPatches: true,
       warnOnUnsupportedState: false,
     });
     travels.forward();
@@ -1270,7 +1251,6 @@ describe('Persistence Example - State Persistence', () => {
     );
     const travels = createTravels(history.state, {
       history,
-      strictInitialPatches: true,
       warnOnUnsupportedState: false,
     });
 

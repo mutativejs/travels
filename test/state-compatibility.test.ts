@@ -481,14 +481,16 @@ describe('State compatibility warnings', () => {
         createTravels<Record<PropertyKey, unknown>>(
           {},
           {
-            initialPatches: {
-              patches: [[{ op: 'replace', path, value: 1 }]],
-              inversePatches: [[{ op: 'replace', path, value: 0 }]],
+            history: {
+              patches: {
+                patches: [[{ op: 'replace', path, value: 1 }]],
+                inversePatches: [[{ op: 'replace', path, value: 0 }]],
+              },
+              position: 0,
             },
-            strictInitialPatches: true,
           }
         )
-      ).toThrow(/initialPatches/);
+      ).toThrow(/patches/);
     }
   );
 
@@ -1095,20 +1097,21 @@ describe('State compatibility warnings', () => {
         createTravels(
           { value: null as unknown },
           {
-            initialPatches: {
-              patches: [
-                [{ op: 'replace', path: ['value'], value: collection }],
-              ],
-              inversePatches: [
-                [{ op: 'replace', path: ['value'], value: null }],
-              ],
+            history: {
+              patches: {
+                patches: [
+                  [{ op: 'replace', path: ['value'], value: collection }],
+                ],
+                inversePatches: [
+                  [{ op: 'replace', path: ['value'], value: null }],
+                ],
+              },
+              position: 0,
             },
-            initialPosition: 0,
-            strictInitialPatches: true,
             warnOnUnsupportedState: false,
           }
         )
-      ).toThrow('Travels: initialPatches must not contain Map or Set values');
+      ).toThrow('Travels: patches must not contain Map or Set values');
     }
   );
 
@@ -1261,18 +1264,21 @@ describe('State compatibility warnings', () => {
       createTravels(
         { value: null as Set<number> | null },
         {
-          initialPatches: {
-            patches: [
-              [{ op: 'replace', path: ['value'], value: new Set([1]) }],
-            ],
-            inversePatches: [[{ op: 'replace', path: ['value'], value: null }]],
+          history: {
+            patches: {
+              patches: [
+                [{ op: 'replace', path: ['value'], value: new Set([1]) }],
+              ],
+              inversePatches: [
+                [{ op: 'replace', path: ['value'], value: null }],
+              ],
+            },
+            position: 1,
           },
-          initialPosition: 1,
-          strictInitialPatches: true,
           warnOnUnsupportedState: false,
         }
       )
-    ).toThrow('Travels: initialPatches must not contain Map or Set values');
+    ).toThrow('Travels: patches must not contain Map or Set values');
   });
 
   test('rejects externally introduced collections at explicit baseline boundaries', () => {
