@@ -1007,13 +1007,20 @@ export class TravelsCore<
     const inversePatchGroups = changePatches?.inversePatches ?? [];
     const patchCount = patchGroups.length;
     const inversePatchCount = inversePatchGroups.length;
+    let eventMetadata: Readonly<TravelMetadata> | undefined;
     let snapshot: ReadonlyTravelPatches<P> | undefined;
     const event: TravelsEvent<S, P> = {
       type,
       state: this.state,
       position: this.position,
       historyLength: this.getVisibleHistoryLength(),
-      metadata,
+      get metadata() {
+        if (!metadata) {
+          return undefined;
+        }
+        eventMetadata ??= Object.freeze(cloneTravelMetadata(metadata)!);
+        return eventMetadata;
+      },
       get patches() {
         if (snapshot) {
           return snapshot;
@@ -1524,7 +1531,7 @@ export class TravelsCore<
     }
     this.emitChange(
       type,
-      metadata,
+      storedMetadata,
       branchDiscard,
       createPatchDelta(patches, inversePatches)
     );
@@ -1792,7 +1799,7 @@ export class TravelsCore<
       );
     }
     if (publishChange) {
-      this.emitChange('archive', archiveMetadata);
+      this.emitChange('archive', storedMetadata);
     }
     return true;
   }

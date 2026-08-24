@@ -146,6 +146,10 @@ describe('controlled travel journal', () => {
       expect(operation in journal).toBe(false);
     }
 
+    expect(Object.isFrozen(journal)).toBe(true);
+    expect(() => {
+      (journal as { back: () => void }).back = () => undefined;
+    }).toThrow(TypeError);
     expect(journal.getState()).toEqual({ count: 0, label: 'initial' });
     expect(journal.getPosition()).toBe(0);
   });

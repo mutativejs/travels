@@ -72,6 +72,9 @@ The returned `TravelJournal` exposes only journal-safe operations:
   `assertPersistenceCompatible()`, and `serialize()`;
 - lifecycle: `subscribe()` and `rebase()`.
 
+The facade is a frozen read-only capability object in every build; its methods
+cannot be replaced at runtime.
+
 State-owning operations (`setState()`, `reset()`, transactions,
 `replaceStateWithoutHistory()`, archive/tracking controls, and `getControls()`)
 are absent from both the public type and the runtime facade. `rebase()` is the

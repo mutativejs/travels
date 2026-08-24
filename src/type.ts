@@ -17,7 +17,11 @@ export type TravelPatches<P extends PatchesOption = {}> = {
   inversePatches: Patches<P>[];
 };
 
-/** A read-only patch operation exposed through a shared observer event. */
+/**
+ * A shallow read-only patch operation exposed through a shared observer event.
+ * Object-valued patch payloads are event-local but remain shared by observers
+ * handling that event.
+ */
 export type ReadonlyTravelPatch<P extends PatchesOption = {}> = Omit<
   Readonly<Patch<P>>,
   'path'
@@ -27,7 +31,7 @@ export type ReadonlyTravelPatch<P extends PatchesOption = {}> = Omit<
     : Patch<P>['path'];
 };
 
-/** Read-only event-local patch groups shared by all observers of one event. */
+/** Shallow read-only event-local patch groups shared by one event's observers. */
 export type ReadonlyTravelPatches<P extends PatchesOption = {}> = {
   readonly patches: readonly (readonly ReadonlyTravelPatch<P>[])[];
   readonly inversePatches: readonly (readonly ReadonlyTravelPatch<P>[])[];
@@ -308,7 +312,8 @@ export type TravelsEvent<
   readonly patches: ReadonlyTravelPatches<P>;
   /** Number of entries currently retained in history. */
   readonly historyLength: number;
-  readonly metadata?: TravelMetadata;
+  /** Lazily cloned, shallow-frozen metadata shared by this event's observers. */
+  readonly metadata?: Readonly<TravelMetadata>;
 };
 
 export type TravelsErrorCode =

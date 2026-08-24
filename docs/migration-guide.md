@@ -148,7 +148,9 @@ travels.subscribe(
 
 One shallow-frozen event object is shared by all observers for a notification.
 Its `patches` property remains an event-local delta and is materialized lazily;
-the patch containers, groups, operations, and array paths are frozen. Call
+the patch containers, groups, operations, and array paths are frozen. Top-level
+metadata is cloned and frozen on first access. Nested patch values and metadata
+are event-local but shared by its observers; treat them as read-only. Call
 `travels.getPatches()` when full retained history is required.
 `TravelsDevtoolsEvent` was a deprecated alias in 2.x and is removed in 3.0.
 Callbacks that ignore their arguments, such as external store invalidation

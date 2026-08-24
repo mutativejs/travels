@@ -257,6 +257,10 @@ describe('Type-level API contracts', () => {
         event.patches.patches[0][0].op = 'add';
         // @ts-expect-error array patch paths are read-only
         event.patches.patches[0][0].path.push('nested');
+        if (event.metadata) {
+          // @ts-expect-error event metadata is a shared read-only view
+          event.metadata.label = 'changed';
+        }
       }
     });
     createTravels<State>(
@@ -300,6 +304,10 @@ describe('Type-level API contracts', () => {
       journal.replaceStateWithoutHistory({ count: 1 });
       // @ts-expect-error standard controls expose reset
       journal.getControls();
+      // @ts-expect-error journal capabilities cannot be replaced
+      journal.back = () => undefined;
+      // @ts-expect-error journal ingress cannot be replaced
+      journal.recordPatches = () => undefined;
       // @ts-expect-error controlledApply is reserved for createTravelJournal
       createTravels(
         { count: 0 },

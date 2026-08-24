@@ -106,6 +106,46 @@ describe('subscription patch snapshots', () => {
     expect(events[0].patches).toBe(events[0].patches);
   });
 
+  test('keeps shallow observer data detached from state and retained history', () => {
+    type State = { item: { value: number } };
+    const metadata = {
+      label: 'replace',
+      nested: { source: 'caller' },
+    };
+    const laterObserver: Array<{ value: number; source: string }> = [];
+    const travels = createTravels<State>({ item: { value: 0 } });
+
+    travels.subscribe((event) => {
+      expect(Object.isFrozen(event.metadata)).toBe(true);
+      expect(() => {
+        (event.metadata as { label: string }).label = 'changed';
+      }).toThrow(TypeError);
+
+      const value = event.patches.patches[0][0].value as { value: number };
+      value.value = 99;
+      (event.metadata!.nested as { source: string }).source = 'observer';
+    });
+    travels.subscribe((event) => {
+      laterObserver.push({
+        value: (event.patches.patches[0][0].value as { value: number }).value,
+        source: (event.metadata!.nested as { source: string }).source,
+      });
+    });
+
+    travels.setState((draft) => {
+      draft.item = { value: 1 };
+    }, metadata);
+
+    expect(laterObserver).toEqual([{ value: 99, source: 'observer' }]);
+    expect(travels.getState()).toEqual({ item: { value: 1 } });
+    expect(travels.getPatches().patches[0][0].value).toEqual({ value: 1 });
+    expect(travels.getMetadata()[0]).toEqual(metadata);
+    expect(metadata).toEqual({
+      label: 'replace',
+      nested: { source: 'caller' },
+    });
+  });
+
   test('keeps patch reads constant as retained history grows', () => {
     let latest:
       | { patches: ReadonlyTravelPatches; historyLength: number }

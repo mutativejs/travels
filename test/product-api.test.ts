@@ -1161,9 +1161,10 @@ describe('Productized history API', () => {
     const history = travels.getHistory();
     const cachedHistory = travels.getHistory();
 
-    if (process.env.NODE_ENV !== 'production') {
-      expect(Object.isFrozen(history)).toBe(true);
-    }
+    expect(Object.isFrozen(history)).toBe(true);
+    expect(() =>
+      (history as unknown as Array<{ count: number }>).push({ count: 2 })
+    ).toThrow(TypeError);
     expect(cachedHistory).toBe(history);
     expect(cachedHistory[0]).toBe(history[0]);
   });

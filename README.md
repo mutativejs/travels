@@ -236,16 +236,17 @@ Subscribe to state changes. Returns an unsubscribe function.
 <summary><b>Event envelope and observer guarantees</b></summary>
 
 Each notification creates one shallow-frozen event envelope shared by all
-listeners and the devtools hook. `event.patches` is the event-local
+listeners and the devtools hook. Top-level metadata is cloned and frozen on
+first access. `event.patches` is the event-local
 forward/inverse delta from the previously published state to `event.state`.
 Root transactions compose their internal steps into one delta; operations that
 do not change state, such as `archive()` and `rebase()`, publish empty patch
 arrays. The patch snapshot is materialized lazily and its forward/inverse
 directions are cloned independently. Its containers, patch groups, operations,
-and array paths are frozen. Treat the state, patch values, and metadata as
-read-only too; mutating nested values can affect other observers handling the
-same event. Use `getPatches()` explicitly when a full retained history snapshot
-is required.
+and array paths are frozen. Nested patch values and metadata are detached from
+state and retained history but shared within the event, so treat them as
+read-only too: mutating one can affect later observers handling that event. Use
+`getPatches()` explicitly when a full retained history snapshot is required.
 
 Notifications run only after state, position, and history have committed. An
 observer exception is isolated from other observers and is reported through
@@ -302,8 +303,8 @@ Remove all past and future history and make the current state as the new initial
 Returns the complete history of states as an array. Use it to read the timeline: render it, map it, measure it, index into it.
 
 > **IMPORTANT**: Treat the returned array and every state entry as read-only. They are cached internally.
-> In development mode, only the array container is frozen; the state entries are shared cached snapshots and are not deep-frozen.
-> In production mode, modifying the array or any entry will corrupt the cache.
+> The array container is frozen in every build; the state entries are shared cached snapshots and are not deep-frozen.
+> Casting away the read-only type and modifying an entry can corrupt the cache.
 
 The same array is reachable through `getControls().getHistory()`. Both methods
 return `readonly ReadonlyState<S>[]` in Travels 3.

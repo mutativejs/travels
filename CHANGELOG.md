@@ -25,12 +25,13 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   `reset()`, transactions, tracking, archive, or `getControls()`.
 - Make `TravelsControls` a read-only capability object and change
   both shared `getHistory()` surfaces to return
-  `readonly ReadonlyState<S>[]`. Controls are frozen in every build. Use
-  `getHistorySnapshot()` for detached mutable `S[]` values, independently of
-  the auto-freeze option.
+  `readonly ReadonlyState<S>[]`. Controls, journal facades, and shared history
+  array containers are frozen in every build. Use `getHistorySnapshot()` for
+  detached mutable `S[]` values, independently of the auto-freeze option.
 - Expose observer deltas as `ReadonlyTravelPatches`. The shared patch snapshot,
   its group arrays, operations, and array paths are frozen when lazily
-  materialized.
+  materialized. Top-level metadata is lazily cloned and frozen; nested patch
+  and metadata values remain shallow, event-local views shared by its observers.
 - Remove the deprecated `TravelsDevtoolsEvent` alias and the
   `LEGACY_SUBSCRIBER` arity warning. Subscribers and devtools use
   `TravelsEvent` exclusively.

@@ -24,27 +24,29 @@ export type TravelJournal<
   S,
   F extends boolean = false,
   P extends PatchesOption = {},
-> = Pick<
-  Travels<S, F, true, P>,
-  | 'subscribe'
-  | 'getState'
-  | 'getHistory'
-  | 'getHistorySnapshot'
-  | 'go'
-  | 'back'
-  | 'forward'
-  | 'rebase'
-  | 'canBack'
-  | 'canForward'
-  | 'getPosition'
-  | 'getPatches'
-  | 'serialize'
-  | 'assertPersistenceCompatible'
-  | 'getMetadata'
-  | 'getHistoryEntries'
-> & {
-  recordPatches: (state: S, entry: TravelHistoryEntry<P>) => void;
-};
+> = Readonly<
+  Pick<
+    Travels<S, F, true, P>,
+    | 'subscribe'
+    | 'getState'
+    | 'getHistory'
+    | 'getHistorySnapshot'
+    | 'go'
+    | 'back'
+    | 'forward'
+    | 'rebase'
+    | 'canBack'
+    | 'canForward'
+    | 'getPosition'
+    | 'getPatches'
+    | 'serialize'
+    | 'assertPersistenceCompatible'
+    | 'getMetadata'
+    | 'getHistoryEntries'
+  > & {
+    recordPatches: (state: S, entry: TravelHistoryEntry<P>) => void;
+  }
+>;
 
 export type TravelJournalOptions<
   S,
@@ -109,7 +111,7 @@ const createJournal = <
     getHistoryEntries: () => core.getHistoryEntries(),
   };
 
-  return journal;
+  return Object.freeze(journal);
 };
 
 export const createTravelJournal = <

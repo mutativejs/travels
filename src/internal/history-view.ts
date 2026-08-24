@@ -15,7 +15,7 @@ type HistoryViewInput<S, P extends PatchesOption> = {
 
 /** Reconstructs, caches, and safely snapshots visible history states. */
 export class HistoryView<S, P extends PatchesOption = {}> {
-  private cache: { version: number; history: S[] } | null = null;
+  private cache: { version: number; history: readonly S[] } | null = null;
   private revision = 0;
 
   public get version(): number {
@@ -61,12 +61,12 @@ export class HistoryView<S, P extends PatchesOption = {}> {
     }
     pastHistory.reverse();
 
-    const history = [...pastHistory, input.state, ...futureHistory];
+    const history = Object.freeze([
+      ...pastHistory,
+      input.state,
+      ...futureHistory,
+    ]);
     this.cache = { version: this.revision, history };
-
-    if (process.env.NODE_ENV !== 'production') {
-      Object.freeze(history);
-    }
 
     return history;
   }

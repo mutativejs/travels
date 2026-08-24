@@ -31,9 +31,13 @@ const exerciseUndoRedo = (api, label) => {
   travels.subscribe((nextEvent) => {
     event = nextEvent;
   });
-  travels.setState((draft) => {
-    draft.count = 1;
-  });
+  travels.setState(
+    (draft) => {
+      draft.count = 1;
+    },
+    { label: 'increment' }
+  );
+  assert.equal(Object.isFrozen(event.metadata), true, `${label} event metadata`);
   assert.equal(Object.isFrozen(event.patches), true, `${label} event patches`);
   assert.equal(
     Object.isFrozen(event.patches.patches),
@@ -46,6 +50,11 @@ const exerciseUndoRedo = (api, label) => {
     `${label} event patch group`
   );
   assert.equal(travels.getState().count, 1, `${label} update`);
+  assert.equal(
+    Object.isFrozen(travels.getHistory()),
+    true,
+    `${label} shared history`
+  );
   travels.back();
   assert.equal(travels.getState().count, 0, `${label} undo`);
   travels.forward();
@@ -80,6 +89,7 @@ const exerciseUndoRedo = (api, label) => {
     'function',
     `${label} restore journal`
   );
+  assert.equal(Object.isFrozen(journal), true, `${label} journal facade`);
   assert.equal('setState' in journal, false, `${label} journal capabilities`);
 };
 
