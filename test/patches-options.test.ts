@@ -1,5 +1,9 @@
 import { expect, describe, test } from 'vitest';
-import { createTravels } from '../src/index';
+import {
+  createTravels,
+  restoreTravels,
+  type TravelsSerializedHistory,
+} from '../src/index';
 
 /**
  * Test suite for patchesOptions configuration
@@ -156,6 +160,45 @@ describe('PatchesOptions Configuration', () => {
         expect(travels.getState()).toEqual({ count: 1 });
       }
     );
+
+    test('normalizes legacy array root paths when restoring string patches', () => {
+      const legacySnapshot = {
+        version: 1,
+        state: { count: 1 },
+        position: 1,
+        patches: {
+          patches: [[{ op: 'replace', path: [], value: { count: 1 } }]],
+          inversePatches: [
+            [{ op: 'replace', path: [], value: { count: 0 } }],
+          ],
+        },
+      } as unknown as TravelsSerializedHistory<
+        { count: number },
+        { pathAsArray: false }
+      >;
+      const travels = restoreTravels(legacySnapshot, {
+        patchesOptions: { pathAsArray: false },
+      });
+
+      expect(travels.getPatches()).toEqual({
+        patches: [[{ op: 'replace', path: '', value: { count: 1 } }]],
+        inversePatches: [
+          [{ op: 'replace', path: '', value: { count: 0 } }],
+        ],
+      });
+
+      travels.setState({ count: 2 });
+
+      expect(
+        travels
+          .getPatches()
+          .patches.flatMap((patches) => patches.map((patch) => patch.path))
+      ).toEqual(['', '']);
+      travels.back(2);
+      expect(travels.getState()).toEqual({ count: 0 });
+      travels.forward(2);
+      expect(travels.getState()).toEqual({ count: 2 });
+    });
   });
 
   describe('arrayLengthAssignment option', () => {

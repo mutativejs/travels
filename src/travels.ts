@@ -932,6 +932,14 @@ export class TravelsCore<
     metadata: Array<TravelMetadata | undefined>;
   } {
     const cloned = cloneTravelPatches(restoredPatches);
+    if (this.patchPathAsArray === false) {
+      cloned.patches = cloned.patches.map((patches) =>
+        normalizeEmptyPatchPaths(patches, false)
+      );
+      cloned.inversePatches = cloned.inversePatches.map((patches) =>
+        normalizeEmptyPatchPaths(patches, false)
+      );
+    }
     const total = cloned.patches.length;
     const alignedMetadata = alignMetadataToPatchCount(metadata, total);
     const historyLimit = this.maxHistory > 0 ? this.maxHistory : 0;
