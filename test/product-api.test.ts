@@ -328,17 +328,18 @@ describe('Productized history API', () => {
     expect(travels.getState()).toEqual({ count: 0, items: [] });
   });
 
-  test('transaction buffering does not expose manual archive controls', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  test('transaction buffering keeps the automatic surface capability-safe', () => {
     const travels = createTravels({ count: 0 });
     let controls: ReturnType<typeof travels.getControls> | undefined;
+
+    expect('archive' in travels).toBe(false);
+    expect('canArchive' in travels).toBe(false);
 
     travels.transaction(() => {
       controls = travels.getControls();
       travels.setState((draft) => {
         draft.count = 1;
       });
-      travels.archive();
       travels.setState((draft) => {
         draft.count = 2;
       });
@@ -346,14 +347,9 @@ describe('Productized history API', () => {
 
     expect('archive' in controls!).toBe(false);
     expect('canArchive' in controls!).toBe(false);
-    expect(warn).toHaveBeenCalledWith(
-      'Travels: auto archive is enabled; archive() has no effect.'
-    );
     expect(travels.getPatches().patches).toHaveLength(1);
     travels.back();
     expect(travels.getState()).toEqual({ count: 0 });
-
-    warn.mockRestore();
   });
 
   test('transaction navigation keeps state, position, and history aligned', () => {

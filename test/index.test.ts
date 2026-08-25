@@ -417,16 +417,11 @@ describe('Travels - Edge Cases', () => {
     unsub2();
   });
 
-  test('should not call archive in auto mode', () => {
+  test('should omit manual archive capabilities in auto mode', () => {
     const travels = createTravels({ count: 0 });
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    travels.archive();
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Travels: auto archive is enabled; archive() has no effect.'
-    );
-    consoleSpy.mockRestore();
+    expect('archive' in travels).toBe(false);
+    expect('canArchive' in travels).toBe(false);
   });
 
   test('should respect maxHistory option', () => {

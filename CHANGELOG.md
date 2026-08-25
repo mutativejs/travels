@@ -23,6 +23,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   State-owning timelines no longer expose `recordPatches()`, while a
   `TravelJournal` is an explicit facade that does not expose `setState()`,
   `reset()`, transactions, tracking, archive, or `getControls()`.
+- Expose `archive()` and `canArchive()` only on timelines created with
+  `autoArchive: false`. Automatic timelines omit both capabilities at runtime
+  and in TypeScript instead of retaining a warning-only `archive()` method.
 - Make `TravelsControls` a read-only capability object and change
   both shared `getHistory()` surfaces to return
   `readonly ReadonlyState<S>[]`. Controls, journal facades, and shared history

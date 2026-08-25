@@ -79,14 +79,8 @@ type SynchronousFunction<F> = F extends (...args: never[]) => infer R
 type SynchronousUpdater<S, U extends Updater<S>> =
   Updater<S> extends U ? U : SynchronousFunction<U>;
 
-/**
- * Public state-owning Travels capability surface.
- *
- * Controlled journals expose `recordPatches()` through `TravelJournal`
- * instead. Keeping the two capabilities disjoint prevents state-owning
- * integrations from calling an operation that requires an external owner.
- */
-export interface Travels<
+/** @inline */
+interface StateOwnedTravels<
   S,
   F extends boolean = false,
   A extends boolean = true,
@@ -103,7 +97,6 @@ export interface Travels<
     updater: SynchronousUpdater<S, U>,
     metadata?: TravelMetadata
   ): void;
-  archive(metadata?: TravelMetadata): void;
   transaction<FN extends () => unknown>(
     metadata: TravelMetadata,
     fn: FN & SynchronousFunction<FN>
@@ -130,7 +123,6 @@ export interface Travels<
   rebase(): void;
   canBack(): boolean;
   canForward(): boolean;
-  canArchive(): boolean;
   getPosition(): number;
   getPatches(): TravelPatches<P>;
   assertPersistenceCompatible(): void;
@@ -141,6 +133,27 @@ export interface Travels<
     ? RebasableTravelsControls<S, F, P>
     : RebasableManualTravelsControls<S, F, P>;
 }
+
+/** @inline */
+interface ManualArchiveCapability {
+  archive(metadata?: TravelMetadata): void;
+  canArchive(): boolean;
+}
+
+/**
+ * Public state-owning Travels capability surface.
+ *
+ * Controlled journals expose `recordPatches()` through `TravelJournal`
+ * instead. Manual archive methods exist only when `A` is `false`, keeping
+ * unavailable operations out of both the type and runtime surface.
+ */
+export type Travels<
+  S,
+  F extends boolean = false,
+  A extends boolean = true,
+  P extends PatchesOption = {},
+> = StateOwnedTravels<S, F, A, P> &
+  (A extends false ? ManualArchiveCapability : {});
 
 type TravelsCoreOptions<
   S,
@@ -437,7 +450,7 @@ export class TravelsCore<
   F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
-> implements Travels<S, F, A, P> {
+> implements StateOwnedTravels<S, F, A, P> {
   private readonly mutableMode: boolean;
 
   /**
@@ -446,6 +459,12 @@ export class TravelsCore<
   public get mutable(): boolean {
     return this.mutableMode;
   }
+
+  /** Installed only for manual-archive instances. */
+  public declare archive: ManualArchiveCapability['archive'];
+
+  /** Installed only for manual-archive instances. */
+  public declare canArchive: ManualArchiveCapability['canArchive'];
 
   private state: S;
   private timeline = new TimelineStore<P>();
@@ -661,6 +680,16 @@ export class TravelsCore<
 
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
+
+    if (!autoArchive) {
+      Object.assign(this, {
+        archive: (metadata?: TravelMetadata): void => {
+          this.assertCanMutate('archive');
+          this.archivePending(metadata);
+        },
+        canArchive: (): boolean => !!this.tempPatches.patches.length,
+      });
+    }
 
     this.assertInvariants();
     if (process.env.NODE_ENV !== 'production') {
@@ -1893,20 +1922,6 @@ export class TravelsCore<
     return true;
   }
 
-  public archive(metadata?: TravelMetadata): void {
-    this.assertCanMutate('archive');
-
-    if (this.autoArchive) {
-      this.observers.warn(
-        'AUTO_ARCHIVE_ENABLED',
-        'Travels: auto archive is enabled; archive() has no effect.'
-      );
-      return;
-    }
-
-    this.archivePending(metadata);
-  }
-
   public transaction<FN extends () => unknown>(
     metadata: TravelMetadata,
     fn: FN & SynchronousFunction<FN>
@@ -2436,13 +2451,6 @@ export class TravelsCore<
     return shouldArchive
       ? this.position < _allPatches.patches.length - 1
       : this.position < _allPatches.patches.length;
-  }
-
-  /**
-   * Check if it's possible to archive the current state
-   */
-  public canArchive(): boolean {
-    return !this.autoArchive && !!this.tempPatches.patches.length;
   }
 
   /**

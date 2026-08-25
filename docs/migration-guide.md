@@ -50,6 +50,11 @@ throw when called. Ownership-specific options now fail closed at runtime:
 `apply` belongs only to journal factories, while `mutable` belongs only to
 state-owning factories.
 
+Manual archive capabilities now follow the same rule. `archive()` and
+`canArchive()` exist only when the factory receives `autoArchive: false`; an
+automatic timeline omits both methods at runtime and in TypeScript instead of
+retaining a warning-only `archive()` method.
+
 ### Treat shared views as read-only
 
 `getHistory()` now returns `readonly ReadonlyState<S>[]` through both the

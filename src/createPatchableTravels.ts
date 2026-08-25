@@ -67,5 +67,5 @@ export function createPatchableTravels<
   return new TravelsCore<S, F, A, P>(
     { type: 'initial', state: initialState as S },
     options
-  );
+  ) as unknown as Travels<S, F, A, P>;
 }

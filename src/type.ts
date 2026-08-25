@@ -249,7 +249,6 @@ export type TravelsObserverErrorSource =
   | 'compatibilityCheck';
 
 export type TravelsWarningCode =
-  | 'AUTO_ARCHIVE_ENABLED'
   | 'HISTORY_DISABLED'
   | 'HISTORY_DISCARDED'
   | 'HISTORY_TRIMMED'

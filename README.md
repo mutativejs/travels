@@ -207,9 +207,9 @@ Get the current state.
 
 Get an O(1), monotonically increasing token for external-store bindings. It
 advances once for every committed subscriber event, including operations such
-as `archive()` and `rebase()` that can change timeline controls without changing
-the current state reference. No-op updates and failed transactions do not
-advance it.
+as manual `archive()` and `rebase()` that can change timeline controls without
+changing the current state reference. No-op updates and failed transactions do
+not advance it.
 
 #### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void), metadata?): void`
 
@@ -372,7 +372,7 @@ Returns `true` if redo is possible (not at the end of history).
 
 #### `archive(metadata?): void` (Manual archive mode only)
 
-Saves the current state to history. Only available when `autoArchive: false`. Accepts optional metadata. If omitted, Travels uses the latest metadata supplied to pending `setState(...)` calls.
+Saves the current state to history. Only available when `autoArchive: false`; automatic timelines omit both `archive` and `canArchive` at runtime and in TypeScript. Accepts optional metadata. If omitted, Travels uses the latest metadata supplied to pending `setState(...)` calls.
 
 #### `canArchive(): boolean` (Manual archive mode only)
 

@@ -54,5 +54,8 @@ export function restoreTravels<
     capability: 'state',
     restoreFactory: 'restoreTravels',
   });
-  return new TravelsCore<S, F, A, P>({ type: 'snapshot', snapshot }, options);
+  return new TravelsCore<S, F, A, P>(
+    { type: 'snapshot', snapshot },
+    options
+  ) as unknown as Travels<S, F, A, P>;
 }

@@ -7,6 +7,7 @@ import {
 import type {
   PatchesOption,
   TravelHistoryEntry,
+  TravelMetadata,
   TravelsControlledApply,
   TravelsOptions,
   TravelsSerializedHistory,
@@ -49,7 +50,10 @@ export type TravelJournal<
   > & {
     recordPatches: (state: S, entry: TravelHistoryEntry<P>) => void;
   } & (A extends false
-      ? Pick<Travels<S, F, A, P>, 'archive' | 'canArchive'>
+      ? {
+          archive: (metadata?: TravelMetadata) => void;
+          canArchive: () => boolean;
+        }
       : {})
 >;
 

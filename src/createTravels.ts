@@ -60,5 +60,5 @@ export function createTravels<
   return new TravelsCore<S, F, A, P>(
     { type: 'initial', state: initialState },
     options
-  );
+  ) as unknown as Travels<S, F, A, P>;
 }

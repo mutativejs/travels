@@ -23,7 +23,41 @@ import {
 } from '../src/index';
 
 describe('Type-level API contracts', () => {
-  test('journal capabilities follow archive mode', () => {
+  test('manual archive capabilities follow archive mode', () => {
+    const automaticTravels = createTravels({ count: 0 });
+    if (false) {
+      // @ts-expect-error automatic timelines do not expose manual archive controls
+      automaticTravels.archive();
+      // @ts-expect-error automatic timelines do not expose manual archive controls
+      automaticTravels.canArchive();
+    }
+
+    const manualTravels = createTravels(
+      { count: 0 },
+      { autoArchive: false as const }
+    );
+    manualTravels.archive();
+    expectTypeOf(manualTravels.canArchive()).toEqualTypeOf<boolean>();
+
+    const automaticPatchable = createPatchableTravels({ count: 0 });
+    const manualPatchable = createPatchableTravels(
+      { count: 0 },
+      { autoArchive: false as const }
+    );
+    const automaticRestored = restoreTravels(automaticTravels.serialize());
+    const manualRestored = restoreTravels(automaticTravels.serialize(), {
+      autoArchive: false as const,
+    });
+    manualPatchable.archive();
+    manualRestored.archive();
+
+    if (false) {
+      // @ts-expect-error automatic patchable timelines omit manual capabilities
+      automaticPatchable.archive();
+      // @ts-expect-error automatic restored timelines omit manual capabilities
+      automaticRestored.archive();
+    }
+
     const automatic = createTravelJournal(
       { count: 0 },
       { apply: ({ state }) => state }

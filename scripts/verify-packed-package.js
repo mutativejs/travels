@@ -73,6 +73,8 @@ const exerciseUndoRedo = (api, label) => {
     `${label} event patch group`
   );
   assert.equal(travels.getState().count, 1, `${label} update`);
+  assert.equal('archive' in travels, false, `${label} automatic archive`);
+  assert.equal('canArchive' in travels, false, `${label} automatic canArchive`);
   assert.equal(
     Object.isFrozen(travels.getHistory()),
     true,
@@ -101,6 +103,22 @@ const exerciseUndoRedo = (api, label) => {
     () => api.createTravels({ count: 0 }, { history: restoredHistory }),
     (error) => error?.code === 'INVALID_OPTION'
   );
+
+  const manualTravels = api.createTravels({ count: 0 }, { autoArchive: false });
+  assert.equal(
+    typeof manualTravels.archive,
+    'function',
+    `${label} manual archive`
+  );
+  assert.equal(
+    typeof manualTravels.canArchive,
+    'function',
+    `${label} manual canArchive`
+  );
+  manualTravels.setState({ count: 1 });
+  assert.equal(manualTravels.canArchive(), true, `${label} manual pending`);
+  manualTravels.archive();
+  assert.equal(manualTravels.canArchive(), false, `${label} manual archived`);
 
   const journal = api.createTravelJournal(
     { count: 0 },
