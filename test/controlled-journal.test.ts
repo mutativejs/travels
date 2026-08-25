@@ -1,6 +1,7 @@
 import { apply, create, type Draft, type Patches } from 'mutative';
 import { describe, expect, test, vi } from 'vitest';
 import {
+  assertTravelHistoryEntryRecordable,
   createTravelJournal,
   restoreTravelJournal,
   createTravels,
@@ -479,6 +480,34 @@ describe('controlled travel journal', () => {
       expect(journal.getPosition()).toBe(0);
       expect(journal.getHistoryEntries()).toEqual([]);
     }
+  });
+
+  test('preflights external entries with the recordPatches detach rules', () => {
+    const validEntry = {
+      patches: [{ op: 'replace', path: ['count'], value: 1 }],
+      inversePatches: [{ op: 'replace', path: ['count'], value: 0 }],
+    } as TravelHistoryEntry;
+
+    expect(() =>
+      assertTravelHistoryEntryRecordable(validEntry)
+    ).not.toThrow();
+    expect(validEntry.patches[0]).toEqual({
+      op: 'replace',
+      path: ['count'],
+      value: 1,
+    });
+    expect(() =>
+      assertTravelHistoryEntryRecordable({
+        patches: [
+          { op: 'replace', path: ['value'], value: new Map() },
+        ],
+        inversePatches: [{ op: 'remove', path: ['value'] }],
+      })
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsTypeError>>({
+        code: 'UNCLONEABLE_PATCH_VALUE',
+      })
+    );
   });
 
   test('preserves aliases within a detached controlled patch group', () => {

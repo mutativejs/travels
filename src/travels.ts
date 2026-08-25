@@ -28,8 +28,8 @@ import type {
 import {
   deserializeTravelsHistory,
   TRAVELS_HISTORY_SCHEMA_VERSION,
-  validateTravelHistoryEntry,
 } from './persistence.js';
+import { prepareTravelHistoryEntry } from './history-entry.js';
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsError, TravelsTypeError } from './errors.js';
 import { ObserverHub, type ObserverListener } from './internal/observer-hub.js';
@@ -1791,20 +1791,13 @@ export class TravelsCore<
       );
     }
 
-    const validation = validateTravelHistoryEntry<P>(entry);
-    if (validation.error !== null) {
-      throw new TravelsTypeError(
-        'INVALID_PATCH_ENTRY',
-        `Travels: recordPatches received an invalid patch entry: ${validation.error}.`
-      );
-    }
-
+    const prepared = prepareTravelHistoryEntry<P>(entry);
     const patches = normalizeEmptyPatchPaths(
-      clonePatchGroupDetached(validation.entry.patches),
+      prepared.patches,
       this.patchPathAsArray
     );
     const inversePatches = normalizeEmptyPatchPaths(
-      clonePatchGroupDetached(validation.entry.inversePatches),
+      prepared.inversePatches,
       this.patchPathAsArray
     );
     if (patches.length === 0 && inversePatches.length === 0) {
@@ -1829,8 +1822,8 @@ export class TravelsCore<
     if (process.env.NODE_ENV !== 'production') {
       assertSupportedExternalState(state, patches, this.collectionFreeObjects);
     }
-    const entryMetadata = entry.metadata;
-    const storedMetadata = cloneTravelMetadata(entryMetadata);
+    const entryMetadata = prepared.metadata;
+    const storedMetadata = prepared.storedMetadata;
     this.state = state;
     this.commitPatchEntry(
       patches,

@@ -29,6 +29,11 @@ the supplied state. That relationship is the adapter's responsibility; replay
 validation here would duplicate the external runtime's work and defeat the
 single-generation integration path.
 
+Owners that cannot roll back a published commit can call
+`assertTravelHistoryEntryRecordable({ patches, inversePatches })` before step 2.
+The preflight uses the same structural validation and detached-value rules as
+`recordPatches()` without changing journal state.
+
 Patch groups and metadata are cloned before Travels retains them. The supplied
 state remains the external owner's state reference and is not cloned.
 
