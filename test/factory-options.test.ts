@@ -47,6 +47,16 @@ describe('public factory option boundaries', () => {
     expectInvalidOption(() => restoreTravels(snapshot, options));
   });
 
+  test('rejects journal apply on every state-owning factory', () => {
+    const options = {
+      apply: ({ state }: { state: { count: number } }) => state,
+    } as never;
+
+    expectInvalidOption(() => createTravels({ count: 0 }, options));
+    expectInvalidOption(() => createPatchableTravels({ count: 0 }, options));
+    expectInvalidOption(() => restoreTravels(snapshot, options));
+  });
+
   test.each(removedRestoreOptions)(
     'rejects removed journal-factory option %s',
     (option, value) => {
@@ -64,6 +74,16 @@ describe('public factory option boundaries', () => {
     const options = {
       apply: ({ state }: { state: { count: number } }) => state,
       controlledApply: ({ state }: { state: { count: number } }) => state,
+    } as never;
+
+    expectInvalidOption(() => createTravelJournal({ count: 0 }, options));
+    expectInvalidOption(() => restoreTravelJournal(snapshot, options));
+  });
+
+  test('rejects state-owned mutable mode on every journal factory', () => {
+    const options = {
+      apply: ({ state }: { state: { count: number } }) => state,
+      mutable: false,
     } as never;
 
     expectInvalidOption(() => createTravelJournal({ count: 0 }, options));

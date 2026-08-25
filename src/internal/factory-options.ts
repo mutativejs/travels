@@ -30,6 +30,20 @@ export const assertPublicFactoryOptions = (
     );
   }
 
+  if (config.capability === 'state' && hasOwn(options, 'apply')) {
+    throw new TravelsTypeError(
+      'INVALID_OPTION',
+      'Travels: apply is only available to externally owned journals. Use createTravelJournal(initialState, { apply }) or restoreTravelJournal(snapshot, { apply }).'
+    );
+  }
+
+  if (config.capability === 'journal' && hasOwn(options, 'mutable')) {
+    throw new TravelsTypeError(
+      'INVALID_OPTION',
+      'Travels: mutable is only available to state-owning timelines. External journals retain the state reference committed by their owner.'
+    );
+  }
+
   for (const option of removedRestoreOptions) {
     if (hasOwn(options, option)) {
       throw new TravelsTypeError(

@@ -46,7 +46,9 @@ journal.recordPatches(nextState, {
 
 Remove `controlledApply` from ordinary `TravelsOptions`. State-only methods are
 absent from the returned journal object instead of existing as methods that
-throw when called.
+throw when called. Ownership-specific options now fail closed at runtime:
+`apply` belongs only to journal factories, while `mutable` belongs only to
+state-owning factories.
 
 ### Treat shared views as read-only
 
