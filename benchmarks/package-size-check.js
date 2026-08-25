@@ -14,18 +14,21 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // factory, and detached history snapshots. Development-only invariants are
 // eliminated from the production bundles rather than counted here. Travels 3
 // adds explicit public capabilities, atomic restore factories, cheap committed
-// revision tokens, the complete controlled-journal lifecycle, and its migration
-// guide. Production gzip retains its existing cap; the raw, source-map, and
-// package limits account for that deliberate public surface and its source.
+// revision tokens, and the complete controlled-journal lifecycle. The final
+// ownership hardening adds shared record preflight, controlled-apply reentrancy
+// guards, atomic pending archives, closed factory option sets, and archive
+// capabilities that exist only in manual mode. Production gzip retains its
+// existing cap; the raw, source-map, and package limits account for the audited
+// runtime, declarations, migration guidance, and packaged source.
 const limits = {
-  bundleRaw: 50.75 * KiB,
+  bundleRaw: 52 * KiB,
   bundleGzip: 14 * KiB,
-  bundleMap: 243.25 * KiB,
-  developmentBundleRaw: 56.25 * KiB,
-  developmentBundleGzip: 15 * KiB,
-  developmentBundleMap: 249.25 * KiB,
-  packagePacked: 470.25 * KiB,
-  packageUnpacked: 1843 * KiB,
+  bundleMap: 248.25 * KiB,
+  developmentBundleRaw: 57.5 * KiB,
+  developmentBundleGzip: 15.25 * KiB,
+  developmentBundleMap: 254.25 * KiB,
+  packagePacked: 477.5 * KiB,
+  packageUnpacked: 1882 * KiB,
 };
 
 const failures = [];
