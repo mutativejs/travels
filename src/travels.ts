@@ -79,13 +79,19 @@ type SynchronousFunction<F> = F extends (...args: never[]) => infer R
 type SynchronousUpdater<S, U extends Updater<S>> =
   Updater<S> extends U ? U : SynchronousFunction<U>;
 
-/** @inline */
-interface StateOwnedTravels<
+/**
+ * Public state-owning Travels capability surface.
+ *
+ * Controlled journals expose `recordPatches()` through `TravelJournal`
+ * instead. Manual archive methods exist only when `A` is `false`, keeping
+ * unavailable operations out of both the type and runtime surface.
+ */
+export type Travels<
   S,
   F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
-> {
+> = {
   readonly mutable: boolean;
   readonly subscribe: (
     listener: (event: TravelsEvent<S, P>) => void
@@ -132,28 +138,13 @@ interface StateOwnedTravels<
   getControls(): A extends true
     ? RebasableTravelsControls<S, F, P>
     : RebasableManualTravelsControls<S, F, P>;
-}
-
-/** @inline */
-interface ManualArchiveCapability {
-  archive(metadata?: TravelMetadata): void;
-  canArchive(): boolean;
-}
-
-/**
- * Public state-owning Travels capability surface.
- *
- * Controlled journals expose `recordPatches()` through `TravelJournal`
- * instead. Manual archive methods exist only when `A` is `false`, keeping
- * unavailable operations out of both the type and runtime surface.
- */
-export type Travels<
-  S,
-  F extends boolean = false,
-  A extends boolean = true,
-  P extends PatchesOption = {},
-> = StateOwnedTravels<S, F, A, P> &
-  (A extends false ? ManualArchiveCapability : {});
+} &
+  (A extends false
+    ? {
+        archive(metadata?: TravelMetadata): void;
+        canArchive(): boolean;
+      }
+    : {});
 
 type TravelsCoreOptions<
   S,
@@ -450,7 +441,7 @@ export class TravelsCore<
   F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
-> implements StateOwnedTravels<S, F, A, P> {
+> {
   private readonly mutableMode: boolean;
 
   /**
@@ -461,10 +452,10 @@ export class TravelsCore<
   }
 
   /** Installed only for manual-archive instances. */
-  public declare archive: ManualArchiveCapability['archive'];
+  public declare archive: (metadata?: TravelMetadata) => void;
 
   /** Installed only for manual-archive instances. */
-  public declare canArchive: ManualArchiveCapability['canArchive'];
+  public declare canArchive: () => boolean;
 
   private state: S;
   private timeline = new TimelineStore<P>();
@@ -2619,6 +2610,14 @@ export class TravelsCore<
       : RebasableManualTravelsControls<S, F, P>;
   }
 }
+
+/** @internal */
+type AssertTravelsCoreSurface<T extends Travels<any, any, any, any>> = T;
+
+/** @internal */
+type _TravelsCoreSurfaceCheck = AssertTravelsCoreSurface<
+  TravelsCore<any, any, any, any>
+>;
 
 /** Persistence namespace retained without exposing the internal constructor. */
 export const Travels = Object.freeze({
