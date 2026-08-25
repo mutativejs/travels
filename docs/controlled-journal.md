@@ -60,6 +60,8 @@ In development builds Travels also scans the returned state for `Map` and `Set`,
 The owner must suppress normal commit recording while applying delegated
 navigation or reset. Feeding those changes back into `recordPatches()` would
 create a new entry instead of moving or clearing the existing timeline.
+Travels rejects every journal mutation attempted synchronously from `apply`
+with `REENTRANT_MUTATION`; reads remain available to the owner callback.
 
 Set `autoArchive: false` when several external commits should become one undo
 step. Each `recordPatches()` call updates the pending current state;

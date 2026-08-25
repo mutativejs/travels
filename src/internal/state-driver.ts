@@ -199,6 +199,7 @@ export class StateDriver<
   private readonly mutativeOptions: MutativeOptions<PatchesOption | true, F>;
   private readonly controlledApply?: TravelsControlledApply<S, P>;
   private readonly collectionFreeObjects: WeakSet<object>;
+  private applyingControlledTransition = false;
 
   constructor(options: StateDriverOptions<S, F, P>) {
     this.mutable = options.mutable;
@@ -209,6 +210,10 @@ export class StateDriver<
 
   public get isControlled(): boolean {
     return this.controlledApply !== undefined;
+  }
+
+  public get isApplyingControlledTransition(): boolean {
+    return this.applyingControlledTransition;
   }
 
   public applyImmutably<T>(state: T, patches: Patches<P>): T {
@@ -225,30 +230,37 @@ export class StateDriver<
     transition: NavigationTransition<S, P>
   ): S {
     if (this.controlledApply) {
-      const controlledState = assertSynchronousResult(
-        this.controlledApply(
-          Object.freeze({
-            state: transition.state,
-            patches: clonePatchGroupDetached(transition.patches),
-            inversePatches: clonePatchGroupDetached(transition.inversePatches),
-            fromPosition: transition.fromPosition,
-            toPosition: transition.toPosition,
-          })
-        ),
-        'controlledApply'
-      );
-      // Scanning a whole externally owned state is O(state) per navigation, so
-      // it stays a development diagnostic. serialize(), rebase(), and
-      // getHistorySnapshot() validate the state independently in every build,
-      // which is where an unsupported value would actually cost something.
-      if (process.env.NODE_ENV !== 'production') {
-        assertSupportedExternalState(
-          controlledState,
-          transition.patches,
-          this.collectionFreeObjects
+      this.applyingControlledTransition = true;
+      try {
+        const controlledState = assertSynchronousResult(
+          this.controlledApply(
+            Object.freeze({
+              state: transition.state,
+              patches: clonePatchGroupDetached(transition.patches),
+              inversePatches: clonePatchGroupDetached(
+                transition.inversePatches
+              ),
+              fromPosition: transition.fromPosition,
+              toPosition: transition.toPosition,
+            })
+          ),
+          'controlledApply'
         );
+        // Scanning a whole externally owned state is O(state) per navigation,
+        // so it stays a development diagnostic. serialize(), rebase(), and
+        // getHistorySnapshot() validate the state independently in every build,
+        // which is where an unsupported value would actually cost something.
+        if (process.env.NODE_ENV !== 'production') {
+          assertSupportedExternalState(
+            controlledState,
+            transition.patches,
+            this.collectionFreeObjects
+          );
+        }
+        return controlledState;
+      } finally {
+        this.applyingControlledTransition = false;
       }
-      return controlledState;
     }
 
     const canApplyMutably =

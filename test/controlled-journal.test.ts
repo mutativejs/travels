@@ -166,6 +166,116 @@ describe('controlled travel journal', () => {
     expect(journal.getPosition()).toBe(1);
   });
 
+  test.each([
+    'recordPatches',
+    'go',
+    'back',
+    'forward',
+    'reset',
+    'rebase',
+  ] as const)(
+    'rejects reentrant %s during controlled apply without corrupting history',
+    (operation) => {
+      let authoritativeState: State = { count: 0, label: 'initial' };
+      let reentrantError: unknown;
+      const journal: ReturnType<typeof createTravelJournal<State>> =
+        createTravelJournal(authoritativeState, {
+          apply: ({ patches }) => {
+            try {
+              switch (operation) {
+                case 'recordPatches':
+                  journal.recordPatches(authoritativeState, {
+                    patches: [
+                      { op: 'replace', path: ['count'], value: 2 },
+                    ],
+                    inversePatches: [
+                      { op: 'replace', path: ['count'], value: 1 },
+                    ],
+                  });
+                  break;
+                case 'go':
+                  journal.go(0);
+                  break;
+                case 'back':
+                  journal.back();
+                  break;
+                case 'forward':
+                  journal.forward();
+                  break;
+                case 'reset':
+                  journal.reset();
+                  break;
+                case 'rebase':
+                  journal.rebase();
+                  break;
+              }
+            } catch (error) {
+              reentrantError = error;
+              throw error;
+            }
+            authoritativeState = apply(authoritativeState, patches);
+            return authoritativeState;
+          },
+        });
+      const [nextState, patches, inversePatches] = produceCommit(
+        authoritativeState,
+        (draft) => {
+          draft.count = 1;
+        }
+      );
+      authoritativeState = nextState;
+      journal.recordPatches(nextState, { patches, inversePatches });
+
+      expect(() => journal.back()).toThrow();
+      expect(reentrantError).toMatchObject({ code: 'REENTRANT_MUTATION' });
+      expect(authoritativeState.count).toBe(1);
+      expect(journal.getState()).toBe(authoritativeState);
+      expect(journal.getPosition()).toBe(1);
+      expect(journal.getHistory()).toEqual([
+        { count: 0, label: 'initial' },
+        { count: 1, label: 'initial' },
+      ]);
+      expect(journal.getPatches().patches).toHaveLength(1);
+    }
+  );
+
+  test('rejects reentrant manual archive during controlled apply', () => {
+    let authoritativeState: State = { count: 0, label: 'initial' };
+    let reentrantError: unknown;
+    const journal: ReturnType<
+      typeof createTravelJournal<State, false, {}, false>
+    > = createTravelJournal(authoritativeState, {
+      autoArchive: false,
+      apply: ({ patches }) => {
+        try {
+          journal.archive();
+        } catch (error) {
+          reentrantError = error;
+          throw error;
+        }
+        authoritativeState = apply(authoritativeState, patches);
+        return authoritativeState;
+      },
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      authoritativeState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    authoritativeState = nextState;
+    journal.recordPatches(nextState, { patches, inversePatches });
+    journal.archive();
+
+    expect(() => journal.back()).toThrow();
+    expect(reentrantError).toMatchObject({ code: 'REENTRANT_MUTATION' });
+    expect(journal.getPosition()).toBe(1);
+    expect(journal.getHistory()).toEqual([
+      { count: 0, label: 'initial' },
+      { count: 1, label: 'initial' },
+    ]);
+  });
+
   test('revalidates reused external state references after mutation', () => {
     type MutableOwnerState = {
       count: number;

@@ -1003,6 +1003,12 @@ export class TravelsCore<
   }
 
   private assertCanMutate(api: string): void {
+    if (this.stateDriver.isApplyingControlledTransition) {
+      throw new TravelsError(
+        'REENTRANT_MUTATION',
+        `Travels: ${api} cannot be called while a controlled apply callback is committing.`
+      );
+    }
     if (this.observers.isPublishing) {
       throw new TravelsError(
         'REENTRANT_MUTATION',
