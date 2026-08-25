@@ -145,6 +145,54 @@ describe('controlled travel journal', () => {
     expect(journal.getPosition()).toBe(1);
   });
 
+  test('keeps a pending manual archive intact when controlled apply fails', () => {
+    let authoritativeState: State = { count: 0, label: 'initial' };
+    let rejectNavigation = true;
+    const journal = createTravelJournal(authoritativeState, {
+      autoArchive: false,
+      apply: ({ patches }) => {
+        if (rejectNavigation) throw new Error('navigation rejected');
+        authoritativeState = apply(authoritativeState, patches);
+        return authoritativeState;
+      },
+    });
+    const [nextState, patches, inversePatches] = produceCommit(
+      authoritativeState,
+      (draft) => {
+        draft.count = 1;
+      }
+    );
+    authoritativeState = nextState;
+    journal.recordPatches(nextState, {
+      patches,
+      inversePatches,
+      metadata: { label: 'pending edit' },
+    });
+    const events: string[] = [];
+    journal.subscribe(({ type }) => events.push(type));
+    const revision = journal.getRevision();
+
+    expect(() => journal.back()).toThrow('navigation rejected');
+    expect(journal.getRevision()).toBe(revision);
+    expect(journal.canArchive()).toBe(true);
+    expect(journal.getPosition()).toBe(1);
+    expect(journal.getState()).toBe(authoritativeState);
+    expect(journal.getHistory()).toEqual([
+      { count: 0, label: 'initial' },
+      { count: 1, label: 'initial' },
+    ]);
+    expect(events).toEqual([]);
+
+    rejectNavigation = false;
+    journal.back();
+    expect(authoritativeState).toEqual({ count: 0, label: 'initial' });
+    expect(journal.getRevision()).toBe(revision + 1);
+    expect(journal.canArchive()).toBe(false);
+    expect(journal.getPosition()).toBe(0);
+    expect(journal.getMetadata()).toEqual([{ label: 'pending edit' }]);
+    expect(events).toEqual(['go']);
+  });
+
   test('rejects asynchronous controlled apply results atomically', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     const journal = createTravelJournal(authoritativeState, {

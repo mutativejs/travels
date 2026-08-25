@@ -73,6 +73,9 @@ step. Each `recordPatches()` call updates the pending current state;
 `archive(metadata?)` composes the pending patch groups, and `canArchive()`
 reports whether any work is pending. Archiving changes only journal history and
 does not invoke `apply` because the external owner already committed the state.
+When navigation implicitly archives pending work, the archive and cursor move
+commit as one observable navigation transition; a failed `apply` leaves the
+pending archive, revision, and subscriptions untouched.
 
 ## Public surface
 

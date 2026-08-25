@@ -244,6 +244,12 @@ type BranchDiscardEffect<P extends PatchesOption = {}> = {
   metadata: Array<TravelMetadata | undefined>;
 };
 
+type PendingArchive<P extends PatchesOption = {}> = {
+  patches: Patches<P>;
+  inversePatches: Patches<P>;
+  metadata: TravelMetadata | undefined;
+};
+
 const filterBranchDiscardEffect = <P extends PatchesOption = {}>(
   effect: BranchDiscardEffect<P>,
   shouldInclude: (entryId: object) => boolean
@@ -1834,15 +1840,25 @@ export class TravelsCore<
     );
   }
 
-  private archivePending(
-    metadata?: TravelMetadata,
-    publishChange = true
-  ): boolean {
-    if (!this.tempPatches.patches.length) return false;
+  private preparePendingArchive(
+    metadata?: TravelMetadata
+  ): PendingArchive<P> | undefined {
+    if (!this.tempPatches.patches.length) return undefined;
     const archiveMetadata =
       metadata === undefined ? this.tempMetadata : metadata;
-    const storedMetadata = cloneTravelMetadata(archiveMetadata);
     const pendingArchive = this.getPendingArchiveEntry();
+
+    return {
+      ...pendingArchive,
+      metadata: cloneTravelMetadata(archiveMetadata),
+    };
+  }
+
+  private commitPendingArchive(
+    pendingArchive: PendingArchive<P>,
+    publishChange = true
+  ): void {
+    const storedMetadata = pendingArchive.metadata;
 
     this.allPatches.patches.push(pendingArchive.patches);
     this.allPatches.inversePatches.push(pendingArchive.inversePatches);
@@ -1865,6 +1881,15 @@ export class TravelsCore<
     if (publishChange) {
       this.emitChange('archive', storedMetadata);
     }
+  }
+
+  private archivePending(
+    metadata?: TravelMetadata,
+    publishChange = true
+  ): boolean {
+    const pendingArchive = this.preparePendingArchive(metadata);
+    if (!pendingArchive) return false;
+    this.commitPendingArchive(pendingArchive, publishChange);
     return true;
   }
 
@@ -2156,9 +2181,13 @@ export class TravelsCore<
 
     const shouldArchive =
       !this.isAutoArchiving() && !!this.tempPatches.patches.length;
+    const pendingArchive = shouldArchive
+      ? this.preparePendingArchive()
+      : undefined;
+    const stageArchive = pendingArchive !== undefined && !this.mutable;
 
-    if (shouldArchive) {
-      this.archivePending();
+    if (pendingArchive && !stageArchive) {
+      this.commitPendingArchive(pendingArchive);
     }
 
     const _allPatches = this.getAllPatches();
@@ -2180,7 +2209,12 @@ export class TravelsCore<
       nextPosition = 0;
     }
 
-    if (nextPosition === this.position) return;
+    if (nextPosition === this.position) {
+      if (stageArchive) {
+        this.commitPendingArchive(pendingArchive);
+      }
+      return;
+    }
 
     const patchesToApply = back
       ? composePatchGroups(
@@ -2209,7 +2243,7 @@ export class TravelsCore<
           'backward'
         );
 
-    this.state = this.stateDriver.applyNavigation({
+    const nextState = this.stateDriver.applyNavigation({
       state: this.state,
       patches: patchesToApply,
       inversePatches: rollbackPatches,
@@ -2219,7 +2253,11 @@ export class TravelsCore<
         this.journalMutableState(state, inversePatches),
     });
 
+    this.state = nextState;
     this.position = nextPosition;
+    if (stageArchive) {
+      this.commitPendingArchive(pendingArchive, false);
+    }
     this.invalidateHistoryCache();
     this.emitChange(
       'go',
