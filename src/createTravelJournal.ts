@@ -24,8 +24,8 @@ import { assertPublicFactoryOptions } from './internal/factory-options.js';
 export type TravelJournal<
   S,
   F extends boolean = false,
-  P extends PatchesOption = {},
   A extends boolean = true,
+  P extends PatchesOption = {},
 > = Readonly<
   Pick<
     Travels<S, F, A, P>,
@@ -60,8 +60,8 @@ export type TravelJournal<
 export type TravelJournalOptions<
   S,
   F extends boolean = false,
-  P extends PatchesOption = {},
   A extends boolean = true,
+  P extends PatchesOption = {},
 > = Omit<TravelsOptions<F, A, P>, 'mutable'> & {
   /** Apply a navigation transition through the external state owner. */
   apply: TravelsControlledApply<S, P>;
@@ -79,14 +79,14 @@ export type TravelJournalOptions<
 const createJournal = <
   S,
   F extends boolean = false,
-  P extends PatchesOption = {},
   A extends boolean = true,
+  P extends PatchesOption = {},
 >(
   source:
     | { type: 'initial'; state: S }
     | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> },
-  options: TravelJournalOptions<S, F, P, A>
-): TravelJournal<S, F, P, A> => {
+  options: TravelJournalOptions<S, F, A, P>
+): TravelJournal<S, F, A, P> => {
   assertPublicFactoryOptions(options, {
     capability: 'journal',
     restoreFactory: 'restoreTravelJournal',
@@ -144,18 +144,18 @@ const createJournal = <
     });
   }
 
-  return Object.freeze(journal) as TravelJournal<S, F, P, A>;
+  return Object.freeze(journal) as TravelJournal<S, F, A, P>;
 };
 
 export const createTravelJournal = <
   S,
   F extends boolean = false,
-  P extends PatchesOption = {},
   A extends boolean = true,
+  P extends PatchesOption = {},
 >(
   initialState: S,
-  options: TravelJournalOptions<S, F, P, A>
-): TravelJournal<S, F, P, A> => {
+  options: TravelJournalOptions<S, F, A, P>
+): TravelJournal<S, F, A, P> => {
   return createJournal({ type: 'initial', state: initialState }, options);
 };
 
@@ -163,11 +163,11 @@ export const createTravelJournal = <
 export const restoreTravelJournal = <
   S,
   F extends boolean = false,
-  P extends PatchesOption = {},
   A extends boolean = true,
+  P extends PatchesOption = {},
 >(
   snapshot: TravelsSerializedHistory<S, P>,
-  options: TravelJournalOptions<S, F, P, A>
-): TravelJournal<S, F, P, A> => {
+  options: TravelJournalOptions<S, F, A, P>
+): TravelJournal<S, F, A, P> => {
   return createJournal({ type: 'snapshot', snapshot }, options);
 };

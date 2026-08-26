@@ -292,7 +292,7 @@ describe('controlled travel journal', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     let reentrantError: unknown;
     const journal: ReturnType<
-      typeof createTravelJournal<State, false, {}, false>
+      typeof createTravelJournal<State, false, false, {}>
     > = createTravelJournal(authoritativeState, {
       autoArchive: false,
       apply: ({ patches }) => {

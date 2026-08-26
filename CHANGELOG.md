@@ -29,6 +29,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Expose `archive()` and `canArchive()` only on timelines created with
   `autoArchive: false`. Automatic timelines omit both capabilities at runtime
   and in TypeScript instead of retaining a warning-only `archive()` method.
+- Align journal generic parameters with the state-owning interface as
+  `<S, F, A, P>`. v2 code that explicitly supplied patch options as the third
+  argument must insert the archive mode before them; inferred call sites are
+  unchanged.
 - Make `TravelsControls` a read-only capability object and change
   both shared `getHistory()` surfaces to return
   `readonly ReadonlyState<S>[]`. Controls, journal facades, and shared history

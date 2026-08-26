@@ -55,6 +55,19 @@ Manual archive capabilities now follow the same rule. `archive()` and
 automatic timeline omits both methods at runtime and in TypeScript instead of
 retaining a warning-only `archive()` method.
 
+Journal generics now use the same `<S, F, A, P>` order as `Travels`. Most call
+sites infer these parameters and need no change. If v2 code supplied patch
+options explicitly as the third parameter, insert the archive mode before
+them:
+
+```ts
+// 2.x
+type Journal = TravelJournal<State, false, StringPatchOptions>;
+
+// 3.0
+type Journal = TravelJournal<State, false, true, StringPatchOptions>;
+```
+
 ### Treat shared views as read-only
 
 `getHistory()` now returns `readonly ReadonlyState<S>[]` through both the

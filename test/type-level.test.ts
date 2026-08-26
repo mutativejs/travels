@@ -13,6 +13,7 @@ import {
   type ReadonlyTravelPatches,
   type StateCompatibilityIssueCode,
   type TravelJournal,
+  type TravelJournalOptions,
   type TravelMetadata,
   type TravelsControlledTransition,
   type TravelsEvent,
@@ -351,6 +352,30 @@ describe('Type-level API contracts', () => {
     expectTypeOf(journal).toEqualTypeOf<TravelJournal<State>>();
     expectTypeOf(journal.recordPatches).parameter(0).toEqualTypeOf<State>();
     expectTypeOf(journal.reset).toEqualTypeOf<() => void>();
+
+    type StringPatchOptions = { pathAsArray: false };
+    const manualOptions: TravelJournalOptions<
+      State,
+      false,
+      false,
+      StringPatchOptions
+    > = {
+      autoArchive: false,
+      patchesOptions: { pathAsArray: false },
+      apply: ({ state }) => state,
+    };
+    const manual = createTravelJournal<
+      State,
+      false,
+      false,
+      StringPatchOptions
+    >({ count: 0 }, manualOptions);
+    expectTypeOf(manual).toEqualTypeOf<
+      TravelJournal<State, false, false, StringPatchOptions>
+    >();
+    expectTypeOf<
+      ReturnType<typeof manual.getPatches>['patches'][number][number]['path']
+    >().toEqualTypeOf<string>();
 
     if (false) {
       // @ts-expect-error the external runtime owns state changes
