@@ -146,15 +146,6 @@ export type Travels<
       }
     : {});
 
-type TravelsCoreOptions<
-  S,
-  F extends boolean,
-  A extends boolean,
-  P extends PatchesOption,
-> = TravelsOptions<F, A, P> & {
-  controlledApply?: TravelsControlledApply<S, P>;
-};
-
 type TravelsCoreSource<S, P extends PatchesOption> =
   | { type: 'initial'; state: S }
   | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> };
@@ -542,7 +533,8 @@ export class TravelsCore<
 
   constructor(
     source: TravelsCoreSource<S, P>,
-    options: TravelsCoreOptions<S, F, A, P> = {}
+    options: TravelsOptions<F, A, P> = {},
+    controlledApply?: TravelsControlledApply<S, P>
   ) {
     const {
       maxHistory = 10,
@@ -554,7 +546,6 @@ export class TravelsCore<
       onObserverError,
       onWarning,
       devtools,
-      controlledApply,
       patchesOptions,
       ...mutativeOptions
     } = options;

@@ -102,12 +102,15 @@ const createJournal = <
       `Travels: ${factoryName} requires a synchronous apply function.`
     );
   }
-  const core = new TravelsCore<S, F, A, P>(source, {
-    ...travelsOptions,
-    autoArchive,
-    mutable: false,
-    controlledApply: apply,
-  });
+  const core = new TravelsCore<S, F, A, P>(
+    source,
+    {
+      ...travelsOptions,
+      autoArchive,
+      mutable: false,
+    },
+    apply
+  );
   const bind = <Args extends unknown[], Result>(
     method: (...args: Args) => Result
   ): ((...args: Args) => Result) => method.bind(core);
