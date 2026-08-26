@@ -39,6 +39,7 @@ import {
   TimelineStore,
 } from './internal/timeline-store.js';
 import { HistoryView } from './internal/history-view.js';
+import { assertPublicOptionsObject } from './internal/public-options.js';
 import {
   assertSupportedExternalState,
   assertSupportedPatchValues,
@@ -2524,6 +2525,7 @@ export class TravelsCore<
   public serialize(
     options: TravelsSerializeOptions = {}
   ): TravelsSerializedHistory<S, P> {
+    assertPublicOptionsObject(options);
     assertSupportedRuntimeState(this.state);
     if (options.strict) {
       this.assertPersistenceCompatible();

@@ -3,6 +3,7 @@ import {
   createPatchableTravels,
   createTravelJournal,
   createTravels,
+  findStateCompatibilityIssues,
   restoreTravelJournal,
   restoreTravels,
   Travels,
@@ -39,8 +40,9 @@ const expectInvalidOption = (operation: () => unknown): void => {
   );
 };
 
-describe('public factory option boundaries', () => {
-  const snapshot = createTravels({ count: 0 }).serialize();
+describe('public option boundaries', () => {
+  const timeline = createTravels({ count: 0 });
+  const snapshot = timeline.serialize();
 
   test.each(invalidOptionContainers)(
     'rejects %s as a state-factory options container',
@@ -70,6 +72,22 @@ describe('public factory option boundaries', () => {
     (_description, options) => {
       expectInvalidOption(() =>
         Travels.deserialize(snapshot, options as never)
+      );
+    }
+  );
+
+  test.each(invalidOptionContainers)(
+    'rejects %s as a serialize options container',
+    (_description, options) => {
+      expectInvalidOption(() => timeline.serialize(options as never));
+    }
+  );
+
+  test.each(invalidOptionContainers)(
+    'rejects %s as a compatibility options container',
+    (_description, options) => {
+      expectInvalidOption(() =>
+        findStateCompatibilityIssues({ count: 0 }, options as never)
       );
     }
   );

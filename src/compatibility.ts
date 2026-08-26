@@ -1,4 +1,5 @@
 import { getMapOrSetKind, isArrayIndex } from './utils.js';
+import { assertPublicOptionsObject } from './internal/public-options.js';
 
 export type StateCompatibilityIssueCode =
   | 'CIRCULAR_REFERENCE'
@@ -108,6 +109,7 @@ export const findStateCompatibilityIssues = (
   value: unknown,
   options: CompatibilityOptions = {}
 ): StateCompatibilityIssue[] => {
+  assertPublicOptionsObject(options);
   const maxIssues = options.maxIssues ?? 20;
   const seen = new WeakSet<object>();
   const issues: StateCompatibilityIssue[] = [];
