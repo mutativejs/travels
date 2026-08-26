@@ -550,6 +550,20 @@ export class TravelsCore<
       ...mutativeOptions
     } = options;
 
+    if (typeof autoArchive !== 'boolean') {
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
+        'Travels: autoArchive must be a boolean.'
+      );
+    }
+
+    if (typeof mutable !== 'boolean') {
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
+        'Travels: mutable must be a boolean.'
+      );
+    }
+
     this.observers = new ObserverHub<S, P>({
       devtools: devtools as ((event: TravelsEvent<S, P>) => void) | undefined,
       onObserverError,
@@ -663,7 +677,7 @@ export class TravelsCore<
     this.tempPatches = cloneTravelPatches();
     this.tempMetadata = undefined;
 
-    if (!autoArchive) {
+    if (autoArchive === false) {
       Object.assign(this, {
         archive: (metadata?: TravelMetadata): void => {
           this.assertCanMutate('archive');
@@ -2585,7 +2599,7 @@ export class TravelsCore<
       rebase: (): void => self.rebase(),
     };
 
-    if (!this.autoArchive) {
+    if (this.autoArchive === false) {
       Object.assign(controls, {
         archive: (metadata?: TravelMetadata): void => self.archive(metadata),
         canArchive: (): boolean => self.canArchive(),

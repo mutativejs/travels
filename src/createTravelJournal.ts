@@ -137,7 +137,7 @@ const createJournal = <
     getHistoryEntries: bind(core.getHistoryEntries),
   };
 
-  if (!autoArchive) {
+  if (autoArchive === false) {
     Object.assign(journal, {
       archive: bind(core.archive),
       canArchive: bind(core.canArchive),

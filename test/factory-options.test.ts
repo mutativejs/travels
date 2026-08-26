@@ -15,6 +15,13 @@ const removedRestoreOptions = [
   ['strictInitialPatches', true],
 ] as const;
 
+const invalidBooleanOptions = [
+  ['a number', 0],
+  ['null', null],
+  ['a string', 'false'],
+  ['an object', {}],
+] as const;
+
 const expectInvalidOption = (operation: () => unknown): void => {
   expect(operation).toThrowError(
     expect.objectContaining<Partial<TravelsTypeError>>({
@@ -74,6 +81,40 @@ describe('public factory option boundaries', () => {
     expectInvalidOption(() => createPatchableTravels({ count: 0 }, options));
     expectInvalidOption(() => restoreTravels(snapshot, options));
   });
+
+  test.each(invalidBooleanOptions)(
+    'rejects %s as autoArchive on every public factory',
+    (_description, value) => {
+      const stateOptions = { autoArchive: value } as never;
+      const journalOptions = {
+        autoArchive: value,
+        apply: ({ state }: { state: { count: number } }) => state,
+      } as never;
+
+      expectInvalidOption(() => createTravels({ count: 0 }, stateOptions));
+      expectInvalidOption(() =>
+        createPatchableTravels({ count: 0 }, stateOptions)
+      );
+      expectInvalidOption(() => restoreTravels(snapshot, stateOptions));
+      expectInvalidOption(() =>
+        createTravelJournal({ count: 0 }, journalOptions)
+      );
+      expectInvalidOption(() =>
+        restoreTravelJournal(snapshot, journalOptions)
+      );
+    }
+  );
+
+  test.each(invalidBooleanOptions)(
+    'rejects %s as mutable on every state-owning factory',
+    (_description, value) => {
+      const options = { mutable: value } as never;
+
+      expectInvalidOption(() => createTravels({ count: 0 }, options));
+      expectInvalidOption(() => createPatchableTravels({ count: 0 }, options));
+      expectInvalidOption(() => restoreTravels(snapshot, options));
+    }
+  );
 
   test.each(removedRestoreOptions)(
     'rejects removed journal-factory option %s',
