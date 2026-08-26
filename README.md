@@ -188,7 +188,7 @@ constructor.
 
 </details>
 
-**Returns:** `Travels<S, F, A>` - A Travels instance
+**Returns:** `Travels<S, F, A, P>` - A Travels instance
 
 ### `restoreTravels(snapshot, options?)`
 
@@ -726,6 +726,8 @@ Travels supports durable state: plain objects, dense arrays, strings, finite num
 
 When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its standard frozen containers as intentional; accessors and other nonstandard shapes are still diagnosed.
 
+The runtime columns below describe state-owning timelines. A controlled journal always validates retained patch values, but its complete state belongs to the external owner: development builds scan that returned state early, while `serialize()`, `rebase()`, and `getHistorySnapshot()` enforce compatibility in every build. See the [controlled journal contract](docs/controlled-journal.md#navigation-and-reset-contract).
+
 <details>
 <summary><b>Full compatibility matrix</b></summary>
 
@@ -740,7 +742,7 @@ When `enableAutoFreeze` is enabled, runtime compatibility warnings treat its sta
 | `bigint`                                  | Supported in memory                | Falls back to immutable for primitive roots   | `JSON.stringify` throws           | Encode as a string                              |
 | `undefined`                               | Patchable in memory                | Patchable in memory                           | Removed from JSON objects         | Use `null`                                      |
 | `Date`                                    | Cloneable, but not durable         | Cloneable, but not durable                    | Restored as a string through JSON | Store timestamp or ISO string                   |
-| `Map` / `Set`                             | Rejected                           | Rejected                                      | Rejected during restore           | Store entries/values as records or dense arrays |
+| `Map` / `Set`                             | Rejected                           | Rejected                                      | Rejected at snapshot boundaries   | Store entries/values as records or dense arrays |
 | Class instance / custom or null prototype | Not durable                        | Not durable                                   | Loses prototype/methods           | Store plain data or IDs                         |
 | Function                                  | Not supported                      | Not supported                                 | Dropped by JSON                   | Keep behavior outside state                     |
 | Circular reference                        | Not supported for JSON persistence | Not supported for JSON persistence            | `JSON.stringify` fails            | Normalize graph to IDs                          |
@@ -771,14 +773,14 @@ function createHistoryFor<S extends PatchableState>(state: S) {
 }
 ```
 
-`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set. `PatchableInput<T>` performs a finite-depth, best-effort static check so recursive interfaces remain usable; broad types such as `{}` cannot prove their contents from TypeScript alone. `createPatchableTravels()` therefore also validates the concrete initial value at runtime and throws `PERSISTENCE_INCOMPATIBLE` for Date, functions, custom instances, non-JSON numbers, collections, and other non-durable values. The regular runtime also fails fast when Map or Set is found in initial state, a newly generated patch payload, or restored history.
+`PatchableState` is the supported JSON-shaped state contract and intentionally excludes Map and Set. `PatchableInput<T>` performs a finite-depth, best-effort static check so recursive interfaces remain usable; broad types such as `{}` cannot prove their contents from TypeScript alone. `createPatchableTravels()` therefore also validates the concrete initial value at runtime and throws `PERSISTENCE_INCOMPATIBLE` for Date, functions, custom instances, non-JSON numbers, collections, and other non-durable values. State-owning timelines also fail fast when Map or Set is found in initial state, a newly generated patch payload, or restored history.
 
 <details>
 <summary><b>Diagnostics, metadata, and build-condition notes</b></summary>
 
 These value requirements cover retained patch payloads and custom metadata included by `serialize()`; paths independently obey the structural contract above. An old runtime-only value or path therefore remains relevant after it leaves current state. TypeScript's `number` type cannot exclude `NaN`, infinities, or `-0`; the runtime compatibility scanner diagnoses them.
 
-In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Map/Set rejection is a production invariant and is not disabled by `warnOnUnsupportedState: false`; that option controls diagnostics for the remaining compatibility hazards only.
+In development, Travels scans initial and changed state plus retained forward/inverse patch operations and history metadata for known compatibility hazards. Warnings identify whether the incompatible path belongs to state, a patch operation, or metadata, and repeat only once per diagnostic path. `serialize()` performs the same diagnostic check against the current snapshot. Map/Set rejection is a production invariant for state-owning timelines and retained controlled-journal patch values, and is not disabled by `warnOnUnsupportedState: false`; that option controls diagnostics for the remaining compatibility hazards only. Because a controlled journal does not own its complete state, its full returned-state scan is the development diagnostic described above rather than a production navigation cost.
 
 The published package ships the diagnostics through the `development` export condition: tools that resolve it (the Vite dev server, webpack with `mode: 'development'`, and other bundlers with development conditions enabled) load `dist/index.dev.*` bundles containing the full scanner, while the default and `require` entries stay diagnostic-free for production. Script-tag consumers of the UMD bundle always receive the production build.
 
