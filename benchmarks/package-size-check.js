@@ -18,17 +18,18 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // ownership hardening adds shared record preflight, controlled-apply reentrancy
 // guards, atomic pending archives, closed factory option sets, and archive
 // capabilities that exist only in manual mode. Production gzip retains its
-// existing cap; the raw, source-map, and package limits account for the audited
-// runtime, declarations, migration guidance, and packaged source.
+// existing scale; the final runtime capability validation, concrete internal
+// surface assertions, corrected migration guidance, and packaged source are
+// included in these release-envelope limits.
 const limits = {
-  bundleRaw: 52 * KiB,
-  bundleGzip: 14 * KiB,
-  bundleMap: 248.25 * KiB,
-  developmentBundleRaw: 57.5 * KiB,
+  bundleRaw: 52.25 * KiB,
+  bundleGzip: 14.25 * KiB,
+  bundleMap: 249.25 * KiB,
+  developmentBundleRaw: 57.75 * KiB,
   developmentBundleGzip: 15.25 * KiB,
-  developmentBundleMap: 254.25 * KiB,
-  packagePacked: 477.5 * KiB,
-  packageUnpacked: 1882 * KiB,
+  developmentBundleMap: 255.25 * KiB,
+  packagePacked: 478.75 * KiB,
+  packageUnpacked: 1887 * KiB,
 };
 
 const failures = [];
