@@ -2617,11 +2617,44 @@ export class TravelsCore<
 }
 
 /** @internal */
-type AssertTravelsCoreSurface<T extends Travels<any, any, any, any>> = T;
+type TravelsCoreSurfaceState = {
+  readonly id: 'surface-check';
+  nested: { count: number };
+};
 
 /** @internal */
-type _TravelsCoreSurfaceCheck = AssertTravelsCoreSurface<
-  TravelsCore<any, any, any, any>
+type AssertTravelsCoreSurface<Expected, Actual extends Expected> = Actual;
+
+/** @internal */
+type _TravelsCoreAutomaticSurfaceCheck = AssertTravelsCoreSurface<
+  Travels<
+    TravelsCoreSurfaceState,
+    true,
+    true,
+    { pathAsArray: false }
+  >,
+  TravelsCore<
+    TravelsCoreSurfaceState,
+    true,
+    true,
+    { pathAsArray: false }
+  >
+>;
+
+/** @internal */
+type _TravelsCoreManualSurfaceCheck = AssertTravelsCoreSurface<
+  Travels<
+    TravelsCoreSurfaceState,
+    false,
+    false,
+    { pathAsArray: true }
+  >,
+  TravelsCore<
+    TravelsCoreSurfaceState,
+    false,
+    false,
+    { pathAsArray: true }
+  >
 >;
 
 /** Persistence namespace retained without exposing the internal constructor. */
