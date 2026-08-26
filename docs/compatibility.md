@@ -24,10 +24,10 @@ Travels targets modern browsers that support the required standard JavaScript an
 The v3 official bindings use the public factory capability instead of the
 internal constructor:
 
-| Binding          | Binding version | Supported Travels versions | Restored timeline handoff                        |
+| Binding          | Binding version | Supported Travels versions | Restored history handoff                         |
 | ---------------- | --------------- | -------------------------- | ------------------------------------------------ |
 | `use-travel`     | `3.x`           | `^3.0.0`                   | `restoreTravels(snapshot)` then `useTravelStore` |
-| `zustand-travel` | `3.x`           | `^3.0.0`                   | `travel(initializer, { timeline })`              |
+| `zustand-travel` | `3.x`           | `^3.0.0`                   | `travel(initializer, { snapshot })`              |
 
 The binding majors require Travels 3 so their factory overloads, atomic restore
 path, read-only shared views, and control capabilities have one stable contract.

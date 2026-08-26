@@ -108,13 +108,13 @@ function Editor() {
 }
 ```
 
-`zustand-travel@3` accepts the same pre-created instance as its exclusive
-`timeline` option. The initializer still defines action functions; the supplied
-timeline owns the data baseline:
+`zustand-travel@3` restores one complete serialized history through its
+exclusive `snapshot` option while Zustand remains the state owner. A
+state-owning `Travels` instance is intentionally rejected. The initializer
+still defines action functions; the snapshot supplies the data baseline:
 
 ```ts
 const snapshot = Travels.deserialize<State>(stored);
-const timeline = restoreTravels(snapshot);
 
 const useStore = create<State & Actions>()(
   travel(
@@ -125,7 +125,7 @@ const useStore = create<State & Actions>()(
           state.title = title;
         }),
     }),
-    { timeline }
+    { snapshot }
   )
 );
 ```

@@ -21,8 +21,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   timelines with `createTravelJournal(initialState, { apply })` instead.
 - Separate state and journal capabilities at runtime as well as in TypeScript.
   State-owning timelines no longer expose `recordPatches()`, while a
-  `TravelJournal` is an explicit facade that does not expose `setState()`,
-  `reset()`, transactions, tracking, archive, or `getControls()`.
+  `TravelJournal` is an explicit facade that omits `setState()`, transactions,
+  tracking, `replaceStateWithoutHistory()`, and `getControls()`. Journal
+  navigation and `reset()` are delegated through the external owner;
+  `rebase()` remains journal-local, and manual journals expose `archive()` and
+  `canArchive()`.
 - Expose `archive()` and `canArchive()` only on timelines created with
   `autoArchive: false`. Automatic timelines omit both capabilities at runtime
   and in TypeScript instead of retaining a warning-only `archive()` method.
@@ -51,6 +54,13 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 - Add `ReadonlyTravelPatch` and `ReadonlyTravelPatches` for observer-facing
   patch views.
+- Add `getRevision()`, an O(1) monotonic subscription token that advances once
+  for each committed observable timeline event, including history-only changes.
+- Add `assertTravelHistoryEntryRecordable()` so external owners can verify that
+  a patch pair and its metadata can be safely detached before publishing the
+  corresponding state.
+- Complete the controlled-journal lifecycle with owner-delegated `reset()` and
+  manual archive mode while preserving the frozen, ownership-safe facade.
 - Add package-level type and runtime smoke checks for the factory-only API,
   capability separation, read-only shared views, and unified restore path.
 
@@ -64,6 +74,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   Persistence from storage should still go through
   `Travels.deserialize(..., { validation: 'semantic' })` when its provenance is
   not trusted.
+- Reject defined non-boolean `autoArchive` and `mutable` values at runtime
+  instead of selecting capability modes through JavaScript truthiness; omitted
+  values retain their defaults.
 - Update persistence examples, browser fixtures, API documentation, and the
   release workflows for the 3.0 contracts.
 - Strip the implementation class and internal module graph from published
@@ -71,6 +84,14 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   source-map/package-envelope budgets for the explicit interfaces, atomic
   restore factories, and migration guide. Production JavaScript raw and gzip
   limits remain unchanged.
+
+### Fixed
+
+- Reject journal mutations re-entered from the external owner's `apply`
+  callback, and stage implicit manual archives until delegated navigation
+  succeeds so cursor, pending work, revision, and notifications remain atomic.
+- Normalize root JSON Pointer paths to the canonical empty string when string
+  paths are configured, both for newly produced and restored patch history.
 
 ## [2.2.0] - 2026-07-26
 
