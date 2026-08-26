@@ -5,6 +5,7 @@ import {
   createTravels,
   restoreTravelJournal,
   restoreTravels,
+  Travels,
   TravelsTypeError,
 } from '../src/index.js';
 
@@ -22,6 +23,14 @@ const invalidBooleanOptions = [
   ['an object', {}],
 ] as const;
 
+const invalidOptionContainers = [
+  ['null', null],
+  ['a number', 0],
+  ['a string', 'options'],
+  ['an array', []],
+  ['a function', () => undefined],
+] as const;
+
 const expectInvalidOption = (operation: () => unknown): void => {
   expect(operation).toThrowError(
     expect.objectContaining<Partial<TravelsTypeError>>({
@@ -32,6 +41,38 @@ const expectInvalidOption = (operation: () => unknown): void => {
 
 describe('public factory option boundaries', () => {
   const snapshot = createTravels({ count: 0 }).serialize();
+
+  test.each(invalidOptionContainers)(
+    'rejects %s as a state-factory options container',
+    (_description, options) => {
+      expectInvalidOption(() => createTravels({ count: 0 }, options as never));
+      expectInvalidOption(() =>
+        createPatchableTravels({ count: 0 }, options as never)
+      );
+      expectInvalidOption(() => restoreTravels(snapshot, options as never));
+    }
+  );
+
+  test.each(invalidOptionContainers)(
+    'rejects %s as a journal-factory options container',
+    (_description, options) => {
+      expectInvalidOption(() =>
+        createTravelJournal({ count: 0 }, options as never)
+      );
+      expectInvalidOption(() =>
+        restoreTravelJournal(snapshot, options as never)
+      );
+    }
+  );
+
+  test.each(invalidOptionContainers)(
+    'rejects %s as a deserialize options container',
+    (_description, options) => {
+      expectInvalidOption(() =>
+        Travels.deserialize(snapshot, options as never)
+      );
+    }
+  );
 
   test.each(removedRestoreOptions)(
     'rejects removed state-factory option %s',
@@ -134,6 +175,14 @@ describe('public factory option boundaries', () => {
       apply: ({ state }: { state: { count: number } }) => state,
       controlledApply: ({ state }: { state: { count: number } }) => state,
     } as never;
+
+    expectInvalidOption(() => createTravelJournal({ count: 0 }, options));
+    expectInvalidOption(() => restoreTravelJournal(snapshot, options));
+  });
+
+  test('requires journal apply to be an own option', () => {
+    const apply = ({ state }: { state: { count: number } }) => state;
+    const options = Object.create({ apply }) as never;
 
     expectInvalidOption(() => createTravelJournal({ count: 0 }, options));
     expectInvalidOption(() => restoreTravelJournal(snapshot, options));

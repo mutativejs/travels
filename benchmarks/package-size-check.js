@@ -17,19 +17,20 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // revision tokens, and the complete controlled-journal lifecycle. The final
 // ownership hardening adds shared record preflight, controlled-apply reentrancy
 // guards, atomic pending archives, closed factory option sets, and archive
-// capabilities that exist only in manual mode. Production gzip retains its
-// existing scale; the final runtime capability validation, concrete internal
-// surface assertions, corrected migration guidance, and packaged source are
-// included in these release-envelope limits.
+// capabilities that exist only in manual mode. The final public-boundary pass
+// rejects invalid options containers consistently and documents the controlled
+// journal's production validation scope. Production raw and gzip retain their
+// existing limits; source maps and the package envelope include the additional
+// guard source and guidance.
 const limits = {
   bundleRaw: 52.25 * KiB,
   bundleGzip: 14.25 * KiB,
-  bundleMap: 249.25 * KiB,
+  bundleMap: 249.75 * KiB,
   developmentBundleRaw: 57.75 * KiB,
   developmentBundleGzip: 15.25 * KiB,
-  developmentBundleMap: 255.25 * KiB,
-  packagePacked: 478.75 * KiB,
-  packageUnpacked: 1887 * KiB,
+  developmentBundleMap: 255.75 * KiB,
+  packagePacked: 480.5 * KiB,
+  packageUnpacked: 1892.5 * KiB,
 };
 
 const failures = [];

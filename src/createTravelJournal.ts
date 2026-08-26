@@ -12,7 +12,10 @@ import type {
   TravelsOptions,
   TravelsSerializedHistory,
 } from './type.js';
-import { assertPublicFactoryOptions } from './internal/factory-options.js';
+import {
+  assertPublicFactoryOptions,
+  hasOwnOption,
+} from './internal/public-options.js';
 
 /**
  * Public surface for a timeline whose state is owned by another runtime.
@@ -87,16 +90,14 @@ const createJournal = <
     | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> },
   options: TravelJournalOptions<S, F, A, P>
 ): TravelJournal<S, F, A, P> => {
+  const factoryName =
+    source.type === 'initial' ? 'createTravelJournal' : 'restoreTravelJournal';
   assertPublicFactoryOptions(options, {
     capability: 'journal',
     restoreFactory: 'restoreTravelJournal',
   });
   const { apply, autoArchive = true as A, ...travelsOptions } = options;
-  if (typeof apply !== 'function') {
-    const factoryName =
-      source.type === 'initial'
-        ? 'createTravelJournal'
-        : 'restoreTravelJournal';
+  if (!hasOwnOption(options, 'apply') || typeof apply !== 'function') {
     throw new TravelsTypeError(
       'INVALID_OPTION',
       `Travels: ${factoryName} requires a synchronous apply function.`

@@ -2,7 +2,7 @@ import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsTypeError } from './errors.js';
 import { TravelsCore, type Travels } from './travels.js';
 import type { PatchableInput, PatchesOption, TravelsOptions } from './type.js';
-import { assertPublicFactoryOptions } from './internal/factory-options.js';
+import { assertPublicFactoryOptions } from './internal/public-options.js';
 
 /**
  * Create a Travels instance whose state is statically constrained to the

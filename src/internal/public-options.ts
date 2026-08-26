@@ -7,8 +7,23 @@ const removedRestoreOptions = [
   'strictInitialPatches',
 ] as const;
 
-const hasOwn = (options: object, option: PropertyKey): boolean =>
+export const hasOwnOption = (options: object, option: PropertyKey): boolean =>
   Object.prototype.hasOwnProperty.call(options, option);
+
+export function assertPublicOptionsObject(
+  options: unknown
+): asserts options is Record<PropertyKey, unknown> {
+  if (
+    options === null ||
+    typeof options !== 'object' ||
+    Array.isArray(options)
+  ) {
+    throw new TravelsTypeError(
+      'INVALID_OPTION',
+      'Travels: options must be a non-null, non-array object.'
+    );
+  }
+}
 
 export const assertPublicFactoryOptions = (
   options: unknown,
@@ -17,11 +32,9 @@ export const assertPublicFactoryOptions = (
     restoreFactory: 'restoreTravels' | 'restoreTravelJournal';
   }
 ): void => {
-  if (options === null || typeof options !== 'object') {
-    return;
-  }
+  assertPublicOptionsObject(options);
 
-  if (hasOwn(options, 'controlledApply')) {
+  if (hasOwnOption(options, 'controlledApply')) {
     throw new TravelsTypeError(
       'INVALID_OPTION',
       config.capability === 'state'
@@ -30,14 +43,14 @@ export const assertPublicFactoryOptions = (
     );
   }
 
-  if (config.capability === 'state' && hasOwn(options, 'apply')) {
+  if (config.capability === 'state' && hasOwnOption(options, 'apply')) {
     throw new TravelsTypeError(
       'INVALID_OPTION',
       'Travels: apply is only available to externally owned journals. Use createTravelJournal(initialState, { apply }) or restoreTravelJournal(snapshot, { apply }).'
     );
   }
 
-  if (config.capability === 'journal' && hasOwn(options, 'mutable')) {
+  if (config.capability === 'journal' && hasOwnOption(options, 'mutable')) {
     throw new TravelsTypeError(
       'INVALID_OPTION',
       'Travels: mutable is only available to state-owning timelines. External journals retain the state reference committed by their owner.'
@@ -45,7 +58,7 @@ export const assertPublicFactoryOptions = (
   }
 
   for (const option of removedRestoreOptions) {
-    if (hasOwn(options, option)) {
+    if (hasOwnOption(options, option)) {
       throw new TravelsTypeError(
         'INVALID_OPTION',
         `Travels: ${option} was removed. Restore persisted history atomically with ${config.restoreFactory}(snapshot, options).`

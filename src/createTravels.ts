@@ -1,6 +1,6 @@
 import type { PatchesOption, TravelsOptions } from './type.js';
 import { TravelsCore, type Travels } from './travels.js';
-import { assertPublicFactoryOptions } from './internal/factory-options.js';
+import { assertPublicFactoryOptions } from './internal/public-options.js';
 
 /**
  * Create a new Travels instance with auto archive mode

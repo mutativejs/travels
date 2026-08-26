@@ -10,6 +10,7 @@ import type {
   TravelsSerializedHistory,
 } from './type.js';
 import { composePatchGroups } from './replay.js';
+import { assertPublicOptionsObject } from './internal/public-options.js';
 import {
   containsMapOrSet,
   consumePromiseLikeRejection,
@@ -835,6 +836,7 @@ export const deserializeTravelsHistory = <
   input: unknown,
   options: TravelsDeserializeOptions<S, P> = {}
 ): TravelsSerializedHistory<S, P> => {
+  assertPublicOptionsObject(options);
   if (
     options.validation !== undefined &&
     options.validation !== 'semantic' &&
