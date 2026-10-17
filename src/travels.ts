@@ -2191,19 +2191,28 @@ export class TravelsCore<
     let patches: Patches<P>;
     let inversePatches: Patches<P>;
     let nextState = this.state;
-    const canResetMutably =
-      this.mutable && canSynchronizeMutableRoots(this.state, this.baselineState);
+    const canOverwriteRoot = canSynchronizeMutableRoots(
+      this.state,
+      this.baselineState
+    );
+    const canResetMutably = this.mutable && canOverwriteRoot;
 
-    if (canResetMutably) {
-      // For observable state: use patch system to reset to initial state
-      // Generate patches from current state to initial state
+    // A journal owner may apply transitions in place, which cannot replace its
+    // root, so a journal overwrites a compatible root key by key as mutable
+    // mode does.
+    if (
+      canResetMutably ||
+      (this.stateDriver.isControlled && canOverwriteRoot)
+    ) {
       [patches, inversePatches] = createRootOverwrite<S, P>(
         this.state,
         this.baselineState,
         this.options
       );
-      this.journalMutableState(this.state as object, inversePatches);
-      apply(this.state as object, patches, { mutable: true });
+      if (canResetMutably) {
+        this.journalMutableState(this.state as object, inversePatches);
+        apply(this.state as object, patches, { mutable: true });
+      }
     } else {
       // For immutable state: restore from a snapshot clone.
       const target = cloneInitialSnapshot(this.baselineState);

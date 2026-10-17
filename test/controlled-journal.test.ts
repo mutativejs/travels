@@ -89,6 +89,69 @@ describe('controlled travel journal', () => {
     expect(journal.canForward()).toBe(false);
   });
 
+  test('resets an owner that applies transitions in place', () => {
+    type Store = { count: number; tags: string[]; extra?: { note: string } };
+    const store: Store = { count: 0, tags: ['a'] };
+    const transitions: Patches<true>[] = [];
+    const journal = createTravelJournal(store, {
+      apply: ({ patches }) => {
+        transitions.push(patches);
+        apply(store, patches, { mutable: true });
+        return store;
+      },
+    });
+    const commit = (recipe: (draft: Draft<Store>) => void) => {
+      const [, patches, inversePatches] = create(store, recipe, {
+        enablePatches: true,
+      });
+      apply(store, patches, { mutable: true });
+      journal.recordPatches(store, { patches, inversePatches });
+    };
+    commit((draft) => {
+      draft.count = 1;
+      draft.tags.push('b');
+    });
+    commit((draft) => {
+      draft.extra = { note: 'added' };
+    });
+
+    journal.reset();
+
+    expect(store).toEqual({ count: 0, tags: ['a'] });
+    expect(journal.getState()).toBe(store);
+    expect(journal.getPosition()).toBe(0);
+    expect(transitions.at(-1)!.length).toBeGreaterThan(0);
+    expect(
+      transitions.at(-1)!.every((operation) => operation.path.length > 0)
+    ).toBe(true);
+  });
+
+  test('replaces a root whose kind differs from the baseline on reset', () => {
+    let state: object = { count: 0 };
+    const transitions: Patches<true>[] = [];
+    const journal = createTravelJournal(state, {
+      apply: ({ patches }) => {
+        transitions.push(patches);
+        state = apply(state, patches);
+        return state;
+      },
+    });
+    const [nextState, patches, inversePatches] = create(
+      state,
+      () => [1, 2] as unknown as object,
+      { enablePatches: true }
+    );
+    state = nextState;
+    journal.recordPatches(nextState, { patches, inversePatches });
+
+    journal.reset();
+
+    expect(state).toEqual({ count: 0 });
+    expect(transitions.at(-1)).toEqual([
+      { op: 'replace', path: [], value: { count: 0 } },
+    ]);
+  });
+
   test('records externally committed patches and delegates navigation', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     const applyTransition = vi.fn(({ patches }: { patches: Patches<true> }) => {

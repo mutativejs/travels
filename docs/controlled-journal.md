@@ -58,6 +58,18 @@ The callback receives:
 - `inversePatches`: the composed rollback transition;
 - `fromPosition` and `toPosition`: the cursor movement.
 
+`reset()` also describes its return to the baseline as patches. When the
+current state and the baseline are both plain objects, or both arrays, those
+patches overwrite the root's entries and keep the root itself, so an owner can
+apply them in place, for example with Mutative's
+`apply(state, patches, { mutable: true })`. When the root kinds differ, or the
+state is not an object, the transition replaces the root with one
+`{ op: 'replace', path: [] }` patch. An owner that applies transitions in place
+must handle that patch itself, as it must for root replacements it recorded
+through `recordPatches()`: Mutative 2 throws for a root replacement applied in
+place, and Mutative 1 skipped it, which left the owner's state unchanged while
+the journal moved.
+
 The transition contains detached patch operations and values, so accidental callback mutation cannot rewrite retained history. The callback should still treat them as read-only because changing them before the owner commits would change the requested navigation. Patch values that contain functions, accessors, `WeakMap`/`WeakSet`, custom class instances, array subclasses, or another value that cannot be cloned without changing its runtime type are rejected with `UNCLONEABLE_PATCH_VALUE`; controlled journals should retain primitives, plain objects, plain arrays, or `Date` values. `apply` must finish synchronously and return the state actually committed by the owner. A thrown error, uncloneable transition, or Promise-like result does not advance the cursor, replace the retained state reference, or change history.
 
 In development builds Travels also scans the returned state for `Map` and `Set`, and an unsupported state is rejected with the same atomicity: the cursor, retained state reference, and history are unchanged. That scan is proportional to the whole state, so production builds skip it and pay nothing per navigation. It is a diagnostic that tells an owner early which transition introduced an unsupported value, not the guarantee that keeps persistence sound: `serialize()`, `rebase()`, and `getHistorySnapshot()` validate the state in every build, and controlled patch values are validated in every build, so an unsupported value can never reach retained history or a persisted snapshot. Develop against a development build to keep the early signal. Travels cannot undo mutations or other side effects the external owner already performed before failing.

@@ -606,6 +606,10 @@ pair.
   Travels does not advance its cursor or replace its retained state reference;
   it cannot roll back side effects the external owner already performed. Do not
   record delegated navigation or reset as a new history entry.
+- An owner that applies transitions in place, such as with Mutative's
+  `apply(state, patches, { mutable: true })`, must handle a root replacement
+  (`path: []`) itself. `reset()` sends one only when the current state and the
+  baseline are not both plain objects or both arrays.
 - The public `TravelJournal` type omits state-owning operations such as
   `setState()`, transactions, tracking controls, and `getControls()`. Those
   properties are absent from the runtime facade as well. `reset()` applies the

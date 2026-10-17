@@ -135,6 +135,12 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Reset a controlled journal whose current state and baseline are both plain
+  objects, or both arrays, with patches that overwrite the root's entries
+  instead of replacing the root. Owners that apply transitions in place, such
+  as with Mutative's `apply(state, patches, { mutable: true })`, can now reset:
+  Mutative 1 skipped the root replacement and left the owner's state unchanged
+  while the journal moved to its baseline, and Mutative 2 throws for it.
 - Report an object reached through two paths without a cycle as
   `SHARED_REFERENCE` instead of `CIRCULAR_REFERENCE`. Durable-state checks
   such as `createPatchableTravels()` still reject it, because JSON duplicates
