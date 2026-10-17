@@ -13,7 +13,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 - Replace the public `Travels` constructor with the `createTravels()` and
   `createPatchableTravels()` factories. The `Travels` value is now a frozen
-  persistence namespace containing `Travels.deserialize()`.
+  persistence namespace containing `Travels.deserialize()`, so
+  `instanceof Travels` throws; use the new `isTravels()` guard. The internal
+  constructor reachable through `instance.constructor` rejects direct
+  construction with `INVALID_OPERATION` instead of skipping factory validation.
 - Publish `Travels` as an explicit state-owning capability interface and make
   its `mutable` mode flag read-only. Mutable behavior is fixed when the factory
   creates the underlying state driver and cannot be changed afterwards.
@@ -66,6 +69,7 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Add the `restoreTravels(snapshot, { mutable: true, target })` option for
   restoring persisted history into an existing observable store object, which
   replaces the 2.x `new Travels(store, { mutable: true, history })` pattern.
+- Add `isTravels()` to identify state-owning timelines without `instanceof`.
 - Add `getRevision()`, an O(1) monotonic subscription token that advances once
   for each committed observable timeline event, including history-only changes.
 - Add `assertTravelHistoryEntryRecordable()` so external owners can verify that

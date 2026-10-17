@@ -1,7 +1,7 @@
 import { TravelsTypeError } from './errors.js';
 import {
+  createTravelsCore,
   RECORD_TRAVEL_JOURNAL_PATCHES,
-  TravelsCore,
   type Travels,
 } from './travels.js';
 import type {
@@ -103,7 +103,7 @@ const createJournal = <
       `Travels: ${factoryName} requires a synchronous apply function.`
     );
   }
-  const core = new TravelsCore<S, F, A, P>(
+  const core = createTravelsCore<S, F, A, P>(
     source,
     {
       ...travelsOptions,

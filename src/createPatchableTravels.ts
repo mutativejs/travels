@@ -1,6 +1,6 @@
 import { findStateCompatibilityIssues } from './compatibility.js';
 import { TravelsTypeError } from './errors.js';
-import { TravelsCore, type Travels } from './travels.js';
+import { createStateOwningTravels, type Travels } from './travels.js';
 import type { PatchableInput, PatchesOption, TravelsOptions } from './type.js';
 import { assertPublicFactoryOptions } from './internal/public-options.js';
 
@@ -64,8 +64,8 @@ export function createPatchableTravels<
         .join('\n- ')}`
     );
   }
-  return new TravelsCore<S, F, A, P>(
+  return createStateOwningTravels<S, F, A, P>(
     { type: 'initial', state: initialState as S },
     options
-  ) as unknown as Travels<S, F, A, P>;
+  );
 }

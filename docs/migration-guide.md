@@ -18,6 +18,25 @@ const travels = new Travels(initialState, options);
 const travels = createTravels(initialState, options);
 ```
 
+`instanceof Travels` no longer works: the right-hand side is a plain object, so
+the expression throws `TypeError` at runtime and fails to compile in
+TypeScript. Detect state-owning timelines with `isTravels()` instead:
+
+```ts
+// 2.x
+if (value instanceof Travels) value.back();
+
+// 3.0
+if (isTravels(value)) value.back();
+```
+
+Timelines remain ordinary extensible objects, so the method-wrapping patterns
+in the [Advanced Patterns Guide](advanced-patterns.md) keep working, and
+internal calls such as `back()` still go through a wrapped `go()`. Their
+constructor is not a public entry point: calling `new
+travels.constructor(...)` throws `INVALID_OPERATION` instead of bypassing
+factory validation.
+
 Use `createPatchableTravels()` when the initial state should be constrained to
 the durable JSON-shaped state contract at compile time and checked immediately
 at runtime.

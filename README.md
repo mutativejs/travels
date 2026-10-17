@@ -377,6 +377,14 @@ Checks current state, retained forward/inverse patches, patch paths, and metadat
 
 Validates and normalizes a persisted snapshot before restoring it with `restoreTravels(snapshot)`. Accepts either a parsed object or a JSON string. Structural validation is the low-latency default; select `validation: 'semantic'` to replay every entry in both directions and reject patches that cannot be applied or reversed. Invalid input throws `TravelsPersistenceError` unless a `fallback` is supplied. `migrate` and function-valued `fallback` callbacks must return synchronously.
 
+#### `isTravels(value): value is Travels`
+
+Returns `true` for state-owning timelines created by `createTravels()`,
+`restoreTravels()`, or `createPatchableTravels()` from this copy of Travels.
+`Travels` is a persistence namespace rather than a class, so use `isTravels()`
+instead of `instanceof Travels`. External journals are not state-owning
+timelines and return `false`.
+
 #### `canBack(): boolean`
 
 Returns `true` if undo is possible (not at the beginning of history).

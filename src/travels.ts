@@ -567,6 +567,15 @@ export class TravelsCore<
     options: TravelsOptions<F, A, P> = {},
     controlledApply?: TravelsControlledApply<S, P>
   ) {
+    if (!coreConstructionGranted) {
+      throw new TravelsError(
+        'INVALID_OPERATION',
+        'Travels: create timelines with createTravels(), restoreTravels(), createPatchableTravels(), createTravelJournal(), or restoreTravelJournal().'
+      );
+    }
+    // Consume the grant before any option hook can run user code.
+    coreConstructionGranted = false;
+
     const {
       maxHistory = 10,
       autoArchive = true as A,
@@ -2702,6 +2711,62 @@ type _TravelsCoreManualSurfaceCheck = AssertTravelsCoreSurface<
     { pathAsArray: true }
   >
 >;
+
+let coreConstructionGranted = false;
+
+/**
+ * Construct a core on behalf of a public factory. Each grant is consumed by
+ * exactly one construction, so `instance.constructor` cannot be used to skip
+ * factory validation.
+ *
+ * @internal
+ */
+export const createTravelsCore = <
+  S,
+  F extends boolean,
+  A extends boolean,
+  P extends PatchesOption,
+>(
+  source: TravelsCoreSource<S, P>,
+  options: TravelsOptions<F, A, P>,
+  controlledApply?: TravelsControlledApply<S, P>
+): TravelsCore<S, F, A, P> => {
+  coreConstructionGranted = true;
+  try {
+    return new TravelsCore<S, F, A, P>(source, options, controlledApply);
+  } finally {
+    coreConstructionGranted = false;
+  }
+};
+
+const stateOwningTimelines = new WeakSet<object>();
+
+/** @internal */
+export const createStateOwningTravels = <
+  S,
+  F extends boolean,
+  A extends boolean,
+  P extends PatchesOption,
+>(
+  source: TravelsCoreSource<S, P>,
+  options: TravelsOptions<F, A, P>
+): Travels<S, F, A, P> => {
+  const core = createTravelsCore<S, F, A, P>(source, options);
+  stateOwningTimelines.add(core);
+  return core as unknown as Travels<S, F, A, P>;
+};
+
+/**
+ * Check whether a value is a state-owning timeline created by this copy of
+ * Travels. Use it instead of `instanceof Travels`: `Travels` is a persistence
+ * namespace, not a constructor.
+ */
+export const isTravels = (
+  value: unknown
+): value is Travels<unknown, boolean, boolean> =>
+  typeof value === 'object' &&
+  value !== null &&
+  stateOwningTimelines.has(value);
 
 /** Persistence namespace retained without exposing the internal constructor. */
 export const Travels = Object.freeze({

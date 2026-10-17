@@ -1,5 +1,5 @@
 import type { PatchesOption, TravelsOptions } from './type.js';
-import { TravelsCore, type Travels } from './travels.js';
+import { createStateOwningTravels, type Travels } from './travels.js';
 import { assertPublicFactoryOptions } from './internal/public-options.js';
 
 /**
@@ -57,8 +57,8 @@ export function createTravels<
     capability: 'state',
     restoreFactory: 'restoreTravels',
   });
-  return new TravelsCore<S, F, A, P>(
+  return createStateOwningTravels<S, F, A, P>(
     { type: 'initial', state: initialState },
     options
-  ) as unknown as Travels<S, F, A, P>;
+  );
 }
