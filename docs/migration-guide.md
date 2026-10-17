@@ -232,6 +232,36 @@ travels.subscribe(({ type }) => {
 travels.subscribe(() => save(travels.serialize()));
 ```
 
+### Upgrade Mutative to 2
+
+Travels 3 requires `mutative@^2.0.0` as its peer dependency. Upgrade it together
+with Travels:
+
+```sh
+npm install travels@3 mutative@2
+```
+
+Mutative 2 keeps the API that Travels uses, and Travels needs no option changes.
+Mutative 1.x patches could not undo some updates correctly, such as an array
+shortened and lengthened again in one recipe, which undo restored with holes, or
+an element changed from `0` to `-0`, which undo left as `-0`. Mutative 2 records
+both.
+
+Check your build for the Mutative 2 runtime changes that reach applications
+through Travels:
+
+- Mutative 2 builds target ES2018. Transpile `mutative` for engines that support
+  `Proxy` but not ES2018 syntax.
+- Mutative reads `process.env.NODE_ENV` to select its development or production
+  build. Define it in every bundle, including bundles that target Node.js. To
+  load ES modules without a bundler, map `mutative` to
+  `mutative/dist/mutative.esm.production.min.mjs`, or load its UMD build with
+  Travels' UMD build.
+- Production builds of Mutative throw `Minified Mutative error #<code>` instead
+  of full messages. Match error codes, not message text, in production.
+- If your own code calls Mutative, review its
+  [v1 to v2 migration guide](https://mutative.js.org/docs/advanced-guides/migration-v2).
+
 ### Update observer and runtime compatibility
 
 Use `TravelsEvent` for both subscribers and devtools. The deprecated

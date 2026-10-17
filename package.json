@@ -103,7 +103,7 @@
     "localforage": "1.10.0",
     "localspace": "1.2.0",
     "mobx": "^6.15.0",
-    "mutative": "^1.3.0",
+    "mutative": "^2.0.0",
     "pinia": "^3.0.4",
     "prettier": "^3.2.5",
     "react": "^19.1.1",
@@ -121,7 +121,7 @@
     "zustand": "^5.0.13"
   },
   "peerDependencies": {
-    "mutative": "^1.3.0"
+    "mutative": "^2.0.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

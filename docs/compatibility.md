@@ -15,9 +15,11 @@ ESM, CJS, UMD, and TypeScript declarations.
 
 Travels targets modern browsers that support the required standard JavaScript and JSON APIs. Persistence examples use `localStorage`, IndexedDB, and BroadcastChannel when available.
 
+Mutative 2 builds target ES2018 and read `process.env.NODE_ENV` to select their development or production build. Bundlers that define `NODE_ENV` handle both. Without a bundler, load `mutative/dist/mutative.esm.production.min.mjs` or Mutative's UMD build, because Mutative's default ES module needs a `process` global.
+
 ## Peer Dependencies
 
-`mutative` is a peer dependency and is supported at `^1.3.0`. The test suite runs against the repository's pinned development version.
+`mutative` is a peer dependency and is supported at `^2.0.0`. Mutative 1.x is not supported, because some of its patches cannot undo the changes they record. The test suite runs against the repository's pinned development version.
 
 ## Official Bindings
 

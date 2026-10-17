@@ -11,6 +11,12 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Breaking Changes
 
+- Require `mutative@^2.0.0` as the peer dependency. Mutative 1.x is no longer
+  supported: its patches could not undo some recorded changes, such as an array
+  shortened and lengthened again in one update or an element changed between
+  `0` and `-0`. Mutative 2 builds target ES2018 and select their development
+  or production build from `process.env.NODE_ENV`; see the
+  [migration guide](docs/migration-guide.md#upgrade-mutative-to-2).
 - Replace the public `Travels` constructor with the `createTravels()` and
   `createPatchableTravels()` factories. The `Travels` value is now a frozen
   persistence namespace containing `Travels.deserialize()`, so
