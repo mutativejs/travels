@@ -31,6 +31,8 @@ internal constructor:
 | `use-travel`     | `3.x`           | `^3.0.0`                   | `restoreTravels(snapshot)` then `useTravelStore` |
 | `zustand-travel` | `3.x`           | `^3.0.0`                   | `travel(initializer, { snapshot })`              |
 
+Each binding major declares the same `mutative` peer range as Travels
+(`^2.0.0`), so the three packages install together without a peer conflict.
 The binding majors require Travels 3 so their factory overloads, atomic restore
 path, read-only shared views, and control capabilities have one stable contract.
 Publish and install the core major first, then validate and release each binding

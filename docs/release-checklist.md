@@ -38,10 +38,13 @@ dependency order:
 1. Finish every Travels gate in this checklist and publish `travels@3` from the
    exact tested artifact.
 2. Install the published core in clean `use-travel` and `zustand-travel`
-   checkouts; update their lockfiles to the published version and rerun each
-   repository's types, tests, production build, and package smoke test.
+   checkouts. Raise their `mutative` peer and development ranges to the range
+   Travels requires (`^2.0.0` for Travels 3), update their lockfiles to the
+   published versions, and rerun each repository's types, tests, production
+   build, and package smoke test.
 3. Publish the binding majors only after those published-core runs pass.
-4. In a clean consumer, install all three published packages together and
+4. In a clean consumer, install all three published packages together with
+   `mutative@2`, confirm the install reports no peer dependency conflict, and
    smoke test a new timeline plus an atomically restored timeline.
 
 Local sibling links are useful candidate evidence, but they do not replace the
