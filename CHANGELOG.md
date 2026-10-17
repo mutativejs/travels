@@ -96,6 +96,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   Persistence from storage should still go through
   `Travels.deserialize(..., { validation: 'semantic' })` when its provenance is
   not trusted.
+- Report an unknown `Travels.deserialize()` `validation` mode as
+  `TravelsTypeError` with code `INVALID_OPTION` instead of a plain `TypeError`
+  without a code.
 - Reject defined non-boolean `autoArchive` and `mutable` values at runtime
   instead of selecting capability modes through JavaScript truthiness; omitted
   values retain their defaults.

@@ -10,6 +10,7 @@ import type {
   TravelsSerializedHistory,
 } from './type.js';
 import { composePatchGroups } from './replay.js';
+import { TravelsTypeError } from './errors.js';
 import { assertPublicOptionsObject } from './internal/public-options.js';
 import {
   containsMapOrSet,
@@ -847,7 +848,8 @@ export const deserializeTravelsHistory = <
     options.validation !== 'semantic' &&
     options.validation !== 'structural'
   ) {
-    throw new TypeError(
+    throw new TravelsTypeError(
+      'INVALID_OPTION',
       "Travels: validation must be either 'semantic' or 'structural'."
     );
   }

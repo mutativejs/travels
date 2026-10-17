@@ -1677,4 +1677,22 @@ describe('persistence entry points', () => {
     expect('deserializeTravelsHistory' in api).toBe(false);
     expect(typeof api.Travels.deserialize).toBe('function');
   });
+
+  test('reports an invalid validation mode with a stable option code', async () => {
+    const { createTravels, Travels: TravelsApi, TravelsTypeError } =
+      await import('../src/index');
+    const snapshot = createTravels({ count: 0 }).serialize();
+
+    expect(() =>
+      TravelsApi.deserialize(snapshot, { validation: 'strict' as never })
+    ).toThrowError(
+      expect.objectContaining({
+        name: 'TravelsTypeError',
+        code: 'INVALID_OPTION',
+      })
+    );
+    expect(() =>
+      TravelsApi.deserialize(snapshot, { validation: 'strict' as never })
+    ).toThrow(TravelsTypeError);
+  });
 });
