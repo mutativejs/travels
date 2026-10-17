@@ -197,10 +197,6 @@ Decode untrusted storage with `Travels.deserialize()` first. Creation options
 such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a
 separate `initialState` or `history` option is intentionally not accepted.
 
-A snapshot returned by `Travels.deserialize()` is not validated a second time
-while its top-level fields and patch-history arrays are unchanged; any other
-input, including an edited or spread snapshot, is validated structurally.
-
 The restored timeline owns a detached copy of `snapshot.state`, so decoded
 snapshots and `fallback` constants are never mutated and can be restored
 again. To restore into a live reactive store object (MobX, Vue, Pinia), pass it

@@ -112,7 +112,7 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  53.8 KiB raw / 14.7 KiB gzip (ESM). Option removals are outweighed by the
+  53.2 KiB raw / 14.5 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
@@ -124,11 +124,6 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   such as `createPatchableTravels()` still reject it, because JSON duplicates
   shared references, but the diagnostic no longer claims a cycle. Add
   `SHARED_REFERENCE` to `StateCompatibilityIssueCode`.
-- Skip the second structural validation pass when `restoreTravels()` or
-  `restoreTravelJournal()` receives an unchanged `Travels.deserialize()`
-  result. The documented decode-then-restore path validated every snapshot
-  twice; restoring a 355 KiB snapshot drops from 13.4 ms to 6.9 ms. Edited,
-  spread, or hand-built snapshots are still validated.
 - Stop recloning every retained metadata entry each time a commit trims
   history at `maxHistory`. Commits at capacity were O(maxHistory) structured
   clones: 500 labelled commits took 331 ms at `maxHistory: 1000` and 3.5 s at

@@ -44,7 +44,6 @@ import {
   type DeferredCompatibilityCheck,
   type DiagnosticsTimeline,
 } from './internal/persistence-diagnostics.js';
-import { isUnchangedValidatedSnapshot } from './internal/validated-snapshots.js';
 import { assertPublicOptionsObject } from './internal/public-options.js';
 import {
   assertSupportedExternalState,
@@ -624,16 +623,12 @@ export class TravelsCore<
       );
     }
 
-    // Travels.deserialize() output that is still unchanged was already
-    // validated at least structurally; validate anything else here.
     const restoredHistory =
-      source.type !== 'snapshot'
-        ? undefined
-        : isUnchangedValidatedSnapshot(source.snapshot)
-          ? source.snapshot
-          : deserializeTravelsHistory<S, P>(source.snapshot, {
-              validation: 'structural',
-            });
+      source.type === 'snapshot'
+        ? deserializeTravelsHistory<S, P>(source.snapshot, {
+            validation: 'structural',
+          })
+        : undefined;
     const restoreTarget =
       source.type === 'snapshot' ? source.target : undefined;
     if (
