@@ -105,6 +105,27 @@ const travels = restoreTravels(history);
 Malformed snapshots now throw rather than being discarded. Use
 `Travels.deserialize(..., { fallback })` when recovery is intentional.
 
+`restoreTravels()` keeps a detached copy of `snapshot.state`; it never mutates
+the snapshot or a reused fallback. Mutable integrations that attached history
+to a live observable store must name that store as the restore target:
+
+```ts
+// 2.x
+const travels = new Travels(store, {
+  mutable: true,
+  history: Travels.deserialize(stored),
+});
+
+// 3.0
+const travels = restoreTravels(Travels.deserialize(stored), {
+  mutable: true,
+  target: store,
+});
+```
+
+Travels overwrites `target` in place with the snapshot state, so the store no
+longer has to be pre-populated to match the restored history.
+
 ### Upgrade the official bindings
 
 `use-travel@3` creates component-owned timelines through `createTravels()`.

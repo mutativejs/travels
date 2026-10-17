@@ -287,6 +287,19 @@ describe('Type-level API contracts', () => {
     >();
   });
 
+  test('only restoreTravels accepts a typed live restore target', () => {
+    const snapshot = createTravels({ count: 0 }).serialize();
+    const store = { count: 0 };
+
+    if (false) {
+      restoreTravels(snapshot, { mutable: true, target: store });
+      // @ts-expect-error the target must match the snapshot state shape
+      restoreTravels(snapshot, { mutable: true, target: { title: '' } });
+      // @ts-expect-error creating a timeline already takes the live state
+      createTravels(store, { mutable: true, target: store });
+    }
+  });
+
   test('event type remains open to future minor-release operations', () => {
     const acceptEventType = (_type: TravelsEventType) => undefined;
 

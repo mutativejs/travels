@@ -36,6 +36,32 @@ travels.setState((draft) => {
 
 The full implementation lives in `src/travels.ts` and is exercised by `test/mutable-mode.test.ts` and `test/primitive-edge-cases.test.ts`.
 
+## Restoring Persisted History Into a Live Store
+
+`restoreTravels(snapshot)` restores a detached copy of the snapshot state, which
+would break reactivity for a store that is already observed. Pass the observed
+object as `target` instead:
+
+```ts
+import { reactive } from 'vue';
+import { restoreTravels, Travels } from 'travels';
+
+const store = reactive({ count: 0 });
+const snapshot = Travels.deserialize<typeof store>(stored, {
+  validation: 'semantic',
+});
+const travels = restoreTravels(snapshot, { mutable: true, target: store });
+
+travels.getState() === store; // true
+travels.back(); // mutates `store` in place
+```
+
+Travels overwrites `target` in place with a copy of `snapshot.state` before it
+records anything, so the live object and the restored patch history always
+start from the same data. The snapshot itself is never mutated. `target`
+requires `mutable: true` and must have the same root kind (plain object or
+array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
+
 ## Behavior by Operation
 
 | Operation            | Reference preserved?                                       | Notes                                                                                 |

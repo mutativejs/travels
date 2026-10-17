@@ -58,6 +58,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 - Add `ReadonlyTravelPatch` and `ReadonlyTravelPatches` for observer-facing
   patch views.
+- Add the `restoreTravels(snapshot, { mutable: true, target })` option for
+  restoring persisted history into an existing observable store object, which
+  replaces the 2.x `new Travels(store, { mutable: true, history })` pattern.
 - Add `getRevision()`, an O(1) monotonic subscription token that advances once
   for each committed observable timeline event, including history-only changes.
 - Add `assertTravelHistoryEntryRecordable()` so external owners can verify that
@@ -91,6 +94,9 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Detach `restoreTravels()` state from the snapshot. Mutable timelines restored
+  from a reused `fallback` snapshot previously wrote their edits into it, so the
+  next restore started from another document's contents.
 - Reject journal mutations re-entered from the external owner's `apply`
   callback, and stage implicit manual archives until delegated navigation
   succeeds so cursor, pending work, revision, and notifications remain atomic.

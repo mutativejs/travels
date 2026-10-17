@@ -149,7 +149,12 @@ export type Travels<
 
 type TravelsCoreSource<S, P extends PatchesOption> =
   | { type: 'initial'; state: S }
-  | { type: 'snapshot'; snapshot: TravelsSerializedHistory<S, P> };
+  | {
+      type: 'snapshot';
+      snapshot: TravelsSerializedHistory<S, P>;
+      /** Live mutable root that receives the restored state in place. */
+      target?: object;
+    };
 
 /** @internal */
 export const RECORD_TRAVEL_JOURNAL_PATCHES = Symbol(
@@ -372,6 +377,31 @@ const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
   }
 
   return isPlainObject(current) && isPlainObject(snapshot);
+};
+
+/**
+ * Produce the patches that overwrite a mutable root with a detached copy of
+ * `source` while keeping the root reference itself.
+ */
+const createRootOverwrite = <S, P extends PatchesOption>(
+  state: S,
+  source: unknown,
+  options: MutativeOptions<PatchesOption | true, boolean>
+): [Patches<P>, Patches<P>] => {
+  const [, patches, inversePatches] = create(
+    state,
+    (draft) => {
+      for (const key of Object.keys(draft as object)) {
+        delete (draft as any)[key];
+      }
+      deepClone(source, draft);
+      if (Array.isArray(draft) && Array.isArray(source)) {
+        (draft as any[]).length = source.length;
+      }
+    },
+    options as MutativeOptions<true, false>
+  ) as unknown as [S, Patches<P>, Patches<P>];
+  return [patches, inversePatches];
 };
 
 const getOwnDataValueAtPath = (
@@ -610,8 +640,29 @@ export class TravelsCore<
             validation: 'structural',
           })
         : undefined;
+    const restoreTarget =
+      source.type === 'snapshot' ? source.target : undefined;
+    if (
+      restoreTarget !== undefined &&
+      (!mutable ||
+        controlledApply ||
+        !canSynchronizeMutableRoots(restoreTarget, restoredHistory!.state))
+    ) {
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
+        'Travels: restoreTravels target requires mutable: true and a plain object or array root matching the snapshot state.'
+      );
+    }
+    // A state-owning restore never adopts the caller's snapshot objects:
+    // decoded snapshots and fallback constants stay reusable, and a mutable
+    // timeline mutates only its own copy or the explicit restore target.
+    // External journals keep the owner's reference.
     const startingState =
-      source.type === 'snapshot' ? restoredHistory!.state : source.state;
+      source.type === 'initial'
+        ? source.state
+        : controlledApply
+          ? restoredHistory!.state
+          : cloneInitialSnapshot(restoredHistory!.state);
     assertSupportedRuntimeState(
       startingState,
       mutable || controlledApply ? undefined : this.collectionFreeObjects
@@ -648,6 +699,16 @@ export class TravelsCore<
       controlledApply,
       collectionFreeObjects: this.collectionFreeObjects,
     });
+
+    if (restoreTarget !== undefined) {
+      const [patches] = createRootOverwrite<object, P>(
+        restoreTarget,
+        startingState,
+        this.options
+      );
+      apply(restoreTarget, patches, { mutable: true });
+      this.state = restoreTarget as S;
+    }
 
     const {
       patches: normalizedPatches,
@@ -2309,24 +2370,11 @@ export class TravelsCore<
     if (canResetMutably) {
       // For observable state: use patch system to reset to initial state
       // Generate patches from current state to initial state
-      const [, resetPatches, resetInversePatches] = create(
+      [patches, inversePatches] = createRootOverwrite<S, P>(
         this.state,
-        (draft) => {
-          // Clear all properties
-          for (const key of Object.keys(draft as object)) {
-            delete (draft as any)[key];
-          }
-          // Deep copy all properties from the reset baseline.
-          deepClone(this.baselineState, draft);
-          if (Array.isArray(draft) && Array.isArray(this.baselineState)) {
-            (draft as any[]).length = (this.baselineState as any[]).length;
-          }
-        },
+        this.baselineState,
         this.options
-      ) as unknown as [S, Patches<P>, Patches<P>];
-
-      patches = resetPatches;
-      inversePatches = resetInversePatches;
+      );
       this.journalMutableState(this.state as object, inversePatches);
       apply(this.state as object, patches, { mutable: true });
     } else {

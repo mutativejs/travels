@@ -23,14 +23,14 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // and gzip retain their existing limits; source maps and the package envelope
 // include the additional guard source and guidance.
 const limits = {
-  bundleRaw: 52.25 * KiB,
-  bundleGzip: 14.25 * KiB,
-  bundleMap: 250 * KiB,
-  developmentBundleRaw: 57.75 * KiB,
-  developmentBundleGzip: 15.25 * KiB,
-  developmentBundleMap: 256 * KiB,
-  packagePacked: 480.5 * KiB,
-  packageUnpacked: 1894 * KiB,
+  bundleRaw: 53 * KiB,
+  bundleGzip: 14.5 * KiB,
+  bundleMap: 254 * KiB,
+  developmentBundleRaw: 58.75 * KiB,
+  developmentBundleGzip: 15.75 * KiB,
+  developmentBundleMap: 260 * KiB,
+  packagePacked: 490 * KiB,
+  packageUnpacked: 1925 * KiB,
 };
 
 const failures = [];

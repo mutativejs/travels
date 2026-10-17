@@ -197,6 +197,21 @@ Decode untrusted storage with `Travels.deserialize()` first. Creation options
 such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a
 separate `initialState` or `history` option is intentionally not accepted.
 
+The restored timeline owns a detached copy of `snapshot.state`, so decoded
+snapshots and `fallback` constants are never mutated and can be restored
+again. To restore into a live reactive store object (MobX, Vue, Pinia), pass it
+as `target` together with `mutable: true`; Travels overwrites `target` in place
+with the snapshot state and keeps that reference:
+
+```ts
+const store = reactive(defaultState);
+const travels = restoreTravels(Travels.deserialize(stored), {
+  mutable: true,
+  target: store,
+});
+travels.getState() === store; // true
+```
+
 ### Instance Methods
 
 #### `getState(): S`

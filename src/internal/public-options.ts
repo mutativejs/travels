@@ -30,9 +30,19 @@ export const assertPublicFactoryOptions = (
   config: {
     capability: 'state' | 'journal';
     restoreFactory: 'restoreTravels' | 'restoreTravelJournal';
+    allowRestoreTarget?: boolean;
   }
 ): void => {
   assertPublicOptionsObject(options);
+
+  if (!config.allowRestoreTarget && hasOwnOption(options, 'target')) {
+    throw new TravelsTypeError(
+      'INVALID_OPTION',
+      config.capability === 'state'
+        ? 'Travels: target is only available when restoring a snapshot. Use restoreTravels(snapshot, { mutable: true, target }).'
+        : 'Travels: target is only available to state-owning mutable restores. External journals keep the state reference committed by their owner.'
+    );
+  }
 
   if (hasOwnOption(options, 'controlledApply')) {
     throw new TravelsTypeError(
