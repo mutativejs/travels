@@ -134,13 +134,43 @@ jobs:
         with:
           name: npm-package
           path: release-artifact
+      - name: Choose npm dist-tag
+        id: dist-tag
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          # Without --tag, npm moves `latest` to whatever was published last,
+          # so a maintenance release of an older major would replace the
+          # current major. Only a version above the published latest takes it.
+          current_latest="$(npm view travels dist-tags.latest 2>/dev/null || true)"
+          dist_tag="$(CURRENT_LATEST="${current_latest}" node -e '
+            const version = process.env.RELEASE_VERSION.replace(/^v/, "");
+            const latest = process.env.CURRENT_LATEST.trim();
+            const parse = (value) => value.split("-")[0].split(".").map(Number);
+            const newer = (left, right) => {
+              for (let index = 0; index < 3; index += 1) {
+                if (left[index] !== right[index]) return left[index] > right[index];
+              }
+              return false;
+            };
+            if (version.includes("-")) {
+              console.log("next");
+            } else if (!latest || newer(parse(version), parse(latest))) {
+              console.log("latest");
+            } else {
+              console.log(`v${parse(version)[0]}-latest`);
+            }
+          ')"
+          echo "Publishing ${RELEASE_VERSION} with dist-tag ${dist_tag} (current latest: ${current_latest:-none})"
+          echo "tag=${dist_tag}" >> "${GITHUB_OUTPUT}"
       - name: Publish tested package artifact
+        env:
+          CI: true
+          DIST_TAG: ${{ steps.dist-tag.outputs.tag }}
         run: |
           sha256sum release-artifact/travels.tgz
           # Keep ./ so npm treats this as a local tarball, not a GitHub shorthand.
-          npm publish ./release-artifact/travels.tgz
-        env:
-          CI: true
+          npm publish ./release-artifact/travels.tgz --tag "${DIST_TAG}"
 
   request-pages-deploy:
     runs-on: ubuntu-latest

@@ -58,6 +58,11 @@ requires an unpublished core version.
 
    The tag must match the `package.json` version exactly, with a leading `v`.
 
+   The release job picks the npm dist-tag itself: a version above the
+   published `latest` becomes `latest`, a prerelease becomes `next`, and a
+   maintenance release of an older major becomes `v<major>-latest` (for
+   example `v2-latest`), so it never replaces the current major.
+
 8. Confirm the tag-triggered release flow completed:
 
    - `Release`
