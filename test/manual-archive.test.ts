@@ -702,3 +702,63 @@ describe('Manual archive with maxHistory parity with useTravel', () => {
     expect(travels.canArchive()).toBe(true);
   });
 });
+
+describe('Implicit manual archives during navigation', () => {
+  test.each([false, true])(
+    'publish one go event with pending work (mutable: %s)',
+    (mutable) => {
+      const travels = createTravels(
+        { count: 0 },
+        { autoArchive: false, mutable }
+      );
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+      travels.archive();
+      travels.setState((draft) => {
+        draft.count = 2;
+      });
+
+      const events: string[] = [];
+      travels.subscribe((event) => events.push(event.type));
+      const revision = travels.getRevision();
+
+      travels.back();
+
+      expect(events).toEqual(['go']);
+      expect(travels.getRevision()).toBe(revision + 1);
+      expect(travels.getState()).toEqual({ count: 1 });
+      expect(travels.getPosition()).toBe(1);
+      expect(travels.canArchive()).toBe(false);
+
+      travels.forward();
+      expect(travels.getState()).toEqual({ count: 2 });
+      expect(travels.getHistory()).toEqual([
+        { count: 0 },
+        { count: 1 },
+        { count: 2 },
+      ]);
+    }
+  );
+
+  test.each([false, true])(
+    'archive pending work when navigation stays in place (mutable: %s)',
+    (mutable) => {
+      const travels = createTravels(
+        { count: 0 },
+        { autoArchive: false, mutable }
+      );
+      travels.setState((draft) => {
+        draft.count = 1;
+      });
+
+      const events: string[] = [];
+      travels.subscribe((event) => events.push(event.type));
+      travels.go(travels.getPosition());
+
+      expect(events).toEqual(['archive']);
+      expect(travels.canArchive()).toBe(false);
+      expect(travels.getPatches().patches).toHaveLength(1);
+    }
+  );
+});

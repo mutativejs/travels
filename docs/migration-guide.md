@@ -170,6 +170,25 @@ major first, then upgrade each binding. This keeps the factory overloads,
 one versioned contract instead of making their behavior depend on peer
 resolution.
 
+### Navigation archives pending work in one event
+
+With `autoArchive: false`, navigating while changes are pending archives them
+as part of the navigation. 2.x published an `archive` event followed by a `go`
+event; 3.0 stages the pending entry until the navigation succeeds and publishes
+one `go` event, advancing `getRevision()` once, in both immutable and mutable
+mode. Listeners that persisted only on `archive` should persist on every
+committed event:
+
+```ts
+// 2.x
+travels.subscribe(({ type }) => {
+  if (type === 'archive') save(travels.serialize());
+});
+
+// 3.0
+travels.subscribe(() => save(travels.serialize()));
+```
+
 ### Update observer and runtime compatibility
 
 Use `TravelsEvent` for both subscribers and devtools. The deprecated

@@ -2256,11 +2256,8 @@ export class TravelsCore<
     const pendingArchive = shouldArchive
       ? this.preparePendingArchive()
       : undefined;
-    const stageArchive = pendingArchive !== undefined && !this.mutable;
-
-    if (pendingArchive && !stageArchive) {
-      this.commitPendingArchive(pendingArchive);
-    }
+    // The pending entry is staged, not committed, until navigation succeeds,
+    // so one navigation publishes one event in every state mode.
 
     const _allPatches = this.getAllPatches();
     const back = nextPosition < this.position;
@@ -2282,7 +2279,7 @@ export class TravelsCore<
     }
 
     if (nextPosition === this.position) {
-      if (stageArchive) {
+      if (pendingArchive) {
         this.commitPendingArchive(pendingArchive);
       }
       return;
@@ -2327,7 +2324,7 @@ export class TravelsCore<
 
     this.state = nextState;
     this.position = nextPosition;
-    if (stageArchive) {
+    if (pendingArchive) {
       this.commitPendingArchive(pendingArchive, false);
     }
     this.invalidateHistoryCache();

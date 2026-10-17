@@ -735,6 +735,11 @@ function handleSave() {
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
 
+Navigating with `back()`, `forward()`, or `go()` while changes are pending
+archives them implicitly as part of the navigation. The navigation publishes a
+single `go` event in both immutable and mutable mode, not a separate `archive`
+event, so persist on every committed event rather than only on `archive`.
+
 ## State Requirements and Compatibility
 
 Travels supports durable state: plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. This contract applies to immutable and mutable runtime modes as well as persisted history. Patch paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; booleans, `null`, fractional or negative numbers, objects, and symbols are invalid segments. Durable object and array properties are normal writable, enumerable data properties on extensible containers. Accessors, hidden or read-only properties, frozen or sealed containers, array holes, custom properties, and custom or null prototypes are outside the durable contract; normalize them before storing them in Travels. Null-prototype dictionaries are not drafted by Mutative by default, so nested state writes may not produce undoable patches; convert them to plain objects first.
