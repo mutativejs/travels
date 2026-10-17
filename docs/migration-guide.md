@@ -257,6 +257,12 @@ through Travels:
   load ES modules without a bundler, map `mutative` to
   `mutative/dist/mutative.esm.production.min.mjs`, or load its UMD build with
   Travels' UMD build.
+- Mutative 2 patches hold the objects of the next state as their values instead
+  of deep copies. In immutable mode, an object read from `getState()` is
+  therefore also part of the retained history, and mutating it outside Travels
+  rewrites what redo replays. Treat state as read-only, or enable
+  `enableAutoFreeze` to make such mutations throw. Mutable mode is unaffected,
+  because it stores detached patch values.
 - Production builds of Mutative throw `Minified Mutative error #<code>` instead
   of full messages. Match error codes, not message text, in production.
 - If your own code calls Mutative, review its

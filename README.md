@@ -219,7 +219,9 @@ travels.getState() === store; // true
 Get the current state. The returned value is the live state that history
 patches apply to, the same object observers receive as `event.state`, so treat
 it as read-only and change it only through Travels operations. Mutating it
-directly in immutable mode silently desynchronizes undo/redo. It is typed as
+directly in immutable mode silently desynchronizes undo/redo: Mutative 2 stores
+the objects of the new state as the values of its patches, so the edit also
+rewrites the retained history that redo replays. It is typed as
 `S` rather than `ReadonlyState<S>` so it can be passed to stores and APIs that
 expect the state type, such as Zustand's `set()`. `enableAutoFreeze` freezes
 every state Travels produces from then on (the initial object you pass in is

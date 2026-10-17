@@ -112,6 +112,8 @@ export type Travels<
    * Typed as `S` so it can flow into stores and APIs that expect the state
    * type, but it must be treated as read-only: history patches apply to this
    * value, so mutating it outside Travels operations desynchronizes undo/redo.
+   * In immutable mode its objects are also the values of retained patches, so
+   * such a mutation rewrites the history that redo replays.
    * `enableAutoFreeze` freezes every state Travels produces after creation.
    */
   readonly getState: () => S;

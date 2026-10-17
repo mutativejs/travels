@@ -17,6 +17,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   `0` and `-0`. Mutative 2 builds target ES2018 and select their development
   or production build from `process.env.NODE_ENV`; see the
   [migration guide](docs/migration-guide.md#upgrade-mutative-to-2).
+- Retained patches in immutable mode now share objects with the states they
+  produced, because Mutative 2 no longer deep-copies patch values. Mutating a
+  state outside Travels operations, which was already unsupported, now also
+  rewrites the history that redo replays. Mutable mode still stores detached
+  patch values.
 - Replace the public `Travels` constructor with the `createTravels()` and
   `createPatchableTravels()` factories. The `Travels` value is now a frozen
   persistence namespace containing `Travels.deserialize()`, so
