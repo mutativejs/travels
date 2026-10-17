@@ -30,8 +30,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(mobx-state-tree@7.3.1(mobx@6.16.1))
       mutative:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^2.0.0
+        version: 2.0.0
       redux:
         specifier: ^4.2.1
         version: 4.2.1
@@ -40,7 +40,7 @@ importers:
         version: 1.1.0
       travels:
         specifier: file:../
-        version: file:..(mutative@1.3.0)
+        version: file:..(mutative@2.0.0)
       zundo:
         specifier: ^2.3.0
         version: 2.3.0(zustand@4.5.7(react@19.2.7))
@@ -106,6 +106,10 @@ packages:
     resolution: {integrity: sha512-8MJj6URmOZAV70dpFe1YnSppRTKC4DsMkXQiBDFayLcDI4ljGokHxmpqaBQuDWa4iAxWaJJ1PS8vAmbntjjKmQ==}
     engines: {node: '>=14.0'}
 
+  mutative@2.0.0:
+    resolution: {integrity: sha512-HCb6TyEvwUChR3K+sssLk2LqEAOobSlu1ZATUvoa7Kh952kzhyX+huPddmIFc0LYEctFRJb0+ioQybKMkFLO6A==}
+    engines: {node: '>=14.0'}
+
   nanoid@3.3.16:
     resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -126,8 +130,9 @@ packages:
 
   travels@file:..:
     resolution: {directory: .., type: directory}
+    engines: {node: '>=22'}
     peerDependencies:
-      mutative: ^1.3.0
+      mutative: ^2.0.0
 
   ts-essentials@9.4.2:
     resolution: {integrity: sha512-mB/cDhOvD7pg3YCLk2rOtejHjjdSi9in/IBYE13S+8WA5FBSraYf4V/ws55uvs0IvQ/l0wBOlXy5yBNZ9Bl8ZQ==}
@@ -227,6 +232,8 @@ snapshots:
 
   mutative@1.3.0: {}
 
+  mutative@2.0.0: {}
+
   nanoid@3.3.16: {}
 
   platform@1.3.6: {}
@@ -239,9 +246,9 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.28.4
 
-  travels@file:..(mutative@1.3.0):
+  travels@file:..(mutative@2.0.0):
     dependencies:
-      mutative: 1.3.0
+      mutative: 2.0.0
 
   ts-essentials@9.4.2: {}
 
