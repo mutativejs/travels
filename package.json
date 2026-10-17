@@ -46,7 +46,7 @@
     "test:e2e:ci": "playwright test",
     "e2e:serve": "vite e2e/fixtures/travels-app",
     "test:examples": "tsc --project tsconfig.examples.json",
-    "test:types": "tsc --noEmit --skipLibCheck",
+    "test:types": "tsc --noEmit --skipLibCheck && tsc --project tsconfig.test.json",
     "test:mutation:smoke": "node scripts/mutation-smoke.js",
     "coverage": "vitest run --dir test --coverage",
     "benchmark:real": "pnpm --dir benchmarks run test:real",

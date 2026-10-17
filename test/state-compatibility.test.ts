@@ -476,9 +476,10 @@ describe('State compatibility warnings', () => {
     source.setState({ value: 1n });
     source.setState({ value: null });
 
-    const snapshot = Travels.deserialize(source.serialize(), {
-      validation: 'semantic',
-    });
+    const snapshot = Travels.deserialize<{ value: number | bigint | null }>(
+      source.serialize(),
+      { validation: 'semantic' }
+    );
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const restored = restoreTravels(snapshot);
 
@@ -1267,7 +1268,7 @@ describe('State compatibility warnings', () => {
     'accepted updates retain auto-freeze semantics (mutable: %s)',
     (mutable) => {
       const payload = { nested: { value: 1 } };
-      const travels = createTravels<{ value: typeof payload | null }>(
+      const travels = createTravels<{ value: typeof payload | null }, true>(
         { value: null },
         {
           mutable,

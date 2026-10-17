@@ -16,21 +16,21 @@ type TimelineModel = {
 
 const maxHistory = 5;
 
-const operationArbitrary = fc.oneof<ModelOperation>(
+const operationArbitrary: fc.Arbitrary<ModelOperation> = fc.oneof(
   fc.record({
-    kind: fc.constant('set'),
+    kind: fc.constant('set' as const),
     value: fc.integer({ min: -10, max: 10 }),
   }),
   fc.record({
-    kind: fc.constant('back'),
+    kind: fc.constant('back' as const),
     amount: fc.integer({ min: 0, max: 10 }),
   }),
   fc.record({
-    kind: fc.constant('forward'),
+    kind: fc.constant('forward' as const),
     amount: fc.integer({ min: 0, max: 10 }),
   }),
   fc.record({
-    kind: fc.constant('go'),
+    kind: fc.constant('go' as const),
     position: fc.integer({ min: -5, max: 15 }),
   })
 );
@@ -192,7 +192,7 @@ describe('timeline state-machine model', () => {
                   draft.value = operation.value;
                 },
                 { enablePatches: true }
-              ) as [{ value: number }, Patches, Patches];
+              ) as [{ value: number }, Patches<true>, Patches<true>];
               authoritativeState = nextState;
               journal.recordPatches(authoritativeState, {
                 patches,
@@ -218,9 +218,9 @@ describe('timeline state-machine model', () => {
   test('manual archive composes pending edits into one modeled entry', () => {
     type ManualOperation = ModelOperation | { kind: 'archive' };
     type ManualModel = TimelineModel & { pending: boolean };
-    const manualOperation = fc.oneof<ManualOperation>(
+    const manualOperation: fc.Arbitrary<ManualOperation> = fc.oneof(
       operationArbitrary,
-      fc.record({ kind: fc.constant('archive') })
+      fc.record({ kind: fc.constant('archive' as const) })
     );
 
     fc.assert(
@@ -292,13 +292,13 @@ describe('timeline state-machine model', () => {
       | { kind: 'pauseSet'; value: number }
       | { kind: 'rebase' }
       | { kind: 'reset' };
-    const lifecycleOperation = fc.oneof<LifecycleOperation>(
+    const lifecycleOperation: fc.Arbitrary<LifecycleOperation> = fc.oneof(
       fc.record({
-        kind: fc.constant('set'),
+        kind: fc.constant('set' as const),
         value: fc.integer({ min: -5, max: 5 }),
       }),
       fc.record({
-        kind: fc.constant('transaction'),
+        kind: fc.constant('transaction' as const),
         values: fc.array(fc.integer({ min: -5, max: 5 }), {
           minLength: 0,
           maxLength: 5,
@@ -306,11 +306,11 @@ describe('timeline state-machine model', () => {
         fail: fc.boolean(),
       }),
       fc.record({
-        kind: fc.constant('pauseSet'),
+        kind: fc.constant('pauseSet' as const),
         value: fc.integer({ min: -5, max: 5 }),
       }),
-      fc.record({ kind: fc.constant('rebase') }),
-      fc.record({ kind: fc.constant('reset') })
+      fc.record({ kind: fc.constant('rebase' as const) }),
+      fc.record({ kind: fc.constant('reset' as const) })
     );
 
     fc.assert(

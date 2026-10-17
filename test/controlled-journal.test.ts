@@ -15,7 +15,11 @@ type State = {
 };
 
 const produceCommit = (state: State, recipe: (draft: Draft<State>) => void) =>
-  create(state, recipe, { enablePatches: true }) as [State, Patches, Patches];
+  create(state, recipe, { enablePatches: true }) as [
+    State,
+    Patches<true>,
+    Patches<true>,
+  ];
 
 describe('controlled travel journal', () => {
   test('supports manual archive ownership without applying state twice', () => {
@@ -87,7 +91,7 @@ describe('controlled travel journal', () => {
 
   test('records externally committed patches and delegates navigation', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
-    const applyTransition = vi.fn(({ patches }: { patches: Patches }) => {
+    const applyTransition = vi.fn(({ patches }: { patches: Patches<true> }) => {
       authoritativeState = apply(authoritativeState, patches);
       return authoritativeState;
     });
@@ -396,7 +400,9 @@ describe('controlled travel journal', () => {
       journal.recordPatches(
         { count: 1, label: 'initial' },
         {
-          patches: [{ op: 'move', path: ['count'] }] as unknown as Patches,
+          patches: [
+            { op: 'move', path: ['count'] },
+          ] as unknown as Patches<true>,
           inversePatches: [],
         }
       );
@@ -460,7 +466,7 @@ describe('controlled travel journal', () => {
 
     expect(() =>
       createTravelJournal(snapshot.state, {
-        apply: ({ state }) => state,
+        apply: ({ state }: { state: State }) => state,
         history: snapshot,
       } as never)
     ).toThrowError(
@@ -676,7 +682,7 @@ describe('controlled travel journal', () => {
         draft.item = { count: 1 };
       },
       { enablePatches: true }
-    ) as [NestedState, Patches, Patches];
+    ) as [NestedState, Patches<true>, Patches<true>];
     authoritativeState = nextState;
     journal.recordPatches(authoritativeState, { patches, inversePatches });
 
@@ -825,7 +831,7 @@ describe('controlled travel journal', () => {
     });
     const validInverse = [
       { op: 'replace', path: ['count'], value: 0 },
-    ] as Patches;
+    ] as Patches<true>;
     const invalidEntries: unknown[] = [
       {
         patches: [{ op: 'move', path: ['count'], value: 1 }],
@@ -876,7 +882,7 @@ describe('controlled travel journal', () => {
       expect(() =>
         journal.recordPatches(
           { count: 1, label: 'initial' },
-          entry as { patches: Patches; inversePatches: Patches }
+          entry as { patches: Patches<true>; inversePatches: Patches<true> }
         )
       ).toThrow('invalid patch entry');
       expect(journal.getState()).toBe(initialState);
@@ -906,7 +912,7 @@ describe('controlled travel journal', () => {
     expect(() =>
       journal.recordPatches(
         { count: 1, label: 'initial' },
-        entry as { patches: Patches; inversePatches: Patches }
+        entry as { patches: Patches<true>; inversePatches: Patches<true> }
       )
     ).toThrow('invalid patch entry');
     expect(patchesGetter).not.toHaveBeenCalled();

@@ -39,32 +39,32 @@ const initialState = (): ModelState => ({
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
-const operationArbitrary = fc.oneof<Operation>(
+const operationArbitrary: fc.Arbitrary<Operation> = fc.oneof(
   fc.record({
-    kind: fc.constant('increment'),
+    kind: fc.constant('increment' as const),
     amount: fc.integer({ min: -5, max: 5 }),
   }),
   fc.record({
-    kind: fc.constant('rename'),
+    kind: fc.constant('rename' as const),
     name: fc.string({ minLength: 0, maxLength: 12 }),
   }),
-  fc.record({ kind: fc.constant('toggle') }),
+  fc.record({ kind: fc.constant('toggle' as const) }),
   fc.record({
-    kind: fc.constant('push'),
+    kind: fc.constant('push' as const),
     id: fc.integer({ min: 0, max: 1000 }),
     text: fc.string({ minLength: 0, maxLength: 16 }),
   }),
   fc.record({
-    kind: fc.constant('splice'),
+    kind: fc.constant('splice' as const),
     index: fc.integer({ min: 0, max: 20 }),
     deleteCount: fc.integer({ min: 0, max: 2 }),
   }),
   fc.record({
-    kind: fc.constant('replaceItem'),
+    kind: fc.constant('replaceItem' as const),
     index: fc.integer({ min: 0, max: 20 }),
     text: fc.string({ minLength: 0, maxLength: 16 }),
   }),
-  fc.record({ kind: fc.constant('noOp') })
+  fc.record({ kind: fc.constant('noOp' as const) })
 );
 
 const applyOperation = (state: ModelState, operation: Operation): void => {

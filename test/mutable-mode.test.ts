@@ -4,7 +4,7 @@
  * Tests for mutable mode support for observable state libraries (MobX, Vue, Pinia)
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import { createTravels } from '../src/index';
 
 describe('Mutable mode for observable state', () => {

@@ -65,7 +65,7 @@ describe('subscription patch snapshots', () => {
     withWarningHook.setState({ count: 1 });
 
     expect(twoParameterListener).toHaveBeenCalledOnce();
-    expect(twoParameterListener.mock.calls[0]).toHaveLength(1);
+    expect(vi.mocked(twoParameterListener).mock.calls[0]).toHaveLength(1);
     expect(onWarning).not.toHaveBeenCalled();
   });
 

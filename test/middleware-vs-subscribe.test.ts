@@ -714,14 +714,14 @@ describe('Core question: Capabilities Subscribe cannot replace', () => {
     expect(travels.getState().count).toBe(5); // Prevented
 
     // Test mutation function
-    travels.setState((draft) => {
+    travels.setState((draft: any) => {
       draft.count = 8;
     });
     expect(logs).toContain('mutation-function');
     expect(travels.getState().count).toBe(8);
 
     // Test mutation function with validation
-    travels.setState((draft) => {
+    travels.setState((draft: any) => {
       draft.count = 200;
     });
     expect(travels.getState().count).toBe(10); // Fixed to 10
@@ -731,7 +731,7 @@ describe('Core question: Capabilities Subscribe cannot replace', () => {
     expect(travels.getState().items[0]).toHaveProperty('timestamp');
 
     // Test metadata injection with mutation function
-    travels.setState((draft) => {
+    travels.setState((draft: any) => {
       draft.items.push({ name: 'item2' });
     });
     expect(travels.getState().items[1]).toHaveProperty('timestamp');

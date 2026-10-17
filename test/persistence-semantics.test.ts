@@ -337,7 +337,10 @@ describe('persisted history semantic validation', () => {
         return result;
       },
     ],
-    ['private state on an Array subclass', (value) => new TaggedArray(value)],
+    [
+      'private state on an Array subclass',
+      (value: number) => new TaggedArray(value),
+    ],
   ] as const)('rejects unverifiable %s', (_name, createValue) => {
     expect(() =>
       Travels.deserialize(
@@ -712,7 +715,7 @@ describe('persisted history semantic validation', () => {
       draft.count = 1;
     });
 
-    const history = Travels.deserialize(
+    const history = Travels.deserialize<{ items: string[]; count: number }>(
       travels.serialize(),
       semanticValidation
     );
@@ -829,7 +832,10 @@ describe('persisted history semantic validation', () => {
       },
     };
 
-    const history = Travels.deserialize(snapshot, semanticValidation);
+    const history = Travels.deserialize<typeof snapshot.state>(
+      snapshot,
+      semanticValidation
+    );
 
     expect(history.state.sharedChild).toBe(sharedChild);
     expect(Object.isFrozen(snapshot.state)).toBe(false);

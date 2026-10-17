@@ -361,7 +361,9 @@ describe('Type-level API contracts', () => {
       { count: 0 },
       {
         devtools(event) {
-          expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+          // Factory options are not parameterized by state, so the devtools
+          // hook sees the event shape without the timeline's state type.
+          expectTypeOf(event).toEqualTypeOf<TravelsEvent<any>>();
         },
       }
     );
@@ -425,9 +427,9 @@ describe('Type-level API contracts', () => {
       journal.back = () => undefined;
       // @ts-expect-error journal ingress cannot be replaced
       journal.recordPatches = () => undefined;
-      // @ts-expect-error controlledApply is reserved for createTravelJournal
       createTravels(
         { count: 0 },
+        // @ts-expect-error controlledApply is reserved for createTravelJournal
         { controlledApply: (transition) => transition.state }
       );
       createTravelJournal(

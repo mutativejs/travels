@@ -116,7 +116,7 @@ describe('Edge Cases Coverage', () => {
       const travel = createTravels<State>(initialState);
 
       // Add properties that don't exist in initialState
-      travel.setState((draft) => {
+      travel.setState((draft: State) => {
         draft.age = 30;
         draft.extra = 'should be removed';
         draft.another = 'also removed';
@@ -712,7 +712,7 @@ describe('Edge Cases Coverage', () => {
 
       test('should test with array subclass', () => {
         // Create array subclass
-        class MyArray extends Array {
+        class MyArray extends Array<number> {
           customMethod() {
             return 'custom';
           }

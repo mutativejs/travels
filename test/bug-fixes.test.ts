@@ -5,7 +5,12 @@
  */
 
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { createTravels, restoreTravels, Travels } from '../src/index';
+import {
+  createTravels,
+  restoreTravels,
+  Travels,
+  type TravelPatches,
+} from '../src/index';
 
 describe('Bug #1: canForward() boundary condition in Manual mode', () => {
   interface State {
@@ -647,8 +652,9 @@ describe('Bug #4: Deep clone in reset() for nested arrays and objects', () => {
 
 describe('Bug #5: Mutable mode value updates should match immutable replacements', () => {
   test('object updaters drop stale keys in mutable mode', () => {
-    const mutable = createTravels({ a: 1, b: 2 }, { mutable: true });
-    const immutable = createTravels({ a: 1, b: 2 });
+    type State = { a: number; b?: number };
+    const mutable = createTravels<State>({ a: 1, b: 2 }, { mutable: true });
+    const immutable = createTravels<State>({ a: 1, b: 2 });
 
     mutable.setState({ a: 5 });
     immutable.setState({ a: 5 });
@@ -845,7 +851,7 @@ describe('Bug #7: Invalid numeric inputs should not corrupt position', () => {
 
 describe('Bug #8: Rehydrated patches should not share references', () => {
   test('mutating external restored patches does not affect internal history', () => {
-    const restoredPatches = {
+    const restoredPatches: TravelPatches = {
       patches: [[{ op: 'replace', path: ['count'], value: 1 }]],
       inversePatches: [[{ op: 'replace', path: ['count'], value: 0 }]],
     };

@@ -67,7 +67,7 @@ describe('timeline revision', () => {
         draft.count = 1;
       },
       { enablePatches: true }
-    ) as [State, Patches, Patches];
+    ) as [State, Patches<true>, Patches<true>];
 
     authoritativeState = nextState;
     journal.recordPatches(nextState, { patches, inversePatches });

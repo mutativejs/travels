@@ -225,7 +225,9 @@ describe('PatchesOptions Configuration', () => {
       // Should have patches for both the item change and the length assignment
       const allPatches = patches.patches[0];
       const lengthPatch = allPatches.find((p) => {
-        const path = Array.isArray(p.path) ? p.path : p.path.split('/');
+        const path: readonly unknown[] = Array.isArray(p.path)
+          ? p.path
+          : String(p.path).split('/');
         return path[path.length - 1] === 'length';
       });
       expect(lengthPatch).toBeDefined();
@@ -255,7 +257,9 @@ describe('PatchesOptions Configuration', () => {
       const allPatches = patches.patches[0];
       // Should not have a length patch, instead uses add/remove operations
       const lengthPatch = allPatches.find((p) => {
-        const path = Array.isArray(p.path) ? p.path : p.path.split('/');
+        const path: readonly unknown[] = Array.isArray(p.path)
+          ? p.path
+          : String(p.path).split('/');
         return path[path.length - 1] === 'length';
       });
       expect(lengthPatch).toBeUndefined();

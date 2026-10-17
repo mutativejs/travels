@@ -1545,7 +1545,7 @@ describe('Persistence Example - State Persistence', () => {
       state: {
         user: {
           name: 'Migrated',
-          preferences: { theme: 'dark', notifications: true },
+          preferences: { theme: 'dark' as const, notifications: true },
         },
         notes: [],
       },

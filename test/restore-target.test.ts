@@ -157,7 +157,7 @@ describe('restoring deserialized snapshots', () => {
           new Set();
       },
       (snapshot) => {
-        snapshot.patches.patches[0][0].path = '/__proto__/polluted';
+        snapshot.patches.patches[0][0].path = ['__proto__', 'polluted'];
       },
       (snapshot) => {
         (snapshot.patches.patches[0][0] as { op: string }).op = 'unknown';
@@ -165,7 +165,7 @@ describe('restoring deserialized snapshots', () => {
     ];
 
     for (const edit of editors) {
-      const decoded = Travels.deserialize(createSnapshot());
+      const decoded = Travels.deserialize<Doc>(createSnapshot());
       edit(decoded);
       expect(() => restoreTravels(decoded)).toThrowError(
         expect.objectContaining({ code: 'INVALID_PATCHES' })

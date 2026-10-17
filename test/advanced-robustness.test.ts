@@ -1,5 +1,9 @@
 import { describe, test, expect, vi } from 'vitest';
-import { createTravels, restoreTravels } from '../src/index';
+import {
+  createTravels,
+  restoreTravels,
+  type ReadonlyTravelPatches,
+} from '../src/index';
 
 describe('Position/Boundary Consistency', () => {
   describe('Position integrity after complex navigation', () => {
@@ -649,7 +653,7 @@ describe('Event Notifications', () => {
       name: string;
       assert: (
         state: { value: number },
-        patches: ReturnType<typeof travels.getPatches>,
+        patches: ReturnType<typeof travels.getPatches> | ReadonlyTravelPatches,
         position: number,
         historyLength: number
       ) => void;

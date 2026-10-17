@@ -51,7 +51,7 @@ describe('maxHistory Boundary Handling', () => {
 
       // Detect overflow: position reaches maxHistory and patches didn't grow
       const isOverflow =
-        position >= travels['maxHistory'] && // Accessing private property for testing only
+        position >= (travels as unknown as { maxHistory: number }).maxHistory && // Accessing private property for testing only
         patchesLength === lastPatchesLength;
 
       events.push({ position, patchesLength, isOverflow });
