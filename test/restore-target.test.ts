@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { nextTick, reactive, watchEffect } from 'vue';
 import {
   createTravelJournal,
@@ -145,5 +145,70 @@ describe('restoreTravels state ownership', () => {
         expect.objectContaining({ code: 'INVALID_OPTION' })
       );
     }
+  });
+});
+
+describe('restoring deserialized snapshots', () => {
+  const countDescriptorReads = (run: () => void): number => {
+    const spy = vi.spyOn(Object, 'getOwnPropertyDescriptor');
+    try {
+      run();
+      return spy.mock.calls.length;
+    } finally {
+      spy.mockRestore();
+    }
+  };
+
+  const createLargeSnapshot = () => {
+    const travels = createTravels(
+      { items: [] as Array<{ id: number }> },
+      { maxHistory: 200, warnOnUnsupportedState: false }
+    );
+    for (let id = 0; id < 200; id += 1) {
+      travels.setState((draft) => {
+        draft.items.push({ id });
+      });
+    }
+    return travels.serialize();
+  };
+
+  test('skips the second structural pass for unchanged deserialize output', () => {
+    const stored = createLargeSnapshot();
+    const decoded = Travels.deserialize(stored);
+    const options = { maxHistory: 200, warnOnUnsupportedState: false };
+
+    const trusted = countDescriptorReads(() => restoreTravels(decoded, options));
+    const untrusted = countDescriptorReads(() =>
+      restoreTravels({ ...decoded }, options)
+    );
+
+    expect(trusted * 2).toBeLessThan(untrusted);
+    expect(restoreTravels(decoded, options).getState()).toEqual(stored.state);
+  });
+
+  test('revalidates a deserialized snapshot whose validated fields changed', () => {
+    const decoded = Travels.deserialize(createSnapshot());
+
+    decoded.patches.patches.push([
+      { op: 'replace', path: '/__proto__/polluted', value: true },
+    ]);
+    decoded.patches.inversePatches.push([
+      { op: 'replace', path: '/__proto__/polluted', value: false },
+    ]);
+    expect(() => restoreTravels(decoded)).toThrowError(
+      expect.objectContaining({ code: 'INVALID_PATCHES' })
+    );
+
+    const moved = Travels.deserialize(createSnapshot());
+    moved.position = 99;
+    expect(() => restoreTravels(moved)).toThrowError(
+      expect.objectContaining({ code: 'INVALID_SCHEMA' })
+    );
+
+    const replaced = Travels.deserialize(createSnapshot());
+    replaced.state = new Map() as unknown as Doc;
+    expect(() => restoreTravels(replaced)).toThrowError(
+      expect.objectContaining({ code: 'INVALID_SCHEMA' })
+    );
   });
 });

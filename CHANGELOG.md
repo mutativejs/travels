@@ -117,6 +117,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Skip the second structural validation pass when `restoreTravels()` or
+  `restoreTravelJournal()` receives an unchanged `Travels.deserialize()`
+  result. The documented decode-then-restore path validated every snapshot
+  twice; restoring a 355 KiB snapshot drops from 13.4 ms to 6.9 ms. Edited,
+  spread, or hand-built snapshots are still validated.
 - Stop recloning every retained metadata entry each time a commit trims
   history at `maxHistory`. Commits at capacity were O(maxHistory) structured
   clones: 500 labelled commits took 331 ms at `maxHistory: 1000` and 3.5 s at

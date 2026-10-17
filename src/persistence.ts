@@ -12,6 +12,7 @@ import type {
 import { composePatchGroups } from './replay.js';
 import { TravelsTypeError } from './errors.js';
 import { assertPublicOptionsObject } from './internal/public-options.js';
+import { rememberValidatedSnapshot } from './internal/validated-snapshots.js';
 import {
   containsMapOrSet,
   consumePromiseLikeRejection,
@@ -873,9 +874,8 @@ export const deserializeTravelsHistory = <
       migrated = assertSynchronousPersistenceResult('migrate', migrationResult);
     }
 
-    return validateNormalizedSnapshot(
-      normalizeSnapshot<S, P>(migrated),
-      options
+    return rememberValidatedSnapshot(
+      validateNormalizedSnapshot(normalizeSnapshot<S, P>(migrated), options)
     );
   } catch (error) {
     const persistenceError = toPersistenceError(
@@ -891,9 +891,11 @@ export const deserializeTravelsHistory = <
     }
 
     try {
-      return validateNormalizedSnapshot(
-        normalizeSnapshot<S, P>(resolveFallback(options.fallback)),
-        options
+      return rememberValidatedSnapshot(
+        validateNormalizedSnapshot(
+          normalizeSnapshot<S, P>(resolveFallback(options.fallback)),
+          options
+        )
       );
     } catch (fallbackCause) {
       const fallbackError =
