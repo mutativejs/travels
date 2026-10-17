@@ -65,7 +65,7 @@ export type TravelJournalOptions<
   F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
-> = Omit<TravelsOptions<F, A, P>, 'mutable'> & {
+> = Omit<TravelsOptions<F, A, P, S>, 'mutable'> & {
   /** Apply a navigation transition through the external state owner. */
   apply: TravelsControlledApply<S, P>;
 };

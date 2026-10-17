@@ -14,7 +14,7 @@ export function createPatchableTravels<
   P extends PatchesOption = {},
 >(
   initialState: PatchableInput<S>,
-  options?: Omit<TravelsOptions<F, true, P>, 'autoArchive'> & {
+  options?: Omit<TravelsOptions<F, true, P, S>, 'autoArchive'> & {
     autoArchive?: true;
   }
 ): Travels<S, F, true, P>;
@@ -25,7 +25,7 @@ export function createPatchableTravels<
   P extends PatchesOption = {},
 >(
   initialState: PatchableInput<S>,
-  options: Omit<TravelsOptions<F, false, P>, 'autoArchive'> & {
+  options: Omit<TravelsOptions<F, false, P, S>, 'autoArchive'> & {
     autoArchive: false;
   }
 ): Travels<S, F, false, P>;
@@ -37,7 +37,7 @@ export function createPatchableTravels<
   P extends PatchesOption = {},
 >(
   initialState: PatchableInput<S>,
-  options: TravelsOptions<F, A, P>
+  options: TravelsOptions<F, A, P, S>
 ): Travels<S, F, A, P>;
 
 export function createPatchableTravels<
@@ -47,7 +47,7 @@ export function createPatchableTravels<
   P extends PatchesOption = {},
 >(
   initialState: PatchableInput<S>,
-  options: TravelsOptions<F, A, P> = {}
+  options: TravelsOptions<F, A, P, S> = {}
 ): Travels<S, F, A, P> {
   assertPublicFactoryOptions(options, {
     capability: 'state',

@@ -334,6 +334,7 @@ export type TravelsOptions<
   F extends boolean,
   A extends boolean,
   P extends PatchesOption = {},
+  S = any,
 > = {
   /**
    * The maximum number of history to keep, by default `10`
@@ -376,9 +377,10 @@ export type TravelsOptions<
    */
   onObserverError?: (event: TravelsObserverErrorEvent) => void;
   /**
-   * Optional hook for external devtools or debugging timelines.
+   * Optional hook for external devtools or debugging timelines. Factories
+   * type its event with the timeline state.
    */
-  devtools?: (event: TravelsEvent<any, P>) => void;
+  devtools?: (event: TravelsEvent<S, P>) => void;
 } & Omit<MutativeOptions<true, F>, 'enablePatches'> & {
     /**
      * Configure patch formatting. Patches cannot be disabled because Travels

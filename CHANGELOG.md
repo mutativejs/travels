@@ -93,6 +93,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Changed
 
+- Type the `devtools` hook event with the timeline state. `TravelsOptions`
+  gains an optional fourth `S` parameter (default `any`), which every factory
+  fills in, so `devtools(event)` sees `TravelsEvent<S>` instead of
+  `TravelsEvent<any>`. Hooks that read fields the state does not have, or that
+  annotate their event with a different state type, now fail to compile.
 - Rename the internal restored reset state to a baseline model, keeping
   transaction rollback, `reset()`, and `rebase()` aligned with atomic snapshot
   restoration.

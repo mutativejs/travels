@@ -22,7 +22,7 @@ export type RestoreTravelsOptions<
   F extends boolean,
   A extends boolean,
   P extends PatchesOption = {},
-> = TravelsOptions<F, A, P> & {
+> = TravelsOptions<F, A, P, S> & {
   /**
    * Live mutable root that receives the restored state in place. Requires
    * `mutable: true` and the same plain object or array root kind as the

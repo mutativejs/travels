@@ -361,12 +361,60 @@ describe('Type-level API contracts', () => {
       { count: 0 },
       {
         devtools(event) {
-          // Factory options are not parameterized by state, so the devtools
-          // hook sees the event shape without the timeline's state type.
-          expectTypeOf(event).toEqualTypeOf<TravelsEvent<any>>();
+          expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
         },
       }
     );
+    createTravels(
+      { count: 0 },
+      {
+        autoArchive: false,
+        devtools(event) {
+          expectTypeOf(event.state).toEqualTypeOf<
+            ReadonlyState<{ count: number }>
+          >();
+        },
+      }
+    );
+    createPatchableTravels(
+      { count: 0 },
+      {
+        devtools(event) {
+          expectTypeOf(event).toEqualTypeOf<TravelsEvent<{ count: number }>>();
+        },
+      }
+    );
+    restoreTravels(createTravels<State>({ count: 0 }).serialize(), {
+      devtools(event) {
+        expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+      },
+    });
+    createTravelJournal<State>(
+      { count: 0 },
+      {
+        apply: ({ state }) => state,
+        devtools(event) {
+          expectTypeOf(event).toEqualTypeOf<TravelsEvent<State>>();
+        },
+      }
+    );
+    createTravels<State>(
+      { count: 0 },
+      // A hook written for any state still fits every timeline.
+      { devtools: (event: TravelsEvent<unknown>) => void event }
+    );
+
+    if (false) {
+      createTravels<State>(
+        { count: 0 },
+        {
+          devtools(event) {
+            // @ts-expect-error devtools events carry the timeline state type
+            void event.state.missing;
+          },
+        }
+      );
+    }
 
     if (false) {
       // @ts-expect-error positional subscribe callbacks were replaced by TravelsEvent

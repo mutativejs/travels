@@ -544,7 +544,7 @@ export class TravelsCore<
 
   constructor(
     source: TravelsCoreSource<S, P>,
-    options: TravelsOptions<F, A, P> = {},
+    options: TravelsOptions<F, A, P, S> = {},
     controlledApply?: TravelsControlledApply<S, P>
   ) {
     if (!coreConstructionGranted) {
@@ -585,7 +585,7 @@ export class TravelsCore<
     }
 
     this.observers = new ObserverHub<S, P>({
-      devtools: devtools as ((event: TravelsEvent<S, P>) => void) | undefined,
+      devtools,
       onObserverError,
       onWarning,
     });
@@ -2567,7 +2567,7 @@ export const createTravelsCore = <
   P extends PatchesOption,
 >(
   source: TravelsCoreSource<S, P>,
-  options: TravelsOptions<F, A, P>,
+  options: TravelsOptions<F, A, P, S>,
   controlledApply?: TravelsControlledApply<S, P>
 ): TravelsCore<S, F, A, P> => {
   coreConstructionGranted = true;
@@ -2588,7 +2588,7 @@ export const createStateOwningTravels = <
   P extends PatchesOption,
 >(
   source: TravelsCoreSource<S, P>,
-  options: TravelsOptions<F, A, P>
+  options: TravelsOptions<F, A, P, S>
 ): Travels<S, F, A, P> => {
   const core = createTravelsCore<S, F, A, P>(source, options);
   stateOwningTimelines.add(core);
