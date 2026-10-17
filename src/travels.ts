@@ -39,6 +39,11 @@ import {
   TimelineStore,
 } from './internal/timeline-store.js';
 import { HistoryView } from './internal/history-view.js';
+import {
+  PersistenceDiagnostics,
+  type DeferredCompatibilityCheck,
+  type DiagnosticsTimeline,
+} from './internal/persistence-diagnostics.js';
 import { isUnchangedValidatedSnapshot } from './internal/validated-snapshots.js';
 import { assertPublicOptionsObject } from './internal/public-options.js';
 import {
@@ -63,7 +68,6 @@ import {
 } from './internal/patch-utils.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
-  getPatchPathSegments,
   isArrayIndex,
   isObjectLike,
   isPlainObject,
@@ -244,15 +248,6 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   stateJournalLength: number;
 };
 
-type DeferredCompatibilityCheck<P extends PatchesOption = {}> = {
-  patches?: Patches<P>;
-  inversePatches?: Patches<P>;
-  metadata?: TravelMetadata;
-  entryIndex: number;
-  retained: boolean;
-  entryIdentity?: object;
-};
-
 type BranchDiscardEffect<P extends PatchesOption = {}> = {
   position: number;
   patches: TravelPatches<P>;
@@ -414,33 +409,6 @@ const createRootOverwrite = <S, P extends PatchesOption>(
   return [patches, inversePatches];
 };
 
-const getOwnDataValueAtPath = (
-  value: unknown,
-  segments: Array<string | number>
-): { found: true; value: unknown; path: string } | { found: false } => {
-  let current = value;
-  let path = '$';
-  for (const segment of segments) {
-    if (!isObjectLike(current)) {
-      return { found: false };
-    }
-
-    const arrayIndex =
-      Array.isArray(current) &&
-      (typeof segment === 'number'
-        ? Number.isInteger(segment) && segment >= 0 && segment < current.length
-        : isArrayIndex(segment, current.length));
-    path = arrayIndex ? `${path}[${segment}]` : `${path}.${segment}`;
-
-    const descriptor = Object.getOwnPropertyDescriptor(current, segment);
-    if (!descriptor || !('value' in descriptor)) {
-      return { found: false };
-    }
-    current = descriptor.value;
-  }
-  return { found: true, value: current, path };
-};
-
 // Align mutable value updates with immutable replacements by syncing objects
 const overwriteDraftWith = (draft: Draft<any>, value: any): void => {
   const draftIsArray = Array.isArray(draft);
@@ -516,8 +484,7 @@ export class TravelsCore<
   private patchPathAsArray?: boolean;
   private mutableFallbackWarned = false;
   private mutableRootReplaceWarned = false;
-  private warnOnUnsupportedState: boolean;
-  private compatibilityWarningKeys = new Set<string>();
+  private diagnostics?: PersistenceDiagnostics<S, P>;
   private trackingPauseDepth = 0;
   private transactionDepth = 0;
   private transactionMeta?: TravelMetadata;
@@ -713,13 +680,18 @@ export class TravelsCore<
     this.autoArchive = autoArchive;
     this.mutableMode = mutable;
     this.patchPathAsArray = patchesOptions?.pathAsArray;
-    this.warnOnUnsupportedState = warnOnUnsupportedState;
     this.onError = onError;
     this.onBranchDiscard = onBranchDiscard;
     this.options = {
       ...mutativeOptions,
       enablePatches: patchesOptions ?? true,
     };
+    if (process.env.NODE_ENV !== 'production' && warnOnUnsupportedState) {
+      this.diagnostics = new PersistenceDiagnostics<S, P>(
+        this.observers,
+        this.options.enableAutoFreeze === true
+      );
+    }
     this.stateDriver = new StateDriver<S, F, P>({
       mutable,
       mutativeOptions: this.options,
@@ -782,96 +754,27 @@ export class TravelsCore<
     }
   }
 
-  private warnAboutCompatibility(
-    subject: 'state' | 'patch' | 'metadata',
-    value: unknown,
-    pathPrefix = '$'
-  ): void {
-    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
-      return;
-    }
-
-    this.observers.publish(() => {
-      try {
-        const invalidPatchPath =
-          subject === 'patch' &&
-          isObjectLike(value) &&
-          !isValidPatchPath(value.path);
-        const inspectedValue = invalidPatchPath
-          ? { ...value, path: [] }
-          : value;
-        const issues: { code: string; path: string; message: string }[] =
-          findStateCompatibilityIssues(inspectedValue, {
-            allowFrozen:
-              subject !== 'metadata' && this.options.enableAutoFreeze === true,
-          });
-        if (invalidPatchPath) {
-          issues.unshift({
-            code: 'PATCH_PATH',
-            path: '$.path',
-            message: 'use a durable patch path for persistence.',
-          });
-        }
-
-        for (const issue of issues) {
-          const issuePath =
-            issue.path === '$'
-              ? pathPrefix
-              : `${pathPrefix}${issue.path.slice(1)}`;
-          const key = `${subject}:${issue.code}:${
-            subject === 'state' ? issuePath : issue.path
-          }`;
-          if (this.compatibilityWarningKeys.has(key)) {
-            continue;
-          }
-
-          this.compatibilityWarningKeys.add(key);
-          this.observers.warn(
-            'PERSISTENCE_COMPATIBILITY',
-            `Travels ${subject} compatibility warning at ${issuePath}: ${issue.message}`
-          );
-        }
-      } catch (error) {
-        this.observers.reportError('compatibilityCheck', error);
-      }
-    });
-  }
-
-  private warnAboutPatchCompatibility(
-    patches: TravelPatches<P>,
-    entryOffset = 0
-  ): void {
-    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
-      return;
-    }
-
-    for (const direction of ['patches', 'inversePatches'] as const) {
-      patches[direction].forEach((patchGroup, entryIndex) => {
-        patchGroup.forEach((operation, operationIndex) => {
-          this.warnAboutCompatibility(
-            'patch',
-            operation,
-            `$.patches.${direction}[${
-              entryOffset + entryIndex
-            }][${operationIndex}]`
-          );
-        });
-      });
-    }
+  private get diagnosticsTimeline(): DiagnosticsTimeline<S> {
+    return {
+      state: this.state,
+      mutable: this.mutable,
+      maxHistory: this.maxHistory,
+    };
   }
 
   private warnAboutPersistenceCompatibility(): void {
-    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
+    const diagnostics = this.diagnostics;
+    if (!diagnostics || process.env.NODE_ENV === 'production') {
       return;
     }
 
-    this.warnAboutCompatibility('state', this.state);
+    diagnostics.warnValue('state', this.state);
 
     if (this.maxHistory === 0) {
       return;
     }
 
-    this.warnAboutPatchCompatibility(this.getAllPatches());
+    diagnostics.warnPatches(this.getAllPatches());
 
     const hasPendingMetadata =
       !this.isAutoArchiving() && this.tempPatches.patches.length > 0;
@@ -885,121 +788,22 @@ export class TravelsCore<
     ) {
       const metadata = this.allMetadata[index];
       if (metadata !== undefined) {
-        this.warnAboutCompatibility('metadata', metadata);
+        diagnostics.warnValue('metadata', metadata);
       }
     }
 
     if (hasPendingMetadata && this.tempMetadata !== undefined) {
-      this.warnAboutCompatibility('metadata', this.tempMetadata);
-    }
-  }
-
-  private warnAboutStateCompatibilityAfterPatches(patches?: Patches<P>): void {
-    if (process.env.NODE_ENV === 'production') return;
-    if (!patches || this.mutable) {
-      this.warnAboutCompatibility('state', this.state);
-      return;
-    }
-
-    const touchedPaths: Array<Array<string | number>> = [];
-    for (const operation of patches) {
-      const descriptor = Object.getOwnPropertyDescriptor(operation, 'path');
-      const segments =
-        descriptor && 'value' in descriptor
-          ? getPatchPathSegments(descriptor.value)
-          : undefined;
-      if (!segments || segments.length === 0) {
-        this.warnAboutCompatibility('state', this.state);
-        return;
-      }
-
-      if (
-        touchedPaths.some(
-          (existing) =>
-            existing.length <= segments.length &&
-            existing.every((segment, index) => segment === segments[index])
-        )
-      ) {
-        continue;
-      }
-
-      for (let index = touchedPaths.length - 1; index >= 0; index -= 1) {
-        const existing = touchedPaths[index];
-        if (
-          segments.length < existing.length &&
-          segments.every(
-            (segment, pathIndex) => segment === existing[pathIndex]
-          )
-        ) {
-          touchedPaths.splice(index, 1);
-        }
-      }
-      touchedPaths.push(segments);
-    }
-
-    for (const path of touchedPaths) {
-      const resolved = getOwnDataValueAtPath(this.state, path);
-      if (resolved.found) {
-        this.warnAboutCompatibility('state', resolved.value, resolved.path);
-      }
-    }
-  }
-
-  private runPersistenceCompatibilityCheck(
-    check: DeferredCompatibilityCheck<P>
-  ): void {
-    if (process.env.NODE_ENV === 'production') return;
-    this.warnAboutStateCompatibilityAfterPatches(check.patches);
-    if (
-      check.retained &&
-      this.maxHistory !== 0 &&
-      check.patches &&
-      check.inversePatches
-    ) {
-      this.warnAboutPatchCompatibility(
-        {
-          patches: [check.patches],
-          inversePatches: [check.inversePatches],
-        },
-        check.entryIndex
-      );
-    }
-    if (check.metadata !== undefined) {
-      this.warnAboutCompatibility('metadata', check.metadata);
+      diagnostics.warnValue('metadata', this.tempMetadata);
     }
   }
 
   private flushTransactionCompatibilityChecks(): void {
     if (process.env.NODE_ENV === 'production') return;
-
-    const retainedEntries = new Map<object, number>();
-    for (let index = 0; index < this.allPatches.patches.length; index += 1) {
-      retainedEntries.set(
-        getHistoryEntryIdentity(this.allPatches.patches[index]),
-        index
-      );
-    }
-
-    for (const check of this.transactionCompatibilityChecks) {
-      if (!check.entryIdentity) {
-        this.runPersistenceCompatibilityCheck(check);
-        continue;
-      }
-
-      const entryIndex = retainedEntries.get(check.entryIdentity);
-      if (entryIndex === undefined) {
-        // The patch payload and metadata are no longer persisted, but an
-        // effect at the touched state path may have survived history trimming.
-        this.runPersistenceCompatibilityCheck({
-          patches: check.patches,
-          entryIndex: 0,
-          retained: false,
-        });
-        continue;
-      }
-
-      this.runPersistenceCompatibilityCheck({ ...check, entryIndex });
-    }
+    this.diagnostics?.flushChecks(
+      this.diagnosticsTimeline,
+      this.transactionCompatibilityChecks,
+      this.allPatches.patches
+    );
   }
 
   private checkPersistenceCompatibilityAfterCommit(
@@ -1009,7 +813,8 @@ export class TravelsCore<
     entryIndex = 0,
     retained = true
   ): void {
-    if (!this.warnOnUnsupportedState || process.env.NODE_ENV === 'production') {
+    const diagnostics = this.diagnostics;
+    if (!diagnostics || process.env.NODE_ENV === 'production') {
       return;
     }
 
@@ -1036,7 +841,7 @@ export class TravelsCore<
       return;
     }
 
-    this.runPersistenceCompatibilityCheck({
+    diagnostics.runCheck(this.diagnosticsTimeline, {
       patches,
       inversePatches,
       metadata,

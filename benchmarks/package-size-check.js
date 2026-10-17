@@ -27,8 +27,8 @@ const limits = {
   bundleGzip: 14.75 * KiB,
   bundleMap: 263 * KiB,
   developmentBundleRaw: 60 * KiB,
-  developmentBundleGzip: 16 * KiB,
-  developmentBundleMap: 269 * KiB,
+  developmentBundleGzip: 16.25 * KiB,
+  developmentBundleMap: 272 * KiB,
   packagePacked: 510 * KiB,
   packageUnpacked: 1985 * KiB,
 };
