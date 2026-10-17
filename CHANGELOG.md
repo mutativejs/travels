@@ -11,6 +11,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Breaking Changes
 
+- Reject `enableAutoFreeze: true` together with `mutable: true` with
+  `INVALID_OPTION`. Mutable mode updates the live state in place, and freezing
+  each produced state also froze the parts it shared with the live state, so
+  the next update that wrote to them threw a `TypeError`.
 - Require `mutative@^2.0.0` as the peer dependency. Mutative 1.x is no longer
   supported: its patches could not undo some recorded changes, such as an array
   shortened and lengthened again in one update or an element changed between
@@ -128,7 +132,7 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  53.2 KiB raw / 14.5 KiB gzip (ESM). Option removals are outweighed by the
+  53.4 KiB raw / 14.5 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.

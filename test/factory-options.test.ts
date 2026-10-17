@@ -103,6 +103,22 @@ describe('public option boundaries', () => {
     }
   );
 
+  test('rejects auto-freeze in mutable mode on every state-owning factory', () => {
+    const options = { mutable: true, enableAutoFreeze: true } as const;
+
+    expectInvalidOption(() => createTravels({ count: 0 }, options));
+    expectInvalidOption(() => createPatchableTravels({ count: 0 }, options));
+    expectInvalidOption(() => restoreTravels(snapshot, options));
+    expectInvalidOption(() =>
+      restoreTravels(snapshot, { ...options, target: { count: 5 } })
+    );
+    expect(createTravels({ count: 0 }, { mutable: true }).mutable).toBe(true);
+    expect(
+      createTravels({ count: 0 }, { mutable: false, enableAutoFreeze: true })
+        .mutable
+    ).toBe(false);
+  });
+
   test('rejects controlledApply on every state-owning factory', () => {
     const options = {
       controlledApply: ({ state }: { state: { count: number } }) => state,

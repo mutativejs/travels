@@ -1220,71 +1220,63 @@ describe('State compatibility warnings', () => {
     }
   );
 
-  test.each([false, true])(
-    'rejected collection updates do not freeze caller values (mutable: %s)',
-    (mutable) => {
-      for (const createCollection of [
-        () => new Map([['a', 1]]),
-        () => new Set([1]),
-        () => createCrossRealmCollection('Map'),
-        () => createCrossRealmCollection('Set'),
-      ] as const) {
-        for (const useFunctionUpdater of [false, true]) {
-          const collection = createCollection();
-          const shared = { retained: true };
-          const payload = { nested: { collection } };
-          const initialState = { value: null as unknown, shared };
-          const travels = createTravels(initialState, {
-            mutable,
-            enableAutoFreeze: true,
-            warnOnUnsupportedState: false,
-          });
-
-          expect(() =>
-            useFunctionUpdater
-              ? travels.setState((draft) => {
-                  draft.value = payload;
-                })
-              : travels.setState({ value: payload, shared })
-          ).toThrow('Travels: Map and Set are not supported in state.');
-
-          expect(travels.getState()).toBe(initialState);
-          expect(travels.getPatches()).toEqual({
-            patches: [],
-            inversePatches: [],
-          });
-          expect(Object.isFrozen(shared)).toBe(false);
-          expect(Object.isFrozen(payload)).toBe(false);
-          expect(Object.isFrozen(payload.nested)).toBe(false);
-          expect(Object.isFrozen(collection)).toBe(false);
-          expect(Object.hasOwn(collection, 'add')).toBe(false);
-          expect(Object.hasOwn(collection, 'set')).toBe(false);
-        }
-      }
-    }
-  );
-
-  test.each([false, true])(
-    'accepted updates retain auto-freeze semantics (mutable: %s)',
-    (mutable) => {
-      const payload = { nested: { value: 1 } };
-      const travels = createTravels<{ value: typeof payload | null }, true>(
-        { value: null },
-        {
-          mutable,
+  test('rejected collection updates do not freeze caller values', () => {
+    for (const createCollection of [
+      () => new Map([['a', 1]]),
+      () => new Set([1]),
+      () => createCrossRealmCollection('Map'),
+      () => createCrossRealmCollection('Set'),
+    ] as const) {
+      for (const useFunctionUpdater of [false, true]) {
+        const collection = createCollection();
+        const shared = { retained: true };
+        const payload = { nested: { collection } };
+        const initialState = { value: null as unknown, shared };
+        const travels = createTravels(initialState, {
           enableAutoFreeze: true,
           warnOnUnsupportedState: false,
-        }
-      );
+        });
 
-      travels.setState((draft) => {
-        draft.value = payload;
-      });
+        expect(() =>
+          useFunctionUpdater
+            ? travels.setState((draft) => {
+                draft.value = payload;
+              })
+            : travels.setState({ value: payload, shared })
+        ).toThrow('Travels: Map and Set are not supported in state.');
 
-      expect(Object.isFrozen(payload)).toBe(true);
-      expect(Object.isFrozen(payload.nested)).toBe(true);
+        expect(travels.getState()).toBe(initialState);
+        expect(travels.getPatches()).toEqual({
+          patches: [],
+          inversePatches: [],
+        });
+        expect(Object.isFrozen(shared)).toBe(false);
+        expect(Object.isFrozen(payload)).toBe(false);
+        expect(Object.isFrozen(payload.nested)).toBe(false);
+        expect(Object.isFrozen(collection)).toBe(false);
+        expect(Object.hasOwn(collection, 'add')).toBe(false);
+        expect(Object.hasOwn(collection, 'set')).toBe(false);
+      }
     }
-  );
+  });
+
+  test('accepted updates retain auto-freeze semantics', () => {
+    const payload = { nested: { value: 1 } };
+    const travels = createTravels<{ value: typeof payload | null }, true>(
+      { value: null },
+      {
+        enableAutoFreeze: true,
+        warnOnUnsupportedState: false,
+      }
+    );
+
+    travels.setState((draft) => {
+      draft.value = payload;
+    });
+
+    expect(Object.isFrozen(payload)).toBe(true);
+    expect(Object.isFrozen(payload.nested)).toBe(true);
+  });
 
   test('rejects collection-bearing imported patches before history cloning', () => {
     expect(() =>

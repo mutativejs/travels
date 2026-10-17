@@ -76,6 +76,7 @@ array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
 
 ## Fallback & Safety Rails
 
+- **No auto-freeze**: `enableAutoFreeze` cannot be combined with `mutable: true`, and the factories reject the pair with `INVALID_OPTION`. Freezing each produced state would also freeze the parts it shares with the live object, so the next update that writes to them would throw.
 - **Non-object roots**: If the current state is a primitive or `null`, Travels logs a dev warning and behaves immutably for that update. Undo/redo still works—it just cannot mutate a primitive in place.
 - **Root replacements in history**: Navigating to a step that replaces the entire root (e.g., switching from `{...}` to `[]` or a primitive) forces a new reference for that jump only.
 - **Function updaters returning a new root**: In mutable mode, `setState(() => newState)` that replaces the root falls back to immutable assignment for that update (dev warning emitted).

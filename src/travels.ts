@@ -586,6 +586,15 @@ export class TravelsCore<
       );
     }
 
+    // Freezing the produced state would also freeze the parts it shares with
+    // the live state, which the next in-place update must write to.
+    if (mutable && mutativeOptions.enableAutoFreeze) {
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
+        'Travels: enableAutoFreeze cannot be combined with mutable: true, because mutable mode updates the live state in place.'
+      );
+    }
+
     this.observers = new ObserverHub<S, P>({
       devtools,
       onObserverError,
@@ -1592,9 +1601,6 @@ export class TravelsCore<
         ip,
         this.mutable ? undefined : this.collectionFreeObjects
       );
-      if (this.options.enableAutoFreeze) {
-        freezeAcceptedState(nextState);
-      }
 
       const replacesRoot = p.some(isRootReplacement);
       // Mutable state and removed values can remain reachable through reactive

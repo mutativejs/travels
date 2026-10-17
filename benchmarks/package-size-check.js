@@ -13,7 +13,7 @@ const developmentArtifacts = ['dist/index.dev.cjs', 'dist/index.dev.esm.js'];
 // compatibility checks, structured warnings and error codes, the patchable
 // factory, and detached history snapshots. Development-only invariants are
 // eliminated from the production bundles rather than counted here. Travels 3
-// (2.2.0: 48.4 KiB raw / 13.4 KiB gzip ESM; 3.0.0: 53.2 KiB / 14.5 KiB) adds
+// (2.2.0: 48.4 KiB raw / 13.4 KiB gzip ESM; 3.0.0: 53.4 KiB / 14.5 KiB) adds
 // explicit public capabilities, atomic restore factories and restore targets,
 // cheap committed revision tokens, the complete controlled-journal lifecycle,
 // ownership and construction guards, closed factory option sets, and cached
@@ -26,7 +26,7 @@ const limits = {
   developmentBundleRaw: 59.5 * KiB,
   developmentBundleGzip: 16 * KiB,
   developmentBundleMap: 268 * KiB,
-  packagePacked: 500 * KiB,
+  packagePacked: 505 * KiB,
   packageUnpacked: 1960 * KiB,
 };
 

@@ -102,6 +102,23 @@ The same applies to `TravelsControls`, `ManualTravelsControls`, and
 `RebasableManualTravelsControls`. The unused `Value` and `InitialValue` helper
 types have been removed; use `S` or `ReadonlyState<S>` directly.
 
+### Remove auto-freeze from mutable timelines
+
+`createTravels()`, `createPatchableTravels()`, and `restoreTravels()` reject
+`enableAutoFreeze: true` together with `mutable: true` with `INVALID_OPTION`.
+Mutable mode updates the live state in place, and in 2.x freezing each produced
+state also froze the parts it shared with that live state, so the next update
+that wrote to them threw a `TypeError`. Remove `enableAutoFreeze` from mutable
+timelines:
+
+```ts
+// 2.x
+const travels = new Travels(store, { mutable: true, enableAutoFreeze: true });
+
+// 3.0
+const travels = createTravels(store, { mutable: true });
+```
+
 ### Treat shared views as read-only
 
 `getHistory()` now returns `readonly ReadonlyState<S>[]` through both the
