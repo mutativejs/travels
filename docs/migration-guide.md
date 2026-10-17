@@ -117,6 +117,11 @@ const visible = travels.getControls().getHistory(); // readonly ReadonlyState<St
 const owned = travels.getHistorySnapshot(); // State[]; detached and mutable
 ```
 
+`controls.patches` is now a cached, frozen `ReadonlyTravelPatches` view
+instead of a fresh deep clone on every read. It keeps its reference until
+history changes. Code that edited the returned object must copy it first with
+`travels.getPatches()`.
+
 Patch operation values can contain nested objects, so observers should still
 treat the complete event as read-only. Use `getPatches()` for a detached,
 caller-owned retained-history snapshot.

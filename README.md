@@ -465,6 +465,11 @@ current timeline views, including `rebase()`. Its properties and methods are
 read-only, making it suitable for UI components that should not receive the
 entire Travels instance.
 
+`controls.patches` is a shared, frozen `ReadonlyTravelPatches` view that keeps
+its reference until history changes, so it is cheap to read while rendering
+and works as a memo dependency. Call `travels.getPatches()` for a detached copy
+you can keep or change.
+
 ```typescript
 const travels = createTravels({ count: 0 });
 const controls = travels.getControls();

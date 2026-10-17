@@ -510,6 +510,10 @@ export class TravelsCore<
     | RebasableManualTravelsControls<S, P>
     | null = null;
   private historyView = new HistoryView<S, P>();
+  private patchesView?: {
+    version: number;
+    patches: ReadonlyTravelPatches<P>;
+  };
   private revision = 0;
   private collectionFreeObjects = new WeakSet<object>();
   private patchPathAsArray?: boolean;
@@ -2534,6 +2538,26 @@ export class TravelsCore<
   }
 
   /**
+   * Shared read-only view of retained patches for controls. It is rebuilt
+   * once per history change instead of deep-cloning history on every read,
+   * and keeps its reference until history changes.
+   */
+  private getPatchesView(): ReadonlyTravelPatches<P> {
+    const version = this.historyView.version;
+    if (this.patchesView?.version !== version) {
+      const { patches, inversePatches } = this.getPatches();
+      this.patchesView = {
+        version,
+        patches: Object.freeze({
+          patches: freezeEventPatchGroups(patches),
+          inversePatches: freezeEventPatchGroups(inversePatches),
+        }),
+      };
+    }
+    return this.patchesView.patches;
+  }
+
+  /**
    * Assert that state, retained patches, and metadata can round-trip through
    * Travels' JSON persistence contract without normalization or data loss.
    */
@@ -2655,8 +2679,8 @@ export class TravelsCore<
       },
       getHistory: () => self.getHistory(),
       getHistorySnapshot: () => self.getHistorySnapshot(),
-      get patches(): TravelPatches<P> {
-        return self.getPatches();
+      get patches(): ReadonlyTravelPatches<P> {
+        return self.getPatchesView();
       },
       back: (amount?: number): void => self.back(amount),
       forward: (amount?: number): void => self.forward(amount),

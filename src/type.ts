@@ -411,9 +411,14 @@ export interface TravelsControls<S, P extends PatchesOption = {}> {
    */
   readonly getHistorySnapshot: () => S[];
   /**
-   * The patches of the history
+   * Shared read-only view of the retained patch history.
+   *
+   * @remarks
+   * The view is cached and keeps its reference until history changes, so it
+   * is cheap to read during rendering. Use `getPatches()` on the timeline for
+   * a detached, caller-owned copy.
    */
-  readonly patches: TravelPatches<P>;
+  readonly patches: ReadonlyTravelPatches<P>;
   /**
    * Go back in the history
    */
