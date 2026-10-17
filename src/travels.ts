@@ -101,6 +101,15 @@ export type Travels<
   readonly subscribe: (
     listener: (event: TravelsEvent<S, P>) => void
   ) => () => void;
+  /**
+   * Borrowed live state, the same value observers receive as `event.state`.
+   *
+   * @remarks
+   * Typed as `S` so it can flow into stores and APIs that expect the state
+   * type, but it must be treated as read-only: history patches apply to this
+   * value, so mutating it outside Travels operations desynchronizes undo/redo.
+   * `enableAutoFreeze` freezes every state Travels produces after creation.
+   */
   readonly getState: () => S;
   /** Monotonic token for committed observable timeline transitions. */
   readonly getRevision: () => number;

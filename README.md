@@ -216,7 +216,14 @@ travels.getState() === store; // true
 
 #### `getState(): S`
 
-Get the current state.
+Get the current state. The returned value is the live state that history
+patches apply to, the same object observers receive as `event.state`, so treat
+it as read-only and change it only through Travels operations. Mutating it
+directly in immutable mode silently desynchronizes undo/redo. It is typed as
+`S` rather than `ReadonlyState<S>` so it can be passed to stores and APIs that
+expect the state type, such as Zustand's `set()`. `enableAutoFreeze` freezes
+every state Travels produces from then on (the initial object you pass in is
+left as is); copy the state with `structuredClone()` before editing it.
 
 #### `getRevision(): number`
 

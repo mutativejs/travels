@@ -441,3 +441,35 @@ describe('Mutable mode: Real-world scenarios', () => {
     // for large state objects with observable frameworks
   });
 });
+
+describe('borrowed getState() contract', () => {
+  test('returns the live state shared with observers', () => {
+    const travels = createTravels({ nested: { count: 0 } });
+    let observed: unknown;
+    travels.subscribe((event) => {
+      observed = event.state;
+    });
+
+    travels.setState((draft) => {
+      draft.nested.count = 1;
+    });
+
+    expect(observed).toBe(travels.getState());
+  });
+
+  test('enableAutoFreeze freezes every state Travels produces', () => {
+    const initial = { nested: { count: 0 } };
+    const travels = createTravels(initial, { enableAutoFreeze: true });
+
+    expect(Object.isFrozen(travels.getState())).toBe(false);
+
+    travels.setState((draft) => {
+      draft.nested.count = 1;
+    });
+    expect(Object.isFrozen(travels.getState().nested)).toBe(true);
+
+    travels.back();
+    expect(travels.getState()).toEqual({ nested: { count: 0 } });
+    expect(Object.isFrozen(travels.getState().nested)).toBe(true);
+  });
+});
