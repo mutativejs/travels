@@ -3,7 +3,8 @@
 1. Update the release version locally:
 
    - bump `package.json`
-   - update `CHANGELOG.md`
+   - update `CHANGELOG.md`, replacing `Unreleased` in the version heading with
+     the release date
 
 2. Run local verification before tagging:
 
