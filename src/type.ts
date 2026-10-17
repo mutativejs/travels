@@ -387,25 +387,13 @@ export type TravelsOptions<
     patchesOptions?: P;
   };
 
-export type InitialValue<I> = I extends (
-  ...args: unknown[]
-) => infer R
-  ? R
-  : I;
 type DraftFunction<S> = (draft: Draft<S>) => void;
 export type Updater<S> = S | (() => S) | DraftFunction<S>;
-export type Value<S, F extends boolean> = F extends true
-  ? Immutable<InitialValue<S>>
-  : InitialValue<S>;
 
 /** A state value exposed through a shared read-only view. */
 export type ReadonlyState<S> = Immutable<S>;
 
-export interface TravelsControls<
-  S,
-  _F extends boolean,
-  P extends PatchesOption = {},
-> {
+export interface TravelsControls<S, P extends PatchesOption = {}> {
   /**
    * The current position in the history
    */
@@ -454,9 +442,8 @@ export interface TravelsControls<
 
 export type RebasableTravelsControls<
   S,
-  F extends boolean,
   P extends PatchesOption = {},
-> = TravelsControls<S, F, P> & {
+> = TravelsControls<S, P> & {
   /**
    * Remove all history and make the current state as the new initial state.
    *
@@ -470,9 +457,8 @@ export type RebasableTravelsControls<
 
 export interface ManualTravelsControls<
   S,
-  F extends boolean,
   P extends PatchesOption = {},
-> extends TravelsControls<S, F, P> {
+> extends TravelsControls<S, P> {
   /**
    * Archive the current state
    */
@@ -485,9 +471,8 @@ export interface ManualTravelsControls<
 
 export type RebasableManualTravelsControls<
   S,
-  F extends boolean,
   P extends PatchesOption = {},
-> = ManualTravelsControls<S, F, P> & {
+> = ManualTravelsControls<S, P> & {
   /**
    * Remove all history and make the current state as the new initial state.
    *

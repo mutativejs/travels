@@ -86,10 +86,14 @@ type SynchronousUpdater<S, U extends Updater<S>> =
  * Controlled journals expose `recordPatches()` through `TravelJournal`
  * instead. Manual archive methods exist only when `A` is `false`, keeping
  * unavailable operations out of both the type and runtime surface.
+ *
+ * `_F` records the factory's `enableAutoFreeze` literal. No member depends on
+ * it, but it keeps its position so `Travels<S, false>` cannot silently start
+ * meaning a manual-archive timeline.
  */
 export type Travels<
   S,
-  F extends boolean = false,
+  _F extends boolean = false,
   A extends boolean = true,
   P extends PatchesOption = {},
 > = {
@@ -137,8 +141,8 @@ export type Travels<
   getMetadata(): Array<TravelMetadata | undefined>;
   getHistoryEntries(): TravelHistoryEntry<P>[];
   getControls(): A extends true
-    ? RebasableTravelsControls<S, F, P>
-    : RebasableManualTravelsControls<S, F, P>;
+    ? RebasableTravelsControls<S, P>
+    : RebasableManualTravelsControls<S, P>;
 } &
   (A extends false
     ? {
@@ -493,8 +497,8 @@ export class TravelsCore<
   private observers: ObserverHub<S, P>;
   private stateDriver: StateDriver<S, F, P>;
   private controlsCache:
-    | RebasableTravelsControls<S, F, P>
-    | RebasableManualTravelsControls<S, F, P>
+    | RebasableTravelsControls<S, P>
+    | RebasableManualTravelsControls<S, P>
     | null = null;
   private historyView = new HistoryView<S, P>();
   private revision = 0;
@@ -2629,14 +2633,14 @@ export class TravelsCore<
   public getControls() {
     if (this.controlsCache) {
       return this.controlsCache as A extends true
-        ? RebasableTravelsControls<S, F, P>
-        : RebasableManualTravelsControls<S, F, P>;
+        ? RebasableTravelsControls<S, P>
+        : RebasableManualTravelsControls<S, P>;
     }
 
     const self = this;
     const controls:
-      | RebasableTravelsControls<S, F, P>
-      | RebasableManualTravelsControls<S, F, P> = {
+      | RebasableTravelsControls<S, P>
+      | RebasableManualTravelsControls<S, P> = {
       get position(): number {
         return self.getPosition();
       },
@@ -2666,8 +2670,8 @@ export class TravelsCore<
     this.controlsCache = controls;
 
     return controls as A extends true
-      ? RebasableTravelsControls<S, F, P>
-      : RebasableManualTravelsControls<S, F, P>;
+      ? RebasableTravelsControls<S, P>
+      : RebasableManualTravelsControls<S, P>;
   }
 }
 

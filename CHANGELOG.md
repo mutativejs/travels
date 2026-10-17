@@ -36,6 +36,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   `<S, F, A, P>`. v2 code that explicitly supplied patch options as the third
   argument must insert the archive mode before them; inferred call sites are
   unchanged.
+- Drop the unused auto-freeze parameter from `TravelsControls`,
+  `RebasableTravelsControls`, `ManualTravelsControls`, and
+  `RebasableManualTravelsControls`, which are now `<S, P>`, and remove the
+  unused `Value` and `InitialValue` helper types.
 - Make `TravelsControls` a read-only capability object and change
   both shared `getHistory()` surfaces to return
   `readonly ReadonlyState<S>[]`. Controls, journal facades, and shared history

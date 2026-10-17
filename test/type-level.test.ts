@@ -11,6 +11,8 @@ import {
   type PatchableState,
   type ReadonlyState,
   type ReadonlyTravelPatches,
+  type RebasableManualTravelsControls,
+  type RebasableTravelsControls,
   type StateCompatibilityIssueCode,
   type TravelJournal,
   type TravelJournalOptions,
@@ -217,6 +219,28 @@ describe('Type-level API contracts', () => {
       controls.patches = { patches: [], inversePatches: [] };
       // @ts-expect-error controls methods cannot be replaced
       controls.back = () => undefined;
+    }
+  });
+
+  test('controls types are parameterized by state and patch options only', () => {
+    type State = { count: number };
+    type Paths = { pathAsArray: false };
+
+    expectTypeOf(
+      createTravels<State, true, Paths>({ count: 0 }).getControls()
+    ).toEqualTypeOf<RebasableTravelsControls<State, Paths>>();
+    expectTypeOf(
+      createTravels<State, false, Paths>(
+        { count: 0 },
+        { autoArchive: false }
+      ).getControls()
+    ).toEqualTypeOf<RebasableManualTravelsControls<State, Paths>>();
+
+    if (false) {
+      // @ts-expect-error the removed auto-freeze parameter is not accepted
+      const legacy: RebasableTravelsControls<State, false, Paths> | undefined =
+        undefined;
+      void legacy;
     }
   });
 

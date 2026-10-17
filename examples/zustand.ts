@@ -13,7 +13,7 @@ type DocumentState = {
 };
 
 type DocumentStore = DocumentState & {
-  history: RebasableTravelsControls<DocumentState, false>;
+  history: RebasableTravelsControls<DocumentState>;
   setTitle: (title: string) => void;
   addBlock: (text: string) => void;
   undo: () => void;

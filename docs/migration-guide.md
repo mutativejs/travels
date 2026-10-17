@@ -87,6 +87,21 @@ type Journal = TravelJournal<State, false, StringPatchOptions>;
 type Journal = TravelJournal<State, false, true, StringPatchOptions>;
 ```
 
+Controls types no longer carry the auto-freeze parameter, which no member
+used. Drop the second type argument:
+
+```ts
+// 2.x
+type Controls = RebasableTravelsControls<State, false, StringPatchOptions>;
+
+// 3.0
+type Controls = RebasableTravelsControls<State, StringPatchOptions>;
+```
+
+The same applies to `TravelsControls`, `ManualTravelsControls`, and
+`RebasableManualTravelsControls`. The unused `Value` and `InitialValue` helper
+types have been removed; use `S` or `ReadonlyState<S>` directly.
+
 ### Treat shared views as read-only
 
 `getHistory()` now returns `readonly ReadonlyState<S>[]` through both the

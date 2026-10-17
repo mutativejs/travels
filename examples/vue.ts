@@ -25,7 +25,7 @@ export type TravelsHistoryComposable<S> = {
   undo: (amount?: number) => void;
   redo: (amount?: number) => void;
   reset: () => void;
-  controls: RebasableTravelsControls<S, false>;
+  controls: RebasableTravelsControls<S>;
 };
 
 export function useTravelsHistory<S>(
