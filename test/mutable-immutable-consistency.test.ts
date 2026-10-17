@@ -89,9 +89,7 @@ describe('Mutable vs Immutable: Behavioral Consistency', () => {
     expect(mutable.getState()).toEqual(initialState);
   });
 
-  test('array state replacement (forward only - back has known ordering issues)', () => {
-    // Note: Array time travel in mutable mode has known ordering limitations
-    // due to how Mutative applies patches. This test only verifies forward operations.
+  test('array state replacement should be consistent', () => {
     const initialState = [1, 2, 3, 4, 5];
 
     const immutable = createTravels([...initialState]);
@@ -108,8 +106,19 @@ describe('Mutable vs Immutable: Behavioral Consistency', () => {
     // Mutable mode should preserve array reference
     expect(mutable.getState()).toBe(originalRef);
 
-    // Note: Time travel (back/forward) on arrays in mutable mode may have ordering issues
-    // This is a known limitation of patch-based mutable updates on arrays
+    immutable.back();
+    mutable.back();
+
+    expect(immutable.getState()).toEqual(initialState);
+    expect(mutable.getState()).toEqual(initialState);
+    expect(mutable.getState()).toBe(originalRef);
+
+    immutable.forward();
+    mutable.forward();
+
+    expect(immutable.getState()).toEqual([10, 20]);
+    expect(mutable.getState()).toEqual([10, 20]);
+    expect(mutable.getState()).toBe(originalRef);
   });
 
   test('function updater should work the same in both modes', () => {
