@@ -26,7 +26,7 @@ Use the whole serialized snapshot as a single storage record. It contains the st
 
 ```ts
 import {
-  restoreTravels as restoreTimeline,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -50,7 +50,7 @@ const createEmptySnapshot = (): TravelsSerializedHistory<DocumentState> => ({
   position: 0,
 });
 
-function restoreTravels(raw: unknown) {
+function restoreDocument(raw: unknown) {
   const history = Travels.deserialize<DocumentState>(
     raw ?? createEmptySnapshot(),
     {
@@ -64,13 +64,13 @@ function restoreTravels(raw: unknown) {
     }
   );
 
-  return restoreTimeline(history, { maxHistory: 100 });
+  return restoreTravels(history, { maxHistory: 100 });
 }
 ```
 
 For durable persistence, state, retained patch values, and history metadata must use plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null`. Paths must be Travels-accepted JSON Pointer strings or dense arrays of strings/finite non-negative integers; other values are invalid segments. Encode `bigint`; normalize `NaN`, infinities, and `-0` because JSON rejects or changes them. Array holes and custom properties/prototypes are not preserved by snapshots or JSON/JSON Patch; fill holes with `null` and use plain arrays and objects. Map and Set are rejected as Travels state and retained patch payloads even when IndexedDB or another adapter can store them. A runtime-only value or path in old history remains part of the storage record.
 
-The adapter examples below reuse the `DocumentState`, `restoreTravels(...)`, and `attachAutoSave(...)` definitions from this section.
+The adapter examples below reuse the `DocumentState`, `restoreDocument(...)`, and `attachAutoSave(...)` definitions from this section.
 
 ## Auto-Save Pattern
 
@@ -78,7 +78,7 @@ Storage writes should usually be debounced. This keeps rapid editing from writin
 
 ```ts
 function attachAutoSave(
-  travels: ReturnType<typeof restoreTravels>,
+  travels: ReturnType<typeof restoreDocument>,
   saveSnapshot: (
     snapshot: TravelsSerializedHistory<DocumentState>
   ) => Promise<void>,
@@ -196,7 +196,7 @@ async function saveSnapshotToDexie(
 }
 
 async function initDexiePersistence() {
-  const travels = restoreTravels(await loadSnapshotFromDexie());
+  const travels = restoreDocument(await loadSnapshotFromDexie());
   const persistence = attachAutoSave(travels, saveSnapshotToDexie);
 
   return { travels, persistence };
@@ -207,7 +207,7 @@ Use a transaction when one user action updates the snapshot and a related table:
 
 ```ts
 async function saveDexieSnapshotWithRelatedRows(
-  travels: ReturnType<typeof restoreTravels>
+  travels: ReturnType<typeof restoreDocument>
 ) {
   const updatedAt = Date.now();
 
@@ -321,7 +321,7 @@ async function deleteIdbSnapshotsOlderThan(cutoff: number) {
 }
 
 async function initIdbPersistence() {
-  const travels = restoreTravels(await loadSnapshotFromIdb());
+  const travels = restoreDocument(await loadSnapshotFromIdb());
   const persistence = attachAutoSave(travels, saveSnapshotToIdb);
 
   return { travels, persistence };
@@ -371,7 +371,7 @@ async function saveSnapshotToLocalForage(
 }
 
 async function initLocalForagePersistence() {
-  const travels = restoreTravels(await loadSnapshotFromLocalForage());
+  const travels = restoreDocument(await loadSnapshotFromLocalForage());
   const persistence = attachAutoSave(travels, saveSnapshotToLocalForage);
 
   return { travels, persistence };
@@ -423,7 +423,7 @@ async function saveSnapshotToLocalspace(
 }
 
 async function initLocalspacePersistence() {
-  const travels = restoreTravels(await loadSnapshotFromLocalspace());
+  const travels = restoreDocument(await loadSnapshotFromLocalspace());
   const persistence = attachAutoSave(travels, saveSnapshotToLocalspace);
 
   return { travels, persistence };
@@ -434,7 +434,7 @@ Use `runTransaction(...)` or batch APIs when saving related records together. Th
 
 ```ts
 async function saveLocalspaceSnapshotWithRelatedRows(
-  travels: ReturnType<typeof restoreTravels>
+  travels: ReturnType<typeof restoreDocument>
 ) {
   await store.runTransaction('readwrite', async (tx) => {
     await tx.set(SNAPSHOT_KEY, travels.serialize());

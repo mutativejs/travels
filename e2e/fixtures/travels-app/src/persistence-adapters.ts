@@ -3,7 +3,7 @@ import { openDB, type DBSchema } from 'idb';
 import localforage from 'localforage';
 import localspace from 'localspace';
 import {
-  restoreTravels as restoreTimeline,
+  restoreTravels,
   Travels,
   TravelsPersistenceError,
   TRAVELS_HISTORY_SCHEMA_VERSION,
@@ -46,7 +46,7 @@ const createEmptySnapshot = (): Snapshot => ({
   position: 0,
 });
 
-const restoreTravels = (
+const restoreDocument = (
   raw: unknown,
   onFallback?: (code: TravelsPersistenceError['code']) => void
 ) => {
@@ -64,7 +64,7 @@ const restoreTravels = (
     }
   );
 
-  return restoreTimeline(history, {
+  return restoreTravels(history, {
     maxHistory: 100,
     warnOnUnsupportedState: false,
   });
@@ -85,7 +85,7 @@ const createUnreplayableSnapshot = (): Snapshot => ({
 });
 
 const attachAutoSave = (
-  travels: ReturnType<typeof restoreTravels>,
+  travels: ReturnType<typeof restoreDocument>,
   saveSnapshot: (snapshot: Snapshot) => Promise<void>,
   debounceMs = 200
 ) => {
@@ -439,7 +439,7 @@ const initAdapterPanel = async (root: HTMLElement, name: AdapterName) => {
 
   const panel = root.querySelector<HTMLElement>(`[data-adapter="${name}"]`)!;
   let fallbackCode: TravelsPersistenceError['code'] | undefined;
-  const travels = restoreTravels(await adapter.load(), (code) => {
+  const travels = restoreDocument(await adapter.load(), (code) => {
     fallbackCode = code;
   });
   const controls = travels.getControls();
