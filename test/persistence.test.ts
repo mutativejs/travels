@@ -1669,3 +1669,12 @@ describe('Persistence - snapshot validation contracts', () => {
     }
   });
 });
+
+describe('persistence entry points', () => {
+  test('expose Travels.deserialize as the single public decoder', async () => {
+    const api = await import('../src/index');
+
+    expect('deserializeTravelsHistory' in api).toBe(false);
+    expect(typeof api.Travels.deserialize).toBe('function');
+  });
+});

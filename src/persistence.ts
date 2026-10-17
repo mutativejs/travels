@@ -829,6 +829,11 @@ const notifyPersistenceError = (
   }
 };
 
+/**
+ * Implementation behind `Travels.deserialize()`, its only public entry point.
+ *
+ * @internal
+ */
 export const deserializeTravelsHistory = <
   S,
   P extends PatchesOption = {},

@@ -124,6 +124,10 @@ const travels = restoreTravels(history);
 Malformed snapshots now throw rather than being discarded. Use
 `Travels.deserialize(..., { fallback })` when recovery is intentional.
 
+The standalone `deserializeTravelsHistory()` export duplicated
+`Travels.deserialize()` and has been removed; call `Travels.deserialize()`
+with the same arguments.
+
 `restoreTravels()` keeps a detached copy of `snapshot.state`; it never mutates
 the snapshot or a reused fallback. Mutable integrations that attached history
 to a live observable store must name that store as the restore target:

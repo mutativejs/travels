@@ -59,6 +59,8 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
   `go` event and advance the revision once in both immutable and mutable mode,
   where 2.x published `archive` followed by `go`. The pending entry is
   committed only after the navigation succeeds.
+- Remove the `deserializeTravelsHistory` export. It duplicated
+  `Travels.deserialize()`, which remains the single public decoder.
 - Require Node.js 22 or newer. CI and release verification cover Node.js 22 and
   24.
 
