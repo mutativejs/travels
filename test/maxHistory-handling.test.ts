@@ -6,7 +6,7 @@
  * 2. subscribe can detect history overflow and archive
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import { createTravels } from '../src/index';
 
 describe('maxHistory Boundary Handling', () => {
@@ -502,5 +502,47 @@ describe('maxHistory Validation and Error Handling', () => {
     expect(() => {
       createTravels({ count: 0 }, { maxHistory: -Infinity });
     }).toThrow('Travels: maxHistory must be a non-negative integer');
+  });
+});
+
+describe('maxHistory capacity commits', () => {
+  test('do not reclone retained metadata on every trimmed commit', () => {
+    const maxHistory = 200;
+    const travels = createTravels(
+      { count: 0 },
+      { maxHistory, warnOnUnsupportedState: false }
+    );
+    for (let index = 0; index < maxHistory; index += 1) {
+      travels.setState({ count: index + 1 }, { label: `edit ${index}` });
+    }
+    const structuredClone = vi.spyOn(globalThis, 'structuredClone');
+
+    for (let index = 0; index < 10; index += 1) {
+      travels.setState({ count: -index }, { label: `trimmed ${index}` });
+    }
+    const clonesPerCommit = structuredClone.mock.calls.length / 10;
+    structuredClone.mockRestore();
+
+    expect(clonesPerCommit).toBeLessThan(5);
+    const metadata = travels.getMetadata();
+    expect(metadata).toHaveLength(maxHistory);
+    expect(metadata[0]).toEqual({ label: 'edit 10' });
+    expect(metadata[maxHistory - 1]).toEqual({ label: 'trimmed 9' });
+  });
+
+  test('keep trimmed metadata detached from caller and observer copies', () => {
+    const travels = createTravels({ count: 0 }, { maxHistory: 2 });
+    const metadata = { label: 'first' };
+    travels.setState({ count: 1 }, metadata);
+    travels.setState({ count: 2 }, { label: 'second' });
+    travels.setState({ count: 3 }, { label: 'third' });
+
+    metadata.label = 'mutated by caller';
+    travels.getMetadata()[0]!.label = 'mutated copy';
+
+    expect(travels.getMetadata()).toEqual([
+      { label: 'second' },
+      { label: 'third' },
+    ]);
   });
 });

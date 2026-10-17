@@ -302,10 +302,6 @@ const cloneTravelMetadata = (
 ): TravelMetadata | undefined =>
   metadata ? (deepCloneValue(metadata) as TravelMetadata) : undefined;
 
-const cloneTravelMetadataList = (
-  metadata: Array<TravelMetadata | undefined>
-): Array<TravelMetadata | undefined> => metadata.map(cloneTravelMetadata);
-
 const alignMetadataToPatchCount = (
   metadata: Array<TravelMetadata | undefined> | undefined,
   count: number
@@ -1480,13 +1476,14 @@ export class TravelsCore<
       return;
     }
 
+    // Replace the outer arrays: transaction snapshots restore by truncating
+    // the arrays they captured. Stored metadata is already a private clone
+    // that is never mutated in place, so the retained entries are shared.
     this.allPatches.patches = this.allPatches.patches.slice(-this.maxHistory);
     this.allPatches.inversePatches = this.allPatches.inversePatches.slice(
       -this.maxHistory
     );
-    this.allMetadata = cloneTravelMetadataList(
-      this.allMetadata.slice(-this.maxHistory)
-    );
+    this.allMetadata = this.allMetadata.slice(-this.maxHistory);
   }
 
   private resetHistoryToCurrentState(): void {

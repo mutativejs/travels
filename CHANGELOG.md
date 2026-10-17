@@ -117,6 +117,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Stop recloning every retained metadata entry each time a commit trims
+  history at `maxHistory`. Commits at capacity were O(maxHistory) structured
+  clones: 500 labelled commits took 331 ms at `maxHistory: 1000` and 3.5 s at
+  10000, and now take 4 ms and 31 ms.
 - Detach `restoreTravels()` state from the snapshot. Mutable timelines restored
   from a reused `fallback` snapshot previously wrote their edits into it, so the
   next restore started from another document's contents.
