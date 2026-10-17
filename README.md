@@ -646,7 +646,6 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 - Function updaters that return a brand-new root (root replacement) also fall back to immutable assignment in mutable mode, with a dev warning.
 - No-op updates (producing empty patches) are optimized away and won't create history entries or notify subscribers.
 - `back`, `forward`, and `go` also mutate in place unless the history entry performs a root-level replacement (patch path `[]`). Those rare steps reassign the reference to keep history correct.
-- Root array time-travel in mutable mode can have ordering limitations; if you rely on array root navigation, prefer immutable mode or wrap the array in an object.
 - `reset` replays a diff from the original initial state, so the observable reference survives a reset.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
 - `getHistory()` reconstructs and caches snapshots from the stored patches. Treat the returned array and every entry as read-only; they are not reactive proxies.

@@ -121,6 +121,59 @@ describe('Mutable vs Immutable: Behavioral Consistency', () => {
     expect(mutable.getState()).toBe(originalRef);
   });
 
+  test('array root navigation should be consistent', () => {
+    type Item = { id: number; tags: string[] };
+    const initialState = (): Item[] => [
+      { id: 1, tags: ['a'] },
+      { id: 2, tags: ['b'] },
+      { id: 3, tags: [] },
+    ];
+    const recipes: Array<(draft: Item[]) => void> = [
+      (draft) => {
+        draft.shift();
+      },
+      (draft) => {
+        draft.unshift({ id: 0, tags: [] });
+      },
+      (draft) => {
+        draft.splice(1, 1, { id: 7, tags: ['x'] }, { id: 8, tags: [] });
+      },
+      (draft) => {
+        draft.reverse();
+      },
+      (draft) => {
+        draft.sort((left, right) => left.id - right.id);
+      },
+      (draft) => {
+        const moved = draft.shift()!;
+        moved.tags.push('moved');
+        draft.push(moved);
+      },
+      (draft) => {
+        draft.length = 1;
+      },
+    ];
+
+    const immutable = createTravels(initialState(), { maxHistory: 20 });
+    const live = initialState();
+    const mutable = createTravels(live, { mutable: true, maxHistory: 20 });
+    const states = [JSON.stringify(immutable.getState())];
+    for (const recipe of recipes) {
+      immutable.setState(recipe);
+      mutable.setState(recipe);
+      states.push(JSON.stringify(immutable.getState()));
+      expect(JSON.stringify(mutable.getState())).toBe(states.at(-1));
+    }
+
+    for (const position of [0, recipes.length, 3, 1, 6, 0, 5]) {
+      immutable.go(position);
+      mutable.go(position);
+      expect(JSON.stringify(immutable.getState())).toBe(states[position]);
+      expect(JSON.stringify(mutable.getState())).toBe(states[position]);
+      expect(mutable.getState()).toBe(live);
+    }
+  });
+
   test('function updater should work the same in both modes', () => {
     const initialState = { count: 0, name: 'test' };
 
