@@ -3,6 +3,7 @@ import { assertPublicOptionsObject } from './internal/public-options.js';
 
 export type StateCompatibilityIssueCode =
   | 'CIRCULAR_REFERENCE'
+  | 'SHARED_REFERENCE'
   | 'DATE'
   | 'FUNCTION'
   | 'CLASS_INSTANCE'
@@ -112,6 +113,7 @@ export const findStateCompatibilityIssues = (
   assertPublicOptionsObject(options);
   const maxIssues = options.maxIssues ?? 20;
   const seen = new WeakSet<object>();
+  const ancestors = new Set<object>();
   const issues: StateCompatibilityIssue[] = [];
   const addIssue = (
     code: StateCompatibilityIssueCode,
@@ -174,7 +176,7 @@ export const findStateCompatibilityIssues = (
       return;
     }
 
-    if (seen.has(current)) {
+    if (ancestors.has(current)) {
       addIssue(
         'CIRCULAR_REFERENCE',
         path,
@@ -183,7 +185,25 @@ export const findStateCompatibilityIssues = (
       return;
     }
 
+    if (seen.has(current)) {
+      addIssue(
+        'SHARED_REFERENCE',
+        path,
+        'JSON duplicates shared references, so their identity is not preserved; store separate copies or an ID.'
+      );
+      return;
+    }
+
     seen.add(current);
+    ancestors.add(current);
+    try {
+      inspectObject(current, path);
+    } finally {
+      ancestors.delete(current);
+    }
+  };
+
+  const inspectObject = (current: object, path: Array<string | number>) => {
 
     if (current instanceof Date) {
       addIssue('DATE', path, 'use a timestamp or ISO string for Date.');

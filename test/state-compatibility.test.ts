@@ -83,6 +83,38 @@ describe('State compatibility warnings', () => {
     );
   });
 
+  test('distinguishes shared references from cycles', () => {
+    const shared = { x: 1 };
+    const cyclic: Record<string, unknown> = { label: 'root' };
+    cyclic.child = { parent: cyclic };
+
+    expect(
+      findStateCompatibilityIssues({ a: shared, list: [shared] })
+    ).toEqual([
+      expect.objectContaining({ code: 'SHARED_REFERENCE', path: '$.list[0]' }),
+    ]);
+    expect(findStateCompatibilityIssues({ cyclic })).toEqual([
+      expect.objectContaining({
+        code: 'CIRCULAR_REFERENCE',
+        path: '$.cyclic.child.parent',
+      }),
+    ]);
+    expect(
+      findStateCompatibilityIssues({ left: { leaf: 1 }, right: { leaf: 1 } })
+    ).toEqual([]);
+  });
+
+  test('reports shared initial state accurately from the patchable factory', () => {
+    const shared = { x: 1 };
+
+    expect(() => createPatchableTravels({ a: shared, b: shared })).toThrowError(
+      expect.objectContaining({
+        code: 'PERSISTENCE_INCOMPATIBLE',
+        message: expect.stringContaining('$.b: JSON duplicates shared references'),
+      })
+    );
+  });
+
   test('flags sparse arrays without treating explicit undefined as a hole', () => {
     expect(findStateCompatibilityIssues({ items: new Array(2) })).toEqual([
       expect.objectContaining({

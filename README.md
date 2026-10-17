@@ -349,7 +349,7 @@ return `readonly ReadonlyState<S>[]` in Travels 3.
 
 Returns a new array of fully detached history states, and is the method to reach for whenever the array outlives the read: keeping it in component state, sorting or otherwise reordering it, posting it to a worker, or handing it to code that expects to own its input. Nothing it returns is shared with the cache, so later edits to Travels cannot change it and edits to it cannot corrupt Travels.
 
-The method fails with `PERSISTENCE_INCOMPATIBLE` when a history state contains functions, class instances, circular references, or another runtime-only value that cannot be detached without changing semantics. A history that cannot be detached is also a history that cannot be persisted, so the failure is the same signal `serialize()` gives.
+The method fails with `PERSISTENCE_INCOMPATIBLE` when a history state contains functions, class instances, circular or shared references, or another runtime-only value that cannot be detached without changing semantics. A history that cannot be detached is also a history that cannot be persisted, so the failure is the same signal `serialize()` gives.
 
 ```ts
 // Reading the timeline: getHistory() is enough.

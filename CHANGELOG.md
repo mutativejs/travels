@@ -117,6 +117,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Report an object reached through two paths without a cycle as
+  `SHARED_REFERENCE` instead of `CIRCULAR_REFERENCE`. Durable-state checks
+  such as `createPatchableTravels()` still reject it, because JSON duplicates
+  shared references, but the diagnostic no longer claims a cycle. Add
+  `SHARED_REFERENCE` to `StateCompatibilityIssueCode`.
 - Skip the second structural validation pass when `restoreTravels()` or
   `restoreTravelJournal()` receives an unchanged `Travels.deserialize()`
   result. The documented decode-then-restore path validated every snapshot
