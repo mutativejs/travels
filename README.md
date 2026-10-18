@@ -437,6 +437,8 @@ travels.transaction({ label: 'Move Selection' }, () => {
 
 A transaction whose updates cancel out, such as one that sets a field and then sets it back, is a no-op like a single update that changes nothing: it records no entry, publishes no event, and keeps the redo branch. Travels compares values the way Mutative does, so a value replaced by an equal copy still counts as a change. A transaction that also navigates, archives, or resets still publishes, but adds no entry for updates that cancel out.
 
+With `autoArchive: false`, a root transaction archives when it commits, so changes left pending before it join its entry and undo reverts them together, even when the transaction itself changes nothing. The entry takes the transaction's metadata when it has some, otherwise the latest metadata passed to a pending `setState()` call. Only a transaction whose updates cancel out leaves earlier pending changes pending.
+
 Transaction callbacks must also be synchronous. A rejected asynchronous callback rolls the transaction back and reports a `TravelsError` through `onError` when configured.
 
 <details>
@@ -766,6 +768,10 @@ function handleSave() {
 
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
+
+A root `transaction()` also archives pending changes when it commits, so
+changes made before it become part of its entry; see
+[`transaction()`](#transactionmetadata-fn-void).
 
 Navigating with `back()`, `forward()`, or `go()` while changes are pending
 archives them implicitly as part of the navigation. The navigation publishes a
