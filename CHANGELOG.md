@@ -145,13 +145,21 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  54.7 KiB raw / 14.9 KiB gzip (ESM). Option removals are outweighed by the
+  55.4 KiB raw / 15.1 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
+- Return `getHistorySnapshot()` copies of history that holds values JSON
+  would drop or change but that copy faithfully, such as `undefined`, `NaN`,
+  `-0`, `bigint`, a `Date`, a null-prototype object, or a shared or circular
+  reference. The method enforced the whole durable JSON contract, so an
+  optional field left `undefined` threw `PERSISTENCE_INCOMPATIBLE` although
+  `serialize()` accepted the same history. It still refuses functions,
+  accessors, `Map`, `Set`, class instances, and other runtime objects, and is
+  about twice as fast because it copies in the same pass that checks.
 - Reduce the state paths a commit wrote in linear time before the
   development-only compatibility warnings inspect them. Each written path was
   compared with every kept one, so one `shift()` on an array of 40,000 items

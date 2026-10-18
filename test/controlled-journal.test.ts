@@ -1139,7 +1139,7 @@ describe('controlled journal state validation boundaries', () => {
       'Map and Set are not supported in state'
     );
     expect(() => journal.getHistorySnapshot()).toThrow(
-      'cannot detach non-durable history'
+      '$.history[1].hidden: Map, Set, class instances, and other runtime objects cannot be detached'
     );
 
     // Retained history never absorbed it: controlled entries only ever hold

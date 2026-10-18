@@ -414,7 +414,7 @@ export interface TravelsControls<S, P extends PatchesOption = {}> {
    */
   readonly getHistory: () => readonly ReadonlyState<S>[];
   /**
-   * Get fully detached durable history snapshots.
+   * Get fully detached history snapshots that the caller owns.
    */
   readonly getHistorySnapshot: () => S[];
   /**
