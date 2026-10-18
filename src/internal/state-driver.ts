@@ -4,7 +4,7 @@ import {
   type Options as MutativeOptions,
   type Patches,
 } from 'mutative';
-import { TravelsTypeError } from '../errors.js';
+import { TravelsError, TravelsTypeError } from '../errors.js';
 import type {
   PatchesOption,
   TravelsControlledApply,
@@ -166,6 +166,13 @@ export const assertSupportedPatchValues = <P extends PatchesOption = {}>(
   return hasObjectValues;
 };
 
+const historyReplayFailed = (cause: unknown): TravelsError =>
+  new TravelsError(
+    'HISTORY_REPLAY_FAILED',
+    'Travels: retained history patches could not be applied.',
+    { cause }
+  );
+
 export const freezeAcceptedState = (state: unknown): void => {
   void create([state], () => undefined, { enableAutoFreeze: true });
 };
@@ -219,11 +226,15 @@ export class StateDriver<
   public applyImmutably<T>(state: T, patches: Patches<P>): T {
     const { enablePatches: _enablePatches, ...replayOptions } =
       this.mutativeOptions;
-    return apply(
-      state as object,
-      patches,
-      replayOptions as Parameters<typeof apply>[2]
-    ) as T;
+    try {
+      return apply(
+        state as object,
+        patches,
+        replayOptions as Parameters<typeof apply>[2]
+      ) as T;
+    } catch (error) {
+      throw historyReplayFailed(error);
+    }
   }
 
   public applyNavigation(
@@ -272,7 +283,14 @@ export class StateDriver<
         transition.state as object,
         transition.inversePatches
       );
-      apply(transition.state as object, transition.patches, { mutable: true });
+      try {
+        apply(transition.state as object, transition.patches, {
+          mutable: true,
+        });
+      } catch (error) {
+        // The operations applied before the failing one remain in place.
+        throw historyReplayFailed(error);
+      }
       return transition.state;
     }
 

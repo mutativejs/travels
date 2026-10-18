@@ -4,6 +4,7 @@ import {
   restoreTravels,
   Travels,
   TravelsPersistenceError,
+  type TravelsError,
   type TravelsSerializedHistory,
 } from '../src/index';
 
@@ -155,6 +156,47 @@ describe('persisted history semantic validation', () => {
         code: 'INVALID_HISTORY',
       })
     );
+  });
+
+  test('reports structurally valid history that cannot be replayed', () => {
+    const snapshot = {
+      version: 1 as const,
+      state: { count: 0, nested: {} },
+      position: 0,
+      patches: {
+        patches: [
+          [
+            { op: 'replace' as const, path: ['count'], value: 1 },
+            {
+              op: 'replace' as const,
+              path: ['nested', 'missing', 'value'],
+              value: 1,
+            },
+          ],
+        ],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['count'], value: 0 }],
+        ],
+      },
+    };
+    const replayFailure = expect.objectContaining<Partial<TravelsError>>({
+      code: 'HISTORY_REPLAY_FAILED',
+      cause: expect.any(Error),
+    });
+
+    const immutable = restoreTravels(structuredClone(snapshot));
+    expect(() => immutable.forward()).toThrowError(replayFailure);
+    expect(() => immutable.getHistory()).toThrowError(replayFailure);
+    expect(immutable.getState()).toEqual({ count: 0, nested: {} });
+    expect(immutable.getPosition()).toBe(0);
+
+    // An in-place replay keeps the writes made before the failing operation.
+    const mutable = restoreTravels(structuredClone(snapshot), {
+      mutable: true,
+    });
+    expect(() => mutable.forward()).toThrowError(replayFailure);
+    expect(mutable.getState()).toEqual({ count: 1, nested: {} });
+    expect(mutable.getPosition()).toBe(0);
   });
 
   test('uses the selected validation mode for fallback snapshots', () => {

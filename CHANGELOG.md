@@ -126,6 +126,12 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Report an unknown `Travels.deserialize()` `validation` mode as
   `TravelsTypeError` with code `INVALID_OPTION` instead of a plain `TypeError`
   without a code.
+- Report retained patches that cannot be applied, from navigation and
+  `getHistory()`, as `TravelsError` with the new code `HISTORY_REPLAY_FAILED`
+  and the Mutative error as its `cause`, instead of that error alone, which
+  production builds of Mutative 2 reduce to an error code. A mutable timeline
+  keeps the in-place writes made before the failing operation, so validate
+  untrusted snapshots semantically before restoring them.
 - Reject defined non-boolean `autoArchive` and `mutable` values at runtime
   instead of selecting capability modes through JavaScript truthiness; omitted
   values retain their defaults.
@@ -134,7 +140,7 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  53.5 KiB raw / 14.6 KiB gzip (ESM). Option removals are outweighed by the
+  53.7 KiB raw / 14.6 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.

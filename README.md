@@ -1091,7 +1091,10 @@ Semantic mode additionally replays from the stored position to both ends of
 history and verifies forward/inverse reversibility for every reachable entry.
 Its cost grows with both state shape and reachable history length. Structural
 mode deliberately does not apply patches, so do not use the default alone as a
-corruption detector for unverified storage.
+corruption detector for unverified storage. Patches that fail only once they
+are replayed make navigation and `getHistory()` throw a `TravelsError` with code
+`HISTORY_REPLAY_FAILED`, and a mutable timeline keeps the in-place writes made
+before the failing operation.
 
 `Travels.deserialize(...)` throws `TravelsPersistenceError` with a stable
 `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`,
