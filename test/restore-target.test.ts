@@ -113,6 +113,29 @@ describe('restoreTravels state ownership', () => {
     ).toThrowError(expect.objectContaining({ code: 'INVALID_OPTION' }));
   });
 
+  test('rejects a target when either root has an own __proto__ key', () => {
+    // JSON.parse defines __proto__ as an own data property.
+    const parse = (title: string): Doc =>
+      JSON.parse(`{"__proto__":{},"title":"${title}","tags":[]}`);
+    const snapshotOf = (state: Doc): TravelsSerializedHistory<Doc> => ({
+      version: 1,
+      state,
+      patches: { patches: [], inversePatches: [] },
+      position: 0,
+    });
+    const store: Doc = { title: 'live', tags: [] };
+
+    for (const [state, target] of [
+      [parse('saved'), store],
+      [{ title: 'saved', tags: [] }, parse('live')],
+    ]) {
+      expect(() =>
+        restoreTravels(snapshotOf(state), { mutable: true, target })
+      ).toThrowError(expect.objectContaining({ code: 'INVALID_OPTION' }));
+    }
+    expect(store).toEqual({ title: 'live', tags: [] });
+  });
+
   test('leaves the target untouched when the snapshot is rejected', () => {
     const store: Doc = { title: 'live', tags: [] };
 

@@ -60,7 +60,8 @@ Travels overwrites `target` in place with a copy of `snapshot.state` before it
 records anything, so the live object and the restored patch history always
 start from the same data. The snapshot itself is never mutated. `target`
 requires `mutable: true` and must have the same root kind (plain object or
-array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
+array) as the snapshot state, and neither root may have an own `__proto__` key;
+it is rejected with `INVALID_OPTION` otherwise.
 
 ## Behavior by Operation
 
@@ -70,7 +71,7 @@ array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
 | `back` / `forward`   | Yes, unless the step applies a root-level replacement      | Happens when you undo a change that swapped the entire state object or type           |
 | `go(position)`       | Same as `back/forward`                                     | Travels checks for root-replace patches before deciding whether it can mutate in place|
 | `archive` (manual)   | Yes                                                        | Temporary patches are merged and applied to the same live object                      |
-| `reset`              | Usually                                                    | Mutates in place only when the current state and the stored initial snapshot are both plain objects or both arrays; otherwise it reassigns the root |
+| `reset`              | Usually                                                    | Mutates in place only when the current state and the stored initial snapshot are both plain objects or both arrays, neither with an own `__proto__` key; otherwise it reassigns the root |
 | `getHistory`         | Mixed                                                      | Includes the live state for the current position. Past and future entries share unchanged objects with it, so in-place updates also change an array returned earlier; keep copies with `getHistorySnapshot()` |
 | `subscribe`          | Receives the live (mutated) reference                      | Subscribers can safely compare by reference; values reflect the current undo position |
 
@@ -81,6 +82,7 @@ array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
 - **Root replacements in history**: Navigating to a step that replaces the entire root (e.g., switching from `{...}` to `[]` or a primitive) forces a new reference for that jump only.
 - **Unreplayable history**: Navigation applies retained patches to the live object in place. If one cannot be applied, as in a corrupt snapshot that passed the default structural validation, `go()` throws `HISTORY_REPLAY_FAILED` and the writes made before it remain. Inside a transaction the rollback undoes what it can and, if some change cannot be undone, throws `TRANSACTION_FAILED` with that error as its `cause`. Validate untrusted snapshots with `Travels.deserialize(snapshot, { validation: 'semantic' })` before restoring them.
 - **Function updaters returning a new root**: In mutable mode, `setState(() => newState)` that replaces the root falls back to immutable assignment for that update (dev warning emitted).
+- **Own `__proto__` keys at the root**: `JSON.parse` turns a `"__proto__"` member into an own key. A Mutative draft cannot receive that key by assignment, and Mutative will not apply a patch path naming it, so a value update or `reset()` whose current or new root has one replaces the root instead of overwriting it in place.
 - **Reset baseline is a copy**: `reset()` returns to a copy of the state taken at creation or restore, or by the last `rebase()`, `replaceStateWithoutHistory()`, or update while tracking is paused. The copy is made with `structuredClone()`, so `Date`, `undefined`, `NaN`, `-0`, and `bigint` survive, while class instances come back as plain objects without their prototype and values it cannot copy, such as functions, are kept by reference. Both modes reset to the same data.
 - **Detached history values**: Mutable timelines keep `structuredClone()` copies of the values their patches carry, so later in-place writes cannot rewrite history. A class instance drafted through `mark` that undo or redo inserts back into the state therefore returns as a plain object without its prototype; edits to fields of an instance that stays in place keep the instance, and immutable timelines keep instances throughout.
 - **Draft best practices**: Prefer mutating the provided draft (`draft.count++`) instead of returning a brand new object. Mutating drafts lets Travels keep using in-place patches during navigation.

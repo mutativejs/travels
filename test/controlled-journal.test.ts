@@ -154,6 +154,34 @@ describe('controlled travel journal', () => {
     ]);
   });
 
+  test('replaces a root with an own __proto__ key on reset', () => {
+    // JSON.parse defines __proto__ as an own data property.
+    const parse = (count: number): { count: number } =>
+      JSON.parse(`{"__proto__":{"x":1},"count":${count}}`);
+    let state = parse(0);
+    const transitions: Patches<true>[] = [];
+    const journal = createTravelJournal(state, {
+      apply: ({ patches }) => {
+        transitions.push(patches);
+        state = apply(state, patches);
+        return state;
+      },
+    });
+    state = parse(1);
+    journal.recordPatches(state, {
+      patches: [{ op: 'replace', path: ['count'], value: 1 }],
+      inversePatches: [{ op: 'replace', path: ['count'], value: 0 }],
+    });
+
+    journal.reset();
+
+    expect(transitions.at(-1)).toHaveLength(1);
+    expect(transitions.at(-1)![0]).toMatchObject({ op: 'replace', path: [] });
+    expect(state.count).toBe(0);
+    expect(Object.prototype.hasOwnProperty.call(state, '__proto__')).toBe(true);
+    expect(Object.getPrototypeOf(state)).toBe(Object.prototype);
+  });
+
   test('records externally committed patches and delegates navigation', () => {
     let authoritativeState: State = { count: 0, label: 'initial' };
     const applyTransition = vi.fn(({ patches }: { patches: Patches<true> }) => {

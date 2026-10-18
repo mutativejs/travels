@@ -62,8 +62,9 @@ The callback receives:
 current state and the baseline are both plain objects, or both arrays, those
 patches overwrite the root's entries and keep the root itself, so an owner can
 apply them in place, for example with Mutative's
-`apply(state, patches, { mutable: true })`. When the root kinds differ, or the
-state is not an object, the transition replaces the root with one
+`apply(state, patches, { mutable: true })`. When the root kinds differ, the
+state is not an object, or either root has an own `__proto__` key, which no
+patch path can name, the transition replaces the root with one
 `{ op: 'replace', path: [] }` patch. An owner that applies transitions in place
 must handle that patch itself, as it must for root replacements it recorded
 through `recordPatches()`: Mutative 2 throws for a root replacement applied in

@@ -140,13 +140,19 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  54.3 KiB raw / 14.8 KiB gzip (ESM). Option removals are outweighed by the
+  54.4 KiB raw / 14.8 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
+- Replace a root that has an own `__proto__` key, such as one `JSON.parse`
+  produced, when a mutable timeline applies a value update or resets and when
+  a journal resets. Overwriting such a root key by key assigned `__proto__` on
+  a Mutative draft, which threw an untyped Mutative error. `restoreTravels()`
+  rejects such a root as `target` with `INVALID_OPTION`, because a target must
+  be overwritten in place.
 - Restore the whole timeline when a failed transaction cannot undo every
   in-place change of a mutable state. The rollback stopped at the first change
   it could not undo, leaving fields such as the cursor unrestored, and its error

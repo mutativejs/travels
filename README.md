@@ -611,7 +611,8 @@ pair.
 - An owner that applies transitions in place, such as with Mutative's
   `apply(state, patches, { mutable: true })`, must handle a root replacement
   (`path: []`) itself. `reset()` sends one only when the current state and the
-  baseline are not both plain objects or both arrays.
+  baseline are not both plain objects or both arrays, or when either has an own
+  `__proto__` key.
 - The public `TravelJournal` type omits state-owning operations such as
   `setState()`, transactions, tracking controls, and `getControls()`. Those
   properties are absent from the runtime facade as well. `reset()` applies the

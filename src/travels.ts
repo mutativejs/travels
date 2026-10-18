@@ -392,13 +392,17 @@ const hasOnlyArrayIndices = (value: unknown): value is any[] => {
   return Object.keys(value).length === value.length;
 };
 
-const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) => {
-  if (Array.isArray(current) || Array.isArray(snapshot)) {
-    return Array.isArray(current) && Array.isArray(snapshot);
-  }
+const hasOwnProtoKey = (value: object): boolean =>
+  Object.prototype.hasOwnProperty.call(value, '__proto__');
 
-  return isPlainObject(current) && isPlainObject(snapshot);
-};
+const canSynchronizeMutableRoots = (current: unknown, snapshot: unknown) =>
+  (Array.isArray(current) || Array.isArray(snapshot)
+    ? Array.isArray(current) && Array.isArray(snapshot)
+    : isPlainObject(current) && isPlainObject(snapshot)) &&
+  // A draft cannot take an own __proto__ key by assignment, and Mutative will
+  // not apply a patch path naming one, so such a root is only replaced whole.
+  !hasOwnProtoKey(current as object) &&
+  !hasOwnProtoKey(snapshot as object);
 
 /**
  * Produce the patches that overwrite a mutable root with a detached copy of
@@ -665,7 +669,7 @@ export class TravelsCore<
     ) {
       throw new TravelsTypeError(
         'INVALID_OPTION',
-        'Travels: restoreTravels target requires mutable: true and a plain object or array root matching the snapshot state.'
+        'Travels: restoreTravels target requires mutable: true and a plain object or array root matching the snapshot state, neither with an own __proto__ key.'
       );
     }
     // A state-owning restore never adopts the caller's snapshot objects:
@@ -1579,8 +1583,7 @@ export class TravelsCore<
     const canMutatePlainObjects =
       !stateIsArray &&
       !updaterIsArray &&
-      isPlainObject(this.state) &&
-      isPlainObject(updater);
+      canSynchronizeMutableRoots(this.state, updater);
     const canMutateArrays =
       stateIsArray &&
       updaterIsArray &&

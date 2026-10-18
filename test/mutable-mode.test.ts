@@ -68,6 +68,37 @@ describe('Mutable mode for observable state', () => {
     expect(travels.getState().name).toBe('updated');
   });
 
+  test('replaces a root with an own __proto__ key instead of overwriting it', () => {
+    type Counter = { count: number };
+    // JSON.parse defines __proto__ as an own data property.
+    const parse = (count: number): Counter =>
+      JSON.parse(`{"__proto__":{"x":1},"count":${count}}`);
+    const hasOwnProto = (value: Counter) =>
+      Object.prototype.hasOwnProperty.call(value, '__proto__') &&
+      Object.getPrototypeOf(value) === Object.prototype;
+
+    const travels = createTravels({ count: 0 } as Counter, { mutable: true });
+    travels.setState(parse(1));
+    expect(hasOwnProto(travels.getState())).toBe(true);
+    travels.setState({ count: 2 });
+    expect(hasOwnProto(travels.getState())).toBe(false);
+
+    travels.back();
+    expect(hasOwnProto(travels.getState())).toBe(true);
+    expect(travels.getState().count).toBe(1);
+    travels.reset();
+    expect(travels.getState()).toEqual({ count: 0 });
+    expect(hasOwnProto(travels.getState())).toBe(false);
+
+    const fromParsed = createTravels(parse(0), { mutable: true });
+    fromParsed.setState((draft) => {
+      draft.count = 1;
+    });
+    fromParsed.reset();
+    expect(hasOwnProto(fromParsed.getState())).toBe(true);
+    expect(fromParsed.getState().count).toBe(0);
+  });
+
   test('function updater returning new object falls back to immutable assignment', () => {
     const state = { count: 0 };
     const travels = createTravels(state, { mutable: true });
