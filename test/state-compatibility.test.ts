@@ -1080,6 +1080,52 @@ describe('State compatibility warnings', () => {
     }
   );
 
+  test.each([
+    [false, true],
+    [true, true],
+    [false, false],
+    [true, false],
+  ])(
+    'rejects changes under keys Mutative will not replay (mutable: %s, pathAsArray: %s)',
+    (mutable, pathAsArray) => {
+      type Users = Record<string, { name: string }>;
+      const users: Users = JSON.parse(
+        '{"constructor":{"name":"a"},"__proto__":{"name":"b"}}'
+      );
+      const travels = createTravels(
+        { users },
+        {
+          mutable,
+          patchesOptions: { pathAsArray },
+          warnOnUnsupportedState: false,
+        }
+      );
+      const reservedKeyError = expect.objectContaining<
+        Partial<TravelsTypeError>
+      >({ code: 'UNSUPPORTED_STATE' });
+
+      for (const key of ['constructor', '__proto__'] as string[]) {
+        expect(() =>
+          travels.setState((draft) => {
+            draft.users[key].name = 'x';
+          })
+        ).toThrowError(reservedKeyError);
+      }
+      expect(travels.getState().users).toEqual(
+        JSON.parse('{"constructor":{"name":"a"},"__proto__":{"name":"b"}}')
+      );
+      expect(travels.getPosition()).toBe(0);
+
+      // Replacing the value at a constructor key stays replayable.
+      const key = 'constructor' as string;
+      travels.setState((draft) => {
+        draft.users[key] = { name: 'c' };
+      });
+      travels.back();
+      expect(travels.getState().users[key]).toEqual({ name: 'a' });
+    }
+  );
+
   test.each(['Map', 'Set'] as const)(
     'rejects cross-realm %s instances throughout runtime boundaries',
     (kind) => {

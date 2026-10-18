@@ -12,6 +12,7 @@ import type {
 import {
   containsMapOrSet,
   getPatchPathSegments,
+  hasUnsafePatchPathSegment,
   isObjectLike,
 } from '../utils.js';
 import { clonePatchGroup, clonePatchGroupDetached } from './patch-utils.js';
@@ -148,6 +149,12 @@ export const assertSupportedPatchValues = <P extends PatchesOption = {}>(
 
   for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
     for (const operation of groups[groupIndex]) {
+      if (hasUnsafePatchPathSegment(operation.path)) {
+        throw new TravelsTypeError(
+          'UNSUPPORTED_STATE',
+          'Travels: changes under a __proto__ key or inside a constructor key cannot be replayed; rename the key.'
+        );
+      }
       const value = (operation as { value?: unknown }).value;
       if (!isObjectLike(value)) {
         continue;

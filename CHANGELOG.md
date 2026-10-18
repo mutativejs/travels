@@ -140,13 +140,18 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  53.7 KiB raw / 14.6 KiB gzip (ESM). Option removals are outweighed by the
+  54.0 KiB raw / 14.7 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
+- Reject a `setState()` change under a `__proto__` key, or inside a value
+  stored at a `constructor` key, with `UNSUPPORTED_STATE` before it applies.
+  Mutative will not replay such patches, so immutable timelines recorded an
+  entry that could not be undone or restored, and mutable timelines threw an
+  untyped Mutative error.
 - Pass a draft-free root returned by a mutable timeline's function updater to
   Mutative through `rawReturn()`, as immutable timelines already do. Mutative
   searched it for drafts and printed a development warning that `onWarning`

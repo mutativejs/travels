@@ -211,6 +211,18 @@ const isUnsafePatchPathSegment = (
 ): boolean =>
   segment === '__proto__' || (segment === 'constructor' && index < length - 1);
 
+/**
+ * Whether Mutative refuses to replay a patch at this path. The reserved names
+ * need no JSON Pointer escaping, so a string path holds them verbatim.
+ */
+export const hasUnsafePatchPathSegment = (path: unknown): boolean =>
+  Array.isArray(path)
+    ? path.some((segment, index) =>
+        isUnsafePatchPathSegment(segment, index, path.length)
+      )
+    : typeof path === 'string' &&
+      /\/__proto__(?:\/|$)|\/constructor\//.test(path);
+
 export const isValidPatchPath = (path: unknown): boolean => {
   if (typeof path === 'string') {
     if (path === '') {
