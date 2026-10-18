@@ -21,6 +21,20 @@ const discardSupersededOperations = <P extends PatchesOption = {}>(
 };
 
 /**
+ * Append without spreading into push(): a spread passes each operation as a
+ * call argument, and engines cap the argument count, so one large edit such as
+ * shift() on a long array would throw a RangeError.
+ */
+const appendOperations = <P extends PatchesOption = {}>(
+  composed: Patches<P>,
+  operations: Patches<P>
+): void => {
+  for (let index = 0; index < operations.length; index += 1) {
+    composed.push(operations[index]);
+  }
+};
+
+/**
  * Compose history entries for a single apply() call.
  *
  * Inverse patch operations are already emitted in replay order by Mutative.
@@ -36,11 +50,11 @@ export const composePatchGroups = <P extends PatchesOption = {}>(
 
   if (direction === 'forward') {
     for (const group of groups) {
-      composed.push(...group);
+      appendOperations(composed, group);
     }
   } else {
     for (let index = groups.length - 1; index >= 0; index -= 1) {
-      composed.push(...groups[index]);
+      appendOperations(composed, groups[index]);
     }
   }
 

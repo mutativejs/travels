@@ -152,6 +152,12 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Compose a history entry with more operations than a function call accepts
+  as arguments, about 125,000 in V8, such as one `shift()` on an array of
+  130,000 items. The operations were spread into `push()`, which threw a
+  `RangeError`, so `back()` failed, a manual timeline's `getPatches()`,
+  `serialize()`, and `archive()` threw, and `transaction()` threw after
+  applying the change, leaving the position and history out of step.
 - Replace a root that has an own `__proto__` key, such as one `JSON.parse`
   produced, when a mutable timeline applies a value update or resets and when
   a journal resets. Overwriting such a root key by key assigned `__proto__` on

@@ -74,3 +74,65 @@ describe('history patch replay ordering', () => {
     }
   });
 });
+
+describe('history entries with more operations than a call accepts', () => {
+  // Engines cap how many arguments a call takes, at roughly 125k elements in
+  // V8, so this entry is too large to spread into push().
+  const length = 130_000;
+  const createInitialState = () => ({
+    items: Array.from({ length }, (_, index) => index),
+  });
+  const rewriteEveryItem = (draft: { items: number[] }) => {
+    for (let index = 0; index < length; index += 1) {
+      draft.items[index] = -index;
+    }
+  };
+
+  test('undoes and redoes the entry', () => {
+    const travels = createTravels(createInitialState(), {
+      warnOnUnsupportedState: false,
+    });
+
+    travels.setState(rewriteEveryItem);
+    expect(travels.getPatches().patches[0]).toHaveLength(length);
+
+    travels.back();
+    expect(travels.getState().items[1]).toBe(1);
+
+    travels.forward();
+    expect(travels.getState().items[1]).toBe(-1);
+  });
+
+  test('commits the entry from a transaction', () => {
+    const travels = createTravels(createInitialState(), {
+      warnOnUnsupportedState: false,
+    });
+
+    travels.transaction(() => {
+      travels.setState(rewriteEveryItem);
+    });
+
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getPatches().patches[0]).toHaveLength(length);
+
+    travels.back();
+    expect(travels.getState().items[1]).toBe(1);
+  });
+
+  test('composes the entry while it is pending in manual mode', () => {
+    const travels = createTravels(createInitialState(), {
+      autoArchive: false,
+      warnOnUnsupportedState: false,
+    });
+
+    travels.setState(rewriteEveryItem);
+
+    expect(travels.canForward()).toBe(false);
+    expect(travels.getPatches().patches[0]).toHaveLength(length);
+    expect(travels.serialize().position).toBe(1);
+
+    travels.archive();
+    travels.back();
+    expect(travels.getState().items[1]).toBe(1);
+  });
+});
