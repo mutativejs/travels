@@ -136,4 +136,43 @@ describe('mutable patch isolation', () => {
     expect(eventPatches).toBeDefined();
     expectOriginalInverseValue(eventPatches!);
   });
+
+  test('detaches reset patches from a replaced mutable root', () => {
+    const createReplacedRoot = () => {
+      const travels = createTravels<number[] | number>([1], {
+        mutable: true,
+        warnOnUnsupportedState: false,
+        onWarning: () => undefined,
+      });
+      // The baseline is an array, so resetting a primitive root replaces it.
+      travels.setState(() => 0);
+      return travels;
+    };
+    const restoredRoot = { op: 'replace', path: [], value: [1] };
+
+    const travels = createReplacedRoot();
+    let resetPatches: ReadonlyTravelPatches | undefined;
+    travels.subscribe(({ type, patches }) => {
+      if (type === 'reset') resetPatches = patches;
+    });
+    travels.reset();
+    travels.setState((draft) => {
+      (draft as number[]).push(2);
+    });
+    expect(resetPatches!.patches[0][0]).toEqual(restoredRoot);
+
+    const transactional = createReplacedRoot();
+    let transactionPatches: ReadonlyTravelPatches | undefined;
+    transactional.subscribe(({ patches }) => {
+      transactionPatches = patches;
+    });
+    transactional.transaction(() => {
+      transactional.reset();
+      transactional.setState((draft) => {
+        (draft as number[]).push(2);
+      });
+    });
+    expect(transactional.getState()).toEqual([1, 2]);
+    expect(transactionPatches!.patches[0][0]).toEqual(restoredRoot);
+  });
 });

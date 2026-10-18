@@ -2231,8 +2231,12 @@ export class TravelsCore<
         this.options
       ) as unknown as [S, Patches<P>, Patches<P>];
       nextState = resetState;
-      patches = resetPatches;
-      inversePatches = resetInversePatches;
+      // The replacement value becomes the live state, which mutable mode
+      // updates in place next, so publish detached patches as setState() does.
+      patches = this.mutable ? clonePatchGroup(resetPatches) : resetPatches;
+      inversePatches = this.mutable
+        ? clonePatchGroup(resetInversePatches)
+        : resetInversePatches;
     }
 
     patches = normalizeEmptyPatchPaths(

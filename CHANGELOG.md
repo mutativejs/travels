@@ -141,6 +141,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Detach the reset patches of a mutable timeline whose root kind no longer
+  matches its baseline. That reset replaces the root, and its event patches
+  held the new live root itself, so the next in-place update also rewrote the
+  patches that observers read later or that a transaction event composed.
 - Keep retained history out of a mutable timeline's live state. Navigation
   across a root replacement replays immutably, and Mutative uses the
   replacement's value as the next state, so the next in-place update also
