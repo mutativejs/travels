@@ -19,6 +19,8 @@ While `subscribe()` lets you observe state changes, it cannot prevent or modify 
 
 A `setState()` wrapper must keep both halves of the contract it replaces: pass the optional second `metadata` argument on, or the labels callers attach to history entries are lost, and let a function updater either mutate the draft or return a new state. Every example below does both.
 
+`replaceStateWithoutHistory()` applies its update through `setState()`, so a `setState()` wrapper runs for it too. It clears the history unless that call throws, so a wrapper that blocks an update by returning early, as the validation and throttling examples do, keeps the old state but leaves nothing to undo. To block a replacement and keep the history, throw instead, as `withValidation()` under [Common Patterns](#common-patterns) does; `replaceStateWithoutHistory()` then throws the same error.
+
 ### Adding validation:
 
 ```typescript
