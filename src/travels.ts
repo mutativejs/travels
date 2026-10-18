@@ -51,6 +51,7 @@ import {
   assertSupportedRuntimeState,
   assertSynchronousResult,
   freezeAcceptedState,
+  resolveOwnDataValue,
   StateDriver,
 } from './internal/state-driver.js';
 import {
@@ -67,6 +68,7 @@ import {
 } from './internal/patch-utils.js';
 import { composePatchGroups, isRootReplacement } from './replay.js';
 import {
+  getPatchPathSegments,
   isArrayIndex,
   isObjectLike,
   isPlainObject,
@@ -241,6 +243,7 @@ type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   branchDiscards: BranchDiscardEffect<P>[];
   branchDiscardCount: number;
   hasEffects: boolean;
+  hasOtherEffects: boolean;
   needsCompatibilityCheck: boolean;
   compatibilityChecks: DeferredCompatibilityCheck<P>[];
   compatibilityCheckCount: number;
@@ -518,6 +521,9 @@ export class TravelsCore<
   >;
   private transactionRootSnapshot?: TransactionSnapshot<S, P>;
   private transactionHasEffects = false;
+  // Set by anything other than a setState() commit, such as navigation or an
+  // archive, which a transaction whose updates cancel out cannot drop.
+  private transactionHasOtherEffects = false;
   private transactionNeedsCompatibilityCheck = false;
   private transactionCompatibilityChecks: DeferredCompatibilityCheck<P>[] = [];
   private transactionEventPatches: TravelPatches<P> = cloneTravelPatches();
@@ -1213,6 +1219,9 @@ export class TravelsCore<
     this.assertInvariants();
     if (this.transactionDepth > 0) {
       this.transactionHasEffects = true;
+      if (type !== 'setState') {
+        this.transactionHasOtherEffects = true;
+      }
       if (changePatches) {
         this.transactionEventPatches.patches.push(...changePatches.patches);
         this.transactionEventPatches.inversePatches.push(
@@ -1401,6 +1410,7 @@ export class TravelsCore<
       branchDiscards: this.transactionBranchDiscards,
       branchDiscardCount: this.transactionBranchDiscards.length,
       hasEffects: this.transactionHasEffects,
+      hasOtherEffects: this.transactionHasOtherEffects,
       needsCompatibilityCheck: this.transactionNeedsCompatibilityCheck,
       compatibilityChecks: this.transactionCompatibilityChecks,
       compatibilityCheckCount: this.transactionCompatibilityChecks.length,
@@ -1424,6 +1434,18 @@ export class TravelsCore<
       rolledBack = false;
     }
 
+    this.restoreTransactionTimeline(snapshot);
+    return rolledBack;
+  }
+
+  /**
+   * Restore everything a scope captured except in-place state changes, which
+   * restoreTransactionSnapshot() rolls back first and which a transaction whose
+   * updates cancel out has already undone itself.
+   */
+  private restoreTransactionTimeline(
+    snapshot: TransactionSnapshot<S, P>
+  ): void {
     snapshot.allPatches.patches.length = snapshot.allPatchCount;
     snapshot.allPatches.inversePatches.length = snapshot.allPatchCount;
     snapshot.allMetadata.length = snapshot.allMetadataCount;
@@ -1447,13 +1469,61 @@ export class TravelsCore<
     this.trackingPauseDepth = snapshot.trackingPauseDepth;
     this.transactionBranchDiscards = snapshot.branchDiscards;
     this.transactionHasEffects = snapshot.hasEffects;
+    this.transactionHasOtherEffects = snapshot.hasOtherEffects;
     this.transactionNeedsCompatibilityCheck = snapshot.needsCompatibilityCheck;
     this.transactionCompatibilityChecks = snapshot.compatibilityChecks;
     this.transactionEventPatches = snapshot.eventPatches;
 
     this.invalidateHistoryCache();
     this.assertInvariants();
-    return rolledBack;
+  }
+
+  /**
+   * Whether undoing these patches would leave the current state as it is, so
+   * the changes they undo cancel out. Mutative judges equality as it does for
+   * a single update: a value replaced by an equal copy still counts as a
+   * change, and so does any state the check cannot run on.
+   */
+  private undoesNothing(inversePatches: Patches<P>): boolean {
+    const [first] = inversePatches;
+    if (first && isRootReplacement(first)) {
+      return (
+        inversePatches.length === 1 &&
+        Object.is((first as { value?: unknown }).value, this.state)
+      );
+    }
+
+    // The last operation restores the oldest value at its path, so a current
+    // value that differs there settles it without replaying every operation.
+    const last = inversePatches[inversePatches.length - 1] as
+      | { op: string; path: unknown; value?: unknown }
+      | undefined;
+    if (!last) {
+      return false;
+    }
+    if (last.op !== 'remove') {
+      const segments = getPatchPathSegments(last.path);
+      const current = segments && resolveOwnDataValue(this.state, segments);
+      if (current && current.found && !Object.is(current.value, last.value)) {
+        return false;
+      }
+    }
+
+    const createOptions = this.options.enableAutoFreeze
+      ? ({ ...this.options, enableAutoFreeze: false } as typeof this.options)
+      : this.options;
+    try {
+      const [, patches] = create(
+        this.state,
+        (draft: Draft<S>) => {
+          apply(draft as object, inversePatches);
+        },
+        createOptions
+      ) as unknown as [S, Patches<P>, Patches<P>];
+      return patches.length === 0;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -1845,8 +1915,42 @@ export class TravelsCore<
   ): boolean {
     const pendingArchive = this.preparePendingArchive(metadata);
     if (!pendingArchive) return false;
+    // A single pending update always changed the state, so only several can
+    // cancel out. Drop them instead of archiving an entry that undoes nothing.
+    if (
+      this.tempPatches.patches.length > 1 &&
+      this.undoesNothing(pendingArchive.inversePatches)
+    ) {
+      this.tempPatches = cloneTravelPatches();
+      this.tempMetadata = undefined;
+      this.position = Math.min(this.maxHistory, this.allPatches.patches.length);
+      this.invalidateHistoryCache();
+      if (publishChange) {
+        this.emitChange('archive', pendingArchive.metadata);
+      }
+      return true;
+    }
     this.commitPendingArchive(pendingArchive, publishChange);
     return true;
+  }
+
+  /**
+   * Whether a root transaction made only setState() updates and they cancel
+   * out. One update never does, since it is recorded only when it changes the
+   * state.
+   */
+  private updatesCancelOut(snapshot: TransactionSnapshot<S, P>): boolean {
+    return (
+      !this.transactionHasOtherEffects &&
+      this.trackingPauseDepth === snapshot.trackingPauseDepth &&
+      this.transactionEventPatches.inversePatches.length > 1 &&
+      this.undoesNothing(
+        composePatchGroups(
+          this.transactionEventPatches.inversePatches,
+          'backward'
+        )
+      )
+    );
   }
 
   public transaction<FN extends () => unknown>(
@@ -1893,6 +1997,7 @@ export class TravelsCore<
         ? transactionSnapshot
         : undefined;
       this.transactionHasEffects = false;
+      this.transactionHasOtherEffects = false;
       this.transactionNeedsCompatibilityCheck = false;
       this.transactionEventPatches = cloneTravelPatches();
       if (process.env.NODE_ENV !== 'production') {
@@ -1921,7 +2026,11 @@ export class TravelsCore<
       this.transactionDepth -= 1;
 
       if (this.transactionDepth === 0) {
-        if (!failed) {
+        if (!failed && this.updatesCancelOut(transactionSnapshot)) {
+          // Leave Travels exactly as the transaction found it, as a single
+          // update that changes nothing does, including any redo branch.
+          this.restoreTransactionTimeline(transactionSnapshot);
+        } else if (!failed) {
           const committed = this.archivePending(this.transactionMeta, false);
           const shouldPublish = committed || this.transactionHasEffects;
           const changePatches = this.getTransactionPatchDelta();
@@ -1945,6 +2054,7 @@ export class TravelsCore<
         this.transactionRootSnapshot = undefined;
         this.transactionMeta = previousMetadata;
         this.transactionHasEffects = transactionSnapshot.hasEffects;
+        this.transactionHasOtherEffects = transactionSnapshot.hasOtherEffects;
         this.transactionNeedsCompatibilityCheck =
           transactionSnapshot.needsCompatibilityCheck;
         this.transactionCoordinator.truncateTo(

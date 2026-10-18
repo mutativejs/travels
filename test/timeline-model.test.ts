@@ -217,7 +217,11 @@ describe('timeline state-machine model', () => {
 
   test('manual archive composes pending edits into one modeled entry', () => {
     type ManualOperation = ModelOperation | { kind: 'archive' };
-    type ManualModel = TimelineModel & { pending: boolean };
+    type ManualModel = TimelineModel & {
+      pending: boolean;
+      pendingStart?: number;
+      hiddenByPending?: number;
+    };
     const manualOperation: fc.Arbitrary<ManualOperation> = fc.oneof(
       operationArbitrary,
       fc.record({ kind: fc.constant('archive' as const) })
@@ -252,8 +256,10 @@ describe('timeline state-machine model', () => {
                   model.states.push(operation.value);
                   model.position += 1;
                   model.pending = true;
+                  model.pendingStart = current;
+                  model.hiddenByPending = undefined;
                   if (model.states.length - 1 > maxHistory) {
-                    model.states.shift();
+                    model.hiddenByPending = model.states.shift();
                     model.position -= 1;
                   }
                 }
@@ -262,6 +268,18 @@ describe('timeline state-machine model', () => {
                 draft.value = operation.value;
               });
             } else if (operation.kind === 'archive') {
+              // Pending edits that end where they started cancel out, so
+              // archive() drops their entry and any state it pushed out.
+              if (
+                model.pending &&
+                model.states[model.position] === model.pendingStart
+              ) {
+                model.states.pop();
+                if (model.hiddenByPending !== undefined) {
+                  model.states.unshift(model.hiddenByPending);
+                }
+                model.position = model.states.length - 1;
+              }
               model.pending = false;
               travels.archive({ label: `position-${model.position}` });
             } else {
@@ -344,14 +362,15 @@ describe('timeline state-machine model', () => {
                 { label: `set-${operation.value}` }
               );
             } else if (operation.kind === 'transaction') {
-              let changed = false;
-              let value = model.states[model.position];
-              for (const nextValue of operation.values) {
-                if (nextValue !== value) changed = true;
-                value = nextValue;
-              }
+              const startValue = model.states[model.position];
+              const value =
+                operation.values.length > 0
+                  ? operation.values[operation.values.length - 1]
+                  : startValue;
 
-              if (!operation.fail && changed) {
+              // Updates that end where they started cancel out and, like a
+              // single update that changes nothing, record no entry.
+              if (!operation.fail && value !== startValue) {
                 model.states.length = model.position + 1;
                 model.states.push(value);
                 model.position += 1;

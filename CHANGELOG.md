@@ -145,13 +145,21 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  55.4 KiB raw / 15.1 KiB gzip (ESM). Option removals are outweighed by the
+  57.1 KiB raw / 15.5 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
+- Treat a root transaction whose `setState()` updates cancel out, such as
+  setting a field and then setting it back, as the no-op a single update that
+  changes nothing already was. It recorded an entry that undid nothing,
+  advanced the revision, published a `transaction` event, discarded the redo
+  branch, and in manual mode archived earlier pending changes; it now leaves
+  the timeline as it found it. `archive()` likewise drops pending changes that
+  cancel out instead of archiving them. Travels compares values the way
+  Mutative does, so a value replaced by an equal copy still counts as a change.
 - Return `getHistorySnapshot()` copies of history that holds values JSON
   would drop or change but that copy faithfully, such as `undefined`, `NaN`,
   `-0`, `bigint`, a `Date`, a null-prototype object, or a shared or circular

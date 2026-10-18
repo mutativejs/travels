@@ -232,8 +232,8 @@ left as is); copy the state with `structuredClone()` before editing it.
 Get an O(1), monotonically increasing token for external-store bindings. It
 advances once for every committed subscriber event, including operations such
 as manual `archive()` and `rebase()` that can change timeline controls without
-changing the current state reference. No-op updates and failed transactions do
-not advance it.
+changing the current state reference. No-op updates, transactions whose updates
+cancel out, and failed transactions do not advance it.
 
 #### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void), metadata?): void`
 
@@ -408,6 +408,8 @@ Returns `true` if redo is possible (not at the end of history).
 
 Saves the current state to history. Only available when `autoArchive: false`; automatic timelines omit both `archive` and `canArchive` at runtime and in TypeScript. Accepts optional metadata. If omitted, Travels uses the latest metadata supplied to pending `setState(...)` calls.
 
+Pending changes that cancel out are dropped instead of archived: their entry leaves the history, and `archive()` still publishes an `archive` event. Navigating while they are pending keeps them as an entry, because the navigation counts positions with that entry in place.
+
 #### `canArchive(): boolean` (Manual archive mode only)
 
 Returns `true` if there are unsaved changes that can be archived.
@@ -432,6 +434,8 @@ travels.transaction({ label: 'Move Selection' }, () => {
 ```
 
 `batch(...)` is an alias for `transaction(...)`.
+
+A transaction whose updates cancel out, such as one that sets a field and then sets it back, is a no-op like a single update that changes nothing: it records no entry, publishes no event, and keeps the redo branch. Travels compares values the way Mutative does, so a value replaced by an equal copy still counts as a change. A transaction that also navigates, archives, or resets still publishes, but adds no entry for updates that cancel out.
 
 Transaction callbacks must also be synchronous. A rejected asynchronous callback rolls the transaction back and reports a `TravelsError` through `onError` when configured.
 

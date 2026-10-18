@@ -62,7 +62,7 @@ export const assertSupportedRuntimeState = (
   }
 };
 
-const resolveOwnDataValue = (
+export const resolveOwnDataValue = (
   value: unknown,
   segments: Array<string | number>
 ): { found: boolean; value?: unknown } => {

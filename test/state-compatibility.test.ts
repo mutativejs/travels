@@ -573,7 +573,7 @@ describe('State compatibility warnings', () => {
 
   test('publishes patch compatibility warnings only after root commit', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const travels = createTravels({ value: null as bigint | null });
+    const travels = createTravels({ marker: 0, value: null as bigint | null });
 
     expect(() =>
       travels.transaction(() => {
@@ -594,6 +594,7 @@ describe('State compatibility warnings', () => {
       });
       travels.setState((draft) => {
         draft.value = null;
+        draft.marker = 1;
       });
     });
 
@@ -806,10 +807,11 @@ describe('State compatibility warnings', () => {
       });
       travels.setState((draft) => {
         draft.value = null;
+        draft.marker = 1;
       });
       travels.archive();
       travels.setState((draft) => {
-        draft.marker = 1;
+        draft.marker = 2;
       });
     });
 
