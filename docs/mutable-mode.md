@@ -29,9 +29,9 @@ travels.setState((draft) => {
 
 ## How It Works Under the Hood
 
-1. `createTravels` deep clones the initial state once (via `deepClone(initialState)`) to keep a pristine copy for `reset()`.
+1. `createTravels` keeps the object you pass as the live state and stores a copy of it, made with `structuredClone()`, as the baseline for `reset()`.
 2. Each `setState` call runs through Mutative's `create(...)` to generate patches/inverse patches. Those patches are immediately applied back to the live object via `apply(..., { mutable: true })`, so the reference never changes.
-3. Navigation commands (`back`, `forward`, `go`) reuse the stored patches. `reset()` instead computes a fresh diff back to the JSON-cloned initial snapshot so it can restore the original data shape without replaying every history step.
+3. Navigation commands (`back`, `forward`, `go`) reuse the stored patches. `reset()` instead computes a fresh diff back to that baseline copy so it can restore the original data without replaying every history step.
 4. If a history step replaces the entire root (patch path `[]` with `op: 'replace'`), Travels falls back to immutable assignment for that jump to guarantee correctness.
 
 The full implementation lives in `src/travels.ts` and is exercised by `test/mutable-mode.test.ts` and `test/primitive-edge-cases.test.ts`.
@@ -81,7 +81,7 @@ array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
 - **Root replacements in history**: Navigating to a step that replaces the entire root (e.g., switching from `{...}` to `[]` or a primitive) forces a new reference for that jump only.
 - **Unreplayable history**: Navigation applies retained patches to the live object in place. If one cannot be applied, as in a corrupt snapshot that passed the default structural validation, `go()` throws `HISTORY_REPLAY_FAILED` and the writes made before it remain. Validate untrusted snapshots with `Travels.deserialize(snapshot, { validation: 'semantic' })` before restoring them.
 - **Function updaters returning a new root**: In mutable mode, `setState(() => newState)` that replaces the root falls back to immutable assignment for that update (dev warning emitted).
-- **JSON-only data**: Travels clones the initial state via `deepClone(initialState)` the moment you call `createTravels`. Any non-JSON values are therefore lost up front, and `reset()` simply copies from that sanitized snapshot. The same constraint applies regardless of mutable mode.
+- **Reset baseline is a copy**: `reset()` returns to a copy of the state taken at creation or restore, or by the last `rebase()`, `replaceStateWithoutHistory()`, or update while tracking is paused. The copy is made with `structuredClone()`, so `Date`, `undefined`, `NaN`, `-0`, and `bigint` survive, while class instances come back as plain objects without their prototype and values it cannot copy, such as functions, are kept by reference. Both modes reset to the same data.
 - **Draft best practices**: Prefer mutating the provided draft (`draft.count++`) instead of returning a brand new object. Mutating drafts lets Travels keep using in-place patches during navigation.
 
 ## Integration Patterns
