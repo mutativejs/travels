@@ -60,7 +60,14 @@ export const deepCloneValue = (
   seen.set(value, cloned);
   for (const key in value) {
     if (Object.prototype.hasOwnProperty.call(value, key)) {
-      cloned[key] = deepCloneValue(value[key], seen);
+      // Define rather than assign: assigning an own __proto__ key, such as one
+      // JSON.parse produced, would replace the clone's prototype instead.
+      Object.defineProperty(cloned, key, {
+        value: deepCloneValue(value[key], seen),
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 

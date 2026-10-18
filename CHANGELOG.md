@@ -152,6 +152,12 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Keep an own `__proto__` key, such as one `JSON.parse` produced, when
+  Travels copies state, patch values, or metadata that `structuredClone()`
+  rejects, for example because they hold a function. The fallback copy
+  assigned each key, which replaced the copy's prototype instead, so `reset()`,
+  `serialize()`, and mutable undo and redo lost the key and exposed the
+  properties of the object it held.
 - Treat a root transaction whose `setState()` updates cancel out, such as
   setting a field and then setting it back, as the no-op a single update that
   changes nothing already was. It recorded an entry that undid nothing,

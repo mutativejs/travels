@@ -648,6 +648,39 @@ describe('Bug #4: Deep clone in reset() for nested arrays and objects', () => {
     expect(travels.getState().grid[0][0].data.value).toBe('a');
     expect(travels.getState().grid[1]).toHaveLength(2);
   });
+
+  test.each([false, true])(
+    'keeps own __proto__ keys when structuredClone cannot copy with mutable=%s',
+    (mutable) => {
+      // JSON.parse defines __proto__ as an own data property, and a function
+      // makes structuredClone() throw, so copies fall back to walking keys.
+      const parseSettings = (theme: string) => {
+        const settings = JSON.parse(
+          `{"__proto__":{"injected":true},"theme":"${theme}"}`
+        );
+        settings.format = () => theme;
+        return settings as { theme: string; format: () => string };
+      };
+      const hasOwnProtoKey = (value: object) =>
+        Object.prototype.hasOwnProperty.call(value, '__proto__') &&
+        Object.getPrototypeOf(value) === Object.prototype;
+      const travels = createTravels(
+        { settings: parseSettings('dark'), count: 0 },
+        { mutable, warnOnUnsupportedState: false }
+      );
+
+      travels.setState((draft) => {
+        draft.settings = parseSettings('light');
+      });
+      travels.back();
+      travels.forward();
+      expect(hasOwnProtoKey(travels.getState().settings)).toBe(true);
+
+      travels.reset();
+      expect(hasOwnProtoKey(travels.getState().settings)).toBe(true);
+      expect(hasOwnProtoKey(travels.serialize().state.settings)).toBe(true);
+    }
+  );
 });
 
 describe('Bug #5: Mutable mode value updates should match immutable replacements', () => {
