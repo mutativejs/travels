@@ -4,7 +4,7 @@ import {
   clonePatchGroupDetached,
   deepCloneValue,
 } from './internal/patch-utils.js';
-import { validateTravelHistoryEntry } from './persistence.js';
+import { validateTravelHistoryEntryStructure } from './persistence.js';
 import type {
   PatchesOption,
   TravelHistoryEntry,
@@ -22,7 +22,7 @@ export type PreparedTravelHistoryPatches<P extends PatchesOption> = {
 export const prepareTravelHistoryEntry = <P extends PatchesOption = {}>(
   entry: unknown
 ): PreparedTravelHistoryPatches<P> => {
-  const validation = validateTravelHistoryEntry<P>(entry);
+  const validation = validateTravelHistoryEntryStructure<P>(entry);
   if (validation.error !== null) {
     throw new TravelsTypeError(
       'INVALID_PATCH_ENTRY',

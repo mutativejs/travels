@@ -134,13 +134,17 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  53.4 KiB raw / 14.5 KiB gzip (ESM). Option removals are outweighed by the
+  53.5 KiB raw / 14.6 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
+- Reject Map and Set patch values in `validateTravelHistoryEntry()` again, as
+  `validateTravelPatches()` does. 2.2.0 left that check to `recordPatches()`,
+  so the public validator accepted entries that `recordPatches()` then
+  rejected; `recordPatches()` still walks each value only once.
 - Detach the reset patches of a mutable timeline whose root kind no longer
   matches its baseline. That reset replaces the root, and its event patches
   held the new live root itself, so the next in-place update also rewrote the

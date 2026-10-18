@@ -184,10 +184,15 @@ type TravelHistoryEntryValidation<P extends PatchesOption> =
   | { error: null; entry: TravelHistoryEntry<P> };
 
 /**
- * Validate and normalize one externally supplied forward/inverse patch pair.
- * Accessor-backed or inherited fields are rejected without being evaluated.
+ * Validate the structure of one patch pair without scanning its values.
+ * `recordPatches()` detaches the values next, which rejects Map and Set in the
+ * same walk, so scanning them here too doubled the cost of an external commit.
+ *
+ * @internal
  */
-export const validateTravelHistoryEntry = <P extends PatchesOption = {}>(
+export const validateTravelHistoryEntryStructure = <
+  P extends PatchesOption = {},
+>(
   entry: unknown
 ): TravelHistoryEntryValidation<P> => {
   if (!isObjectRecord(entry) || Array.isArray(entry)) {
@@ -212,15 +217,26 @@ export const validateTravelHistoryEntry = <P extends PatchesOption = {}>(
     };
   }
 
-  // Patch values are not scanned for collections here. Every caller runs
-  // assertSupportedPatchValues over the same values immediately afterwards,
-  // which walks each value once with a shared visited set and reports
-  // UNSUPPORTED_STATE. Repeating it here doubled the cost of an external
-  // commit and reported the same defect under a second error code.
   return {
     error: null,
     entry: { patches, inversePatches } as TravelHistoryEntry<P>,
   };
+};
+
+/**
+ * Validate and normalize one externally supplied forward/inverse patch pair.
+ * Accessor-backed or inherited fields are rejected without being evaluated.
+ * Use `assertTravelHistoryEntryRecordable()` to also apply the detached-value
+ * rules of `recordPatches()`.
+ */
+export const validateTravelHistoryEntry = <P extends PatchesOption = {}>(
+  entry: unknown
+): TravelHistoryEntryValidation<P> => {
+  const validation = validateTravelHistoryEntryStructure<P>(entry);
+  if (validation.error === null && containsMapOrSet(validation.entry)) {
+    return { error: `entry patches must not contain Map or Set values` };
+  }
+  return validation;
 };
 
 /** @inline */

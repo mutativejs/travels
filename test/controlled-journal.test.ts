@@ -6,6 +6,8 @@ import {
   restoreTravelJournal,
   createTravels,
   TravelsTypeError,
+  validateTravelHistoryEntry,
+  validateTravelPatches,
   type TravelHistoryEntry,
 } from '../src/index';
 
@@ -624,6 +626,30 @@ describe('controlled travel journal', () => {
       expect.objectContaining<Partial<TravelsTypeError>>({
         code: 'UNCLONEABLE_PATCH_VALUE',
       })
+    );
+  });
+
+  test('rejects collection patch values in both public patch validators', () => {
+    const removal = [{ op: 'remove', path: ['value'] }];
+    const entryWith = (value: unknown) => ({
+      patches: [{ op: 'add', path: ['value'], value }],
+      inversePatches: removal,
+    });
+
+    expect(validateTravelHistoryEntry(entryWith(new Map())).error).toBe(
+      'entry patches must not contain Map or Set values'
+    );
+    expect(validateTravelHistoryEntry(entryWith([new Set()])).error).toBe(
+      'entry patches must not contain Map or Set values'
+    );
+    expect(
+      validateTravelPatches({
+        patches: [entryWith(new Map()).patches],
+        inversePatches: [removal],
+      }).error
+    ).toBe('patches must not contain Map or Set values');
+    expect(validateTravelHistoryEntry(entryWith({ nested: 1 })).error).toBe(
+      null
     );
   });
 
