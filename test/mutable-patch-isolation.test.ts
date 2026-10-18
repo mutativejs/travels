@@ -83,6 +83,39 @@ describe('mutable patch isolation', () => {
     expect(travels.getState()).toEqual({ item: { value: 1 } });
   });
 
+  test('keeps history replayed across a root replacement out of the live state', () => {
+    type Document = {
+      count?: number;
+      list?: Array<{ id: number }>;
+      flag?: boolean;
+    };
+    const travels = createTravels<Document>(
+      { count: 0 },
+      {
+        mutable: true,
+        warnOnUnsupportedState: false,
+        onWarning: () => undefined,
+      }
+    );
+
+    travels.setState(() => ({ list: [{ id: 1 }] }));
+    travels.setState((draft) => {
+      draft.flag = true;
+    });
+    travels.go(0);
+    travels.go(2);
+    travels.setState((draft) => {
+      draft.list![0].id = 99;
+    });
+
+    // Replay the root replacement from its stored value.
+    travels.go(0);
+    travels.go(1);
+    expect(travels.getState()).toEqual({ list: [{ id: 1 }] });
+    travels.go(3);
+    expect(travels.getState()).toEqual({ list: [{ id: 99 }], flag: true });
+  });
+
   test('retains event-time inverse values before lazy materialization', () => {
     const state: State = { item: { value: 1 } };
     const removed = state.item!;

@@ -141,6 +141,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Keep retained history out of a mutable timeline's live state. Navigation
+  across a root replacement replays immutably, and Mutative uses the
+  replacement's value as the next state, so the next in-place update also
+  rewrote the history entry holding that value and later navigation returned
+  the edited data.
 - Reset a controlled journal whose current state and baseline are both plain
   objects, or both arrays, with patches that overwrite the root's entries
   instead of replacing the root. Owners that apply transitions in place, such

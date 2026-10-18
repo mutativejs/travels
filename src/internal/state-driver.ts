@@ -14,7 +14,7 @@ import {
   getPatchPathSegments,
   isObjectLike,
 } from '../utils.js';
-import { clonePatchGroupDetached } from './patch-utils.js';
+import { clonePatchGroup, clonePatchGroupDetached } from './patch-utils.js';
 import { isRootReplacement } from '../replay.js';
 
 const isPromiseLike = (value: unknown): value is PromiseLike<unknown> =>
@@ -276,6 +276,12 @@ export class StateDriver<
       return transition.state;
     }
 
-    return this.applyImmutably(transition.state, transition.patches);
+    // Mutative adopts a root replacement's value as the next state. In mutable
+    // mode that state is updated in place next, so replay a copy rather than
+    // the value retained in history.
+    return this.applyImmutably(
+      transition.state,
+      this.mutable ? clonePatchGroup(transition.patches) : transition.patches
+    );
   }
 }
