@@ -1607,6 +1607,8 @@ export class TravelsCore<
             },
         createOptions
       ) as [S, Patches<P>, Patches<P>];
+      // Returning the current state itself, like the draft, changes nothing.
+      if (Object.is(nextState, this.state)) return;
 
       const objectPatchValues = assertSupportedPatchValues(
         p,
@@ -1657,6 +1659,7 @@ export class TravelsCore<
                 : (updater as S),
             createOptions
           )) as unknown as [S, Patches<P>, Patches<P>];
+      if (Object.is(nextState, this.state)) return;
 
       const objectPatchValues = assertSupportedPatchValues(
         p,

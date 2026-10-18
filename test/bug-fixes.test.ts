@@ -745,6 +745,32 @@ describe('Bug #6: No-op updates should not push history entries', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
+  test.each([false, true])(
+    'treats an updater that returns the current state as a no-op (mutable: %s)',
+    (mutable) => {
+      const onWarning = vi.fn();
+      const listener = vi.fn();
+      const travels = createTravels({ count: 0 }, { mutable, onWarning });
+      const primitive = createTravels(5, {
+        mutable,
+        onWarning: () => undefined,
+      });
+      travels.subscribe(listener);
+      primitive.subscribe(listener);
+      const current = travels.getState();
+
+      travels.setState(current);
+      travels.setState(() => current);
+      primitive.setState(5);
+
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getRevision()).toBe(0);
+      expect(primitive.getPosition()).toBe(0);
+      expect(listener).not.toHaveBeenCalled();
+      expect(onWarning).not.toHaveBeenCalled();
+    }
+  );
+
   test('manual archive mode retains position and temp patches for no-ops', () => {
     const travels = createTravels({ count: 0 }, { autoArchive: false });
     const listener = vi.fn();

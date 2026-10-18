@@ -140,13 +140,16 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 - Strip the implementation class and internal module graph from published
   declarations and prune unreachable declaration artifacts.
 - Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  54.0 KiB raw / 14.7 KiB gzip (ESM). Option removals are outweighed by the
+  54.1 KiB raw / 14.7 KiB gzip (ESM). Option removals are outweighed by the
   ownership guards, atomic restore factories, restore targets, construction
   boundary, and cached control views. The size budgets were raised to match
   and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
+- Treat an update that passes or returns the current state object as a no-op,
+  as returning the draft already is. It recorded an empty root replacement and
+  published an event, and mutable timelines also warned about the replacement.
 - Set an `undefined` root through `setState(undefined)` and
   `replaceStateWithoutHistory(undefined)`. The value was taken for a recipe
   that made no change, so `setState()` ignored it and
