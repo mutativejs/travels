@@ -15,7 +15,9 @@ You can enhance Travels by wrapping its methods to add validation, permissions, 
 
 ## Intercepting and Modifying Operations
 
-While `subscribe()` lets you observe state changes, it cannot prevent or modify operations. To add validation, permissions, or transform data before execution, wrap the Travels methods:
+While `subscribe()` lets you observe state changes, it cannot prevent or modify operations. To add validation, permissions, or transform data before execution, wrap the Travels methods.
+
+A `setState()` wrapper must keep both halves of the contract it replaces: pass the optional second `metadata` argument on, or the labels callers attach to history entries are lost, and let a function updater either mutate the draft or return a new state. Every example below does both.
 
 ### Adding validation:
 
@@ -26,16 +28,16 @@ const travels = createTravels({ count: 0 });
 const originalSetState = travels.setState.bind(travels);
 
 // Wrap setState with validation
-travels.setState = function (updater: any) {
-  // Only validate direct values (not functions)
+travels.setState = function (updater: any, metadata?: TravelMetadata) {
+  // Validate direct values before Travels sees them
   if (typeof updater === 'object' && updater !== null) {
     // Validate
-    if (updater.count > 10) {
-      console.error('Count cannot exceed 10!');
+    if (updater.count < 0) {
+      console.error('Count cannot be negative!');
       return; // Prevent execution
     }
 
-    // Modify input - add metadata
+    // Modify input - cap the count and stamp the change
     updater = {
       ...updater,
       count: Math.min(updater.count, 10),
@@ -43,37 +45,44 @@ travels.setState = function (updater: any) {
     };
   }
 
-  // For mutation functions, wrap to validate after execution
+  // For function updaters, wrap to validate after execution
   if (typeof updater === 'function') {
     const wrappedUpdater = (draft: any) => {
-      // Execute the original mutation
-      updater(draft);
+      // Execute the original updater. It either mutates the draft or returns
+      // a new state, so validate whichever one it produced.
+      const result = updater(draft);
+      const next = result === undefined ? draft : { ...result };
 
-      // Validate after mutation
-      if (draft.count > 10) {
-        draft.count = 10; // Fix invalid state
+      // Validate after execution
+      if (next.count > 10) {
+        next.count = 10; // Fix invalid state
         console.warn('Count was capped at 10');
       }
 
-      // Add metadata
-      draft.timestamp = Date.now();
+      // Stamp the change
+      next.timestamp = Date.now();
+
+      // Pass a returned state on; a mutated draft needs no return value
+      return result === undefined ? undefined : next;
     };
 
-    originalSetState(wrappedUpdater);
+    originalSetState(wrappedUpdater, metadata);
     return;
   }
 
   // Execute for direct values
-  originalSetState(updater);
+  originalSetState(updater, metadata);
 } as any;
 
 travels.setState({ count: 5 }); // ✅ Works
-travels.setState({ count: 100 }); // ❌ Blocked, capped at 10
+travels.setState({ count: -1 }); // ❌ Blocked
+travels.setState({ count: 100 }); // ⚠️ Capped at 10
 
-// Also works with mutation functions
+// Also works with function updaters, whether they mutate or return
 travels.setState((draft) => {
   draft.count = 100; // Will be capped at 10
 });
+travels.setState(() => ({ count: 100 }), { label: 'max' }); // Capped, label kept
 ```
 
 ## Adding Permission Checks
@@ -104,7 +113,9 @@ travels.forward = function (amount?: number) {
 
 ## Automatically Adding Metadata to State Changes
 
-Wrap `setState` to inject metadata like timestamps or user IDs:
+Wrap `setState` to inject metadata like timestamps or user IDs into the state.
+To label the history entry instead, add your fields to the `metadata` argument
+the wrapper forwards, which `getMetadata()` returns for each entry.
 
 ```typescript
 const travels = createTravels<any>({ items: [] });
@@ -112,7 +123,7 @@ const currentUser = { id: 'user123' };
 
 const originalSetState = travels.setState.bind(travels);
 
-travels.setState = function (updater: any) {
+travels.setState = function (updater: any, metadata?: TravelMetadata) {
   // Handle direct value
   if (typeof updater === 'object' && updater !== null) {
     if (updater.items) {
@@ -126,17 +137,19 @@ travels.setState = function (updater: any) {
         })),
       };
     }
-    return originalSetState(updater);
+    return originalSetState(updater, metadata);
   }
 
-  // Handle mutation function
+  // Handle function updaters
   if (typeof updater === 'function') {
     const wrappedUpdater = (draft: any) => {
-      updater(draft); // Execute original mutation
+      // Execute the original updater, keeping a state it returns
+      const result = updater(draft);
+      const next = result === undefined ? draft : result;
 
-      // Add metadata after mutation
-      if (draft.items) {
-        draft.items.forEach((item: any) => {
+      // Add metadata after the update
+      if (next.items) {
+        next.items.forEach((item: any) => {
           if (!item.timestamp) {
             item.timestamp = Date.now();
             item.userId = currentUser.id;
@@ -144,11 +157,12 @@ travels.setState = function (updater: any) {
           }
         });
       }
+      return result;
     };
-    return originalSetState(wrappedUpdater);
+    return originalSetState(wrappedUpdater, metadata);
   }
 
-  return originalSetState(updater);
+  return originalSetState(updater, metadata);
 } as any;
 
 // Works with direct value
@@ -171,7 +185,7 @@ const auditLog: any[] = [];
 
 const originalSetState = travels.setState.bind(travels);
 
-travels.setState = function (updater: any) {
+travels.setState = function (updater: any, metadata?: TravelMetadata) {
   // Log before
   auditLog.push({
     type: 'setState',
@@ -181,7 +195,7 @@ travels.setState = function (updater: any) {
   });
 
   // Execute
-  const result = originalSetState(updater);
+  const result = originalSetState(updater, metadata);
 
   // Log after
   auditLog.push({
@@ -205,14 +219,14 @@ const throttleInterval = 100; // ms
 
 const originalSetState = travels.setState.bind(travels);
 
-travels.setState = function (updater: any) {
+travels.setState = function (updater: any, metadata?: TravelMetadata) {
   const now = Date.now();
   if (now - lastCallTime < throttleInterval) {
     console.warn('Too many updates, throttled');
     return;
   }
   lastCallTime = now;
-  return originalSetState(updater);
+  return originalSetState(updater, metadata);
 } as any;
 ```
 
@@ -236,7 +250,7 @@ function enhanceTravels<S>(
   // Wrap setState
   if (config.validation || config.metadata || config.logging) {
     const original = travels.setState.bind(travels);
-    travels.setState = function (updater: any) {
+    travels.setState = function (updater: any, metadata?: TravelMetadata) {
       // Logging - before
       if (config.logging) {
         console.log('[setState] before:', travels.getState());
@@ -262,7 +276,7 @@ function enhanceTravels<S>(
           };
         }
 
-        const res = original(updater);
+        const res = original(updater, metadata);
 
         // Logging - after
         if (config.logging) {
@@ -272,14 +286,16 @@ function enhanceTravels<S>(
         return res;
       }
 
-      // Handle mutation function
+      // Handle function updaters
       if (typeof updater === 'function') {
         const wrappedUpdater = (draft: any) => {
-          updater(draft);
+          // The updater mutates the draft or returns a new state
+          const returned = updater(draft);
+          const next = returned === undefined ? draft : { ...returned };
 
-          // Validation for mutations
+          // Validation for function updaters
           if (config.validation) {
-            const result = config.validation(travels.getState(), draft);
+            const result = config.validation(travels.getState(), next);
             if (result !== true) {
               throw new Error(
                 typeof result === 'string' ? result : 'Validation failed'
@@ -287,13 +303,15 @@ function enhanceTravels<S>(
             }
           }
 
-          // Add metadata for mutations
+          // Add metadata for function updaters
           if (config.metadata) {
-            draft._meta = { timestamp: Date.now(), user: currentUser.id };
+            next._meta = { timestamp: Date.now(), user: currentUser.id };
           }
+
+          return returned === undefined ? undefined : next;
         };
 
-        const res = original(wrappedUpdater);
+        const res = original(wrappedUpdater, metadata);
 
         // Logging - after
         if (config.logging) {
@@ -303,7 +321,7 @@ function enhanceTravels<S>(
         return res;
       }
 
-      return original(updater);
+      return original(updater, metadata);
     } as any;
   }
 
@@ -384,10 +402,10 @@ Here are some reusable wrapper patterns:
 // Pattern 1: Validation wrapper
 function withValidation<S>(
   travels: Travels<S>,
-  validator: (state: any, draft?: any) => boolean | string
+  validator: (nextState: any) => boolean | string
 ) {
   const original = travels.setState.bind(travels);
-  travels.setState = function (updater: any) {
+  travels.setState = function (updater: any, metadata?: TravelMetadata) {
     // Handle direct value
     if (typeof updater === 'object' && updater !== null) {
       const result = validator(updater);
@@ -396,24 +414,25 @@ function withValidation<S>(
           typeof result === 'string' ? result : 'Validation failed'
         );
       }
-      return original(updater);
+      return original(updater, metadata);
     }
 
-    // Handle mutation function
+    // Handle function updaters, validating the draft or the returned state
     if (typeof updater === 'function') {
       const wrapped = (draft: any) => {
-        updater(draft);
-        const result = validator(travels.getState(), draft);
+        const returned = updater(draft);
+        const result = validator(returned === undefined ? draft : returned);
         if (result !== true) {
           throw new Error(
             typeof result === 'string' ? result : 'Validation failed'
           );
         }
+        return returned;
       };
-      return original(wrapped);
+      return original(wrapped, metadata);
     }
 
-    return original(updater);
+    return original(updater, metadata);
   } as any;
   return travels;
 }

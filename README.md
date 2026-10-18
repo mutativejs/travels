@@ -1259,13 +1259,13 @@ You can enhance Travels by wrapping its methods to add validation, permissions, 
 const travels = createTravels({ count: 0 });
 const originalSetState = travels.setState.bind(travels);
 
-// Add validation
-travels.setState = function (updater: any) {
+// Add validation, forwarding the optional history metadata
+travels.setState = function (updater: any, metadata?: TravelMetadata) {
   if (typeof updater === 'object' && updater.count > 100) {
     console.error('Count cannot exceed 100');
     return; // Block the operation
   }
-  return originalSetState(updater);
+  return originalSetState(updater, metadata);
 } as any;
 ```
 
