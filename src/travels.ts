@@ -1650,9 +1650,10 @@ export class TravelsCore<
           )
         : create(
             this.state,
+            // Returned raw, undefined replaces the root instead of a no-op.
             () =>
-              isObjectLike(updater)
-                ? (rawReturn(updater as object) as S)
+              isObjectLike(updater) || updater === undefined
+                ? (rawReturn(updater as object | undefined) as S)
                 : (updater as S),
             createOptions
           )) as unknown as [S, Patches<P>, Patches<P>];

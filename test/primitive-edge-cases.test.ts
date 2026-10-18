@@ -140,6 +140,27 @@ describe('Primitive types edge cases with mutable mode', () => {
     expect(travels.getPosition()).toBe(0);
   });
 
+  test.each([false, true])(
+    'sets an undefined root from a value update (mutable: %s)',
+    (mutable) => {
+      const travels = createTravels<number | undefined>(1, {
+        mutable,
+        onWarning: () => undefined,
+      });
+
+      travels.setState(undefined);
+      expect(travels.getState()).toBeUndefined();
+      expect(travels.getPosition()).toBe(1);
+      travels.back();
+      expect(travels.getState()).toBe(1);
+
+      travels.replaceStateWithoutHistory(undefined);
+      expect(travels.getState()).toBeUndefined();
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.canForward()).toBe(false);
+    }
+  );
+
   test('transition from primitive to object throws no errors', () => {
     const travels = createTravels<number | { count: number }>(0, {
       mutable: true,

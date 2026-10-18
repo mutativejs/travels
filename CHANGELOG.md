@@ -147,6 +147,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Set an `undefined` root through `setState(undefined)` and
+  `replaceStateWithoutHistory(undefined)`. The value was taken for a recipe
+  that made no change, so `setState()` ignored it and
+  `replaceStateWithoutHistory()` cleared the history but kept the previous
+  state.
 - Reject a `setState()` change under a `__proto__` key, or inside a value
   stored at a `constructor` key, with `UNSUPPORTED_STATE` before it applies.
   Mutative will not replay such patches, so immutable timelines recorded an
