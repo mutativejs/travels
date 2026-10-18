@@ -111,6 +111,24 @@ travels.forward = function (amount?: number) {
   }
   return originalForward(amount);
 } as any;
+
+// Guard go() and reset() as well, or a viewer can still undo and redo with
+// go() or return to the initial state with reset()
+const originalGo = travels.go.bind(travels);
+travels.go = function (position: number) {
+  if (currentUser.role === 'viewer') {
+    throw new Error('Permission denied: viewers cannot jump through history');
+  }
+  return originalGo(position);
+} as any;
+
+const originalReset = travels.reset.bind(travels);
+travels.reset = function () {
+  if (currentUser.role === 'viewer') {
+    throw new Error('Permission denied: viewers cannot reset');
+  }
+  return originalReset();
+} as any;
 ```
 
 ## Automatically Adding Metadata to State Changes
@@ -329,7 +347,8 @@ function enhanceTravels<S>(
 
   // Wrap navigation methods with permissions
   if (config.permissions) {
-    ['back', 'forward', 'reset', 'archive', 'rebase'].forEach((method) => {
+    const methods = ['back', 'forward', 'go', 'reset', 'archive', 'rebase'];
+    methods.forEach((method) => {
       const original = (travels as any)[method]?.bind(travels);
       if (original) {
         (travels as any)[method] = function (...args: any[]) {
@@ -461,7 +480,15 @@ function withPermissions<S>(
   travels: Travels<S>,
   checkPermission: (action: string) => boolean
 ) {
-  const methods = ['setState', 'back', 'forward', 'reset', 'archive', 'rebase'];
+  const methods = [
+    'setState',
+    'back',
+    'forward',
+    'go',
+    'reset',
+    'archive',
+    'rebase',
+  ];
   methods.forEach((method) => {
     const original = (travels as any)[method]?.bind(travels);
     if (original) {
