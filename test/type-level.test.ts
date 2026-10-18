@@ -311,6 +311,55 @@ describe('Type-level API contracts', () => {
     >();
   });
 
+  test('mutable timelines reject a literal auto-freeze flag', () => {
+    type State = { count: number };
+    const store: State = { count: 0 };
+    const snapshot = createTravels(store).serialize();
+    const runtimeFlag = true as boolean;
+    const forwardFreezeMode = <F extends boolean>(
+      options: TravelsOptions<F, true>
+    ) => createTravels(store, options);
+
+    if (false) {
+      // @ts-expect-error mutable mode cannot freeze the live state
+      createTravels(store, { mutable: true, enableAutoFreeze: true });
+      createTravels(store, {
+        // @ts-expect-error manual archive mode follows the same rule
+        mutable: true,
+        enableAutoFreeze: true,
+        autoArchive: false,
+      });
+      createPatchableTravels(store, {
+        // @ts-expect-error mutable mode cannot freeze the live state
+        mutable: true,
+        enableAutoFreeze: true,
+      });
+      restoreTravels(snapshot, {
+        // @ts-expect-error a live restore target cannot be frozen either
+        mutable: true,
+        enableAutoFreeze: true,
+        target: store,
+      });
+      // @ts-expect-error a mutable flag that may be true cannot be frozen
+      createTravels(store, { mutable: runtimeFlag, enableAutoFreeze: true });
+      // @ts-expect-error a frozen type argument cannot select mutable mode
+      createTravels<State, true>(store, { mutable: true });
+      // @ts-expect-error frozen options cannot select mutable mode
+      const frozenMutable: TravelsOptions<true, true> = { mutable: true };
+      void frozenMutable;
+
+      // A freeze flag known only at runtime compiles; the factories reject it.
+      createTravels(store, { mutable: true, enableAutoFreeze: runtimeFlag });
+    }
+
+    createTravels(store, { mutable: true });
+    createTravels(store, { mutable: true, enableAutoFreeze: false });
+    createTravels(store, { mutable: false, enableAutoFreeze: true });
+    createTravels(store, { mutable: runtimeFlag });
+    forwardFreezeMode({ mutable: true });
+    forwardFreezeMode({ enableAutoFreeze: true });
+  });
+
   test('only restoreTravels accepts a typed live restore target', () => {
     const snapshot = createTravels({ count: 0 }).serialize();
     const store = { count: 0 };

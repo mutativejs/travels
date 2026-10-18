@@ -104,7 +104,10 @@ describe('public option boundaries', () => {
   );
 
   test('rejects auto-freeze in mutable mode on every state-owning factory', () => {
-    const options = { mutable: true, enableAutoFreeze: true } as const;
+    // The types reject only a literal freeze flag, so a flag known at runtime
+    // must still be rejected by the factories.
+    const enableAutoFreeze = true as boolean;
+    const options = { mutable: true, enableAutoFreeze };
 
     expectInvalidOption(() => createTravels({ count: 0 }, options));
     expectInvalidOption(() => createPatchableTravels({ count: 0 }, options));

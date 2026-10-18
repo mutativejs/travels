@@ -348,9 +348,13 @@ export type TravelsOptions<
    * Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)
    * When true, apply patches directly to the existing state object
    * When false (default), create new immutable state objects
+   *
+   * Cannot be combined with `enableAutoFreeze: true`. TypeScript rejects the
+   * pair when the freeze flag is the literal `true`; the factories also reject
+   * it at runtime with `INVALID_OPTION`.
    * @default false
    */
-  mutable?: boolean;
+  mutable?: [F] extends [true] ? false : boolean;
   /**
    * Warn in development about weak patch or JSON persistence semantics in
    * state, retained patches, or history metadata. Defaults to `true`.

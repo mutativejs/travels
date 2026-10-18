@@ -119,6 +119,10 @@ const travels = new Travels(store, { mutable: true, enableAutoFreeze: true });
 const travels = createTravels(store, { mutable: true });
 ```
 
+TypeScript reports the pair when `enableAutoFreeze` is the literal `true`, even
+with a `mutable` flag typed as `boolean`. A freeze flag computed at runtime is
+rejected when the timeline is created.
+
 ### Treat shared views as read-only
 
 `getHistory()` now returns `readonly ReadonlyState<S>[]` through both the

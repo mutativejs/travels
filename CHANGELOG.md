@@ -12,9 +12,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 ### Breaking Changes
 
 - Reject `enableAutoFreeze: true` together with `mutable: true` with
-  `INVALID_OPTION`. Mutable mode updates the live state in place, and freezing
-  each produced state also froze the parts it shared with the live state, so
-  the next update that wrote to them threw a `TypeError`.
+  `INVALID_OPTION`, and report the pair at compile time when
+  `enableAutoFreeze` is the literal `true`. Mutable mode updates the live
+  state in place, and freezing each produced state also froze the parts it
+  shared with the live state, so the next update that wrote to them threw a
+  `TypeError`.
 - Require `mutative@^2.0.0` as the peer dependency. Mutative 1.x is no longer
   supported: its patches could not undo some recorded changes, such as an array
   shortened and lengthened again in one update or an element changed between
