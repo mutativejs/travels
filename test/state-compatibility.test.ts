@@ -671,6 +671,32 @@ describe('State compatibility warnings', () => {
     expect(laterInspections).toBe(initialInspections);
   });
 
+  test('checks the paths of a large array edit without comparing each pair', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const items: Array<number | bigint> = Array.from(
+      { length: 60_000 },
+      (_, index) => index
+    );
+    items[1] = 1n;
+    const travels = createTravels({ items });
+
+    // shift() rewrites every index. Comparing each written path with every
+    // kept one took about 20 seconds here, far past the test timeout.
+    travels.setState((draft) => {
+      draft.items.shift();
+    });
+
+    const stateWarnings = warnSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes('state compatibility warning'));
+    warnSpy.mockRestore();
+
+    expect(stateWarnings).toEqual([
+      expect.stringContaining('at $.items[1]'),
+      expect.stringContaining('at $.items[0]'),
+    ]);
+  });
+
   test('keeps touched-state warning deduplication scoped to absolute paths', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const travels = createTravels({

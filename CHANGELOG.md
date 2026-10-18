@@ -152,6 +152,11 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Reduce the state paths a commit wrote in linear time before the
+  development-only compatibility warnings inspect them. Each written path was
+  compared with every kept one, so one `shift()` on an array of 40,000 items
+  took 8.8 s in a development build and 80,000 items took 48 s; they now take
+  0.2 s and 0.5 s. Production builds do not run these checks.
 - Compose a history entry with more operations than a function call accepts
   as arguments, about 125,000 in V8, such as one `shift()` on an array of
   130,000 items. The operations were spread into `push()`, which threw a

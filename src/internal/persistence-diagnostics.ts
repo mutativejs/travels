@@ -55,6 +55,58 @@ const getOwnDataValueAtPath = (
   return { found: true, value: current, path };
 };
 
+type PathNode = {
+  children: Map<unknown, PathNode>;
+  written: boolean;
+  kept: boolean;
+};
+
+const createPathNode = (): PathNode => ({
+  children: new Map(),
+  written: false,
+  kept: false,
+});
+
+/**
+ * Keep each written path that no other written path contains, once and in
+ * first-write order, so every written sub-tree is inspected once. A prefix tree
+ * keeps this linear in the total path length; comparing each path with every
+ * kept one made a single large array edit, such as shift(), quadratic.
+ */
+const getOutermostPaths = (
+  paths: ReadonlyArray<Array<string | number>>
+): Array<Array<string | number>> => {
+  const root = createPathNode();
+  for (const path of paths) {
+    let node = root;
+    for (const segment of path) {
+      let child = node.children.get(segment);
+      if (!child) {
+        child = createPathNode();
+        node.children.set(segment, child);
+      }
+      node = child;
+    }
+    node.written = true;
+  }
+
+  const outermost: Array<Array<string | number>> = [];
+  for (const path of paths) {
+    let node = root;
+    let depth = 0;
+    while (depth < path.length && !node.written) {
+      node = node.children.get(path[depth])!;
+      depth += 1;
+    }
+    // Stopping short means a written ancestor already covers this path.
+    if (depth === path.length && !node.kept) {
+      node.kept = true;
+      outermost.push(path);
+    }
+  }
+  return outermost;
+};
+
 /**
  * Development-only persistence compatibility warnings.
  *
@@ -150,7 +202,7 @@ export class PersistenceDiagnostics<S, P extends PatchesOption = {}> {
       return;
     }
 
-    const touchedPaths: Array<Array<string | number>> = [];
+    const writtenPaths: Array<Array<string | number>> = [];
     for (const operation of patches) {
       const descriptor = Object.getOwnPropertyDescriptor(operation, 'path');
       const segments =
@@ -161,32 +213,10 @@ export class PersistenceDiagnostics<S, P extends PatchesOption = {}> {
         this.warnValue('state', timeline.state);
         return;
       }
-
-      if (
-        touchedPaths.some(
-          (existing) =>
-            existing.length <= segments.length &&
-            existing.every((segment, index) => segment === segments[index])
-        )
-      ) {
-        continue;
-      }
-
-      for (let index = touchedPaths.length - 1; index >= 0; index -= 1) {
-        const existing = touchedPaths[index];
-        if (
-          segments.length < existing.length &&
-          segments.every(
-            (segment, pathIndex) => segment === existing[pathIndex]
-          )
-        ) {
-          touchedPaths.splice(index, 1);
-        }
-      }
-      touchedPaths.push(segments);
+      writtenPaths.push(segments);
     }
 
-    for (const path of touchedPaths) {
+    for (const path of getOutermostPaths(writtenPaths)) {
       const resolved = getOwnDataValueAtPath(timeline.state, path);
       if (resolved.found) {
         this.warnValue('state', resolved.value, resolved.path);

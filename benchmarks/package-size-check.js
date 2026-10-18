@@ -23,11 +23,11 @@ const limits = {
   bundleRaw: 55 * KiB,
   bundleGzip: 15 * KiB,
   bundleMap: 259.25 * KiB,
-  developmentBundleRaw: 60.75 * KiB,
+  developmentBundleRaw: 61 * KiB,
   developmentBundleGzip: 16.5 * KiB,
-  developmentBundleMap: 273.75 * KiB,
-  packagePacked: 515.5 * KiB,
-  packageUnpacked: 2003.5 * KiB,
+  developmentBundleMap: 275 * KiB,
+  packagePacked: 516.5 * KiB,
+  packageUnpacked: 2006.5 * KiB,
 };
 
 const failures = [];
