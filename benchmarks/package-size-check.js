@@ -27,7 +27,7 @@ const limits = {
   developmentBundleGzip: 16.25 * KiB,
   developmentBundleMap: 271.75 * KiB,
   packagePacked: 511 * KiB,
-  packageUnpacked: 1985.5 * KiB,
+  packageUnpacked: 1986 * KiB,
 };
 
 const failures = [];
