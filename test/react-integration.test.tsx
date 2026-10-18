@@ -10,11 +10,12 @@ import { createTravels, Updater, type Travels } from '../src/index';
 
 // Custom hook from the example
 function useTravel<S>(travelsInstance: Travels<S, any, any>) {
-  const state = useSyncExternalStore(
-    travelsInstance.subscribe.bind(travelsInstance),
-    travelsInstance.getState.bind(travelsInstance),
-    travelsInstance.getState.bind(travelsInstance)
+  useSyncExternalStore(
+    travelsInstance.subscribe,
+    travelsInstance.getRevision,
+    travelsInstance.getRevision
   );
+  const state = travelsInstance.getState();
 
   const controls = travelsInstance.getControls();
 
@@ -72,6 +73,26 @@ describe('React Integration Example - useTravel Hook', () => {
     expect(state.count).toBe(1);
     expect(state.history).toHaveLength(1);
     expect(state.history[0]).toBe('Incremented to 1');
+  });
+
+  test('should re-render controls after timeline-only changes', () => {
+    const { result } = renderHook(() => {
+      const [state, , controls] = useTravel(travels);
+      return { state, canBack: controls.canBack() };
+    });
+
+    act(() => {
+      travels.setState((draft: CounterState) => {
+        draft.count = 1;
+      });
+    });
+    expect(result.current.canBack).toBe(true);
+
+    // rebase() keeps the state reference but leaves nothing to undo.
+    act(() => {
+      travels.rebase();
+    });
+    expect(result.current.canBack).toBe(false);
   });
 
   test('should support undo/redo operations', () => {

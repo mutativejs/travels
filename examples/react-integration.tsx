@@ -22,12 +22,15 @@ const travels = createTravels<CounterState>({
 
 // Custom hook to use Travels in React components
 function useTravel<S>(travelsInstance: Travels<S, any, any>) {
-  // Subscribe to state changes
-  const state = useSyncExternalStore(
-    travelsInstance.subscribe.bind(travelsInstance),
-    travelsInstance.getState.bind(travelsInstance),
-    travelsInstance.getState.bind(travelsInstance)
+  // Subscribe to the revision rather than the state: it also advances for
+  // timeline-only changes such as rebase() and archive(), which keep the
+  // state reference, so the controls rendered below stay current.
+  useSyncExternalStore(
+    travelsInstance.subscribe,
+    travelsInstance.getRevision,
+    travelsInstance.getRevision
   );
+  const state = travelsInstance.getState();
 
   // Get controls
   const controls = travelsInstance.getControls();

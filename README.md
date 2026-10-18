@@ -856,12 +856,15 @@ import { createTravels } from 'travels';
 const travels = createTravels({ count: 0 });
 
 function useTravel() {
-  const state = useSyncExternalStore(
-    travels.subscribe.bind(travels),
-    travels.getState.bind(travels)
-  );
+  // The revision also advances for timeline-only changes such as rebase(),
+  // which keep the state reference, so the controls below stay current.
+  useSyncExternalStore(travels.subscribe, travels.getRevision);
 
-  return [state, travels.setState.bind(travels), travels.getControls()] as const;
+  return [
+    travels.getState(),
+    travels.setState.bind(travels),
+    travels.getControls(),
+  ] as const;
 }
 
 function Counter() {
@@ -999,9 +1002,15 @@ import { createTravels } from 'travels';
 export function useTravel(initialState, options) {
   const travels = createTravels(initialState, options);
   const state = ref(travels.getState());
+  const canBack = ref(travels.canBack());
+  const canForward = ref(travels.canForward());
 
+  // Every event can change the controls, including rebase() and archive(),
+  // which keep the state reference.
   travels.subscribe(({ state: newState }) => {
     state.value = newState;
+    canBack.value = travels.canBack();
+    canForward.value = travels.canForward();
   });
 
   const setState = (updater) => {
@@ -1010,6 +1019,8 @@ export function useTravel(initialState, options) {
 
   return {
     state: readonly(state),
+    canBack: readonly(canBack),
+    canForward: readonly(canForward),
     setState,
     controls: travels.getControls(),
   };

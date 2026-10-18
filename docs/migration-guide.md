@@ -326,7 +326,8 @@ See [`examples/zustand.ts`](../examples/zustand.ts).
 `use-travel` is a React hook wrapper. Use Travels directly when you need framework-agnostic control, persistence adapters, metadata, or custom store integration.
 
 1. Create `const travels = createTravels(initialState)`.
-2. Subscribe with `useSyncExternalStore`.
+2. Subscribe with `useSyncExternalStore(travels.subscribe, travels.getRevision)`
+   and read `travels.getState()` while rendering.
 3. Expose `travels.getControls()` to components.
 4. Use `serialize()` / `Travels.deserialize()` for reloads.
 
