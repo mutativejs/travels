@@ -70,8 +70,8 @@ array) as the snapshot state; it is rejected with `INVALID_OPTION` otherwise.
 | `back` / `forward`   | Yes, unless the step applies a root-level replacement      | Happens when you undo a change that swapped the entire state object or type           |
 | `go(position)`       | Same as `back/forward`                                     | Travels checks for root-replace patches before deciding whether it can mutate in place|
 | `archive` (manual)   | Yes                                                        | Temporary patches are merged and applied to the same live object                      |
-| `reset`              | Usually                                                    | Mutates in place only when both the current state and the stored initial snapshot are objects; otherwise it reassigns the root |
-| `getHistory`         | Mixed                                                      | Includes the live state for the current position and cloned values for past/future steps |
+| `reset`              | Usually                                                    | Mutates in place only when the current state and the stored initial snapshot are both plain objects or both arrays; otherwise it reassigns the root |
+| `getHistory`         | Mixed                                                      | Includes the live state for the current position. Past and future entries share unchanged objects with it, so in-place updates also change an array returned earlier; keep copies with `getHistorySnapshot()` |
 | `subscribe`          | Receives the live (mutated) reference                      | Subscribers can safely compare by reference; values reflect the current undo position |
 
 ## Fallback & Safety Rails
