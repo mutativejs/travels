@@ -6,6 +6,7 @@ import type {
   TravelsWarning,
   TravelsWarningCode,
 } from '../type.js';
+import { TravelsTypeError } from '../errors.js';
 import { consumePromiseLikeRejection } from '../utils.js';
 
 export type ObserverListener<S, P extends PatchesOption = {}> = (
@@ -109,6 +110,12 @@ export class ObserverHub<S, P extends PatchesOption = {}> {
   }
 
   public subscribe(listener: ObserverListener<S, P>): () => void {
+    if (typeof listener !== 'function') {
+      throw new TravelsTypeError(
+        'INVALID_OPTION',
+        'Travels: subscribe requires a listener function.'
+      );
+    }
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);

@@ -614,6 +614,22 @@ export class TravelsCore<
       );
     }
 
+    // Observer isolation would swallow the failure of calling a non-function.
+    for (const [name, hook] of Object.entries({
+      onError,
+      onBranchDiscard,
+      onObserverError,
+      onWarning,
+      devtools,
+    })) {
+      if (hook !== undefined && typeof hook !== 'function') {
+        throw new TravelsTypeError(
+          'INVALID_OPTION',
+          `Travels: ${name} must be a function.`
+        );
+      }
+    }
+
     this.observers = new ObserverHub<S, P>({
       devtools,
       onObserverError,

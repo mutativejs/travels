@@ -194,6 +194,47 @@ describe('public option boundaries', () => {
     }
   );
 
+  test.each([
+    'onError',
+    'onBranchDiscard',
+    'onObserverError',
+    'onWarning',
+    'devtools',
+  ])('rejects a non-function %s on every public factory', (option) => {
+    for (const value of [null, 'handler', {}, true]) {
+      const stateOptions = { [option]: value } as never;
+      const journalOptions = {
+        [option]: value,
+        apply: ({ state }: { state: { count: number } }) => state,
+      } as never;
+
+      expectInvalidOption(() => createTravels({ count: 0 }, stateOptions));
+      expectInvalidOption(() =>
+        createPatchableTravels({ count: 0 }, stateOptions)
+      );
+      expectInvalidOption(() => restoreTravels(snapshot, stateOptions));
+      expectInvalidOption(() =>
+        createTravelJournal({ count: 0 }, journalOptions)
+      );
+      expectInvalidOption(() => restoreTravelJournal(snapshot, journalOptions));
+    }
+    expect(() =>
+      createTravels({ count: 0 }, { [option]: undefined })
+    ).not.toThrow();
+  });
+
+  test('rejects a non-function subscribe listener', () => {
+    const journal = createTravelJournal(
+      { count: 0 },
+      { apply: ({ state }) => state }
+    );
+
+    for (const listener of [undefined, null, {}]) {
+      expectInvalidOption(() => timeline.subscribe(listener as never));
+      expectInvalidOption(() => journal.subscribe(listener as never));
+    }
+  });
+
   test.each(removedRestoreOptions)(
     'rejects removed journal-factory option %s',
     (option, value) => {
