@@ -1393,10 +1393,16 @@ export class TravelsCore<
     };
   }
 
+  /** Restore a scope's timeline; false if an in-place change was not undone. */
   private restoreTransactionSnapshot(
     snapshot: TransactionSnapshot<S, P>
-  ): void {
-    this.transactionCoordinator.rollbackTo(snapshot.stateJournalLength);
+  ): boolean {
+    let rolledBack = true;
+    try {
+      this.transactionCoordinator.rollbackTo(snapshot.stateJournalLength);
+    } catch {
+      rolledBack = false;
+    }
 
     snapshot.allPatches.patches.length = snapshot.allPatchCount;
     snapshot.allPatches.inversePatches.length = snapshot.allPatchCount;
@@ -1427,6 +1433,7 @@ export class TravelsCore<
 
     this.invalidateHistoryCache();
     this.assertInvariants();
+    return rolledBack;
   }
 
   /**
@@ -1879,9 +1886,18 @@ export class TravelsCore<
       assertSynchronousResult(fn(), 'transaction');
     } catch (error) {
       failed = true;
-      this.restoreTransactionSnapshot(transactionSnapshot);
+      const rolledBack = this.restoreTransactionSnapshot(transactionSnapshot);
       this.transactionMeta = previousMetadata;
-      throw this.reportError('TRANSACTION_FAILED', error);
+      throw this.reportError(
+        'TRANSACTION_FAILED',
+        rolledBack
+          ? error
+          : new TravelsError(
+              'TRANSACTION_FAILED',
+              'Travels: transaction failed, and some in-place changes could not be rolled back.',
+              { cause: error }
+            )
+      );
     } finally {
       this.transactionDepth -= 1;
 

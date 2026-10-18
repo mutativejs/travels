@@ -199,6 +199,63 @@ describe('persisted history semantic validation', () => {
     expect(mutable.getPosition()).toBe(0);
   });
 
+  test('restores the timeline when a mutable rollback cannot be replayed either', () => {
+    // Entry 0 replays, while entry 1 fails part way in both directions.
+    const snapshot = {
+      version: 1 as const,
+      state: { count: 0, nested: {} },
+      position: 0,
+      patches: {
+        patches: [
+          [{ op: 'replace' as const, path: ['count'], value: 1 }],
+          [
+            { op: 'replace' as const, path: ['count'], value: 2 },
+            {
+              op: 'replace' as const,
+              path: ['nested', 'missing', 'value'],
+              value: 1,
+            },
+          ],
+        ],
+        inversePatches: [
+          [{ op: 'replace' as const, path: ['count'], value: 0 }],
+          [
+            { op: 'replace' as const, path: ['count'], value: 1 },
+            {
+              op: 'replace' as const,
+              path: ['nested', 'other', 'value'],
+              value: 0,
+            },
+          ],
+        ],
+      },
+    };
+    const travels = restoreTravels(structuredClone(snapshot), {
+      mutable: true,
+    });
+
+    expect(() =>
+      travels.transaction(() => {
+        travels.forward();
+        travels.forward();
+      })
+    ).toThrowError(
+      expect.objectContaining<Partial<TravelsError>>({
+        code: 'TRANSACTION_FAILED',
+        cause: expect.objectContaining({ code: 'HISTORY_REPLAY_FAILED' }),
+      })
+    );
+    expect(travels.getPosition()).toBe(0);
+    expect(travels.getState()).toEqual({ count: 0, nested: {} });
+    expect(travels.getPatches().patches).toHaveLength(2);
+
+    travels.setState((draft) => {
+      draft.count = 5;
+    });
+    expect(travels.getPosition()).toBe(1);
+    expect(travels.getPatches().patches).toHaveLength(1);
+  });
+
   test('uses the selected validation mode for fallback snapshots', () => {
     const structurallyValidFallback = {
       version: 1 as const,

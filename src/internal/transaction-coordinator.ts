@@ -28,16 +28,23 @@ export class TransactionCoordinator<P extends PatchesOption = {}> {
     }
   }
 
+  /** Undo every change after `journalLength`, then rethrow the first failure. */
   public rollbackTo(journalLength: number): void {
+    let failure: { error: unknown } | undefined;
     for (
       let index = this.stateJournal.length - 1;
       index >= journalLength;
       index -= 1
     ) {
       const entry = this.stateJournal[index];
-      apply(entry.state, entry.inversePatches, { mutable: true });
+      try {
+        apply(entry.state, entry.inversePatches, { mutable: true });
+      } catch (error) {
+        failure ??= { error };
+      }
     }
     this.stateJournal.length = journalLength;
+    if (failure) throw failure.error;
   }
 
   public truncateTo(journalLength: number): void {
