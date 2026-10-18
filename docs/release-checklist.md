@@ -3,8 +3,7 @@
 1. Update the release version locally:
 
    - bump `package.json`
-   - update `CHANGELOG.md`, replacing `Unreleased` in the version heading with
-     the release date
+   - update `CHANGELOG.md`, replacing `Unreleased` in the version heading with the release date
 
 2. Run local verification before tagging:
 
@@ -32,24 +31,14 @@
 
 ### Coordinated v3 binding release
 
-For a major release that changes the factory or restore boundary, publish in
-dependency order:
+For a major release that changes the factory or restore boundary, publish in dependency order:
 
-1. Finish every Travels gate in this checklist and publish `travels@3` from the
-   exact tested artifact.
-2. Install the published core in clean `use-travel` and `zustand-travel`
-   checkouts. Raise their `mutative` peer and development ranges to the range
-   Travels requires (`^2.0.0` for Travels 3), update their lockfiles to the
-   published versions, and rerun each repository's types, tests, production
-   build, and package smoke test.
+1. Finish every Travels gate in this checklist and publish `travels@3` from the exact tested artifact.
+2. Install the published core in clean `use-travel` and `zustand-travel` checkouts. Raise their `mutative` peer and development ranges to the range Travels requires (`^2.0.0` for Travels 3), update their lockfiles to the published versions, and rerun each repository's types, tests, production build, and package smoke test.
 3. Publish the binding majors only after those published-core runs pass.
-4. In a clean consumer, install all three published packages together with
-   `mutative@2`, confirm the install reports no peer dependency conflict, and
-   smoke test a new timeline plus an atomically restored timeline.
+4. In a clean consumer, install all three published packages together with `mutative@2`, confirm the install reports no peer dependency conflict, and smoke test a new timeline plus an atomically restored timeline.
 
-Local sibling links are useful candidate evidence, but they do not replace the
-published-package checks in steps 2 and 4. Do not tag a binding release that
-requires an unpublished core version.
+Local sibling links are useful candidate evidence, but they do not replace the published-package checks in steps 2 and 4. Do not tag a binding release that requires an unpublished core version.
 
 7. Push `main`, then create and push a matching release tag:
 
@@ -62,10 +51,7 @@ requires an unpublished core version.
 
    The tag must match the `package.json` version exactly, with a leading `v`.
 
-   The release job picks the npm dist-tag itself: a version above the
-   published `latest` becomes `latest`, a prerelease becomes `next`, and a
-   maintenance release of an older major becomes `v<major>-latest` (for
-   example `v2-latest`), so it never replaces the current major.
+   The release job picks the npm dist-tag itself: a version above the published `latest` becomes `latest`, a prerelease becomes `next`, and a maintenance release of an older major becomes `v<major>-latest` (for example `v2-latest`), so it never replaces the current major.
 
 8. Confirm the tag-triggered release flow completed:
 

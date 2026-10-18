@@ -2,261 +2,80 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.0.0] - Unreleased
+## [3.0.0] - 2026-10-19
 
-Travels 3 makes its public capabilities match the ownership model already used
-internally: state-owning timelines, externally owned journals, shared read
-views, and persistence restoration now have distinct, explicit contracts. See
-the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
+Travels 3 makes its public capabilities match the ownership model already used internally: state-owning timelines, externally owned journals, shared read views, and persistence restoration now have distinct, explicit contracts. See the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Breaking Changes
 
-- Reject `enableAutoFreeze: true` together with `mutable: true` with
-  `INVALID_OPTION`, and report the pair at compile time when
-  `enableAutoFreeze` is the literal `true`. Mutable mode updates the live
-  state in place, and freezing each produced state also froze the parts it
-  shared with the live state, so the next update that wrote to them threw a
-  `TypeError`.
-- Require `mutative@^2.0.0` as the peer dependency. Mutative 1.x is no longer
-  supported: its patches could not undo some recorded changes, such as an array
-  shortened and lengthened again in one update or an element changed between
-  `0` and `-0`. Mutative 2 builds target ES2018 and select their development
-  or production build from `process.env.NODE_ENV`; see the
-  [migration guide](docs/migration-guide.md#upgrade-mutative-to-2).
-- Retained patches in immutable mode now share objects with the states they
-  produced, because Mutative 2 no longer deep-copies patch values. Mutating a
-  state outside Travels operations, which was already unsupported, now also
-  rewrites the history that redo replays. Mutable mode still stores detached
-  patch values.
-- Replace the public `Travels` constructor with the `createTravels()` and
-  `createPatchableTravels()` factories. The `Travels` value is now a frozen
-  persistence namespace containing `Travels.deserialize()`, so
-  `instanceof Travels` throws; use the new `isTravels()` guard. The internal
-  constructor reachable through `instance.constructor` rejects direct
-  construction with `INVALID_OPERATION` instead of skipping factory validation.
-- Publish `Travels` as an explicit state-owning capability interface and make
-  its `mutable` mode flag read-only. Mutable behavior is fixed when the factory
-  creates the underlying state driver and cannot be changed afterwards.
-- Remove `controlledApply` from `TravelsOptions`. Create externally owned
-  timelines with `createTravelJournal(initialState, { apply })` instead.
-- Separate state and journal capabilities at runtime as well as in TypeScript.
-  State-owning timelines no longer expose `recordPatches()`, while a
-  `TravelJournal` is an explicit facade that omits `setState()`, transactions,
-  tracking, `replaceStateWithoutHistory()`, and `getControls()`. Journal
-  navigation and `reset()` are delegated through the external owner;
-  `rebase()` remains journal-local, and manual journals expose `archive()` and
-  `canArchive()`.
-- Expose `archive()` and `canArchive()` only on timelines created with
-  `autoArchive: false`. Automatic timelines omit both capabilities at runtime
-  and in TypeScript instead of retaining a warning-only `archive()` method.
-- Align journal generic parameters with the state-owning interface as
-  `<S, F, A, P>`. v2 code that explicitly supplied patch options as the third
-  argument must insert the archive mode before them; inferred call sites are
-  unchanged.
-- Drop the unused auto-freeze parameter from `TravelsControls`,
-  `RebasableTravelsControls`, `ManualTravelsControls`, and
-  `RebasableManualTravelsControls`, which are now `<S, P>`, and remove the
-  unused `Value` and `InitialValue` helper types.
-- Make `TravelsControls` a read-only capability object and change
-  both shared `getHistory()` surfaces to return
-  `readonly ReadonlyState<S>[]`. Controls, journal facades, and shared history
-  array containers are frozen in every build. Use `getHistorySnapshot()` for
-  detached mutable `S[]` values, independently of the auto-freeze option.
-- Return `controls.patches` as a cached, frozen `ReadonlyTravelPatches` view
-  that is rebuilt once per history change. 2.x deep-cloned the whole retained
-  history on every property read, which cost about 0.9 ms per read at 1000
-  entries and produced a new reference each time. Use `getPatches()` for a
-  detached copy.
-- Expose observer state as a borrowed `ReadonlyState<S>` view and deltas as
-  `ReadonlyTravelPatches`. The shared patch snapshot, its group arrays,
-  operations, and array paths are frozen when lazily materialized. Top-level
-  metadata is lazily cloned and frozen; nested patch and metadata values remain
-  shallow, event-local views shared by its observers.
-- Remove the deprecated `TravelsDevtoolsEvent` alias and the
-  `LEGACY_SUBSCRIBER` arity warning. Subscribers and devtools use
-  `TravelsEvent` exclusively.
-- Remove the split `TravelsHistory` type plus `history`, `initialPatches`,
-  `initialPosition`, and `strictInitialPatches` from `TravelsOptions`. Restore
-  one complete `TravelsSerializedHistory` through `Travels.deserialize()` and
-  `restoreTravels()`; malformed history now throws instead of silently starting
-  from an empty timeline.
-- Archive pending manual work as part of the navigation that implies it.
-  `back()`, `forward()`, and `go()` with pending changes now publish a single
-  `go` event and advance the revision once in both immutable and mutable mode,
-  where 2.x published `archive` followed by `go`. The pending entry is
-  committed only after the navigation succeeds.
-- Remove the `deserializeTravelsHistory` export. It duplicated
-  `Travels.deserialize()`, which remains the single public decoder.
-- Require Node.js 22 or newer. CI and release verification cover Node.js 22 and
-  24.
+- Reject `enableAutoFreeze: true` together with `mutable: true` with `INVALID_OPTION`, and report the pair at compile time when `enableAutoFreeze` is the literal `true`. Mutable mode updates the live state in place, and freezing each produced state also froze the parts it shared with the live state, so the next update that wrote to them threw a `TypeError`.
+- Require `mutative@^2.0.0` as the peer dependency. Mutative 1.x is no longer supported: its patches could not undo some recorded changes, such as an array shortened and lengthened again in one update or an element changed between `0` and `-0`. Mutative 2 builds target ES2018 and select their development or production build from `process.env.NODE_ENV`; see the [migration guide](docs/migration-guide.md#upgrade-mutative-to-2).
+- Retained patches in immutable mode now share objects with the states they produced, because Mutative 2 no longer deep-copies patch values. Mutating a state outside Travels operations, which was already unsupported, now also rewrites the history that redo replays. Mutable mode still stores detached patch values.
+- Replace the public `Travels` constructor with the `createTravels()` and `createPatchableTravels()` factories. The `Travels` value is now a frozen persistence namespace containing `Travels.deserialize()`, so `instanceof Travels` throws; use the new `isTravels()` guard. The internal constructor reachable through `instance.constructor` rejects direct construction with `INVALID_OPERATION` instead of skipping factory validation.
+- Publish `Travels` as an explicit state-owning capability interface and make its `mutable` mode flag read-only. Mutable behavior is fixed when the factory creates the underlying state driver and cannot be changed afterwards.
+- Remove `controlledApply` from `TravelsOptions`. Create externally owned timelines with `createTravelJournal(initialState, { apply })` instead.
+- Separate state and journal capabilities at runtime as well as in TypeScript. State-owning timelines no longer expose `recordPatches()`, while a `TravelJournal` is an explicit facade that omits `setState()`, transactions, tracking, `replaceStateWithoutHistory()`, and `getControls()`. Journal navigation and `reset()` are delegated through the external owner; `rebase()` remains journal-local, and manual journals expose `archive()` and `canArchive()`.
+- Expose `archive()` and `canArchive()` only on timelines created with `autoArchive: false`. Automatic timelines omit both capabilities at runtime and in TypeScript instead of retaining a warning-only `archive()` method.
+- Align journal generic parameters with the state-owning interface as `<S, F, A, P>`. v2 code that explicitly supplied patch options as the third argument must insert the archive mode before them; inferred call sites are unchanged.
+- Drop the unused auto-freeze parameter from `TravelsControls`, `RebasableTravelsControls`, `ManualTravelsControls`, and `RebasableManualTravelsControls`, which are now `<S, P>`, and remove the unused `Value` and `InitialValue` helper types.
+- Make `TravelsControls` a read-only capability object and change both shared `getHistory()` surfaces to return `readonly ReadonlyState<S>[]`. Controls, journal facades, and shared history array containers are frozen in every build. Use `getHistorySnapshot()` for detached mutable `S[]` values, independently of the auto-freeze option.
+- Return `controls.patches` as a cached, frozen `ReadonlyTravelPatches` view that is rebuilt once per history change. 2.x deep-cloned the whole retained history on every property read, which cost about 0.9 ms per read at 1000 entries and produced a new reference each time. Use `getPatches()` for a detached copy.
+- Expose observer state as a borrowed `ReadonlyState<S>` view and deltas as `ReadonlyTravelPatches`. The shared patch snapshot, its group arrays, operations, and array paths are frozen when lazily materialized. Top-level metadata is lazily cloned and frozen; nested patch and metadata values remain shallow, event-local views shared by its observers.
+- Remove the deprecated `TravelsDevtoolsEvent` alias and the `LEGACY_SUBSCRIBER` arity warning. Subscribers and devtools use `TravelsEvent` exclusively.
+- Remove the split `TravelsHistory` type plus `history`, `initialPatches`, `initialPosition`, and `strictInitialPatches` from `TravelsOptions`. Restore one complete `TravelsSerializedHistory` through `Travels.deserialize()` and `restoreTravels()`; malformed history now throws instead of silently starting from an empty timeline.
+- Archive pending manual work as part of the navigation that implies it. `back()`, `forward()`, and `go()` with pending changes now publish a single `go` event and advance the revision once in both immutable and mutable mode, where 2.x published `archive` followed by `go`. The pending entry is committed only after the navigation succeeds.
+- Remove the `deserializeTravelsHistory` export. It duplicated `Travels.deserialize()`, which remains the single public decoder.
+- Require Node.js 22 or newer. CI and release verification cover Node.js 22 and 24.
 
 ### Added
 
-- Add `ReadonlyTravelPatch` and `ReadonlyTravelPatches` for observer-facing
-  patch views.
-- Add the `restoreTravels(snapshot, { mutable: true, target })` option for
-  restoring persisted history into an existing observable store object, which
-  replaces the 2.x `new Travels(store, { mutable: true, history })` pattern.
+- Add `ReadonlyTravelPatch` and `ReadonlyTravelPatches` for observer-facing patch views.
+- Add the `restoreTravels(snapshot, { mutable: true, target })` option for restoring persisted history into an existing observable store object, which replaces the 2.x `new Travels(store, { mutable: true, history })` pattern.
 - Add `isTravels()` to identify state-owning timelines without `instanceof`.
-- Add `getRevision()`, an O(1) monotonic subscription token that advances once
-  for each committed observable timeline event, including history-only changes.
-- Add `assertTravelHistoryEntryRecordable()` so external owners can verify that
-  a patch pair and its metadata can be safely detached before publishing the
-  corresponding state.
-- Complete the controlled-journal lifecycle with owner-delegated `reset()` and
-  manual archive mode while preserving the frozen, ownership-safe facade.
-- Add package-level type and runtime smoke checks for the factory-only API,
-  capability separation, read-only shared views, and unified restore path.
+- Add `getRevision()`, an O(1) monotonic subscription token that advances once for each committed observable timeline event, including history-only changes.
+- Add `assertTravelHistoryEntryRecordable()` so external owners can verify that a patch pair and its metadata can be safely detached before publishing the corresponding state.
+- Complete the controlled-journal lifecycle with owner-delegated `reset()` and manual archive mode while preserving the frozen, ownership-safe facade.
+- Add package-level type and runtime smoke checks for the factory-only API, capability separation, read-only shared views, and unified restore path.
 
 ### Changed
 
-- Type the `devtools` hook event with the timeline state. `TravelsOptions`
-  gains an optional fourth `S` parameter (default `any`), which every factory
-  fills in, so `devtools(event)` sees `TravelsEvent<S>` instead of
-  `TravelsEvent<any>`. Hooks that read fields the state does not have, or that
-  annotate their event with a different state type, now fail to compile.
-- Rename the internal restored reset state to a baseline model, keeping
-  transaction rollback, `reset()`, and `rebase()` aligned with atomic snapshot
-  restoration.
-- Validate complete restore snapshots structurally even when a JavaScript caller
-  bypasses TypeScript, and reject the removed `history` option at runtime.
-  Persistence from storage should still go through
-  `Travels.deserialize(..., { validation: 'semantic' })` when its provenance is
-  not trusted.
-- Report an unknown `Travels.deserialize()` `validation` mode as
-  `TravelsTypeError` with code `INVALID_OPTION` instead of a plain `TypeError`
-  without a code.
-- Report retained patches that cannot be applied, from navigation and
-  `getHistory()`, as `TravelsError` with the new code `HISTORY_REPLAY_FAILED`
-  and the Mutative error as its `cause`, instead of that error alone, which
-  production builds of Mutative 2 reduce to an error code. A mutable timeline
-  keeps the in-place writes made before the failing operation, so validate
-  untrusted snapshots semantically before restoring them.
-- Reject defined non-boolean `autoArchive` and `mutable` values at runtime
-  instead of selecting capability modes through JavaScript truthiness; omitted
-  values retain their defaults.
-- Reject a defined `onError`, `onBranchDiscard`, `onObserverError`,
-  `onWarning`, or `devtools` option, and a `subscribe()` listener, that is not
-  a function with `INVALID_OPTION`. Travels accepted them and called them
-  later inside the observer isolation, which swallowed the resulting
-  `TypeError`, so `onWarning: {}` silently dropped every warning.
-- Update persistence examples, browser fixtures, API documentation, and the
-  release workflows for the 3.0 contracts.
-- Strip the implementation class and internal module graph from published
-  declarations and prune unreachable declaration artifacts.
-- Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to
-  57.1 KiB raw / 15.5 KiB gzip (ESM). Option removals are outweighed by the
-  ownership guards, atomic restore factories, restore targets, construction
-  boundary, and cached control views. The size budgets were raised to match
-  and sit just above the 3.0.0 artifacts.
+- Type the `devtools` hook event with the timeline state. `TravelsOptions` gains an optional fourth `S` parameter (default `any`), which every factory fills in, so `devtools(event)` sees `TravelsEvent<S>` instead of `TravelsEvent<any>`. Hooks that read fields the state does not have, or that annotate their event with a different state type, now fail to compile.
+- Rename the internal restored reset state to a baseline model, keeping transaction rollback, `reset()`, and `rebase()` aligned with atomic snapshot restoration.
+- Validate complete restore snapshots structurally even when a JavaScript caller bypasses TypeScript, and reject the removed `history` option at runtime. Persistence from storage should still go through `Travels.deserialize(..., { validation: 'semantic' })` when its provenance is not trusted.
+- Report an unknown `Travels.deserialize()` `validation` mode as `TravelsTypeError` with code `INVALID_OPTION` instead of a plain `TypeError` without a code.
+- Report retained patches that cannot be applied, from navigation and `getHistory()`, as `TravelsError` with the new code `HISTORY_REPLAY_FAILED` and the Mutative error as its `cause`, instead of that error alone, which production builds of Mutative 2 reduce to an error code. A mutable timeline keeps the in-place writes made before the failing operation, so validate untrusted snapshots semantically before restoring them.
+- Reject defined non-boolean `autoArchive` and `mutable` values at runtime instead of selecting capability modes through JavaScript truthiness; omitted values retain their defaults.
+- Reject a defined `onError`, `onBranchDiscard`, `onObserverError`, `onWarning`, or `devtools` option, and a `subscribe()` listener, that is not a function with `INVALID_OPTION`. Travels accepted them and called them later inside the observer isolation, which swallowed the resulting `TypeError`, so `onWarning: {}` silently dropped every warning.
+- Update persistence examples, browser fixtures, API documentation, and the release workflows for the 3.0 contracts.
+- Strip the implementation class and internal module graph from published declarations and prune unreachable declaration artifacts.
+- Grow the production bundle from 48.4 KiB raw / 13.4 KiB gzip in 2.2.0 to 57.1 KiB raw / 15.5 KiB gzip (ESM). Option removals are outweighed by the ownership guards, atomic restore factories, restore targets, construction boundary, and cached control views. The size budgets were raised to match and sit just above the 3.0.0 artifacts.
 
 ### Fixed
 
-- Keep an own `__proto__` key, such as one `JSON.parse` produced, when
-  Travels copies state, patch values, or metadata that `structuredClone()`
-  rejects, for example because they hold a function. The fallback copy
-  assigned each key, which replaced the copy's prototype instead, so `reset()`,
-  `serialize()`, and mutable undo and redo lost the key and exposed the
-  properties of the object it held.
-- Treat a root transaction whose `setState()` updates cancel out, such as
-  setting a field and then setting it back, as the no-op a single update that
-  changes nothing already was. It recorded an entry that undid nothing,
-  advanced the revision, published a `transaction` event, discarded the redo
-  branch, and in manual mode archived earlier pending changes; it now leaves
-  the timeline as it found it. `archive()` likewise drops pending changes that
-  cancel out instead of archiving them. Travels compares values the way
-  Mutative does, so a value replaced by an equal copy still counts as a change.
-- Return `getHistorySnapshot()` copies of history that holds values JSON
-  would drop or change but that copy faithfully, such as `undefined`, `NaN`,
-  `-0`, `bigint`, a `Date`, a null-prototype object, or a shared or circular
-  reference. The method enforced the whole durable JSON contract, so an
-  optional field left `undefined` threw `PERSISTENCE_INCOMPATIBLE` although
-  `serialize()` accepted the same history. It still refuses functions,
-  accessors, `Map`, `Set`, class instances, and other runtime objects, and is
-  about twice as fast because it copies in the same pass that checks.
-- Reduce the state paths a commit wrote in linear time before the
-  development-only compatibility warnings inspect them. Each written path was
-  compared with every kept one, so one `shift()` on an array of 40,000 items
-  took 8.8 s in a development build and 80,000 items took 48 s; they now take
-  0.2 s and 0.5 s. Production builds do not run these checks.
-- Compose a history entry with more operations than a function call accepts
-  as arguments, about 125,000 in V8, such as one `shift()` on an array of
-  130,000 items. The operations were spread into `push()`, which threw a
-  `RangeError`, so `back()` failed, a manual timeline's `getPatches()`,
-  `serialize()`, and `archive()` threw, and `transaction()` threw after
-  applying the change, leaving the position and history out of step.
-- Replace a root that has an own `__proto__` key, such as one `JSON.parse`
-  produced, when a mutable timeline applies a value update or resets and when
-  a journal resets. Overwriting such a root key by key assigned `__proto__` on
-  a Mutative draft, which threw an untyped Mutative error. `restoreTravels()`
-  rejects such a root as `target` with `INVALID_OPTION`, because a target must
-  be overwritten in place.
-- Restore the whole timeline when a failed transaction cannot undo every
-  in-place change of a mutable state. The rollback stopped at the first change
-  it could not undo, leaving fields such as the cursor unrestored, and its error
-  replaced the transaction's. It now undoes the remaining changes and throws
-  `TRANSACTION_FAILED` with the original error as its `cause`.
-- Treat an update that passes or returns the current state object as a no-op,
-  as returning the draft already is. It recorded an empty root replacement and
-  published an event, and mutable timelines also warned about the replacement.
-- Set an `undefined` root through `setState(undefined)` and
-  `replaceStateWithoutHistory(undefined)`. The value was taken for a recipe
-  that made no change, so `setState()` ignored it and
-  `replaceStateWithoutHistory()` cleared the history but kept the previous
-  state.
-- Reject a `setState()` change under a `__proto__` key, or inside a value
-  stored at a `constructor` key, with `UNSUPPORTED_STATE` before it applies.
-  Mutative will not replay such patches, so immutable timelines recorded an
-  entry that could not be undone or restored, and mutable timelines threw an
-  untyped Mutative error.
-- Pass a draft-free root returned by a mutable timeline's function updater to
-  Mutative through `rawReturn()`, as immutable timelines already do. Mutative
-  searched it for drafts and printed a development warning that `onWarning`
-  could not receive.
-- Reject Map and Set patch values in `validateTravelHistoryEntry()` again, as
-  `validateTravelPatches()` does. 2.2.0 left that check to `recordPatches()`,
-  so the public validator accepted entries that `recordPatches()` then
-  rejected; `recordPatches()` still walks each value only once.
-- Detach the reset patches of a mutable timeline whose root kind no longer
-  matches its baseline. That reset replaces the root, and its event patches
-  held the new live root itself, so the next in-place update also rewrote the
-  patches that observers read later or that a transaction event composed.
-- Keep retained history out of a mutable timeline's live state. Navigation
-  across a root replacement replays immutably, and Mutative uses the
-  replacement's value as the next state, so the next in-place update also
-  rewrote the history entry holding that value and later navigation returned
-  the edited data.
-- Reset a controlled journal whose current state and baseline are both plain
-  objects, or both arrays, with patches that overwrite the root's entries
-  instead of replacing the root. Owners that apply transitions in place, such
-  as with Mutative's `apply(state, patches, { mutable: true })`, can now reset:
-  Mutative 1 skipped the root replacement and left the owner's state unchanged
-  while the journal moved to its baseline, and Mutative 2 throws for it.
-- Report an object reached through two paths without a cycle as
-  `SHARED_REFERENCE` instead of `CIRCULAR_REFERENCE`. Durable-state checks
-  such as `createPatchableTravels()` still reject it, because JSON duplicates
-  shared references, but the diagnostic no longer claims a cycle. Add
-  `SHARED_REFERENCE` to `StateCompatibilityIssueCode`.
-- Stop recloning every retained metadata entry each time a commit trims
-  history at `maxHistory`. Commits at capacity were O(maxHistory) structured
-  clones: 500 labelled commits took 331 ms at `maxHistory: 1000` and 3.5 s at
-  10000, and now take 4 ms and 31 ms.
-- Detach `restoreTravels()` state from the snapshot. Mutable timelines restored
-  from a reused `fallback` snapshot previously wrote their edits into it, so the
-  next restore started from another document's contents.
-- Reject journal mutations re-entered from the external owner's `apply`
-  callback, and stage implicit manual archives until delegated navigation
-  succeeds so cursor, pending work, revision, and notifications remain atomic.
-- Normalize root JSON Pointer paths to the canonical empty string when string
-  paths are configured, both for newly produced and restored patch history.
+- Keep an own `__proto__` key, such as one `JSON.parse` produced, when Travels copies state, patch values, or metadata that `structuredClone()` rejects, for example because they hold a function. The fallback copy assigned each key, which replaced the copy's prototype instead, so `reset()`, `serialize()`, and mutable undo and redo lost the key and exposed the properties of the object it held.
+- Treat a root transaction whose `setState()` updates cancel out, such as setting a field and then setting it back, as the no-op a single update that changes nothing already was. It recorded an entry that undid nothing, advanced the revision, published a `transaction` event, discarded the redo branch, and in manual mode archived earlier pending changes; it now leaves the timeline as it found it. `archive()` likewise drops pending changes that cancel out instead of archiving them. Travels compares values the way Mutative does, so a value replaced by an equal copy still counts as a change.
+- Return `getHistorySnapshot()` copies of history that holds values JSON would drop or change but that copy faithfully, such as `undefined`, `NaN`, `-0`, `bigint`, a `Date`, a null-prototype object, or a shared or circular reference. The method enforced the whole durable JSON contract, so an optional field left `undefined` threw `PERSISTENCE_INCOMPATIBLE` although `serialize()` accepted the same history. It still refuses functions, accessors, `Map`, `Set`, class instances, and other runtime objects, and is about twice as fast because it copies in the same pass that checks.
+- Reduce the state paths a commit wrote in linear time before the development-only compatibility warnings inspect them. Each written path was compared with every kept one, so one `shift()` on an array of 40,000 items took 8.8 s in a development build and 80,000 items took 48 s; they now take 0.2 s and 0.5 s. Production builds do not run these checks.
+- Compose a history entry with more operations than a function call accepts as arguments, about 125,000 in V8, such as one `shift()` on an array of 130,000 items. The operations were spread into `push()`, which threw a `RangeError`, so `back()` failed, a manual timeline's `getPatches()`, `serialize()`, and `archive()` threw, and `transaction()` threw after applying the change, leaving the position and history out of step.
+- Replace a root that has an own `__proto__` key, such as one `JSON.parse` produced, when a mutable timeline applies a value update or resets and when a journal resets. Overwriting such a root key by key assigned `__proto__` on a Mutative draft, which threw an untyped Mutative error. `restoreTravels()` rejects such a root as `target` with `INVALID_OPTION`, because a target must be overwritten in place.
+- Restore the whole timeline when a failed transaction cannot undo every in-place change of a mutable state. The rollback stopped at the first change it could not undo, leaving fields such as the cursor unrestored, and its error replaced the transaction's. It now undoes the remaining changes and throws `TRANSACTION_FAILED` with the original error as its `cause`.
+- Treat an update that passes or returns the current state object as a no-op, as returning the draft already is. It recorded an empty root replacement and published an event, and mutable timelines also warned about the replacement.
+- Set an `undefined` root through `setState(undefined)` and `replaceStateWithoutHistory(undefined)`. The value was taken for a recipe that made no change, so `setState()` ignored it and `replaceStateWithoutHistory()` cleared the history but kept the previous state.
+- Reject a `setState()` change under a `__proto__` key, or inside a value stored at a `constructor` key, with `UNSUPPORTED_STATE` before it applies. Mutative will not replay such patches, so immutable timelines recorded an entry that could not be undone or restored, and mutable timelines threw an untyped Mutative error.
+- Pass a draft-free root returned by a mutable timeline's function updater to Mutative through `rawReturn()`, as immutable timelines already do. Mutative searched it for drafts and printed a development warning that `onWarning` could not receive.
+- Reject Map and Set patch values in `validateTravelHistoryEntry()` again, as `validateTravelPatches()` does. 2.2.0 left that check to `recordPatches()`, so the public validator accepted entries that `recordPatches()` then rejected; `recordPatches()` still walks each value only once.
+- Detach the reset patches of a mutable timeline whose root kind no longer matches its baseline. That reset replaces the root, and its event patches held the new live root itself, so the next in-place update also rewrote the patches that observers read later or that a transaction event composed.
+- Keep retained history out of a mutable timeline's live state. Navigation across a root replacement replays immutably, and Mutative uses the replacement's value as the next state, so the next in-place update also rewrote the history entry holding that value and later navigation returned the edited data.
+- Reset a controlled journal whose current state and baseline are both plain objects, or both arrays, with patches that overwrite the root's entries instead of replacing the root. Owners that apply transitions in place, such as with Mutative's `apply(state, patches, { mutable: true })`, can now reset: Mutative 1 skipped the root replacement and left the owner's state unchanged while the journal moved to its baseline, and Mutative 2 throws for it.
+- Report an object reached through two paths without a cycle as `SHARED_REFERENCE` instead of `CIRCULAR_REFERENCE`. Durable-state checks such as `createPatchableTravels()` still reject it, because JSON duplicates shared references, but the diagnostic no longer claims a cycle. Add `SHARED_REFERENCE` to `StateCompatibilityIssueCode`.
+- Stop recloning every retained metadata entry each time a commit trims history at `maxHistory`. Commits at capacity were O(maxHistory) structured clones: 500 labelled commits took 331 ms at `maxHistory: 1000` and 3.5 s at 10000, and now take 4 ms and 31 ms.
+- Detach `restoreTravels()` state from the snapshot. Mutable timelines restored from a reused `fallback` snapshot previously wrote their edits into it, so the next restore started from another document's contents.
+- Reject journal mutations re-entered from the external owner's `apply` callback, and stage implicit manual archives until delegated navigation succeeds so cursor, pending work, revision, and notifications remain atomic.
+- Normalize root JSON Pointer paths to the canonical empty string when string paths are configured, both for newly produced and restored patch history.
 
 ## [2.2.0] - 2026-07-26
 
-The hardening below tightens contracts, but every tightening is scoped either
-to `createTravelJournal()`, added in 2.1.0, or to history data Travels itself
-never produced. Nothing changes for state, navigation, transactions, or
-persistence written by 2.x. See Behavior Changes for the two cases that can
-reject input a 2.1.x program supplied.
+The hardening below tightens contracts, but every tightening is scoped either to `createTravelJournal()`, added in 2.1.0, or to history data Travels itself never produced. Nothing changes for state, navigation, transactions, or persistence written by 2.x. See Behavior Changes for the two cases that can reject input a 2.1.x program supplied.
 
 ### Behavior Changes
 

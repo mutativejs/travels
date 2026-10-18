@@ -8,8 +8,7 @@ Travels is tested on:
 - Node.js 24.x
 - jsdom browser-like environment through Vitest
 
-Node.js 22 is the minimum supported runtime. The package is distributed as
-ESM, CJS, UMD, and TypeScript declarations.
+Node.js 22 is the minimum supported runtime. The package is distributed as ESM, CJS, UMD, and TypeScript declarations.
 
 ## Browser Support
 
@@ -23,22 +22,14 @@ Mutative 2 builds target ES2018 and read `process.env.NODE_ENV` to select their 
 
 ## Official Bindings
 
-The v3 official bindings use the public factory capability instead of the
-internal constructor:
+The v3 official bindings use the public factory capability instead of the internal constructor:
 
 | Binding          | Binding version | Supported Travels versions | Restored history handoff                         |
 | ---------------- | --------------- | -------------------------- | ------------------------------------------------ |
 | `use-travel`     | `3.x`           | `^3.0.0`                   | `restoreTravels(snapshot)` then `useTravelStore` |
 | `zustand-travel` | `3.x`           | `^3.0.0`                   | `travel(initializer, { snapshot })`              |
 
-Each binding major declares the same `mutative` peer range as Travels
-(`^2.0.0`), so the three packages install together without a peer conflict.
-The binding majors require Travels 3 so their factory overloads, atomic restore
-path, read-only shared views, and control capabilities have one stable contract.
-Publish and install the core major first, then validate and release each binding
-major against that published artifact. Binding-owned timelines remain immutable,
-and the bindings reject removed or incompatible ownership options rather than
-silently discarding them.
+Each binding major declares the same `mutative` peer range as Travels (`^2.0.0`), so the three packages install together without a peer conflict. The binding majors require Travels 3 so their factory overloads, atomic restore path, read-only shared views, and control capabilities have one stable contract. Publish and install the core major first, then validate and release each binding major against that published artifact. Binding-owned timelines remain immutable, and the bindings reject removed or incompatible ownership options rather than silently discarding them.
 
 ## State Compatibility
 

@@ -1,8 +1,6 @@
 # Travels
 
-![Node CI](https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg)
-[![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels)
-![license](https://img.shields.io/npm/l/travels)
+![Node CI](https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg) [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels) ![license](https://img.shields.io/npm/l/travels)
 
 **Patch-based undo/redo optimized for large state, small updates, long history, and persistence.**
 
@@ -160,9 +158,7 @@ Before diving into the API, understanding these terms will help:
 
 Creates a new Travels instance.
 
-Use this factory instead of `new Travels(...)`. The exported `Travels` value
-is a persistence namespace for `Travels.deserialize()` and is not a
-constructor.
+Use this factory instead of `new Travels(...)`. The exported `Travels` value is a persistence namespace for `Travels.deserialize()` and is not a constructor.
 
 **Parameters:**
 
@@ -192,16 +188,9 @@ constructor.
 
 ### `restoreTravels(snapshot, options?)`
 
-Restores a Travels instance from one complete `TravelsSerializedHistory`.
-Decode untrusted storage with `Travels.deserialize()` first. Creation options
-such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a
-separate `initialState` or `history` option is intentionally not accepted.
+Restores a Travels instance from one complete `TravelsSerializedHistory`. Decode untrusted storage with `Travels.deserialize()` first. Creation options such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a separate `initialState` or `history` option is intentionally not accepted.
 
-The restored timeline owns a detached copy of `snapshot.state`, so decoded
-snapshots and `fallback` constants are never mutated and can be restored
-again. To restore into a live reactive store object (MobX, Vue, Pinia), pass it
-as `target` together with `mutable: true`; Travels overwrites `target` in place
-with the snapshot state and keeps that reference:
+The restored timeline owns a detached copy of `snapshot.state`, so decoded snapshots and `fallback` constants are never mutated and can be restored again. To restore into a live reactive store object (MobX, Vue, Pinia), pass it as `target` together with `mutable: true`; Travels overwrites `target` in place with the snapshot state and keeps that reference:
 
 ```ts
 const store = reactive(defaultState);
@@ -216,24 +205,11 @@ travels.getState() === store; // true
 
 #### `getState(): S`
 
-Get the current state. The returned value is the live state that history
-patches apply to, the same object observers receive as `event.state`, so treat
-it as read-only and change it only through Travels operations. Mutating it
-directly in immutable mode silently desynchronizes undo/redo: Mutative 2 stores
-the objects of the new state as the values of its patches, so the edit also
-rewrites the retained history that redo replays. It is typed as
-`S` rather than `ReadonlyState<S>` so it can be passed to stores and APIs that
-expect the state type, such as Zustand's `set()`. `enableAutoFreeze` freezes
-every state Travels produces from then on (the initial object you pass in is
-left as is); copy the state with `structuredClone()` before editing it.
+Get the current state. The returned value is the live state that history patches apply to, the same object observers receive as `event.state`, so treat it as read-only and change it only through Travels operations. Mutating it directly in immutable mode silently desynchronizes undo/redo: Mutative 2 stores the objects of the new state as the values of its patches, so the edit also rewrites the retained history that redo replays. It is typed as `S` rather than `ReadonlyState<S>` so it can be passed to stores and APIs that expect the state type, such as Zustand's `set()`. `enableAutoFreeze` freezes every state Travels produces from then on (the initial object you pass in is left as is); copy the state with `structuredClone()` before editing it.
 
 #### `getRevision(): number`
 
-Get an O(1), monotonically increasing token for external-store bindings. It
-advances once for every committed subscriber event, including operations such
-as manual `archive()` and `rebase()` that can change timeline controls without
-changing the current state reference. No-op updates, transactions whose updates
-cancel out, and failed transactions do not advance it.
+Get an O(1), monotonically increasing token for external-store bindings. It advances once for every committed subscriber event, including operations such as manual `archive()` and `rebase()` that can change timeline controls without changing the current state reference. No-op updates, transactions whose updates cancel out, and failed transactions do not advance it.
 
 #### `setState(updater: S | (() => S) | ((draft: Draft<S>) => void), metadata?): void`
 
@@ -269,35 +245,11 @@ Subscribe to state changes. Returns an unsubscribe function.
 <details>
 <summary><b>Event envelope and observer guarantees</b></summary>
 
-Each notification creates one shallow-frozen event envelope shared by all
-listeners and the devtools hook. `event.state` is the borrowed live state and
-is exposed as `ReadonlyState<S>`; mutating it would bypass patch recording, so
-write only through Travels operations. Top-level metadata is cloned and frozen
-on first access. `event.patches` is the event-local
-forward/inverse delta from the previously published state to `event.state`.
-Root transactions compose their internal steps into one delta; operations that
-do not change state, such as `archive()` and `rebase()`, publish empty patch
-arrays. The patch snapshot is materialized lazily and its forward/inverse
-directions are cloned independently. Its containers, patch groups, operations,
-and array paths are frozen. Nested patch values and metadata are detached from
-state and retained history but shared within the event, so treat them as
-read-only too: mutating one can affect later observers handling that event. Use
-`getPatches()` explicitly when a full retained history snapshot is required.
+Each notification creates one shallow-frozen event envelope shared by all listeners and the devtools hook. `event.state` is the borrowed live state and is exposed as `ReadonlyState<S>`; mutating it would bypass patch recording, so write only through Travels operations. Top-level metadata is cloned and frozen on first access. `event.patches` is the event-local forward/inverse delta from the previously published state to `event.state`. Root transactions compose their internal steps into one delta; operations that do not change state, such as `archive()` and `rebase()`, publish empty patch arrays. The patch snapshot is materialized lazily and its forward/inverse directions are cloned independently. Its containers, patch groups, operations, and array paths are frozen. Nested patch values and metadata are detached from state and retained history but shared within the event, so treat them as read-only too: mutating one can affect later observers handling that event. Use `getPatches()` explicitly when a full retained history snapshot is required.
 
-Notifications run only after state, position, and history have committed. An
-observer exception is isolated from other observers and is reported through
-`onObserverError` when configured. Synchronous calls to mutating Travels APIs
-from an observer are rejected to prevent nested transitions from mixing event
-versions; schedule a later task if a follow-up update is required.
-Observer promises are not awaited, but rejected promises are isolated and
-reported through `onObserverError` with the same source information.
+Notifications run only after state, position, and history have committed. An observer exception is isolated from other observers and is reported through `onObserverError` when configured. Synchronous calls to mutating Travels APIs from an observer are rejected to prevent nested transitions from mixing event versions; schedule a later task if a follow-up update is required. Observer promises are not awaited, but rejected promises are isolated and reported through `onObserverError` with the same source information.
 
-Root transactions are also atomic at the observer boundary. State listeners
-and devtools receive one final `transaction` event after a successful commit;
-failed transactions publish neither provisional changes nor rollback
-compensation events. `onBranchDiscard` likewise reports only redo entries that
-were visible before the root transaction and are absent after commit, never
-branches created and discarded entirely inside the transaction.
+Root transactions are also atomic at the observer boundary. State listeners and devtools receive one final `transaction` event after a successful commit; failed transactions publish neither provisional changes nor rollback compensation events. `onBranchDiscard` likewise reports only redo entries that were visible before the root transaction and are absent after commit, never branches created and discarded entirely inside the transaction.
 
 </details>
 
@@ -331,19 +283,15 @@ Restore the state, cursor, retained history, and metadata captured as this insta
 
 Remove all past and future history and make the current state as the new initial state.
 
-> [!WARNING]
-> This is a **destructive operation**. All previous and future history entries are discarded, and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()` calls will return to this new baseline, not the original initial state.
+> [!WARNING] This is a **destructive operation**. All previous and future history entries are discarded, and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()` calls will return to this new baseline, not the original initial state.
 
 #### `getHistory(): readonly ReadonlyState<S>[]`
 
 Returns the complete history of states as an array. Use it to read the timeline: render it, map it, measure it, index into it.
 
-> **IMPORTANT**: Treat the returned array and every state entry as read-only. They are cached internally.
-> The array container is frozen in every build; the state entries are shared cached snapshots and are not deep-frozen.
-> Casting away the read-only type and modifying an entry can corrupt the cache.
+> **IMPORTANT**: Treat the returned array and every state entry as read-only. They are cached internally. The array container is frozen in every build; the state entries are shared cached snapshots and are not deep-frozen. Casting away the read-only type and modifying an entry can corrupt the cache.
 
-The same array is reachable through `getControls().getHistory()`. Both methods
-return `readonly ReadonlyState<S>[]` in Travels 3.
+The same array is reachable through `getControls().getHistory()`. Both methods return `readonly ReadonlyState<S>[]` in Travels 3.
 
 #### `getHistorySnapshot(): S[]`
 
@@ -390,11 +338,7 @@ Validates and normalizes a persisted snapshot before restoring it with `restoreT
 
 #### `isTravels(value): value is Travels`
 
-Returns `true` for state-owning timelines created by `createTravels()`,
-`restoreTravels()`, or `createPatchableTravels()` from this copy of Travels.
-`Travels` is a persistence namespace rather than a class, so use `isTravels()`
-instead of `instanceof Travels`. External journals are not state-owning
-timelines and return `false`.
+Returns `true` for state-owning timelines created by `createTravels()`, `restoreTravels()`, or `createPatchableTravels()` from this copy of Travels. `Travels` is a persistence namespace rather than a class, so use `isTravels()` instead of `instanceof Travels`. External journals are not state-owning timelines and return `false`.
 
 #### `canBack(): boolean`
 
@@ -444,19 +388,9 @@ Transaction callbacks must also be synchronous. A rejected asynchronous callback
 <details>
 <summary><b>Transaction semantics: nesting, errors, and mutable mode</b></summary>
 
-Nested changes remain private until the root transaction commits, so listeners
-and devtools never observe states that are later rolled back. Branch-discard
-hooks also omit redo entries created only by provisional transaction steps.
-Nested transaction errors are likewise deferred until the root transaction
-commits or rolls back, so `onError` always observes the settled root state. A
-single failure that bubbles through multiple nested scopes is reported once.
+Nested changes remain private until the root transaction commits, so listeners and devtools never observe states that are later rolled back. Branch-discard hooks also omit redo entries created only by provisional transaction steps. Nested transaction errors are likewise deferred until the root transaction commits or rolls back, so `onError` always observes the settled root state. A single failure that bubbles through multiple nested scopes is reported once.
 
-In mutable mode, rollback replays inverse patches only for changes made through
-Travels APIs. Direct writes to the live state during the callback are outside
-the transaction journal and survive rollback. Route every change that must be
-atomic through `travels.setState(...)`; framework observers bound directly to
-the live object may still observe in-place mutations before the root
-transaction settles even though Travels listeners and devtools do not.
+In mutable mode, rollback replays inverse patches only for changes made through Travels APIs. Direct writes to the live state during the callback are outside the transaction journal and survive rollback. Route every change that must be atomic through `travels.setState(...)`; framework observers bound directly to the live object may still observe in-place mutations before the root transaction settles even though Travels listeners and devtools do not.
 
 </details>
 
@@ -470,15 +404,9 @@ Replace or mutate state without creating a history entry, then clear history and
 
 #### `getControls(): RebasableTravelsControls | RebasableManualTravelsControls`
 
-Returns a cached, frozen controls object containing navigation methods and
-current timeline views, including `rebase()`. Its properties and methods are
-read-only, making it suitable for UI components that should not receive the
-entire Travels instance.
+Returns a cached, frozen controls object containing navigation methods and current timeline views, including `rebase()`. Its properties and methods are read-only, making it suitable for UI components that should not receive the entire Travels instance.
 
-`controls.patches` is a shared, frozen `ReadonlyTravelPatches` view that keeps
-its reference until history changes, so it is cheap to read while rendering
-and works as a memo dependency. Call `travels.getPatches()` for a detached copy
-you can keep or change.
+`controls.patches` is a shared, frozen `ReadonlyTravelPatches` view that keeps its reference until history changes, so it is cheap to read while rendering and works as a memo dependency. Call `travels.getPatches()` for a detached copy you can keep or change.
 
 ```typescript
 const travels = createTravels({ count: 0 });
@@ -560,11 +488,7 @@ expect(travels.getState().count).toBe(0); // Back to the original initial state
 
 ## Controlled Journal: Integrate an External State Owner
 
-Use `createTravelJournal()` when a store, state machine, worker, or other
-runtime already owns state and produces a forward/inverse patch pair for each
-commit. The adapter records that pair once instead of asking Travels to run the
-update recipe again. Navigation and reset are delegated through the owner's
-normal commit path:
+Use `createTravelJournal()` when a store, state machine, worker, or other runtime already owns state and produces a forward/inverse patch pair for each commit. The adapter records that pair once instead of asking Travels to run the update recipe again. Navigation and reset are delegated through the owner's normal commit path:
 
 ```ts
 import { apply as applyPatches, create, type Draft } from 'mutative';
@@ -597,44 +521,20 @@ commit((draft) => {
 journal.back();
 ```
 
-Restore a persisted controlled timeline with
-`restoreTravelJournal(snapshot, { apply })`; like `restoreTravels()`, it accepts
-the complete snapshot as one atomic input rather than a separate state/history
-pair.
+Restore a persisted controlled timeline with `restoreTravelJournal(snapshot, { apply })`; like `restoreTravels()`, it accepts the complete snapshot as one atomic input rather than a separate state/history pair.
 
 <details>
 <summary><b>Contract: what the external owner must guarantee</b></summary>
 
-- `recordPatches(state, entry)` must receive the committed post-update state
-  and the exact forward/inverse patch pair for that transition. Travels
-  validates and detaches retained patch inputs, but intentionally does not
-  replay the pair to prove its relationship to `state`.
-- `apply` must synchronously commit `transition.patches` through the external
-  owner and return its committed state. If it throws or returns a Promise,
-  Travels does not advance its cursor or replace its retained state reference;
-  it cannot roll back side effects the external owner already performed. Do not
-  record delegated navigation or reset as a new history entry.
-- An owner that applies transitions in place, such as with Mutative's
-  `apply(state, patches, { mutable: true })`, must handle a root replacement
-  (`path: []`) itself. `reset()` sends one only when the current state and the
-  baseline are not both plain objects or both arrays, or when either has an own
-  `__proto__` key.
-- The public `TravelJournal` type omits state-owning operations such as
-  `setState()`, transactions, tracking controls, and `getControls()`. Those
-  properties are absent from the runtime facade as well. `reset()` applies the
-  journal baseline through the owner. With `autoArchive: false`, `archive()`
-  and `canArchive()` group pending external commits just like a manual
-  state-owning timeline. Use `rebase()` to clear the timeline while preserving
-  the current externally owned state.
-- A successful `recordPatches()` notification has event type `recordPatches`.
-  `TravelsEvent['type']` is intentionally open for future minor-release event
-  names, so consumers should keep a `default` branch. Standard
-  `createTravels()` use never emits `recordPatches`.
+- `recordPatches(state, entry)` must receive the committed post-update state and the exact forward/inverse patch pair for that transition. Travels validates and detaches retained patch inputs, but intentionally does not replay the pair to prove its relationship to `state`.
+- `apply` must synchronously commit `transition.patches` through the external owner and return its committed state. If it throws or returns a Promise, Travels does not advance its cursor or replace its retained state reference; it cannot roll back side effects the external owner already performed. Do not record delegated navigation or reset as a new history entry.
+- An owner that applies transitions in place, such as with Mutative's `apply(state, patches, { mutable: true })`, must handle a root replacement (`path: []`) itself. `reset()` sends one only when the current state and the baseline are not both plain objects or both arrays, or when either has an own `__proto__` key.
+- The public `TravelJournal` type omits state-owning operations such as `setState()`, transactions, tracking controls, and `getControls()`. Those properties are absent from the runtime facade as well. `reset()` applies the journal baseline through the owner. With `autoArchive: false`, `archive()` and `canArchive()` group pending external commits just like a manual state-owning timeline. Use `rebase()` to clear the timeline while preserving the current externally owned state.
+- A successful `recordPatches()` notification has event type `recordPatches`. `TravelsEvent['type']` is intentionally open for future minor-release event names, so consumers should keep a `default` branch. Standard `createTravels()` use never emits `recordPatches`.
 
 </details>
 
-See the [Controlled Journal Guide](docs/controlled-journal.md) for the complete
-commit, navigation, failure, and trust-boundary contract.
+See the [Controlled Journal Guide](docs/controlled-journal.md) for the complete commit, navigation, failure, and trust-boundary contract.
 
 ## Mutable Mode: Keep Reactive State In Place
 
@@ -769,14 +669,9 @@ function handleSave() {
 - **Auto archive**: Each `setState` = one undo step
 - **Manual archive**: `archive()` call = one undo step (can include multiple `setState` calls)
 
-A root `transaction()` also archives pending changes when it commits, so
-changes made before it become part of its entry; see
-[`transaction()`](#transactionmetadata-fn-void).
+A root `transaction()` also archives pending changes when it commits, so changes made before it become part of its entry; see [`transaction()`](#transactionmetadata-fn-void).
 
-Navigating with `back()`, `forward()`, or `go()` while changes are pending
-archives them implicitly as part of the navigation. The navigation publishes a
-single `go` event in both immutable and mutable mode, not a separate `archive`
-event, so persist on every committed event rather than only on `archive`.
+Navigating with `back()`, `forward()`, or `go()` while changes are pending archives them implicitly as part of the navigation. The navigation publishes a single `go` event in both immutable and mutable mode, not a separate `archive` event, so persist on every committed event rather than only on `archive`.
 
 ## State Requirements and Compatibility
 
@@ -846,8 +741,7 @@ The published package ships the diagnostics through the `development` export con
 
 ## Framework Integration
 
-Runnable and copyable integration examples live in the
-[examples directory](https://github.com/mutativejs/travels/tree/main/examples):
+Runnable and copyable integration examples live in the [examples directory](https://github.com/mutativejs/travels/tree/main/examples):
 
 - [`examples/zustand.ts`](examples/zustand.ts)
 - [`examples/vue.ts`](examples/vue.ts)
@@ -1090,20 +984,9 @@ Every `Travels.deserialize(...)` call validates:
 <details>
 <summary><b>Validation semantics, error codes, and integrity notes</b></summary>
 
-Object-form snapshots follow the same shape produced by JSON. Top-level
-`version`, `state`, `patches`, `position`, and optional `metadata` fields, plus
-the patch container's `patches` and `inversePatches` fields, must be own data
-properties. Accessors and inherited fields are not evaluated or accepted; each
-accepted field is captured once for validation and return. Patch-history
-containers, patch groups, array paths, and metadata lists must be plain dense
-arrays with `Array.prototype`, indexed data properties, and no custom own
-properties. Frozen plain arrays are accepted. Invalid arrays produce
-`INVALID_PATCHES` (or `INVALID_SCHEMA` for metadata) without invoking methods
-defined on the input.
+Object-form snapshots follow the same shape produced by JSON. Top-level `version`, `state`, `patches`, `position`, and optional `metadata` fields, plus the patch container's `patches` and `inversePatches` fields, must be own data properties. Accessors and inherited fields are not evaluated or accepted; each accepted field is captured once for validation and return. Patch-history containers, patch groups, array paths, and metadata lists must be plain dense arrays with `Array.prototype`, indexed data properties, and no custom own properties. Frozen plain arrays are accepted. Invalid arrays produce `INVALID_PATCHES` (or `INVALID_SCHEMA` for metadata) without invoking methods defined on the input.
 
-This structural validation is the default so the synchronous restore API keeps
-its historical low-latency behavior. Select semantic validation for snapshots
-that have not already crossed a trusted verification boundary:
+This structural validation is the default so the synchronous restore API keeps its historical low-latency behavior. Select semantic validation for snapshots that have not already crossed a trusted verification boundary:
 
 ```typescript
 const history = Travels.deserialize(stored, {
@@ -1111,34 +994,13 @@ const history = Travels.deserialize(stored, {
 });
 ```
 
-Semantic mode additionally replays from the stored position to both ends of
-history and verifies forward/inverse reversibility for every reachable entry.
-Its cost grows with both state shape and reachable history length. Structural
-mode deliberately does not apply patches, so do not use the default alone as a
-corruption detector for unverified storage. Patches that fail only once they
-are replayed make navigation and `getHistory()` throw a `TravelsError` with code
-`HISTORY_REPLAY_FAILED`, and a mutable timeline keeps the in-place writes made
-before the failing operation.
+Semantic mode additionally replays from the stored position to both ends of history and verifies forward/inverse reversibility for every reachable entry. Its cost grows with both state shape and reachable history length. Structural mode deliberately does not apply patches, so do not use the default alone as a corruption detector for unverified storage. Patches that fail only once they are replayed make navigation and `getHistory()` throw a `TravelsError` with code `HISTORY_REPLAY_FAILED`, and a mutable timeline keeps the in-place writes made before the failing operation.
 
-`Travels.deserialize(...)` throws `TravelsPersistenceError` with a stable
-`code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`,
-`INVALID_PATCHES`, `INVALID_HISTORY`, `MIGRATION_FAILED`, or
-`FALLBACK_FAILED`. Entry-specific semantic replay failures also expose
-`entryIndex` and `direction` (`forward` or `inverse`). Whole-graph isolation
-failures omit those fields because no single patch entry or replay direction is
-responsible. Provide `fallback` when detected parsing, migration, or validation
-failures should recover to a known-safe snapshot instead of failing startup.
-Fallback snapshots pass through the selected validation mode; a throwing or
-invalid fallback reports `FALLBACK_FAILED`.
+`Travels.deserialize(...)` throws `TravelsPersistenceError` with a stable `code` such as `PARSE_ERROR`, `UNSUPPORTED_VERSION`, `INVALID_SCHEMA`, `INVALID_PATCHES`, `INVALID_HISTORY`, `MIGRATION_FAILED`, or `FALLBACK_FAILED`. Entry-specific semantic replay failures also expose `entryIndex` and `direction` (`forward` or `inverse`). Whole-graph isolation failures omit those fields because no single patch entry or replay direction is responsible. Provide `fallback` when detected parsing, migration, or validation failures should recover to a known-safe snapshot instead of failing startup. Fallback snapshots pass through the selected validation mode; a throwing or invalid fallback reports `FALLBACK_FAILED`.
 
-`migrate` and function-valued `fallback` callbacks are synchronous extension
-points. Complete storage reads, network requests, or other asynchronous work
-before calling `Travels.deserialize(...)`. A Promise-like result is rejected as
-`MIGRATION_FAILED` or `FALLBACK_FAILED`, and its rejection is consumed so it
-cannot escape as an unhandled Promise rejection.
+`migrate` and function-valued `fallback` callbacks are synchronous extension points. Complete storage reads, network requests, or other asynchronous work before calling `Travels.deserialize(...)`. A Promise-like result is rejected as `MIGRATION_FAILED` or `FALLBACK_FAILED`, and its rejection is consumed so it cannot escape as an unhandled Promise rejection.
 
-If history was recorded with custom Mutative replay behavior, provide the same
-settings during validation:
+If history was recorded with custom Mutative replay behavior, provide the same settings during validation:
 
 ```typescript
 const history = Travels.deserialize(stored, {
@@ -1150,38 +1012,13 @@ const history = Travels.deserialize(stored, {
 });
 ```
 
-Semantic validation uses only the documented `strict` and `mark` replay options.
-It never enables mutable replay or auto-freeze because those output policies do
-not change patch interpretation. State, patch values, and metadata are first
-isolated into a validation-only object graph, and values that cannot be isolated
-safely are rejected before replay. `Travels.deserialize(...)` therefore does not
-mutate or freeze caller-owned snapshot objects; configure those policies on the
-restored Travels instance instead. Semantic validation requires native
-`structuredClone`, which is available in the supported runtimes.
+Semantic validation uses only the documented `strict` and `mark` replay options. It never enables mutable replay or auto-freeze because those output policies do not change patch interpretation. State, patch values, and metadata are first isolated into a validation-only object graph, and values that cannot be isolated safely are rejected before replay. `Travels.deserialize(...)` therefore does not mutate or freeze caller-owned snapshot objects; configure those policies on the restored Travels instance instead. Semantic validation requires native `structuredClone`, which is available in the supported runtimes.
 
-Replay comparison is deliberately conservative for non-JSON values. Exact
-`Date` and `RegExp` instances are compared by their intrinsic state. Map, Set,
-built-in subclasses, custom own properties, accessors, non-enumerable data,
-custom array prototypes, and non-zero `RegExp.lastIndex` values are rejected as
-unverifiable. Property descriptor flags, array length descriptors, and object
-extensibility must also survive replay unchanged. Plain-object own-key order is
-not treated as observable: patch replay re-appends a removed and re-added key,
-so histories that reorder object keys are accepted as long as the key set and
-values round-trip. Normalize unsupported values into the supported state
-contract before semantic validation.
+Replay comparison is deliberately conservative for non-JSON values. Exact `Date` and `RegExp` instances are compared by their intrinsic state. Map, Set, built-in subclasses, custom own properties, accessors, non-enumerable data, custom array prototypes, and non-zero `RegExp.lastIndex` values are rejected as unverifiable. Property descriptor flags, array length descriptors, and object extensibility must also survive replay unchanged. Plain-object own-key order is not treated as observable: patch replay re-appends a removed and re-added key, so histories that reorder object keys are accepted as long as the key set and values round-trip. Normalize unsupported values into the supported state contract before semantic validation.
 
-Semantic validation proves replay consistency only: the stored anchor and patch
-pairs can be applied and reversed. It does not authenticate the snapshot's
-origin or prove that the reconstructed past is the history originally recorded.
-A different but internally reversible history cannot be distinguished without
-an external trusted anchor.
+Semantic validation proves replay consistency only: the stored anchor and patch pairs can be applied and reversed. It does not authenticate the snapshot's origin or prove that the reconstructed past is the history originally recorded. A different but internally reversible history cannot be distinguished without an external trusted anchor.
 
-`fallback` runs only after parsing, migration, or validation rejects the input.
-An internally consistent alternative history is accepted and therefore does
-not automatically trigger fallback. Verify checksums, signatures, document
-identity, or revisions before calling `Travels.deserialize(...)` when the
-source requires integrity or provenance guarantees; select a known-safe
-snapshot when that external verification fails.
+`fallback` runs only after parsing, migration, or validation rejects the input. An internally consistent alternative history is accepted and therefore does not automatically trigger fallback. Verify checksums, signatures, document identity, or revisions before calling `Travels.deserialize(...)` when the source requires integrity or provenance guarantees; select a known-safe snapshot when that external verification fails.
 
 </details>
 

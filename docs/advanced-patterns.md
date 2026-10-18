@@ -133,9 +133,7 @@ travels.reset = function () {
 
 ## Automatically Adding Metadata to State Changes
 
-Wrap `setState` to inject metadata like timestamps or user IDs into the state.
-To label the history entry instead, add your fields to the `metadata` argument
-the wrapper forwards, which `getMetadata()` returns for each entry.
+Wrap `setState` to inject metadata like timestamps or user IDs into the state. To label the history entry instead, add your fields to the `metadata` argument the wrapper forwards, which `getMetadata()` returns for each entry.
 
 ```typescript
 const travels = createTravels<any>({ items: [] });
