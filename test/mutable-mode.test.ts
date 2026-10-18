@@ -90,6 +90,21 @@ describe('Mutable mode for observable state', () => {
     warnSpy.mockRestore();
   });
 
+  test('function updater returning a new root passes it to Mutative as a raw return', () => {
+    const travels = createTravels(
+      { count: 0 },
+      { mutable: true, onWarning: () => undefined }
+    );
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    travels.setState(() => ({ count: 5 }));
+    travels.setState((draft) => ({ ...draft, count: draft.count + 1 }));
+
+    expect(travels.getState()).toEqual({ count: 6 });
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
   test('back() with mutable: true preserves reference', () => {
     const state = { count: 0 };
     const travels = createTravels(state, { mutable: true });

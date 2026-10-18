@@ -141,6 +141,10 @@ the [2.x to 3.0 migration guide](docs/migration-guide.md#from-2x-to-30).
 
 ### Fixed
 
+- Pass a draft-free root returned by a mutable timeline's function updater to
+  Mutative through `rawReturn()`, as immutable timelines already do. Mutative
+  searched it for drafts and printed a development warning that `onWarning`
+  could not receive.
 - Reject Map and Set patch values in `validateTravelHistoryEntry()` again, as
   `validateTravelPatches()` does. 2.2.0 left that check to `recordPatches()`,
   so the public validator accepted entries that `recordPatches()` then

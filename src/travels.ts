@@ -359,6 +359,21 @@ const containsDraft = (
   return false;
 };
 
+/**
+ * Run a draft updater for create(). A returned replacement without drafts is
+ * wrapped in rawReturn(), so Mutative neither searches it nor warns about it.
+ */
+const runDraftUpdater = <S>(
+  updater: (draft: Draft<S>) => S | void,
+  draft: Draft<S>
+): S => {
+  const result = assertSynchronousResult(updater(draft), 'setState');
+  // The draft itself, or a value holding drafts, is finalized by Mutative.
+  return isObjectLike(result) && !containsDraft(result)
+    ? (rawReturn(result as object) as S)
+    : (result as S);
+};
+
 const hasOnlyArrayIndices = (value: unknown): value is any[] => {
   if (!Array.isArray(value)) {
     return false;
@@ -1586,10 +1601,7 @@ export class TravelsCore<
         this.state,
         isFunctionUpdater
           ? (draft: Draft<S>) =>
-              assertSynchronousResult(
-                (updater as (draft: Draft<S>) => S | void)(draft),
-                'setState'
-              )
+              runDraftUpdater(updater as (draft: Draft<S>) => S | void, draft)
           : (draft: Draft<S>) => {
               overwriteDraftWith(draft!, updater);
             },
@@ -1632,16 +1644,8 @@ export class TravelsCore<
       const [nextState, p, ip] = (typeof updater === 'function'
         ? create(
             this.state,
-            (draft: Draft<S>) => {
-              const result = (updater as (draft: Draft<S>) => S | void)(draft);
-              assertSynchronousResult(result, 'setState');
-              if (result === draft) {
-                return result as S;
-              }
-              return isObjectLike(result) && !containsDraft(result)
-                ? (rawReturn(result as object) as S)
-                : (result as S);
-            },
+            (draft: Draft<S>) =>
+              runDraftUpdater(updater as (draft: Draft<S>) => S | void, draft),
             createOptions
           )
         : create(
