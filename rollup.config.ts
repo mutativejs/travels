@@ -131,11 +131,15 @@ const removeIntermediateBuildArtifacts = (directory, publicDeclarations) => {
     const isUnusedDeclaration =
       (entry.name.endsWith('.d.ts') || entry.name.endsWith('.d.ts.map')) &&
       !publicDeclarations.has(entryPath);
+    // CommonJS twins are rewritten from the public declarations after this
+    // walk, so any twin still here is left over from an earlier build.
+    const isPreviousCommonJsDeclaration = entry.name.endsWith('.d.cts');
 
     if (
       isIntermediateMap ||
       isIntermediateJavaScript ||
-      isUnusedDeclaration
+      isUnusedDeclaration ||
+      isPreviousCommonJsDeclaration
     ) {
       unlinkSync(entryPath);
     } else {
