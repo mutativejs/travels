@@ -75,6 +75,13 @@ test('declarations resolve for a NodeNext package consumer', () => {
   });
 });
 
+test('declarations resolve for a Node16 CommonJS package consumer', () => {
+  execFileSync('pnpm', ['exec', 'tsc', '--project', 'tsconfig.node16.json'], {
+    cwd: repoRoot,
+    stdio: 'pipe',
+  });
+});
+
 test('npm pack includes publishable artifacts and excludes test sources', () => {
   const output = execFileSync('npm', ['pack', '--dry-run', '--json'], {
     cwd: repoRoot,
@@ -88,6 +95,7 @@ test('npm pack includes publishable artifacts and excludes test sources', () => 
   expect(files).toContain('dist/index.esm.js');
   expect(files).toContain('dist/index.cjs');
   expect(files).toContain('dist/index.d.ts');
+  expect(files).toContain('dist/index.d.cts');
   expect(files).toContain('docs/persistence-integrations.md');
   expect(files).toContain('src/index.ts');
   expect(

@@ -26,8 +26,11 @@ const limits = {
   developmentBundleRaw: 63 * KiB,
   developmentBundleGzip: 17 * KiB,
   developmentBundleMap: 283.5 * KiB,
-  packagePacked: 534 * KiB,
-  packageUnpacked: 2070.5 * KiB,
+  // The CommonJS declaration twins for the `require` condition add 11 files,
+  // 28.1 KiB unpacked and 7.1 KiB packed, to the 3.0.0 package
+  // (533.1 KiB packed / 2069.9 KiB unpacked).
+  packagePacked: 540.5 * KiB,
+  packageUnpacked: 2098.5 * KiB,
 };
 
 const failures = [];

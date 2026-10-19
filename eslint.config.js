@@ -31,10 +31,13 @@ const globals = {
 
 const importRules = {
   ...importPlugin.configs.recommended.rules,
+  // The TypeScript resolver maps an import of the built `dist/index.cjs` to its
+  // `index.d.cts` declaration; the import keeps the `.cjs` extension Node
+  // loads, so a `.cts` extension is never written.
   'import/extensions': [
     'error',
     'ignorePackages',
-    { js: 'always', jsx: 'never', ts: 'never', tsx: 'never' },
+    { js: 'always', jsx: 'never', ts: 'never', tsx: 'never', cts: 'never' },
   ],
   'import/no-extraneous-dependencies': [
     'error',

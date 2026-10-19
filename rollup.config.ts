@@ -8,6 +8,7 @@ import {
   readdirSync,
   rmdirSync,
   unlinkSync,
+  writeFileSync,
 } from 'node:fs';
 import {
   dirname as dirnamePath,
@@ -145,14 +146,37 @@ const removeIntermediateBuildArtifacts = (directory, publicDeclarations) => {
   return keptEntry;
 };
 
+/**
+ * Write a CommonJS twin of each public declaration for the `require`
+ * condition.
+ *
+ * This package is `type: module`, so TypeScript reads every `.d.ts` file as an
+ * ES module declaration, and a CommonJS consumer compiled with
+ * `module: node16` cannot import one. The `.d.cts` twins import each other
+ * through `.cjs` specifiers.
+ *
+ * @param {ReadonlySet<string>} publicDeclarations
+ */
+const writeCommonJsDeclarations = (publicDeclarations) => {
+  for (const declarationPath of publicDeclarations) {
+    if (!declarationPath.endsWith('.d.ts')) {
+      continue;
+    }
+    const source = readFileSync(declarationPath, 'utf8').replace(
+      /(\b(?:from|import)\s*['"]\.[^'"]*)\.js(['"])/g,
+      '$1.cjs$2'
+    );
+    writeFileSync(`${declarationPath.slice(0, -'.d.ts'.length)}.d.cts`, source);
+  }
+};
+
 /** @type {import('rollup').Plugin} */
 const removeIntermediateArtifacts = {
   name: 'remove-intermediate-artifacts',
   closeBundle() {
-    removeIntermediateBuildArtifacts(
-      distDirectory,
-      getPublicDeclarationArtifacts()
-    );
+    const publicDeclarations = getPublicDeclarationArtifacts();
+    removeIntermediateBuildArtifacts(distDirectory, publicDeclarations);
+    writeCommonJsDeclarations(publicDeclarations);
   },
 };
 

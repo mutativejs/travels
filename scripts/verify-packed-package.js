@@ -14,6 +14,7 @@ assert.equal(manifest.name, 'travels');
 assert.equal(manifest.main, './dist/index.cjs');
 assert.equal(manifest.module, './dist/index.esm.js');
 assert.equal(manifest.types, './dist/index.d.ts');
+assert.equal(manifest.exports['.'].require.types, './dist/index.d.cts');
 
 const travelsDeclaration = await readFile(
   resolve(packageRoot, 'dist/travels.d.ts'),
@@ -174,6 +175,7 @@ for (const artifact of [
   'dist/index.dev.esm.js',
   'dist/index.umd.js',
   'dist/index.d.ts',
+  'dist/index.d.cts',
 ]) {
   await readFile(resolve(packageRoot, artifact));
 }
