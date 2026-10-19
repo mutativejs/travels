@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- Ship CommonJS declarations for the `require` condition. The package is `type: module`, so TypeScript read the `dist/index.d.ts` that `require` resolved to as an ES module declaration, and CommonJS consumers compiled with `module: node16` failed with TS1479 on every `travels` import, including through bindings such as `zustand-travel`. `require` now resolves to `.d.cts` twins of the public declarations, which import each other through `.cjs` specifiers. The twins add 11 files, 28.1 KiB unpacked and 7.1 KiB packed, and the package size budgets were raised to match.
+- Ship CommonJS declarations for the `require` condition. The package is `type: module`, so TypeScript read the `dist/index.d.ts` that `require` resolved to as an ES module declaration, and CommonJS consumers compiled with `module: node16`, or with `nodenext` before TypeScript 5.8, failed with TS1479 on every `travels` import. With `skipLibCheck` off, the same error also appeared inside the declarations of bindings such as `zustand-travel`. `require` now resolves to `.d.cts` twins of the public declarations, which import each other through `.cjs` specifiers. The twins add 11 files, 28.1 KiB unpacked and 7.1 KiB packed, and the package size budgets were raised to match.
 
 ## [3.0.0] - 2026-10-19
 
