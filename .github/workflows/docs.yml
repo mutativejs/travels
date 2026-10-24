@@ -30,11 +30,11 @@ jobs:
             echo "release_ref must be a release tag like v1.3.0."
             exit 1
           fi
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: refs/tags/${{ inputs.release_ref }}
       - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22.x'
           cache: 'pnpm'
