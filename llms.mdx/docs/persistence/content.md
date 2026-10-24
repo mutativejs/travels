@@ -1,0 +1,143 @@
+# Persistence (/docs/persistence)
+
+Travels persistence is storage-agnostic. `serialize()` returns one versioned snapshot; your application chooses how to encode and store it. Restore always follows one path: decode with `Travels.deserialize()`, then pass the complete result to `restoreTravels()` or `restoreTravelJournal()`.
+
+## Snapshot contract [#snapshot-contract]
+
+A `TravelsSerializedHistory<S>` contains:
+
+```ts
+const snapshot: TravelsSerializedHistory<DocumentState> = {
+  version: TRAVELS_HISTORY_SCHEMA_VERSION,
+  state: currentState,
+  patches: {
+    patches: forwardEntries,
+    inversePatches: inverseEntries,
+  },
+  position: currentPosition,
+  metadata: alignedMetadata, // Optional; omit it when no metadata is retained
+};
+```
+
+State, retained patch values, patch paths, and metadata must satisfy the [durable state contract](/docs/concepts/state-requirements). `serialize()` clones the returned state, patches, and metadata so later edits do not rewrite the snapshot.
+
+## Save a snapshot [#save-a-snapshot]
+
+```ts
+import { createTravels } from 'travels';
+
+const travels = createTravels(defaultDocument);
+
+function saveToLocalStorage() {
+  const snapshot = travels.serialize({ strict: true });
+  localStorage.setItem('travels:document:main', JSON.stringify(snapshot));
+}
+
+const unsubscribe = travels.subscribe(saveToLocalStorage);
+```
+
+`strict: true` rejects values that cannot round-trip through the documented JSON contract. Plain `serialize()` does not call `JSON.stringify()`, compress data, or normalize runtime-only values. The explicit strict path is recommended when persistence correctness matters.
+
+The example above writes on every event for clarity. Production applications normally debounce writes, serialize at save time, queue asynchronous writes, and flush before route transitions or owner disposal. The [Storage Adapters](/docs/persistence/storage-adapters) guide includes a reusable auto-save pattern.
+
+## Restore a snapshot [#restore-a-snapshot]
+
+```ts
+import {
+  restoreTravels,
+  Travels,
+  TravelsPersistenceError,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
+  type TravelsSerializedHistory,
+} from 'travels';
+
+const createEmptySnapshot = (): TravelsSerializedHistory<DocumentState> => ({
+  version: TRAVELS_HISTORY_SCHEMA_VERSION,
+  state: createDefaultDocument(),
+  patches: { patches: [], inversePatches: [] },
+  position: 0,
+});
+
+function loadDocument() {
+  const stored = localStorage.getItem('travels:document:main');
+
+  const snapshot = Travels.deserialize<DocumentState>(
+    stored ?? createEmptySnapshot(),
+    {
+      validation: 'semantic',
+      fallback: createEmptySnapshot,
+      onError(error) {
+        if (error instanceof TravelsPersistenceError) {
+          console.warn('Could not restore history:', error.code);
+        }
+      },
+    }
+  );
+
+  return restoreTravels(snapshot, { maxHistory: 100 });
+}
+```
+
+`Travels.deserialize()` accepts a parsed object or JSON string. It always performs structural validation; `validation: 'semantic'` additionally checks reachable patch applicability and reversibility on a detached validation graph.
+
+The restored timeline owns a detached copy of snapshot state. Neither the decoded snapshot nor a shared fallback constant becomes the live mutable state.
+
+## Restore into a reactive target [#restore-into-a-reactive-target]
+
+For MobX, Vue, or Pinia, restore into the live store object:
+
+```ts
+const snapshot = Travels.deserialize<typeof store>(stored, {
+  validation: 'semantic',
+});
+
+const travels = restoreTravels(snapshot, {
+  mutable: true,
+  target: store,
+});
+```
+
+`target` requires mutable mode and a compatible root kind. Travels overwrites the target in place with detached snapshot state.
+
+## Controlled journal restore [#controlled-journal-restore]
+
+When another runtime owns state, restore the journal with its synchronous apply callback:
+
+```ts
+const snapshot = Travels.deserialize<State>(stored, {
+  validation: 'semantic',
+});
+
+const journal = restoreTravelJournal(snapshot, {
+  apply(transition) {
+    authoritativeState = commitThroughOwner(transition.patches);
+    return authoritativeState;
+  },
+});
+```
+
+The snapshot state and timeline are accepted as one atomic input. The owner still decides how patches are committed during subsequent navigation.
+
+## Structural versus semantic validation [#structural-versus-semantic-validation]
+
+| Mode | Checks | Best fit |
+| --- | --- | --- |
+| `structural` (default) | Schema, versions, patch shapes, paths, values, position | Trusted input or latency-sensitive restore after another verification boundary |
+| `semantic` | Structural checks plus forward/inverse replay and graph isolation | Unverified browser storage, imported files, potentially corrupted snapshots |
+
+Semantic validation cost grows with state shape and reachable history. It proves replay consistency, not authenticity or provenance. See [Security and Integrity](/docs/persistence/security-and-integrity).
+
+## Choose storage deliberately [#choose-storage-deliberately]
+
+- Use **localStorage** only for small snapshots and simple synchronous saves.
+- Use **IndexedDB**, Dexie, or idb for larger histories and asynchronous storage.
+- Use localForage or localspace when a key-value API and driver fallback are useful.
+- Namespace keys by application and document, for example `travels:editor:<documentId>`.
+- Compress the encoded snapshot before storage when size matters; decompress before deserialization.
+- Retain a last-known-good generation for important drafts.
+
+<Cards>
+  <Card title="Storage Adapters" href="/docs/persistence/storage-adapters" description="Dexie, idb, localForage, localspace, transactions, and auto-save." />
+  <Card title="Migration and Recovery" href="/docs/persistence/migration-and-recovery" description="Schema migration, fallbacks, validation modes, and typed errors." />
+  <Card title="Security and Integrity" href="/docs/persistence/security-and-integrity" description="Trust boundaries, provenance, revisions, and multi-device concerns." />
+</Cards>

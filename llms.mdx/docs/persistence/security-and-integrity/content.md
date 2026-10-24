@@ -1,0 +1,57 @@
+# Security and Integrity (/docs/persistence/security-and-integrity)
+
+`Travels.deserialize({ validation: 'semantic' })` proves that the stored anchor and reachable patch entries can replay and reverse consistently on an isolated graph. It does **not** prove who wrote the snapshot, whether it is the latest generation, or whether the reconstructed past is the history originally recorded.
+
+## Put verification before deserialization [#put-verification-before-deserialization]
+
+```text
+stored bytes
+  → verify application envelope
+  → check document / tenant identity and revision
+  → decode or decompress snapshot
+  → Travels.deserialize(..., { validation: 'semantic' })
+  → restoreTravels(...) or restoreTravelJournal(...)
+```
+
+If external verification fails, discard the unverified snapshot and choose a trusted default or last-known-good generation. Do not expect `fallback` to detect an internally consistent but unauthorized history.
+
+## Choose controls for the trust model [#choose-controls-for-the-trust-model]
+
+| Scenario | Host-application responsibility |
+| --- | --- |
+| Ephemeral local undo/redo | Replay validation and a safe fallback are normally sufficient |
+| Important offline drafts | Checksum exact bytes, keep a monotonic revision, retain a previously verified generation |
+| Multi-device synchronization | Bind tenant/user/document identity to a server-controlled revision and resolve stale/conflicting snapshots |
+| Tamper-resistant storage | Verify a server-held HMAC, signature, or authenticated-encryption tag |
+| Audit-grade history | Use a server-authoritative append-only event log and trusted chain head or equivalent commitment |
+
+A checksum detects accidental corruption; it does not authenticate the writer. A key stored beside attacker-controlled browser data does not establish trust. Hash chains and checkpoints inside the same mutable blob can be rewritten together with that blob.
+
+## Snapshot and prototype safety [#snapshot-and-prototype-safety]
+
+Object-form snapshot fields and patch-container fields must be own data properties. Accessors and inherited fields are rejected without evaluation. Patch groups, array paths, and metadata lists must be plain dense arrays without custom prototypes or own properties; validation uses indexed data-property access rather than input-defined array methods.
+
+These rules reduce input-defined behavior during decoding. Continue treating imported snapshots as untrusted application data: limit payload size and history length at your storage boundary, and avoid logging sensitive document contents.
+
+## Multi-device and collaborative editing [#multi-device-and-collaborative-editing]
+
+Travels is not a CRDT or operational-transform system. It does not merge concurrent histories or resolve conflicting edits. A synchronization layer must define:
+
+- authoritative document and tenant identity;
+- ordering and monotonic revisions;
+- stale snapshot rejection;
+- conflict detection and resolution;
+- whether a remote snapshot replaces, rebases, or starts a new local timeline;
+- retry behavior when a remote save fails after local state commits.
+
+When accepting an authoritative remote state without preserving local history, use `replaceStateWithoutHistory()` or restore a validated snapshot. When retaining a local session but clearing old history, use `rebase()` deliberately.
+
+## Protect availability [#protect-availability]
+
+Semantic replay cost grows with state shape and reachable history. Before validating unverified uploads or sync payloads, enforce application limits for encoded bytes, entry count, nesting, and accepted document types. Use structural validation only after a trusted verification boundary or when schema-only validation is intentionally sufficient.
+
+Mutable navigation can retain writes made before a replay failure. Semantic validation before restore is therefore both a correctness and availability safeguard for unverified histories.
+
+## Reporting vulnerabilities [#reporting-vulnerabilities]
+
+For Travels library vulnerabilities, follow the project’s [Security Policy](/docs/resources/security). Do not include real user documents, secrets, or private persistence payloads in public issues.

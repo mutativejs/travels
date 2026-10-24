@@ -1,0 +1,50 @@
+3:"$Sreact.fragment"
+4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
+5:"/travels/_next/static/chunks/197w2eqrew31i.js"
+6:"/travels/_next/static/chunks/336ref_41vxre.js"
+7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
+8:I[42194,["$4","$5","$6","$7"],"default"]
+9:I[5817,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
+f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
+10:"/travels/_next/static/chunks/443-b63fbci1j.js"
+11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
+12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
+13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+16:"MarkdownCopyButton"
+17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+18:"ViewOptionsPopover"
+19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1c:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+1d:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+24:"ViewportBoundary"
+25:I[13693,["$4","$5","$6","$7"],"$24"]
+26:"MetadataBoundary"
+27:I[13693,["$4","$5","$6","$7"],"$26"]
+28:"$Sreact.suspense"
+29:I[14017,["$4","$5","$6","$7"],"IconMark"]
+b:X
+b:C
+c:X
+d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#mutation-smoke-test","title":"Mutation smoke test"},{"depth":2,"url":"#hot-path-budgets","title":"Hot-path budgets"}],"children":[["$","$L14",null,{"children":"Testing Strategy"}],["$","$L15",null,{"className":"mb-0","children":"Correctness, property-based, browser, mutation, and hot-path performance testing."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/testing/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/testing/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/resources/testing.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"Travels combines example-based, property-based, browser, package-consumer, coverage, and mutation smoke tests."}],"\n",["$","$L1b",null,{"as":"h2","id":"mutation-smoke-test","children":"Mutation smoke test"}],"\n",["$","p",null,{"children":"Run:"}],"\n",["$","$L1c",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"<svg viewBox=\"0 0 24 24\"><path d=\"m 4,4 a 1,1 0 0 0 -0.7070312,0.2929687 1,1 0 0 0 0,1.4140625 L 8.5859375,11 3.2929688,16.292969 a 1,1 0 0 0 0,1.414062 1,1 0 0 0 1.4140624,0 l 5.9999998,-6 a 1.0001,1.0001 0 0 0 0,-1.414062 L 4.7070312,4.2929687 A 1,1 0 0 0 4,4 Z m 8,14 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 h 8 a 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 z\" fill=\"currentColor\" /></svg>","children":["$","$L1d",null,{"children":["$","code",null,{"children":["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" test:mutation:smoke"}]]}]}]}]}],"\n",["$","p",null,{"children":["The smoke suite temporarily introduces a small set of high-value correctness regressions and verifies that focused tests fail. Every source file is restored in a ",["$","code",null,{"children":"finally"}]," block. The mutations cover backward replay ordering, controlled journal patch-pair validation, and mutable transaction rollback completeness."]}],"\n",["$","p",null,{"children":"This is intentionally a deterministic gate rather than a broad probabilistic mutation campaign. Add a mutation whenever a bug fix depends on a subtle operator, boundary, or rollback step that line coverage alone would not protect."}],"\n",["$","$L1b",null,{"as":"h2","id":"hot-path-budgets","children":"Hot-path budgets"}],"\n",["$","p",null,{"children":"Run:"}],"\n",["$","$L1c",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"<svg viewBox=\"0 0 24 24\"><path d=\"m 4,4 a 1,1 0 0 0 -0.7070312,0.2929687 1,1 0 0 0 0,1.4140625 L 8.5859375,11 3.2929688,16.292969 a 1,1 0 0 0 0,1.414062 1,1 0 0 0 1.4140624,0 l 5.9999998,-6 a 1.0001,1.0001 0 0 0 0,-1.414062 L 4.7070312,4.2929687 A 1,1 0 0 0 4,4 Z m 8,14 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 h 8 a 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 z\" fill=\"currentColor\" /></svg>","children":["$","$L1d",null,{"children":["$","code",null,{"children":["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" benchmark:hotpath"}]]}]}]}]}],"\n","$L1e","\n","$L1f"]}]]}],["$L20","$L21"],"$L22"]}],"p":"$@23","v":null,"s":"$c"}}]]
+2:[["children",{"s":{"n":"slug","t":"oc","k":"resources/testing","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
+1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L25",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L27",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$28",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Testing Strategy — Travels"}],["$","meta","1",{"name":"description","content":"Correctness, property-based, browser, mutation, and hot-path performance testing."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Testing Strategy — Travels"}],["$","meta","5",{"property":"og:description","content":"Correctness, property-based, browser, mutation, and hot-path performance testing."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/testing/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L29","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@2a","v":null,"s":"$c"}},"a":"$@2b","u":"$@2c","b":"nY7QYmpsNjXzWBy8v02-V"}
+2d:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+1e:["$","p",null,{"children":["The matrix benchmark guards ",["$","code",null,{"children":"setState"}]," throughput and serialized history size. It does not cover undo/redo navigation or the controlled journal, and a change that made controlled navigation 53x slower and external commits 5.5x slower than the 2.1.0 line passed it unnoticed."]}]
+1f:["$","p",null,{"children":[["$","code",null,{"children":"benchmarks/hot-path-check.js"}]," measures per-operation cost for ",["$","code",null,{"children":"setState"}],", navigation, transactions, and both controlled-journal paths, and fails the build when one exceeds its budget. The budgets are order-of-magnitude smoke limits, set far above the measured cost so shared CI runners do not flake; each scenario takes the best of three runs for the same reason. They are not percent-level drift detectors. Tighten a budget only alongside a measured improvement, and add a scenario whenever a new operation joins the timeline's hot path."]}]
+20:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
+21:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+22:["$","$L2d",null,{"children":["$","$28",null,{"name":"Next.MetadataOutlet","children":"$@2e"}]}]
+2c:true
+c:300
+2e:null
+c:C
+2b:0
+a:"$undefined"
+2a:"$undefined"
+23:"$undefined"

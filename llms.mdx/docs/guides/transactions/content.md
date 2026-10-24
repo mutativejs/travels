@@ -1,0 +1,104 @@
+# Transactions (/docs/guides/transactions)
+
+Use `transaction()` when several Travels operations form one logical edit. `batch()` is an alias with the same overloads and behavior.
+
+## One logical undo step [#one-logical-undo-step]
+
+```ts
+travels.transaction({ label: 'Move selection' }, () => {
+  travels.setState((draft) => {
+    draft.selection.x += 10;
+  });
+  travels.setState((draft) => {
+    draft.selection.y += 20;
+  });
+  travels.setState((draft) => {
+    draft.selection.updatedAt = Date.now();
+  });
+});
+```
+
+The root transaction composes its updates into one history entry. State listeners and devtools receive one final `transaction` event after commit, not provisional `setState` events for each internal step.
+
+You can omit metadata or pass it as the first argument:
+
+```ts
+travels.transaction(() => {
+  travels.setState(updatePosition);
+  travels.setState(updateSelection);
+});
+```
+
+## Atomic rollback [#atomic-rollback]
+
+If the callback throws, Travels rolls back changes made through its APIs and publishes neither provisional states nor rollback compensation events.
+
+```ts
+try {
+  travels.transaction(() => {
+    travels.setState((draft) => { draft.saved = true; });
+    validateDocument(travels.getState()); // Throws
+    travels.setState((draft) => { draft.published = true; });
+  });
+} catch (error) {
+  // saved and published retain their pre-transaction values.
+}
+```
+
+A failure is reported as `TRANSACTION_FAILED` where appropriate, with the underlying error available as `cause`. `onError` observes errors after the root settles, so it never sees an unsettled nested transaction state.
+
+## Synchronous callbacks only [#synchronous-callbacks-only]
+
+Do not pass an async function or return a Promise from the callback. Await network and storage work before starting the transaction:
+
+```ts
+const payload = await preparePayload();
+
+travels.transaction(() => {
+  travels.setState((draft) => {
+    draft.payload = payload;
+  });
+});
+```
+
+A rejected asynchronous callback is rolled back and reported as an async callback failure. Keeping the transaction synchronous is what makes its atomic history and observer boundaries possible.
+
+## Nesting [#nesting]
+
+Nested transactions remain private until the root commits. Observer events, devtools, branch-discard notifications, and `onError` follow the settled root result.
+
+- Successful nested work joins the root operation.
+- A failure bubbling through nested scopes is reported once.
+- Redo branches created and discarded entirely inside provisional work are not reported as externally visible discarded history.
+- Do not synchronously mutate the timeline from observers after commit; schedule follow-up work instead.
+
+## Updates that cancel out [#updates-that-cancel-out]
+
+A transaction that changes a field and restores its original value can be a no-op: no entry, no event, no revision advance, and the redo branch remains intact. This mirrors a single no-op `setState()`.
+
+If the transaction also navigates, archives, or resets, that timeline operation can still publish even when state updates cancel out. In manual mode, a transaction whose own updates cancel out can leave earlier pending changes pending; other successful root transactions archive earlier pending work into their entry.
+
+## Mutable-mode boundary [#mutable-mode-boundary]
+
+Mutable rollback replays inverse patches only for writes made through Travels APIs. Direct writes to the live object are outside the journal and survive rollback:
+
+```ts
+const store = reactive({ saved: false, connection: 'online' });
+const travels = createTravels(store, { mutable: true });
+
+try {
+  travels.transaction(() => {
+    travels.setState((draft) => { draft.saved = true; });
+    store.connection = 'offline'; // Outside Travels
+    throw new Error('cancel');
+  });
+} catch {
+  // store.saved is restored; store.connection remains "offline".
+}
+```
+
+Route every write that must share the transaction boundary through `setState()`. MobX, Vue, or Pinia observers attached directly to the live object can see provisional in-place writes even though Travels observers only see the settled root event.
+
+## Choosing transactions or manual archives [#choosing-transactions-or-manual-archives]
+
+Use a **transaction** for a synchronous, atomic operation with one final event and rollback. Use **manual archive mode** when updates happen over time—during a drag, across several field events, or until an application-defined commit—and immediate current-state visibility is desired.

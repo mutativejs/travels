@@ -1,0 +1,106 @@
+# Forms and External Stores (/docs/integrations/external-stores)
+
+When another library owns state, avoid creating two independent reactive sources of truth. Choose either detached synchronization into a state-owning timeline or a controlled journal fed by the owner’s real patch commits.
+
+## Detached form values with manual archive [#detached-form-values-with-manual-archive]
+
+This pattern works well when a form manager exposes `getValues()` and a reset/set-values API but does not already produce JSON Patches.
+
+```ts
+import { createTravels } from 'travels';
+
+type FormValues = { title: string; description: string };
+type FormApi<S> = {
+  getValues: () => S;
+  setValues: (values: S) => void;
+};
+
+const travels = createTravels<FormValues>(
+  { title: '', description: '' },
+  { autoArchive: false }
+);
+
+export function bindHistoryToForm(form: FormApi<FormValues>) {
+  const syncToHistory = () => {
+    travels.setState(structuredClone(form.getValues()));
+  };
+
+  const commitHistoryStep = () => {
+    if (travels.canArchive()) travels.archive();
+  };
+
+  const undo = () => {
+    if (!travels.canBack()) return;
+    travels.back();
+    form.setValues(structuredClone(travels.getState()));
+  };
+
+  const redo = () => {
+    if (!travels.canForward()) return;
+    travels.forward();
+    form.setValues(structuredClone(travels.getState()));
+  };
+
+  const handleHistoryKeyDown = (event: KeyboardEvent) => {
+    const modifier = event.metaKey || event.ctrlKey;
+    if (!modifier) return;
+
+    const key = event.key.toLowerCase();
+    if (key === 'z' && !event.shiftKey && travels.canBack()) {
+      event.preventDefault();
+      undo();
+    } else if (
+      ((key === 'z' && event.shiftKey) || key === 'y') &&
+      travels.canForward()
+    ) {
+      event.preventDefault();
+      redo();
+    }
+  };
+
+  return { syncToHistory, commitHistoryStep, undo, redo, handleHistoryKeyDown };
+}
+```
+
+Call `syncToHistory()` when form values change and `commitHistoryStep()` at a meaningful product boundary such as blur, save, or a debounced commit. Clone live values in both directions so the form manager cannot later mutate a state object retained by Travels, and Travels does not retain a live form object.
+
+For `react-hook-form`, `getValues()` maps naturally to the form API and `reset()` can implement `setValues()`.
+
+## Keyboard shortcuts [#keyboard-shortcuts]
+
+The returned `handleHistoryKeyDown` supports both macOS and Windows modifiers, normalizes letter casing, and prevents the browser default only when Travels can handle the action. Ignore editable-event targets only when your product’s shortcut policy requires it:
+
+```ts
+const history = bindHistoryToForm(form);
+editorElement.addEventListener('keydown', history.handleHistoryKeyDown);
+
+// When the editor is disposed:
+editorElement.removeEventListener('keydown', history.handleHistoryKeyDown);
+```
+
+Scope the listener to the active editor rather than registering duplicate global handlers for every mounted form.
+
+## When to use a controlled journal [#when-to-use-a-controlled-journal]
+
+Use `createTravelJournal()` when the external owner already produces the exact `nextState`, `patches`, and `inversePatches` for each commit. This avoids running the update recipe twice and keeps validation/subscription behavior in the owner’s normal commit path.
+
+```ts
+const journal = createTravelJournal(authoritativeState, {
+  apply({ patches }) {
+    authoritativeState = commitThroughOwner(patches);
+    return authoritativeState;
+  },
+});
+
+journal.recordPatches(nextState, { patches, inversePatches });
+```
+
+The owner must not record delegated navigation again as a new edit. `apply` is synchronous, and Travels cannot roll back external side effects if the owner fails after partially committing. Read the full [Controlled Journal contract](/docs/guides/controlled-journal) before choosing this path.
+
+## Decision guide [#decision-guide]
+
+- The form/store returns plain values but no patches: use detached `setState()` synchronization.
+- Several change notifications should form one undo step: use manual archive.
+- The owner already generates exact forward/inverse patches: use a controlled journal.
+- You need provisional changes hidden from Travels observers and automatic rollback: use a synchronous transaction around Travels-owned updates.
+- The owner cannot roll back published commits: preflight patch entries with `assertTravelHistoryEntryRecordable()` before publishing when possible.

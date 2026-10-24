@@ -1,0 +1,85 @@
+# Archive Mode (/docs/guides/archive-mode)
+
+The archive mode defines when effective state changes become undoable history entries. It does not change when current state updates: pending manual edits are already visible in current state.
+
+## Automatic archive — the default [#automatic-archive--the-default]
+
+```ts
+const travels = createTravels({ count: 0 });
+
+travels.setState({ count: 1 }); // Entry 1
+travels.setState({ count: 2 }); // Entry 2
+travels.back();                 // count: 1
+```
+
+Use automatic mode when each call represents one complete user action. No-op updates do not create entries. Automatic timelines omit `archive()` and `canArchive()` at runtime and in TypeScript.
+
+## Manual archive [#manual-archive]
+
+```ts
+const travels = createTravels(
+  { title: '', description: '' },
+  { autoArchive: false }
+);
+
+travels.setState((draft) => { draft.title = 'Brief'; });
+travels.setState((draft) => { draft.description = 'Draft'; });
+
+travels.canArchive(); // true
+travels.archive({ label: 'Create brief' });
+travels.canArchive(); // false
+
+travels.back(); // Returns to the state before both edits
+```
+
+Manual mode is useful for:
+
+- committing a field group on blur or save;
+- treating a drag gesture as one step;
+- letting an external form manager define the undo boundary;
+- composing updates without immediately exposing separate undo entries.
+
+## Metadata selection [#metadata-selection]
+
+`archive(metadata?)` accepts the entry’s final metadata. If omitted, Travels uses the latest metadata supplied to pending `setState()` calls.
+
+```ts
+travels.setState(updateTitle, { source: 'title-field' });
+travels.setState(updateBody, { source: 'body-field' });
+travels.archive({ label: 'Edit document', source: 'editor' });
+```
+
+Keep metadata durable when persisting history.
+
+## Navigation implicitly archives pending work [#navigation-implicitly-archives-pending-work]
+
+Calling `back()`, `forward()`, or `go()` with pending manual changes archives them as part of navigation so cursor positions remain meaningful. The archive and movement commit as one observable transition.
+
+```ts
+travels.setState(updateDraft);
+travels.back(); // Pending work is archived, then navigation occurs
+```
+
+In Travels 3 this publishes one `go` event and advances `getRevision()` once. Persist from every committed event, not only from `archive` events.
+
+## Transactions in manual mode [#transactions-in-manual-mode]
+
+A root `transaction()` archives when it commits. Changes already pending before the transaction join its entry, so undo reverts them together. Transaction metadata takes precedence; without it, the latest pending update metadata is used.
+
+A transaction whose own updates cancel out can leave earlier pending work pending. For the full matrix, see [Transactions](/docs/guides/transactions).
+
+## Cancelled pending changes [#cancelled-pending-changes]
+
+Pending changes that cancel each other out are dropped instead of retained as a meaningful undo entry. `archive()` can still publish an `archive` event for the archive operation even when no net state change remains. Navigation counts positions with the pending entry in place, so its behavior follows the navigation contract rather than simply deleting the entry.
+
+## Automatic versus manual [#automatic-versus-manual]
+
+| Behavior | Automatic | Manual |
+| --- | --- | --- |
+| Effective `setState()` creates an entry | Immediately | Only when archived |
+| Current state updates | Immediately | Immediately |
+| `archive()` / `canArchive()` | Absent | Available |
+| Typical boundary | One update call | Application-defined gesture or commit |
+| Root transaction | One grouped entry | Also archives earlier pending work |
+
+Start with automatic mode. Choose manual mode only when the application has a clear commit boundary; an update that is never archived cannot be navigated as an independent completed step.

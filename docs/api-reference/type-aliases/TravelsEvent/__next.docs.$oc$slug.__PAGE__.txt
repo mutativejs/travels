@@ -1,0 +1,59 @@
+3:"$Sreact.fragment"
+4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
+5:"/travels/_next/static/chunks/197w2eqrew31i.js"
+6:"/travels/_next/static/chunks/336ref_41vxre.js"
+7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
+8:I[42194,["$4","$5","$6","$7"],"default"]
+9:I[5817,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
+f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
+10:"/travels/_next/static/chunks/443-b63fbci1j.js"
+11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
+12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
+13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+16:"MarkdownCopyButton"
+17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+18:"ViewOptionsPopover"
+19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+1c:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+2d:"ViewportBoundary"
+2e:I[13693,["$4","$5","$6","$7"],"$2d"]
+2f:"MetadataBoundary"
+30:I[13693,["$4","$5","$6","$7"],"$2f"]
+31:"$Sreact.suspense"
+32:I[14017,["$4","$5","$6","$7"],"IconMark"]
+b:X
+b:C
+c:X
+d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#type-parameters","title":"Type Parameters"},{"depth":3,"url":"#s","title":"S"},{"depth":3,"url":"#p","title":"P"},{"depth":2,"url":"#properties","title":"Properties"},{"depth":3,"url":"#historylength","title":"historyLength"},{"depth":3,"url":"#metadata","title":"metadata?"},{"depth":3,"url":"#patches","title":"patches"},{"depth":3,"url":"#position","title":"position"},{"depth":3,"url":"#state","title":"state"},{"depth":3,"url":"#type","title":"type"}],"children":[["$","$L14",null,{"children":"TravelsEvent<S, P>"}],["$","$L15",null,{"className":"mb-0","children":"Travels 3 API reference for TravelsEvent."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/api-reference/type-aliases/TravelsEvent.mdx"}]]}],["$","$L1a",null,{"children":[["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"TravelsEvent"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],"> = ",["$","code",null,{"children":"object"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L297","children":"src/type.ts:297"}]]}],"\n",["$","$L1c",null,{"as":"h2","id":"type-parameters","children":"Type Parameters"}],"\n",["$","$L1c",null,{"as":"h3","id":"s","children":"S"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L1c",null,{"as":"h3","id":"p","children":"P"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","$L1b",null,{"href":"PatchesOption.mdx","children":["$","code",null,{"children":"PatchesOption"}]}]," = { }"]}],"\n",["$","$L1c",null,{"as":"h2","id":"properties","children":"Properties"}],"\n",["$","$L1c",null,{"as":"h3","id":"historylength","children":"historyLength"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"historyLength"}],": ",["$","code",null,{"children":"number"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L314","children":"src/type.ts:314"}]]}],"\n",["$","p",null,{"children":"Number of entries currently retained in history."}],"\n",["$","hr",null,{}],"\n",["$","$L1c",null,{"as":"h3","id":"metadata","children":"metadata?"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","code",null,{"children":"optional"}]," ",["$","strong",null,{"children":"metadata"}],": ",["$","code",null,{"children":"Readonly"}],"<",["$","$L1b",null,{"href":"TravelMetadata.mdx","children":["$","code",null,{"children":"TravelMetadata"}]}],">"]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L316","children":"src/type.ts:316"}]]}],"\n",["$","p",null,{"children":"Lazily cloned, shallow-frozen metadata shared by this event's observers."}],"\n",["$","hr",null,{}],"\n",["$","$L1c",null,{"as":"h3","id":"patches","children":"patches"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"patches"}],": ",["$","$L1b",null,{"href":"ReadonlyTravelPatches.mdx","children":["$","code",null,{"children":"ReadonlyTravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L312","children":"src/type.ts:312"}]]}],"\n",["$","p",null,{"children":"Lazily materialized event-local patches that transform the previously\npublished state. Treat the shared snapshot as read-only."}],"\n",["$","hr",null,{}],"\n",["$","$L1c",null,{"as":"h3","id":"position","children":"position"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"position"}],": ","$L1d"]}],"\n"]}],"\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28"]}]]}],["$L29","$L2a"],"$L2b"]}],"p":"$@2c","v":null,"s":"$c"}}]]
+2:[["children",{"s":{"n":"slug","t":"oc","k":"api-reference/type-aliases/TravelsEvent","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
+1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2e",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L30",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$31",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"TravelsEvent<S, P> — Travels"}],["$","meta","1",{"name":"description","content":"Travels 3 API reference for TravelsEvent."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"TravelsEvent<S, P> — Travels"}],["$","meta","5",{"property":"og:description","content":"Travels 3 API reference for TravelsEvent."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/api-reference/type-aliases/TravelsEvent/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L32","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@33","v":null,"s":"$c"}},"a":"$@34","u":"$@35","b":"nY7QYmpsNjXzWBy8v02-V"}
+36:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+1d:["$","code",null,{"children":"number"}]
+1e:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L307","children":"src/type.ts:307"}]]}]
+1f:["$","hr",null,{}]
+20:["$","$L1c",null,{"as":"h3","id":"state","children":"state"}]
+21:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"state"}],": ",["$","$L1b",null,{"href":"ReadonlyState.mdx","children":["$","code",null,{"children":"ReadonlyState"}]}],"<",["$","code",null,{"children":"S"}],">"]}],"\n"]}]
+22:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L306","children":"src/type.ts:306"}]]}]
+23:["$","p",null,{"children":"Borrowed live state view. Mutate state only through Travels operations."}]
+24:["$","hr",null,{}]
+25:["$","$L1c",null,{"as":"h3","id":"type","children":"type"}]
+26:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"type"}],": ",["$","$L1b",null,{"href":"TravelsEventType.mdx","children":["$","code",null,{"children":"TravelsEventType"}]}]]}],"\n"]}]
+27:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L304","children":"src/type.ts:304"}]]}]
+28:["$","p",null,{"children":["The committed operation. Handle unrecognized values in a ",["$","code",null,{"children":"default"}]," branch."]}]
+29:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
+2a:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+2b:["$","$L36",null,{"children":["$","$31",null,{"name":"Next.MetadataOutlet","children":"$@37"}]}]
+35:true
+c:300
+37:null
+c:C
+34:0
+a:"$undefined"
+33:"$undefined"
+2c:"$undefined"

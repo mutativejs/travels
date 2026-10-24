@@ -1,0 +1,114 @@
+# Travels
+
+- [Travels Documentation](/docs): Learn, integrate, and operate patch-based undo/redo with Travels 3.
+- Getting Started
+  - [Installation](/docs/getting-started/installation): Install Travels 3 and Mutative 2 in a TypeScript or JavaScript application.
+  - [Quick Start](/docs/getting-started/quick-start): Create a timeline, record edits, navigate history, and restore a snapshot.
+  - [Choosing Travels](/docs/getting-started/choosing-travels): Understand when patch-based history is a better fit than snapshots, CRDTs, or a simpler undo stack.
+- Core Concepts
+  - [How Travels Works](/docs/concepts/how-it-works): Follow state, forward patches, inverse patches, positions, and branches through one timeline.
+  - [State Requirements](/docs/concepts/state-requirements): Use state, patch values, paths, and metadata that remain correct through replay and JSON persistence.
+  - [History Lifecycle](/docs/concepts/history-lifecycle): Manage retained windows, baselines, reset, rebase, trimming, and branch replacement.
+- Guides
+  - [History Guides](/docs/guides): Practical guidance for updates, navigation, grouping, observers, ownership, and failures.
+  - [Updating State](/docs/guides/updating-state): Use draft mutations, replacement values, metadata, and synchronous updates correctly.
+  - [Navigation and Controls](/docs/guides/navigation-and-controls): Move through history and expose the right read-only capabilities to UI components.
+  - [Archive Mode](/docs/guides/archive-mode): Choose automatic entries or explicitly group pending updates with manual archives.
+  - [Transactions](/docs/guides/transactions): Group synchronous updates into one atomic history entry and one settled observer event.
+  - [Tracking and Replacement](/docs/guides/tracking-and-replacement): Apply untracked updates, replace authoritative state, and deliberately reset the history baseline.
+  - [Mutable Mode](/docs/guides/mutable-mode): Preserve reactive object identity while recording reversible patches.
+  - [Controlled Journal](/docs/guides/controlled-journal): Connect Travels history to a runtime that already owns state and commits.
+  - [Observers and Events](/docs/guides/observers-and-events): Subscribe to committed transitions and consume shared read-only event data safely.
+  - [Error Handling](/docs/guides/error-handling): Handle typed operation errors, persistence failures, warnings, and observer errors without corrupting history.
+  - [Advanced Patterns](/docs/guides/advanced-patterns): Extend Travels with validation, permissions, metadata, logging, and composable wrappers.
+- Integrations
+  - [Framework Integrations](/docs/integrations): Choose immutable, mutable, official-binding, or externally owned history for your state architecture.
+  - [React Integration](/docs/integrations/react): Bind a Travels timeline to React with useSyncExternalStore and revision-based invalidation.
+  - [Vue Integration](/docs/integrations/vue): Use immutable refs or preserve a reactive store reference with mutable mode.
+  - [Zustand Integration](/docs/integrations/zustand): Use zustand-travel v3 or synchronize a core immutable timeline with a Zustand store.
+  - [MobX and Pinia](/docs/integrations/mobx-pinia): Preserve observable store identity with mutable timelines and explicit undoable writes.
+  - [Forms and External Stores](/docs/integrations/external-stores): Keep a form manager or state runtime authoritative while adding reliable undo/redo history.
+- Persistence
+  - [Persistence](/docs/persistence): Serialize, validate, store, restore, and migrate complete Travels timelines.
+  - [Storage Adapters](/docs/persistence/storage-adapters): Production-oriented persistence adapters for Dexie, idb, localForage, and localspace.
+  - [Migration and Recovery](/docs/persistence/migration-and-recovery): Migrate older snapshots, select validation depth, and recover intentionally from invalid history.
+  - [Security and Integrity](/docs/persistence/security-and-integrity): Understand what semantic validation proves and where authentication, revisions, and conflict handling belong.
+- Migration
+  - [Migration Guide](/docs/migration): Upgrade to Travels 3 or migrate from snapshot-based history libraries.
+- Reference
+  - [Configuration Options](/docs/reference/options): Reference for timeline creation, restore, persistence, patches, hooks, and Mutative options.
+  - [Instance Methods](/docs/reference/instance-methods): A task-oriented index of timeline, journal, navigation, history, and persistence methods.
+  - [TypeScript Guide](/docs/reference/typescript): Infer timeline types, enforce durable state, and use read-only views and open event types safely.
+  - [Compatibility Policy](/docs/reference/compatibility): Supported runtimes, browsers, state shapes, official bindings, and versioning.
+- Resources
+  - [Examples](/docs/resources/examples): Runnable and copyable Travels examples for core history, frameworks, persistence, and editing applications.
+  - [Troubleshooting](/docs/resources/troubleshooting): Diagnose common update, navigation, persistence, mutable-mode, and integration problems.
+  - [Testing Strategy](/docs/resources/testing): Correctness, property-based, browser, mutation, and hot-path performance testing.
+  - [Contributing](/docs/resources/contributing): Set up the repository, make focused changes, and validate a contribution.
+  - [Security Policy](/docs/resources/security): Supported versions and the responsible vulnerability reporting process.
+  - [Release Checklist](/docs/resources/release-checklist): The project checklist for validating and publishing a Travels release.
+- API Reference
+  - [API Reference](/docs/api-reference): Complete source-generated reference for every public Travels 3 export.
+  - Functions
+    - [assertTravelHistoryEntryRecordable()](/docs/api-reference/functions/assertTravelHistoryEntryRecordable): Preflight a controlled patch pair before an external commit.
+    - [createPatchableTravels()](/docs/api-reference/functions/createPatchableTravels): Create a timeline constrained to the durable JSON-shaped state contract.
+    - [createTravelJournal()](/docs/api-reference/functions/createTravelJournal): Record history for a runtime that already owns state and patches.
+    - [createTravels()](/docs/api-reference/functions/createTravels): Create a state-owning timeline with automatic or manual archiving.
+    - [findStateCompatibilityIssues()](/docs/api-reference/functions/findStateCompatibilityIssues): Inspect state, patches, and metadata for persistence hazards.
+    - [isTravels()](/docs/api-reference/functions/isTravels): Detect a state-owning timeline created by this copy of Travels.
+    - [restoreTravelJournal()](/docs/api-reference/functions/restoreTravelJournal): Restore a controlled journal from a complete history snapshot.
+    - [restoreTravels()](/docs/api-reference/functions/restoreTravels): Restore a complete validated Travels history snapshot.
+    - [validateTravelHistoryEntry()](/docs/api-reference/functions/validateTravelHistoryEntry): Validate a forward and inverse history entry.
+    - [validateTravelPatches()](/docs/api-reference/functions/validateTravelPatches): Validate JSON Patch structure and retained patch values.
+  - Classes
+    - [TravelsError](/docs/api-reference/classes/TravelsError): Travels 3 API reference for TravelsError.
+    - [TravelsPersistenceError](/docs/api-reference/classes/TravelsPersistenceError): Travels 3 API reference for TravelsPersistenceError.
+    - [TravelsTypeError](/docs/api-reference/classes/TravelsTypeError): Travels 3 API reference for TravelsTypeError.
+  - Interfaces
+    - [ManualTravelsControls<S, P>](/docs/api-reference/interfaces/ManualTravelsControls): Travels 3 API reference for ManualTravelsControls.
+    - [TravelsControls<S, P>](/docs/api-reference/interfaces/TravelsControls): Travels 3 API reference for TravelsControls.
+  - Type Aliases
+    - [JsonArray](/docs/api-reference/type-aliases/JsonArray): Travels 3 API reference for JsonArray.
+    - [JsonObject](/docs/api-reference/type-aliases/JsonObject): Travels 3 API reference for JsonObject.
+    - [JsonPrimitive](/docs/api-reference/type-aliases/JsonPrimitive): Travels 3 API reference for JsonPrimitive.
+    - [JsonValue](/docs/api-reference/type-aliases/JsonValue): Travels 3 API reference for JsonValue.
+    - [PatchableInput<T>](/docs/api-reference/type-aliases/PatchableInput): Travels 3 API reference for PatchableInput.
+    - [PatchableState](/docs/api-reference/type-aliases/PatchableState): Travels 3 API reference for PatchableState.
+    - [PatchesOption](/docs/api-reference/type-aliases/PatchesOption): Travels 3 API reference for PatchesOption.
+    - [ReadonlyState<S>](/docs/api-reference/type-aliases/ReadonlyState): Travels 3 API reference for ReadonlyState.
+    - [ReadonlyTravelPatch<P>](/docs/api-reference/type-aliases/ReadonlyTravelPatch): Travels 3 API reference for ReadonlyTravelPatch.
+    - [ReadonlyTravelPatches<P>](/docs/api-reference/type-aliases/ReadonlyTravelPatches): Travels 3 API reference for ReadonlyTravelPatches.
+    - [RebasableManualTravelsControls<S, P>](/docs/api-reference/type-aliases/RebasableManualTravelsControls): Travels 3 API reference for RebasableManualTravelsControls.
+    - [RebasableTravelsControls<S, P>](/docs/api-reference/type-aliases/RebasableTravelsControls): Travels 3 API reference for RebasableTravelsControls.
+    - [RestoreTravelsOptions<S, F, A, P>](/docs/api-reference/type-aliases/RestoreTravelsOptions): Travels 3 API reference for RestoreTravelsOptions.
+    - [StateCompatibilityIssue](/docs/api-reference/type-aliases/StateCompatibilityIssue): Travels 3 API reference for StateCompatibilityIssue.
+    - [StateCompatibilityIssueCode](/docs/api-reference/type-aliases/StateCompatibilityIssueCode): Travels 3 API reference for StateCompatibilityIssueCode.
+    - [TravelHistoryEntry<P>](/docs/api-reference/type-aliases/TravelHistoryEntry): Travels 3 API reference for TravelHistoryEntry.
+    - [TravelJournal<S, F, A, P>](/docs/api-reference/type-aliases/TravelJournal): Travels 3 API reference for TravelJournal.
+    - [TravelJournalOptions<S, F, A, P>](/docs/api-reference/type-aliases/TravelJournalOptions): Travels 3 API reference for TravelJournalOptions.
+    - [TravelMetadata](/docs/api-reference/type-aliases/TravelMetadata): Travels 3 API reference for TravelMetadata.
+    - [TravelPatches<P>](/docs/api-reference/type-aliases/TravelPatches): Travels 3 API reference for TravelPatches.
+    - [Travels<S, _F, A, P>](/docs/api-reference/type-aliases/Travels): Persistence namespace, serialized history, and core timeline types.
+    - [TravelsBranchDiscardEvent<P>](/docs/api-reference/type-aliases/TravelsBranchDiscardEvent): Travels 3 API reference for TravelsBranchDiscardEvent.
+    - [TravelsControlledApply()<S, P>](/docs/api-reference/type-aliases/TravelsControlledApply): Travels 3 API reference for TravelsControlledApply.
+    - [TravelsControlledTransition<S, P>](/docs/api-reference/type-aliases/TravelsControlledTransition): Travels 3 API reference for TravelsControlledTransition.
+    - [TravelsDeserializeOptions<S, P>](/docs/api-reference/type-aliases/TravelsDeserializeOptions): Travels 3 API reference for TravelsDeserializeOptions.
+    - [TravelsErrorCode](/docs/api-reference/type-aliases/TravelsErrorCode): Travels 3 API reference for TravelsErrorCode.
+    - [TravelsEvent<S, P>](/docs/api-reference/type-aliases/TravelsEvent): Travels 3 API reference for TravelsEvent.
+    - [TravelsEventType](/docs/api-reference/type-aliases/TravelsEventType): Travels 3 API reference for TravelsEventType.
+    - [TravelsHistoryValidationMode](/docs/api-reference/type-aliases/TravelsHistoryValidationMode): Travels 3 API reference for TravelsHistoryValidationMode.
+    - [TravelsKnownEventType](/docs/api-reference/type-aliases/TravelsKnownEventType): Travels 3 API reference for TravelsKnownEventType.
+    - [TravelsMigration()<S, P>](/docs/api-reference/type-aliases/TravelsMigration): Travels 3 API reference for TravelsMigration.
+    - [TravelsObserverErrorEvent](/docs/api-reference/type-aliases/TravelsObserverErrorEvent): Travels 3 API reference for TravelsObserverErrorEvent.
+    - [TravelsObserverErrorSource](/docs/api-reference/type-aliases/TravelsObserverErrorSource): Travels 3 API reference for TravelsObserverErrorSource.
+    - [TravelsOptions<F, A, P, S>](/docs/api-reference/type-aliases/TravelsOptions): Travels 3 API reference for TravelsOptions.
+    - [TravelsPersistenceErrorCode](/docs/api-reference/type-aliases/TravelsPersistenceErrorCode): Travels 3 API reference for TravelsPersistenceErrorCode.
+    - [TravelsReplayOptions](/docs/api-reference/type-aliases/TravelsReplayOptions): Travels 3 API reference for TravelsReplayOptions.
+    - [TravelsSerializedHistory<S, P>](/docs/api-reference/type-aliases/TravelsSerializedHistory): Travels 3 API reference for TravelsSerializedHistory.
+    - [TravelsSerializeOptions](/docs/api-reference/type-aliases/TravelsSerializeOptions): Travels 3 API reference for TravelsSerializeOptions.
+    - [TravelsWarning](/docs/api-reference/type-aliases/TravelsWarning): Travels 3 API reference for TravelsWarning.
+    - [TravelsWarningCode](/docs/api-reference/type-aliases/TravelsWarningCode): Travels 3 API reference for TravelsWarningCode.
+    - [Updater<S>](/docs/api-reference/type-aliases/Updater): Travels 3 API reference for Updater.
+  - Variables
+    - [Travels](/docs/api-reference/variables/Travels): Persistence namespace, serialized history, and core timeline types.
+    - [TRAVELS\_HISTORY\_SCHEMA\_VERSION](/docs/api-reference/variables/TRAVELS_HISTORY_SCHEMA_VERSION): Travels 3 API reference for TRAVELS\_HISTORY\_SCHEMA\_VERSION.

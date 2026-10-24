@@ -1,0 +1,112 @@
+3:"$Sreact.fragment"
+4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
+5:"/travels/_next/static/chunks/197w2eqrew31i.js"
+6:"/travels/_next/static/chunks/336ref_41vxre.js"
+7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
+8:I[42194,["$4","$5","$6","$7"],"default"]
+9:I[5817,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
+f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
+10:"/travels/_next/static/chunks/443-b63fbci1j.js"
+11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
+12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
+13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+16:"MarkdownCopyButton"
+17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+18:"ViewOptionsPopover"
+19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+1c:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+62:"ViewportBoundary"
+63:I[13693,["$4","$5","$6","$7"],"$62"]
+64:"MetadataBoundary"
+65:I[13693,["$4","$5","$6","$7"],"$64"]
+66:"$Sreact.suspense"
+67:I[14017,["$4","$5","$6","$7"],"IconMark"]
+b:X
+b:C
+c:X
+d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#extended-by","title":"Extended by"},{"depth":2,"url":"#type-parameters","title":"Type Parameters"},{"depth":3,"url":"#s","title":"S"},{"depth":3,"url":"#p","title":"P"},{"depth":2,"url":"#properties","title":"Properties"},{"depth":3,"url":"#back","title":"back()"},{"depth":4,"url":"#parameters","title":"Parameters"},{"depth":5,"url":"#amount","title":"amount?"},{"depth":4,"url":"#returns","title":"Returns"},{"depth":3,"url":"#canback","title":"canBack()"},{"depth":4,"url":"#returns-1","title":"Returns"},{"depth":3,"url":"#canforward","title":"canForward()"},{"depth":4,"url":"#returns-2","title":"Returns"},{"depth":3,"url":"#forward","title":"forward()"},{"depth":4,"url":"#parameters-1","title":"Parameters"},{"depth":5,"url":"#amount-1","title":"amount?"},{"depth":4,"url":"#returns-3","title":"Returns"},{"depth":3,"url":"#gethistory","title":"getHistory()"},{"depth":4,"url":"#returns-4","title":"Returns"},{"depth":4,"url":"#remarks","title":"Remarks"},{"depth":3,"url":"#gethistorysnapshot","title":"getHistorySnapshot()"},{"depth":4,"url":"#returns-5","title":"Returns"},{"depth":3,"url":"#go","title":"go()"},{"depth":4,"url":"#parameters-2","title":"Parameters"},{"depth":5,"url":"#position","title":"position"},{"depth":4,"url":"#returns-6","title":"Returns"},{"depth":3,"url":"#patches","title":"patches"},{"depth":4,"url":"#remarks-1","title":"Remarks"},{"depth":3,"url":"#position-1","title":"position"},{"depth":3,"url":"#reset","title":"reset()"},{"depth":4,"url":"#returns-7","title":"Returns"}],"children":[["$","$L14",null,{"children":"TravelsControls<S, P>"}],["$","$L15",null,{"className":"mb-0","children":"Travels 3 API reference for TravelsControls."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/api-reference/interfaces/TravelsControls.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L403","children":"src/type.ts:403"}]]}],"\n",["$","$L1c",null,{"as":"h2","id":"extended-by","children":"Extended by"}],"\n",["$","ul",null,{"children":["\n",["$","li",null,{"children":["$","$L1b",null,{"href":"ManualTravelsControls.mdx","children":["$","code",null,{"children":"ManualTravelsControls"}]}]}],"\n"]}],"\n",["$","$L1c",null,{"as":"h2","id":"type-parameters","children":"Type Parameters"}],"\n",["$","$L1c",null,{"as":"h3","id":"s","children":"S"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L1c",null,{"as":"h3","id":"p","children":"P"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","$L1b",null,{"href":"/docs/api-reference/type-aliases/PatchesOption","children":["$","code",null,{"children":"PatchesOption"}]}]," = { }"]}],"\n",["$","$L1c",null,{"as":"h2","id":"properties","children":"Properties"}],"\n",["$","$L1c",null,{"as":"h3","id":"back","children":"back()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"back"}],": (",["$","code",null,{"children":"amount?"}],") => ",["$","code",null,{"children":"void"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L432","children":"src/type.ts:432"}]]}],"\n",["$","p",null,{"children":"Go back in the history"}],"\n",["$","$L1c",null,{"as":"h4","id":"parameters","children":"Parameters"}],"\n",["$","$L1c",null,{"as":"h5","id":"amount","children":"amount?"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"number"}]}],"\n",["$","$L1c",null,{"as":"h4","id":"returns","children":"Returns"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"void"}]}],"\n",["$","hr",null,{}],"\n",["$","$L1c",null,{"as":"h3","id":"canback","children":"canBack()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"canBack"}],": () => ",["$","code",null,{"children":"boolean"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L448","children":"src/type.ts:448"}]]}],"\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d","\n","$L2e","\n","$L2f","\n","$L30","\n","$L31","\n","$L32","\n","$L33","\n","$L34","\n","$L35","\n","$L36","\n","$L37","\n","$L38","\n","$L39","\n","$L3a","\n","$L3b","\n","$L3c","\n","$L3d","\n","$L3e","\n","$L3f","\n","$L40","\n","$L41","\n","$L42","\n","$L43","\n","$L44","\n","$L45","\n","$L46","\n","$L47","\n","$L48","\n","$L49","\n","$L4a","\n","$L4b","\n","$L4c","\n","$L4d","\n","$L4e","\n","$L4f","\n","$L50","\n","$L51","\n","$L52","\n","$L53","\n","$L54","\n","$L55","\n","$L56","\n","$L57","\n","$L58","\n","$L59","\n","$L5a","\n","$L5b","\n","$L5c","\n","$L5d"]}]]}],["$L5e","$L5f"],"$L60"]}],"p":"$@61","v":null,"s":"$c"}}]]
+2:[["children",{"s":{"n":"slug","t":"oc","k":"api-reference/interfaces/TravelsControls","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
+1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L63",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L65",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$66",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"TravelsControls<S, P> — Travels"}],["$","meta","1",{"name":"description","content":"Travels 3 API reference for TravelsControls."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"TravelsControls<S, P> — Travels"}],["$","meta","5",{"property":"og:description","content":"Travels 3 API reference for TravelsControls."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/api-reference/interfaces/TravelsControls/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L67","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@68","v":null,"s":"$c"}},"a":"$@69","u":"$@6a","b":"nY7QYmpsNjXzWBy8v02-V"}
+6b:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+1d:["$","p",null,{"children":"Check if it's possible to go back"}]
+1e:["$","$L1c",null,{"as":"h4","id":"returns-1","children":"Returns"}]
+1f:["$","p",null,{"children":["$","code",null,{"children":"boolean"}]}]
+20:["$","hr",null,{}]
+21:["$","$L1c",null,{"as":"h3","id":"canforward","children":"canForward()"}]
+22:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"canForward"}],": () => ",["$","code",null,{"children":"boolean"}]]}],"\n"]}]
+23:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L452","children":"src/type.ts:452"}]]}]
+24:["$","p",null,{"children":"Check if it's possible to go forward"}]
+25:["$","$L1c",null,{"as":"h4","id":"returns-2","children":"Returns"}]
+26:["$","p",null,{"children":["$","code",null,{"children":"boolean"}]}]
+27:["$","hr",null,{}]
+28:["$","$L1c",null,{"as":"h3","id":"forward","children":"forward()"}]
+29:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"forward"}],": (",["$","code",null,{"children":"amount?"}],") => ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+2a:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L436","children":"src/type.ts:436"}]]}]
+2b:["$","p",null,{"children":"Go forward in the history"}]
+2c:["$","$L1c",null,{"as":"h4","id":"parameters-1","children":"Parameters"}]
+2d:["$","$L1c",null,{"as":"h5","id":"amount-1","children":"amount?"}]
+2e:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
+2f:["$","$L1c",null,{"as":"h4","id":"returns-3","children":"Returns"}]
+30:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+31:["$","hr",null,{}]
+32:["$","$L1c",null,{"as":"h3","id":"gethistory","children":"getHistory()"}]
+33:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"getHistory"}],": () => readonly ",["$","code",null,{"children":"Immutable"}],"<",["$","code",null,{"children":"S"}],">[]"]}],"\n"]}]
+34:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L415","children":"src/type.ts:415"}]]}]
+35:["$","p",null,{"children":"Get the shared history cache."}]
+36:["$","$L1c",null,{"as":"h4","id":"returns-4","children":"Returns"}]
+37:["$","p",null,{"children":["readonly ",["$","code",null,{"children":"Immutable"}],"<",["$","code",null,{"children":"S"}],">[]"]}]
+38:["$","$L1c",null,{"as":"h4","id":"remarks","children":"Remarks"}]
+39:["$","p",null,{"children":["The returned array is Travels' shared internal cache. Use\n",["$","$L1b",null,{"href":"#gethistorysnapshot","children":"getHistorySnapshot"}]," when you need an array you can keep or change."]}]
+3a:["$","hr",null,{}]
+3b:["$","$L1c",null,{"as":"h3","id":"gethistorysnapshot","children":"getHistorySnapshot()"}]
+3c:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"getHistorySnapshot"}],": () => ",["$","code",null,{"children":"S"}],"[]"]}],"\n"]}]
+3d:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L419","children":"src/type.ts:419"}]]}]
+3e:["$","p",null,{"children":"Get fully detached history snapshots that the caller owns."}]
+3f:["$","$L1c",null,{"as":"h4","id":"returns-5","children":"Returns"}]
+40:["$","p",null,{"children":[["$","code",null,{"children":"S"}],"[]"]}]
+41:["$","hr",null,{}]
+42:["$","$L1c",null,{"as":"h3","id":"go","children":"go()"}]
+43:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"go"}],": (",["$","code",null,{"children":"position"}],") => ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+44:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L444","children":"src/type.ts:444"}]]}]
+45:["$","p",null,{"children":"Go to a specific position in the history"}]
+46:["$","$L1c",null,{"as":"h4","id":"parameters-2","children":"Parameters"}]
+47:["$","$L1c",null,{"as":"h5","id":"position","children":"position"}]
+48:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
+49:["$","$L1c",null,{"as":"h4","id":"returns-6","children":"Returns"}]
+4a:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+4b:["$","hr",null,{}]
+4c:["$","$L1c",null,{"as":"h3","id":"patches","children":"patches"}]
+4d:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"patches"}],": ",["$","$L1b",null,{"href":"/docs/api-reference/type-aliases/ReadonlyTravelPatches","children":["$","code",null,{"children":"ReadonlyTravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
+4e:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L428","children":"src/type.ts:428"}]]}]
+4f:["$","p",null,{"children":"Shared read-only view of the retained patch history."}]
+50:["$","$L1c",null,{"as":"h4","id":"remarks-1","children":"Remarks"}]
+51:["$","p",null,{"children":["The view is cached and keeps its reference until history changes, so it\nis cheap to read during rendering. Use ",["$","code",null,{"children":"getPatches()"}]," on the timeline for\na detached, caller-owned copy."]}]
+52:["$","hr",null,{}]
+53:["$","$L1c",null,{"as":"h3","id":"position-1","children":"position"}]
+54:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"position"}],": ",["$","code",null,{"children":"number"}]]}],"\n"]}]
+55:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L407","children":"src/type.ts:407"}]]}]
+56:["$","p",null,{"children":"The current position in the history"}]
+57:["$","hr",null,{}]
+58:["$","$L1c",null,{"as":"h3","id":"reset","children":"reset()"}]
+59:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"reset"}],": () => ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+5a:["$","p",null,{"children":["Defined in: ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L440","children":"src/type.ts:440"}]]}]
+5b:["$","p",null,{"children":"Reset the history"}]
+5c:["$","$L1c",null,{"as":"h4","id":"returns-7","children":"Returns"}]
+5d:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+5e:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
+5f:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+60:["$","$L6b",null,{"children":["$","$66",null,{"name":"Next.MetadataOutlet","children":"$@6c"}]}]
+6a:true
+c:300
+6c:null
+c:C
+69:0
+a:"$undefined"
+68:"$undefined"
+61:"$undefined"

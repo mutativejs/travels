@@ -1,0 +1,113 @@
+# TypeScript Guide (/docs/reference/typescript)
+
+Travels is written in TypeScript and ships declarations for both ESM and CommonJS consumers. Most applications can rely on factory inference rather than spelling every generic.
+
+## Infer state from the factory [#infer-state-from-the-factory]
+
+```ts
+import { createTravels } from 'travels';
+
+const travels = createTravels({
+  count: 0,
+  todos: [] as Array<{ id: string; text: string }>,
+});
+
+travels.setState((draft) => {
+  draft.count += 1;
+  draft.todos.push({ id: crypto.randomUUID(), text: 'Try Travels' });
+});
+```
+
+You can also provide an explicit state type:
+
+```ts
+interface EditorState {
+  title: string;
+  blocks: Array<{ id: string; text: string }>;
+}
+
+const travels = createTravels<EditorState>({ title: '', blocks: [] });
+```
+
+## Important exported types [#important-exported-types]
+
+| Type | Purpose |
+| --- | --- |
+| `Travels<S, F, A, P>` | State-owning timeline capability. |
+| `TravelJournal<S, F, A, P>` | Externally owned journal capability. |
+| `TravelsOptions<F, A, P, S>` | Factory options, including observer hooks. |
+| `Updater<S>` | Direct state, state-returning function, or draft recipe. |
+| `TravelPatches<P>` | Retained forward and inverse patch groups. |
+| `TravelHistoryEntry<P>` | One patch pair with optional metadata. |
+| `TravelMetadata` | Labels, timestamps, source, and custom metadata. |
+| `TravelsEvent<S, P>` | Unified subscriber/devtools event. |
+| `TravelsSerializedHistory<S, P>` | Versioned persistence snapshot. |
+| `ReadonlyState<S>` | Shared read-only state view. |
+| `ReadonlyTravelPatches<P>` | Shared frozen event-local patch view. |
+| `JsonValue` / `PatchableState` | Durable JSON-shaped data contract. |
+| `PatchableInput<T>` | Best-effort static constraint for durable input. |
+
+The `F`, `A`, and `P` parameters track auto-freeze, archive mode, and patch format so capability-specific methods appear only where valid. Prefer inference at application boundaries and name simpler aliases for your own APIs.
+
+## Durable input checks [#durable-input-checks]
+
+```ts
+import {
+  createPatchableTravels,
+  type JsonValue,
+  type PatchableState,
+} from 'travels';
+
+const initial = {
+  title: 'Draft',
+  blocks: [] as Array<{ id: string; text: string }>,
+} satisfies JsonValue;
+
+const travels = createPatchableTravels(initial);
+
+function createHistory<S extends PatchableState>(state: S) {
+  return createPatchableTravels(state);
+}
+```
+
+`PatchableInput<T>` uses finite-depth recursive checking so recursive interfaces remain usable. Broad or `any`-like types cannot prove runtime contents, and TypeScript’s `number` cannot exclude `NaN`, infinities, or `-0`. Keep runtime validation at untrusted boundaries.
+
+## Read-only views [#read-only-views]
+
+`getHistory()` returns `readonly ReadonlyState<S>[]`; observer state and patch views are also read-only. These types describe shared caches and borrowed event values, not an invitation to cast and mutate.
+
+```ts
+const visible = travels.getHistory();
+const owned = travels.getHistorySnapshot();
+
+// Use owned when sorting, retaining, transferring, or editing.
+const newestFirst = travels.getHistorySnapshot().reverse();
+```
+
+`getControls()` and journal facades are frozen in every build. Their narrow types help prevent accidental state ownership from leaking into presentational components.
+
+## Open event names [#open-event-names]
+
+`TravelsEvent['type']` accepts known names plus future strings. Do not use an exhaustive `never` assertion that would break after a minor release adds an event:
+
+```ts
+function logEvent(event: TravelsEvent<EditorState>) {
+  switch (event.type) {
+    case 'setState':
+    case 'transaction':
+      console.log('Edit:', event.metadata);
+      break;
+    case 'go':
+      console.log('Navigation:', event.position);
+      break;
+    default:
+      console.log('Timeline event:', event.type);
+  }
+}
+```
+
+## Package declarations [#package-declarations]
+
+The package exposes development and default ESM builds, CommonJS defaults and declarations, UMD, and types through its export map. Use a current TypeScript module-resolution mode that understands package exports, such as `bundler`, `node16`, or `nodenext`, according to your application.
+
+The source-generated [Type Alias Reference](/docs/api-reference/type-aliases/Travels) contains the exact generic constraints and return shapes for this release.

@@ -1,0 +1,128 @@
+# Migration and Recovery (/docs/persistence/migration-and-recovery)
+
+Persisted history is application data with its own schema and trust boundary. Version the application’s storage envelope, migrate synchronously before validation, and decide what safe recovery means for each document.
+
+## Migrate older snapshots [#migrate-older-snapshots]
+
+Use `migrate` to transform an older shape into the current `TravelsSerializedHistory` before Travels validates it:
+
+```ts
+import {
+  Travels,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
+  type TravelsSerializedHistory,
+} from 'travels';
+
+type CurrentSnapshot = TravelsSerializedHistory<DocumentState>;
+
+const snapshot = Travels.deserialize<DocumentState>(stored, {
+  validation: 'semantic',
+  migrate(input) {
+    if (
+      input &&
+      typeof input === 'object' &&
+      (input as { version?: unknown }).version === 0
+    ) {
+      const legacy = input as {
+        state: DocumentState;
+        history: CurrentSnapshot['patches'];
+        cursor: number;
+      };
+
+      return {
+        version: TRAVELS_HISTORY_SCHEMA_VERSION,
+        state: legacy.state,
+        patches: legacy.history,
+        position: legacy.cursor,
+      };
+    }
+
+    return input as CurrentSnapshot;
+  },
+});
+```
+
+Migration and function-valued fallback callbacks are synchronous. Read storage, fetch remote data, decompress bytes, and verify envelopes before calling `deserialize()`. Promise-like callback results fail with `MIGRATION_FAILED` or `FALLBACK_FAILED`; Travels consumes their rejection to avoid an unhandled Promise rejection.
+
+## Recover with a known-safe fallback [#recover-with-a-known-safe-fallback]
+
+```ts
+const snapshot = Travels.deserialize<DocumentState>(stored, {
+  validation: 'semantic',
+  fallback: createEmptySnapshot,
+  onError(error) {
+    if (error instanceof TravelsPersistenceError) {
+      reportStorageIssue(error.code);
+    }
+  },
+});
+```
+
+Fallback runs after detected parsing, migration, or validation failure. The fallback itself passes through the selected validation mode. A throwing or invalid fallback reports `FALLBACK_FAILED`.
+
+Use a function fallback when each recovery needs a fresh object, although restore also detaches accepted snapshot state. Keep fallback construction synchronous.
+
+<Callout type="warn" title="Fallback is not an integrity check">
+An internally reversible but unauthorized or unintended alternative history is valid input and does not trigger fallback. Verify signatures, revisions, document identity, or checksums outside Travels before deserialization when those properties matter.
+</Callout>
+
+## Match replay options [#match-replay-options]
+
+When history was recorded using custom Mutative `strict` or `mark` behavior, provide the same settings during semantic validation:
+
+```ts
+const snapshot = Travels.deserialize(stored, {
+  validation: 'semantic',
+  replayOptions: {
+    strict: true,
+    mark: customMark,
+  },
+});
+```
+
+Semantic replay does not enable mutable replay or auto-freeze; those output policies do not change patch interpretation. Configure auto-freeze on the restored instance instead. Deserialization does not freeze or mutate caller-owned snapshot objects.
+
+## Interpret typed failures [#interpret-typed-failures]
+
+```ts
+try {
+  const snapshot = Travels.deserialize(stored, { validation: 'semantic' });
+  return restoreTravels(snapshot);
+} catch (error) {
+  if (error instanceof TravelsPersistenceError) {
+    console.error(error.code);
+    // entryIndex and direction may identify entry-specific replay failures.
+  }
+  throw error;
+}
+```
+
+- `PARSE_ERROR`: input is not valid JSON.
+- `UNSUPPORTED_VERSION`: migrate or reject the schema explicitly.
+- `INVALID_SCHEMA`: snapshot fields, metadata, or cursor are malformed.
+- `INVALID_PATCHES`: patch shape, operation, path, or value is invalid.
+- `INVALID_HISTORY`: reachable entries cannot replay and reverse consistently.
+- `MIGRATION_FAILED` / `FALLBACK_FAILED`: inspect the callback boundary and `cause`.
+
+Structural validation does not apply patches, so it cannot detect every replay failure. For unverified storage, semantic validation is the corruption-detection boundary.
+
+## Design a recovery flow [#design-a-recovery-flow]
+
+For important offline documents:
+
+1. Read the exact stored bytes and the previous verified generation.
+2. Verify the application envelope, tenant/document identity, and monotonic revision.
+3. Decode or decompress outside Travels.
+4. Migrate to the current snapshot schema.
+5. Run semantic validation for unverified input.
+6. Restore into a detached state or explicit mutable target.
+7. If any step fails, restore a trusted default or last-known-good generation and report the stable error code.
+8. Preserve the bad payload for diagnostics when privacy policy permits; do not overwrite it immediately with a blank snapshot before the user or support flow can inspect it.
+
+## Collection migrations [#collection-migrations]
+
+Do not replay old Map/Set-specific patch histories after normalizing current state. Reference-based collection paths and values cannot be migrated reliably as generic JSON Patch. Materialize the authoritative current state outside Travels, convert it to supported plain objects and dense arrays, then create a new history baseline.
+
+## Application schema versus Travels schema [#application-schema-versus-travels-schema]
+
+`TRAVELS_HISTORY_SCHEMA_VERSION` versions the history envelope, not your document’s business fields. Keep a separate application schema version in the outer storage record when document migrations are needed, and perform them before creating or restoring Travels state.

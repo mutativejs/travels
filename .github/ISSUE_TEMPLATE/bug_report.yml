@@ -1,0 +1,40 @@
+name: Bug report
+description: Report incorrect behavior in Travels
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide a minimal reproduction or test case.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Travels version
+      placeholder: "1.2.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      options:
+        - immutable
+        - mutable
+        - manual archive
+        - persistence
+        - unsure
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node/browser, framework, mutative version, package manager.

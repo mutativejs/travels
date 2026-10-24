@@ -1,0 +1,66 @@
+3:"$Sreact.fragment"
+4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
+5:"/travels/_next/static/chunks/197w2eqrew31i.js"
+6:"/travels/_next/static/chunks/336ref_41vxre.js"
+7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
+8:I[42194,["$4","$5","$6","$7"],"default"]
+9:I[5817,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
+f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
+10:"/travels/_next/static/chunks/443-b63fbci1j.js"
+11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
+12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
+13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+16:"MarkdownCopyButton"
+17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+18:"ViewOptionsPopover"
+19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+33:"ViewportBoundary"
+34:I[13693,["$4","$5","$6","$7"],"$33"]
+35:"MetadataBoundary"
+36:I[13693,["$4","$5","$6","$7"],"$35"]
+37:"$Sreact.suspense"
+38:I[14017,["$4","$5","$6","$7"],"IconMark"]
+b:X
+b:C
+c:X
+d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#choose-by-workload","title":"Choose by workload"},{"depth":2,"url":"#compare-the-costs","title":"Compare the costs"},{"depth":2,"url":"#choose-an-ownership-model","title":"Choose an ownership model"},{"depth":3,"url":"#createtravels","title":["$","code",null,{"children":"createTravels()"}]},{"depth":3,"url":"#createtraveljournal","title":["$","code",null,{"children":"createTravelJournal()"}]},{"depth":2,"url":"#choose-an-archive-mode","title":"Choose an archive mode"},{"depth":2,"url":"#a-practical-decision-checklist","title":"A practical decision checklist"}],"children":[["$","$L14",null,{"children":"Choosing Travels"}],["$","$L15",null,{"className":"mb-0","children":"Understand when patch-based history is a better fit than snapshots, CRDTs, or a simpler undo stack."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/getting-started/choosing-travels/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/getting-started/choosing-travels/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/getting-started/choosing-travels.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"Travels is designed around a specific trade-off: spend work generating and applying patches to reduce retained history size and make complete timelines practical to persist. It is not intended to win every update-latency benchmark."}],"\n",["$","$L1b",null,{"as":"h2","id":"choose-by-workload","children":"Choose by workload"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Scenario"}],["$","th",null,{"children":"Recommended approach"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"Large state with localized edits"}],["$","td",null,{"children":"Travels: retained patches usually avoid repeated full-state copies"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Long history that must survive reloads"}],["$","td",null,{"children":"Travels: one versioned snapshot includes state and history"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Replayable operation logs or undo metadata"}],["$","td",null,{"children":"Travels: entries contain forward/inverse patches and metadata"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Tiny state and a handful of local-only entries"}],["$","td",null,{"children":"A snapshot stack, Redux-undo, or Zundo may be simpler and faster"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Replace most or all state on every edit"}],["$","td",null,{"children":"Measure both approaches; patches can approach snapshot cost"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Collaborative conflict merging and concurrent users"}],["$","td",null,{"children":"A CRDT/OT system; Travels does not resolve conflicts by itself"}]]}]]}]]}]}],"\n",["$","$L1b",null,{"as":"h2","id":"compare-the-costs","children":"Compare the costs"}],"\n",["$","p",null,{"children":"A snapshot history pays a state-copy cost for every entry and usually has cheap navigation. A patch history pays patch-generation and patch-application costs, while retaining only the changed operations for localized updates."}],"\n",["$","p",null,{"children":["With Travels, immutable updates also use Mutative’s structural sharing. “Patch-based” does not mean every retained state is deep-cloned, and “smaller history” does not imply the lowest possible ",["$","code",null,{"children":"setState()"}]," latency."]}],"\n",["$","p",null,{"children":"Measure your actual workload across four dimensions:"}],"\n",["$","ol",null,{"children":["\n",["$","li",null,{"children":"Update latency and throughput."}],"\n","$L1c","\n","$L1d","\n","$L1e","\n"]}],"\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d","\n","$L2e"]}]]}],["$L2f","$L30"],"$L31"]}],"p":"$@32","v":null,"s":"$c"}}]]
+2:[["children",{"s":{"n":"slug","t":"oc","k":"getting-started/choosing-travels","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
+1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L34",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L36",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$37",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Choosing Travels — Travels"}],["$","meta","1",{"name":"description","content":"Understand when patch-based history is a better fit than snapshots, CRDTs, or a simpler undo stack."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Choosing Travels — Travels"}],["$","meta","5",{"property":"og:description","content":"Understand when patch-based history is a better fit than snapshots, CRDTs, or a simpler undo stack."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/getting-started/choosing-travels/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L38","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@39","v":null,"s":"$c"}},"a":"$@3a","u":"$@3b","b":"nY7QYmpsNjXzWBy8v02-V"}
+3c:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+3d:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+1c:["$","li",null,{"children":"Undo/redo and transaction latency."}]
+1d:["$","li",null,{"children":"Retained and serialized history size."}]
+1e:["$","li",null,{"children":"Save, restore, and semantic-validation cost."}]
+1f:["$","p",null,{"children":["The repository’s ",["$","$L3c",null,{"href":"https://github.com/mutativejs/travels/tree/main/benchmarks","children":"benchmark suite"}]," separates these concerns rather than presenting a single universal winner."]}]
+20:["$","$L1b",null,{"as":"h2","id":"choose-an-ownership-model","children":"Choose an ownership model"}]
+21:["$","$L1b",null,{"as":"h3","id":"createtravels","children":["$","code",null,{"children":"createTravels()"}]}]
+22:["$","p",null,{"children":"Use this when Travels should receive and commit updates. It is the default choice for vanilla state, reducer-style state, and most new integrations."}]
+23:["$","ul",null,{"children":["\n",["$","li",null,{"children":"Immutable mode returns new state references."}],"\n",["$","li",null,{"children":"Mutable mode updates a live object for MobX, Vue, Pinia, and similar reactive owners."}],"\n",["$","li",null,{"children":[["$","code",null,{"children":"setState()"}],", transactions, tracking controls, and ",["$","code",null,{"children":"getControls()"}]," are available."]}],"\n"]}]
+24:["$","$L1b",null,{"as":"h3","id":"createtraveljournal","children":["$","code",null,{"children":"createTravelJournal()"}]}]
+25:["$","p",null,{"children":["Use this when another runtime already produces ",["$","code",null,{"children":"nextState"}],", ",["$","code",null,{"children":"patches"}],", and ",["$","code",null,{"children":"inversePatches"}],". The external owner remains authoritative."]}]
+26:["$","ul",null,{"children":["\n",["$","li",null,{"children":["Record an existing commit with ",["$","code",null,{"children":"recordPatches()"}],"."]}],"\n",["$","li",null,{"children":["Apply undo/redo through the required synchronous ",["$","code",null,{"children":"apply"}]," callback."]}],"\n",["$","li",null,{"children":"Avoid generating the same patches twice."}],"\n",["$","li",null,{"children":["Do not feed delegated navigation back into ",["$","code",null,{"children":"recordPatches()"}],"."]}],"\n"]}]
+27:["$","p",null,{"children":["See the ",["$","$L3c",null,{"href":"/docs/guides/controlled-journal","children":"Controlled Journal Guide"}]," for the commit and failure boundaries."]}]
+28:["$","$L1b",null,{"as":"h2","id":"choose-an-archive-mode","children":"Choose an archive mode"}]
+29:["$","ul",null,{"children":["\n",["$","li",null,{"children":[["$","strong",null,{"children":["Automatic (",["$","code",null,{"children":"autoArchive: true"}],")"]}],": each effective ",["$","code",null,{"children":"setState()"}]," call is one undo step. This is the default and the right starting point for most apps."]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":["Manual (",["$","code",null,{"children":"autoArchive: false"}],")"]}],": updates affect current state immediately, while ",["$","code",null,{"children":"archive()"}]," groups pending work into an entry. Use it for blur commits, drag gestures, or application-defined transactions."]}],"\n"]}]
+2a:["$","p",null,{"children":["For a single atomic operation with one final observer event, prefer ",["$","code",null,{"children":"transaction()"}]," over manually coordinating an archive."]}]
+2b:["$","$L1b",null,{"as":"h2","id":"a-practical-decision-checklist","children":"A practical decision checklist"}]
+2c:["$","p",null,{"children":"Travels is likely a strong fit when most answers are yes:"}]
+2d:["$","ul",null,{"children":["\n",["$","li",null,{"children":"Is undo/redo a product feature rather than a debugging convenience?"}],"\n",["$","li",null,{"children":"Are updates usually smaller than the complete state?"}],"\n",["$","li",null,{"children":"Does history need metadata, persistence, or replay?"}],"\n",["$","li",null,{"children":"Would a versioned snapshot simplify local-first storage?"}],"\n",["$","li",null,{"children":"Do you need both immutable and reference-stable reactive integrations?"}],"\n"]}]
+2e:["$","p",null,{"children":"If your only requirement is a five-entry counter history in one component, a small local stack is probably enough."}]
+2f:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
+30:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+31:["$","$L3d",null,{"children":["$","$37",null,{"name":"Next.MetadataOutlet","children":"$@3e"}]}]
+3b:true
+c:300
+3e:null
+c:C
+3a:0
+a:"$undefined"
+39:"$undefined"
+32:"$undefined"
