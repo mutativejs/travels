@@ -1,39 +1,39 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
-1c:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1c:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
 2b:"ViewportBoundary"
-2c:I[13693,["$4","$5","$6","$7"],"$2b"]
+2c:I[27135,["$4","$5","$6","$7"],"$2b"]
 2d:"MetadataBoundary"
-2e:I[13693,["$4","$5","$6","$7"],"$2d"]
+2e:I[27135,["$4","$5","$6","$7"],"$2d"]
 2f:"$Sreact.suspense"
-30:I[14017,["$4","$5","$6","$7"],"IconMark"]
+30:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#choose-an-integration","title":"Choose an integration"},{"depth":2,"url":"#official-v3-bindings","title":"Official v3 bindings"},{"depth":2,"url":"#integration-invariants","title":"Integration invariants"}],"children":[["$","$L14",null,{"children":"Framework Integrations"}],["$","$L15",null,{"className":"mb-0","children":"Choose immutable, mutable, official-binding, or externally owned history for your state architecture."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/integrations/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/integrations/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/integrations/index.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"Travels’ core does not depend on a UI framework. The right integration depends on who owns state and whether your reactive system expects a new reference or stable object identity."}],"\n",["$","$L1b",null,{"as":"h2","id":"choose-an-integration","children":"Choose an integration"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Framework or owner"}],["$","th",null,{"children":"Recommended starting point"}],["$","th",null,{"children":"History mode"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"React"}],["$","td",null,{"children":[["$","code",null,{"children":"useSyncExternalStore"}]," or ",["$","code",null,{"children":"use-travel@3"}]]}],["$","td",null,{"children":"Immutable"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Vue composable"}],["$","td",null,{"children":[["$","code",null,{"children":"shallowRef"}],"/",["$","code",null,{"children":"ref"}]," subscription"]}],["$","td",null,{"children":"Immutable"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Vue reactive store / Pinia"}],["$","td",null,{"children":"Pass the observed object directly"}],["$","td",null,{"children":["$","code",null,{"children":"mutable: true"}]}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Zustand"}],["$","td",null,{"children":[["$","code",null,{"children":"zustand-travel@3"}]," or manual external-store sync"]}],["$","td",null,{"children":"Immutable / binding-owned"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"MobX"}],["$","td",null,{"children":"Pass observable state directly"}],["$","td",null,{"children":["$","code",null,{"children":"mutable: true"}]}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Form manager"}],["$","td",null,{"children":"Detached values with manual archive, or an external journal"}],["$","td",null,{"children":"Depends on owner"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"State machine / existing patch producer"}],["$","td",null,{"children":["$","code",null,{"children":"createTravelJournal()"}]}],["$","td",null,{"children":"Externally owned"}]]}]]}]]}]}],"\n",["$","div",null,{"children":[["$","$L1c",null,{"href":"/docs/integrations/react","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"React"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"External-store subscriptions, controls, and component ownership."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1c",null,{"href":"/docs/integrations/vue","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Vue"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"Immutable composables and reference-stable reactive state."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],"$L1d","$L1e","$L1f"],"className":"grid grid-cols-2 gap-3 @container"}],"\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26"]}]]}],["$L27","$L28"],"$L29"]}],"p":"$@2a","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"integrations","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L2e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$2f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Framework Integrations — Travels"}],["$","meta","1",{"name":"description","content":"Choose immutable, mutable, official-binding, or externally owned history for your state architecture."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Framework Integrations — Travels"}],["$","meta","5",{"property":"og:description","content":"Choose immutable, mutable, official-binding, or externally owned history for your state architecture."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/integrations/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L30","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@31","v":null,"s":"$c"}},"a":"$@32","u":"$@33","b":"nY7QYmpsNjXzWBy8v02-V"}
-34:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L2e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$2f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Framework Integrations — Travels"}],["$","meta","1",{"name":"description","content":"Choose immutable, mutable, official-binding, or externally owned history for your state architecture."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Framework Integrations — Travels"}],["$","meta","5",{"property":"og:description","content":"Choose immutable, mutable, official-binding, or externally owned history for your state architecture."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/integrations/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L30","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@31","v":null,"s":"$c"}},"a":"$@32","u":"$@33","b":"b1attFnVjaFPhavg6DsFG"}
+34:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1d:["$","$L1c",null,{"href":"/docs/integrations/zustand","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Zustand"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"Official middleware and direct core integration."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]
 1e:["$","$L1c",null,{"href":"/docs/integrations/mobx-pinia","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"MobX and Pinia"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"Mutable timelines for identity-sensitive stores."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]
 1f:["$","$L1c",null,{"href":"/docs/integrations/external-stores","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Forms and External Stores"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"Single-owner synchronization and delegated navigation."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]
@@ -44,8 +44,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 24:["$","p",null,{"children":"Regardless of framework:"}]
 25:["$","ol",null,{"children":["\n",["$","li",null,{"children":"Create one timeline per logical document or editing session."}],"\n",["$","li",null,{"children":"Keep its identity stable for as long as subscribers depend on it."}],"\n",["$","li",null,{"children":"Update through exactly one authoritative state path."}],"\n",["$","li",null,{"children":"Re-render on timeline revision as well as state changes."}],"\n",["$","li",null,{"children":"Unsubscribe when the owner is disposed."}],"\n",["$","li",null,{"children":"Flush pending persistence before controlled shutdown points."}],"\n"]}]
 26:["$","p",null,{"children":["Runnable source examples are linked from ",["$","$L1c",null,{"href":"/docs/resources/examples","children":"Examples"}],"."]}]
-27:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-28:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+27:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+28:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 29:["$","$L34",null,{"children":["$","$2f",null,{"name":"Next.MetadataOutlet","children":"$@35"}]}]
 33:true
 c:300

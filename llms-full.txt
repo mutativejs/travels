@@ -1,6 +1,6 @@
 # TravelsError (/docs/api-reference/classes/TravelsError)
 
-Defined in: [src/errors.ts:3](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L3)
+Defined in: [src/errors.ts:3](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L3)
 
 ## Extends [#extends]
 
@@ -12,7 +12,7 @@ Defined in: [src/errors.ts:3](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **new TravelsError**(`code`, `message`, `options`): `TravelsError`
 
-Defined in: [src/errors.ts:7](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L7)
+Defined in: [src/errors.ts:7](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L7)
 
 #### Parameters [#parameters]
 
@@ -44,7 +44,7 @@ Defined in: [src/errors.ts:7](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` `optional` **cause**: `unknown`
 
-Defined in: [src/errors.ts:5](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L5)
+Defined in: [src/errors.ts:5](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L5)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [src/errors.ts:5](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **code**: [`TravelsErrorCode`](../type-aliases/TravelsErrorCode.mdx)
 
-Defined in: [src/errors.ts:4](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L4)
+Defined in: [src/errors.ts:4](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L4)
 
 ***
 
@@ -215,7 +215,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # TravelsPersistenceError (/docs/api-reference/classes/TravelsPersistenceError)
 
-Defined in: [src/persistence.ts:26](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L26)
+Defined in: [src/persistence.ts:26](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L26)
 
 ## Extends [#extends]
 
@@ -227,7 +227,7 @@ Defined in: [src/persistence.ts:26](https://github.com/mutativejs/travels/blob/5
 
 > **new TravelsPersistenceError**(`code`, `message`, `options`): `TravelsPersistenceError`
 
-Defined in: [src/persistence.ts:32](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L32)
+Defined in: [src/persistence.ts:32](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L32)
 
 #### Parameters [#parameters]
 
@@ -267,7 +267,7 @@ Defined in: [src/persistence.ts:32](https://github.com/mutativejs/travels/blob/5
 
 > `readonly` `optional` **cause**: `unknown`
 
-Defined in: [src/persistence.ts:28](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L28)
+Defined in: [src/persistence.ts:28](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L28)
 
 ***
 
@@ -275,7 +275,7 @@ Defined in: [src/persistence.ts:28](https://github.com/mutativejs/travels/blob/5
 
 > `readonly` **code**: [`TravelsPersistenceErrorCode`](../type-aliases/TravelsPersistenceErrorCode.mdx)
 
-Defined in: [src/persistence.ts:27](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L27)
+Defined in: [src/persistence.ts:27](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L27)
 
 ***
 
@@ -283,7 +283,7 @@ Defined in: [src/persistence.ts:27](https://github.com/mutativejs/travels/blob/5
 
 > `readonly` `optional` **direction**: `"inverse"` \| `"forward"`
 
-Defined in: [src/persistence.ts:30](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L30)
+Defined in: [src/persistence.ts:30](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L30)
 
 ***
 
@@ -291,7 +291,7 @@ Defined in: [src/persistence.ts:30](https://github.com/mutativejs/travels/blob/5
 
 > `readonly` `optional` **entryIndex**: `number`
 
-Defined in: [src/persistence.ts:29](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L29)
+Defined in: [src/persistence.ts:29](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L29)
 
 ***
 
@@ -454,7 +454,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # TravelsTypeError (/docs/api-reference/classes/TravelsTypeError)
 
-Defined in: [src/errors.ts:20](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L20)
+Defined in: [src/errors.ts:20](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L20)
 
 ## Extends [#extends]
 
@@ -466,7 +466,7 @@ Defined in: [src/errors.ts:20](https://github.com/mutativejs/travels/blob/5b79ab
 
 > **new TravelsTypeError**(`code`, `message`, `options`): `TravelsTypeError`
 
-Defined in: [src/errors.ts:24](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L24)
+Defined in: [src/errors.ts:24](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L24)
 
 #### Parameters [#parameters]
 
@@ -498,7 +498,7 @@ Defined in: [src/errors.ts:24](https://github.com/mutativejs/travels/blob/5b79ab
 
 > `readonly` `optional` **cause**: `unknown`
 
-Defined in: [src/errors.ts:22](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L22)
+Defined in: [src/errors.ts:22](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L22)
 
 ***
 
@@ -506,7 +506,7 @@ Defined in: [src/errors.ts:22](https://github.com/mutativejs/travels/blob/5b79ab
 
 > `readonly` **code**: [`TravelsErrorCode`](../type-aliases/TravelsErrorCode.mdx)
 
-Defined in: [src/errors.ts:21](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/errors.ts#L21)
+Defined in: [src/errors.ts:21](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/errors.ts#L21)
 
 ***
 
@@ -671,7 +671,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 > **assertTravelHistoryEntryRecordable**\<`P`\>(`entry`): `void`
 
-Defined in: [src/history-entry.ts:48](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/history-entry.ts#L48)
+Defined in: [src/history-entry.ts:48](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/history-entry.ts#L48)
 
 Verify that an external history entry can be detached before its owner
 publishes the corresponding state commit.
@@ -699,7 +699,7 @@ publishes the corresponding state commit.
 
 > **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
 
-Defined in: [src/createPatchableTravels.ts:11](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createPatchableTravels.ts#L11)
+Defined in: [src/createPatchableTravels.ts:11](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createPatchableTravels.ts#L11)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -1085,7 +1085,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/createPatchableTravels.ts:22](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createPatchableTravels.ts#L22)
+Defined in: [src/createPatchableTravels.ts:22](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createPatchableTravels.ts#L22)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -1122,7 +1122,7 @@ durable JSON-shaped subset supported by patches and persistence.
 
 > **createPatchableTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createPatchableTravels.ts:33](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createPatchableTravels.ts#L33)
+Defined in: [src/createPatchableTravels.ts:33](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createPatchableTravels.ts#L33)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -1164,7 +1164,7 @@ durable JSON-shaped subset supported by patches and persistence.
 
 > **createTravelJournal**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravelJournal.ts:151](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravelJournal.ts#L151)
+Defined in: [src/createTravelJournal.ts:151](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravelJournal.ts#L151)
 
 ## Type Parameters [#type-parameters]
 
@@ -1207,7 +1207,7 @@ Create a new Travels instance
 
 > **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
 
-Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravels.ts#L8)
+Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravels.ts#L8)
 
 Create a new Travels instance with auto archive mode
 
@@ -1592,7 +1592,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravels.ts#L22)
+Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravels.ts#L22)
 
 Create a new Travels instance with manual archive mode
 
@@ -1628,7 +1628,7 @@ Create a new Travels instance with manual archive mode
 
 > **createTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravels.ts#L37)
+Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravels.ts#L37)
 
 Create a new Travels instance when the archive mode is selected dynamically
 or forwarded through a generic adapter.
@@ -1670,7 +1670,7 @@ or forwarded through a generic adapter.
 
 > **findStateCompatibilityIssues**(`value`, `options`): [`StateCompatibilityIssue`](../type-aliases/StateCompatibilityIssue.mdx)[]
 
-Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L109)
+Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L109)
 
 ## Parameters [#parameters]
 
@@ -1697,7 +1697,7 @@ Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blo
 
 > **isTravels**(`value`): `value is Travels<unknown, boolean, boolean, {}>`
 
-Defined in: [src/travels.ts:2777](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/travels.ts#L2777)
+Defined in: [src/travels.ts:2777](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/travels.ts#L2777)
 
 Check whether a value is a state-owning timeline created by this copy of
 Travels. Use it instead of `instanceof Travels`: `Travels` is a persistence
@@ -1718,7 +1718,7 @@ namespace, not a constructor.
 
 > **restoreTravelJournal**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravelJournal.ts#L164)
+Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravelJournal.ts#L164)
 
 Restore an externally owned journal from one complete persisted snapshot.
 
@@ -1761,7 +1761,7 @@ Restore an externally owned journal from one complete persisted snapshot.
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options?`): `object`
 
-Defined in: [src/restoreTravels.ts:35](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L35)
+Defined in: [src/restoreTravels.ts:35](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L35)
 
 Restore an auto-archiving timeline from one complete persisted snapshot.
 
@@ -2146,7 +2146,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/restoreTravels.ts:47](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L47)
+Defined in: [src/restoreTravels.ts:47](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L47)
 
 Restore a manually archived timeline from one complete persisted snapshot.
 
@@ -2182,7 +2182,7 @@ Restore a manually archived timeline from one complete persisted snapshot.
 
 > **restoreTravels**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/restoreTravels.ts:59](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L59)
+Defined in: [src/restoreTravels.ts:59](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L59)
 
 Restore a timeline whose archive mode is selected dynamically.
 
@@ -2223,7 +2223,7 @@ Restore a timeline whose archive mode is selected dynamically.
 
 > **validateTravelHistoryEntry**\<`P`\>(`entry`): \{ `error`: `string`; \} \| \{ `entry`: [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>; `error`: `null`; \}
 
-Defined in: [src/persistence.ts:232](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L232)
+Defined in: [src/persistence.ts:232](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L232)
 
 Validate and normalize one externally supplied forward/inverse patch pair.
 Accessor-backed or inherited fields are rejected without being evaluated.
@@ -2251,7 +2251,7 @@ rules of `recordPatches()`.
 
 > **validateTravelPatches**\<`P`\>(`patches`): \{ `error`: `string`; \} \| \{ `error`: `null`; `patches`: [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>; \}
 
-Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L247)
+Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L247)
 
 ## Type Parameters [#type-parameters]
 
@@ -2316,7 +2316,7 @@ Start with [Configuration Options](/docs/reference/options) or [Instance Methods
 
 # ManualTravelsControls<S, P> (/docs/api-reference/interfaces/ManualTravelsControls)
 
-Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L470)
+Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L470)
 
 ## Extends [#extends]
 
@@ -2338,7 +2338,7 @@ Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **archive**: (`metadata?`) => `void`
 
-Defined in: [src/type.ts:477](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L477)
+Defined in: [src/type.ts:477](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L477)
 
 Archive the current state
 
@@ -2358,7 +2358,7 @@ Archive the current state
 
 > `readonly` **back**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L432)
+Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L432)
 
 Go back in the history
 
@@ -2382,7 +2382,7 @@ Go back in the history
 
 > `readonly` **canArchive**: () => `boolean`
 
-Defined in: [src/type.ts:481](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L481)
+Defined in: [src/type.ts:481](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L481)
 
 Check if it's possible to archive the current state
 
@@ -2396,7 +2396,7 @@ Check if it's possible to archive the current state
 
 > `readonly` **canBack**: () => `boolean`
 
-Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L448)
+Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L448)
 
 Check if it's possible to go back
 
@@ -2414,7 +2414,7 @@ Check if it's possible to go back
 
 > `readonly` **canForward**: () => `boolean`
 
-Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L452)
+Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L452)
 
 Check if it's possible to go forward
 
@@ -2432,7 +2432,7 @@ Check if it's possible to go forward
 
 > `readonly` **forward**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L436)
+Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L436)
 
 Go forward in the history
 
@@ -2456,7 +2456,7 @@ Go forward in the history
 
 > `readonly` **getHistory**: () => readonly `Immutable`\<`S`\>[]
 
-Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L415)
+Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L415)
 
 Get the shared history cache.
 
@@ -2479,7 +2479,7 @@ The returned array is Travels' shared internal cache. Use
 
 > `readonly` **getHistorySnapshot**: () => `S`[]
 
-Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L419)
+Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L419)
 
 Get fully detached history snapshots that the caller owns.
 
@@ -2497,7 +2497,7 @@ Get fully detached history snapshots that the caller owns.
 
 > `readonly` **go**: (`position`) => `void`
 
-Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L444)
+Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L444)
 
 Go to a specific position in the history
 
@@ -2521,7 +2521,7 @@ Go to a specific position in the history
 
 > `readonly` **patches**: [`ReadonlyTravelPatches`](../type-aliases/ReadonlyTravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L428)
+Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L428)
 
 Shared read-only view of the retained patch history.
 
@@ -2541,7 +2541,7 @@ a detached, caller-owned copy.
 
 > `readonly` **position**: `number`
 
-Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L407)
+Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L407)
 
 The current position in the history
 
@@ -2555,7 +2555,7 @@ The current position in the history
 
 > `readonly` **reset**: () => `void`
 
-Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L440)
+Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L440)
 
 Reset the history
 
@@ -2570,7 +2570,7 @@ Reset the history
 
 # TravelsControls<S, P> (/docs/api-reference/interfaces/TravelsControls)
 
-Defined in: [src/type.ts:403](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L403)
+Defined in: [src/type.ts:403](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L403)
 
 ## Extended by [#extended-by]
 
@@ -2592,7 +2592,7 @@ Defined in: [src/type.ts:403](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **back**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L432)
+Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L432)
 
 Go back in the history
 
@@ -2612,7 +2612,7 @@ Go back in the history
 
 > `readonly` **canBack**: () => `boolean`
 
-Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L448)
+Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L448)
 
 Check if it's possible to go back
 
@@ -2626,7 +2626,7 @@ Check if it's possible to go back
 
 > `readonly` **canForward**: () => `boolean`
 
-Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L452)
+Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L452)
 
 Check if it's possible to go forward
 
@@ -2640,7 +2640,7 @@ Check if it's possible to go forward
 
 > `readonly` **forward**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L436)
+Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L436)
 
 Go forward in the history
 
@@ -2660,7 +2660,7 @@ Go forward in the history
 
 > `readonly` **getHistory**: () => readonly `Immutable`\<`S`\>[]
 
-Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L415)
+Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L415)
 
 Get the shared history cache.
 
@@ -2679,7 +2679,7 @@ The returned array is Travels' shared internal cache. Use
 
 > `readonly` **getHistorySnapshot**: () => `S`[]
 
-Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L419)
+Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L419)
 
 Get fully detached history snapshots that the caller owns.
 
@@ -2693,7 +2693,7 @@ Get fully detached history snapshots that the caller owns.
 
 > `readonly` **go**: (`position`) => `void`
 
-Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L444)
+Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L444)
 
 Go to a specific position in the history
 
@@ -2713,7 +2713,7 @@ Go to a specific position in the history
 
 > `readonly` **patches**: [`ReadonlyTravelPatches`](../type-aliases/ReadonlyTravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L428)
+Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L428)
 
 Shared read-only view of the retained patch history.
 
@@ -2729,7 +2729,7 @@ a detached, caller-owned copy.
 
 > `readonly` **position**: `number`
 
-Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L407)
+Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L407)
 
 The current position in the history
 
@@ -2739,7 +2739,7 @@ The current position in the history
 
 > `readonly` **reset**: () => `void`
 
-Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L440)
+Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L440)
 
 Reset the history
 
@@ -2752,14 +2752,14 @@ Reset the history
 
 > **JsonArray** = [`JsonValue`](JsonValue.mdx)[]
 
-Defined in: [src/type.ts:88](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L88)
+Defined in: [src/type.ts:88](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L88)
 
 
 # JsonObject (/docs/api-reference/type-aliases/JsonObject)
 
 > **JsonObject** = `object`
 
-Defined in: [src/type.ts:87](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L87)
+Defined in: [src/type.ts:87](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L87)
 
 ## Index Signature [#index-signature]
 
@@ -2770,7 +2770,7 @@ Defined in: [src/type.ts:87](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > **JsonPrimitive** = `string` \| `number` \| `boolean` \| `null`
 
-Defined in: [src/type.ts:86](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L86)
+Defined in: [src/type.ts:86](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L86)
 
 A JSON primitive by TypeScript shape. `number` cannot statically exclude
 `NaN`, infinities, or `-0`; use `findStateCompatibilityIssues` at runtime.
@@ -2780,14 +2780,14 @@ A JSON primitive by TypeScript shape. `number` cannot statically exclude
 
 > **JsonValue** = [`JsonPrimitive`](JsonPrimitive.mdx) \| [`JsonObject`](JsonObject.mdx) \| [`JsonArray`](JsonArray.mdx)
 
-Defined in: [src/type.ts:89](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L89)
+Defined in: [src/type.ts:89](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L89)
 
 
 # PatchableInput<T> (/docs/api-reference/type-aliases/PatchableInput)
 
 > **PatchableInput**\<`T`\> = \[`NonPatchableValue`\<`T`\>\] *extends* \[`never`\] ? `T` : `never`
 
-Defined in: [src/type.ts:160](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L160)
+Defined in: [src/type.ts:160](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L160)
 
 Preserve an inferred state type when its reachable properties are
 statically compatible with the durable patch/persistence contract.
@@ -2807,7 +2807,7 @@ therefore also validates the concrete initial value at runtime.
 
 > **PatchableState** = [`JsonValue`](JsonValue.mdx)
 
-Defined in: [src/type.ts:92](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L92)
+Defined in: [src/type.ts:92](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L92)
 
 State shape supported by Travels' runtime and persistence contracts.
 
@@ -2816,14 +2816,14 @@ State shape supported by Travels' runtime and persistence contracts.
 
 > **PatchesOption** = `Exclude`\<`PatchesOptions`, `boolean`\>
 
-Defined in: [src/type.ts:80](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L80)
+Defined in: [src/type.ts:80](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L80)
 
 
 # ReadonlyState<S> (/docs/api-reference/type-aliases/ReadonlyState)
 
 > **ReadonlyState**\<`S`\> = `Immutable`\<`S`\>
 
-Defined in: [src/type.ts:401](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L401)
+Defined in: [src/type.ts:401](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L401)
 
 A state value exposed through a shared read-only view.
 
@@ -2838,7 +2838,7 @@ A state value exposed through a shared read-only view.
 
 > **ReadonlyTravelPatch**\<`P`\> = `Omit`\<`Readonly`\<`Patch`\<`P`\>\>, `"path"`\> & `object`
 
-Defined in: [src/type.ts:25](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L25)
+Defined in: [src/type.ts:25](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L25)
 
 A shallow read-only patch operation exposed through a shared observer event.
 Object-valued patch payloads are event-local but remain shared by observers
@@ -2861,7 +2861,7 @@ handling that event.
 
 > **ReadonlyTravelPatches**\<`P`\> = `object`
 
-Defined in: [src/type.ts:35](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L35)
+Defined in: [src/type.ts:35](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L35)
 
 Shallow read-only event-local patch groups shared by one event's observers.
 
@@ -2877,7 +2877,7 @@ Shallow read-only event-local patch groups shared by one event's observers.
 
 > `readonly` **inversePatches**: readonly readonly [`ReadonlyTravelPatch`](ReadonlyTravelPatch.mdx)\<`P`\>[][]
 
-Defined in: [src/type.ts:37](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L37)
+Defined in: [src/type.ts:37](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L37)
 
 ***
 
@@ -2885,14 +2885,14 @@ Defined in: [src/type.ts:37](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `readonly` **patches**: readonly readonly [`ReadonlyTravelPatch`](ReadonlyTravelPatch.mdx)\<`P`\>[][]
 
-Defined in: [src/type.ts:36](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L36)
+Defined in: [src/type.ts:36](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L36)
 
 
 # RebasableManualTravelsControls<S, P> (/docs/api-reference/type-aliases/RebasableManualTravelsControls)
 
 > **RebasableManualTravelsControls**\<`S`, `P`\> = [`ManualTravelsControls`](../interfaces/ManualTravelsControls.mdx)\<`S`, `P`\> & `object`
 
-Defined in: [src/type.ts:484](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L484)
+Defined in: [src/type.ts:484](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L484)
 
 ## Type Declaration [#type-declaration]
 
@@ -2927,7 +2927,7 @@ calls will return to this new baseline, not the original initial state.
 
 > **RebasableTravelsControls**\<`S`, `P`\> = [`TravelsControls`](../interfaces/TravelsControls.mdx)\<`S`, `P`\> & `object`
 
-Defined in: [src/type.ts:455](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L455)
+Defined in: [src/type.ts:455](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L455)
 
 ## Type Declaration [#type-declaration]
 
@@ -2962,7 +2962,7 @@ calls will return to this new baseline, not the original initial state.
 
 > **RestoreTravelsOptions**\<`S`, `F`, `A`, `P`\> = [`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\> & `object`
 
-Defined in: [src/restoreTravels.ts:20](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L20)
+Defined in: [src/restoreTravels.ts:20](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L20)
 
 Options accepted by `restoreTravels()`.
 
@@ -3004,7 +3004,7 @@ snapshot state.
 
 > **StateCompatibilityIssue** = `object`
 
-Defined in: [src/compatibility.ts:20](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L20)
+Defined in: [src/compatibility.ts:20](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L20)
 
 ## Properties [#properties]
 
@@ -3012,7 +3012,7 @@ Defined in: [src/compatibility.ts:20](https://github.com/mutativejs/travels/blob
 
 > **code**: [`StateCompatibilityIssueCode`](StateCompatibilityIssueCode.mdx)
 
-Defined in: [src/compatibility.ts:21](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L21)
+Defined in: [src/compatibility.ts:21](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L21)
 
 ***
 
@@ -3020,7 +3020,7 @@ Defined in: [src/compatibility.ts:21](https://github.com/mutativejs/travels/blob
 
 > **message**: `string`
 
-Defined in: [src/compatibility.ts:23](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L23)
+Defined in: [src/compatibility.ts:23](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L23)
 
 ***
 
@@ -3028,21 +3028,21 @@ Defined in: [src/compatibility.ts:23](https://github.com/mutativejs/travels/blob
 
 > **path**: `string`
 
-Defined in: [src/compatibility.ts:22](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L22)
+Defined in: [src/compatibility.ts:22](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L22)
 
 
 # StateCompatibilityIssueCode (/docs/api-reference/type-aliases/StateCompatibilityIssueCode)
 
 > **StateCompatibilityIssueCode** = `"CIRCULAR_REFERENCE"` \| `"SHARED_REFERENCE"` \| `"DATE"` \| `"FUNCTION"` \| `"CLASS_INSTANCE"` \| `"DOM_NODE"` \| `"MAP_SET"` \| `"BIGINT"` \| `"NON_JSON_NUMBER"` \| `"ARRAY_SHAPE"` \| `"OBJECT_SHAPE"` \| `"WEAK_COLLECTION"` \| `"SYMBOL"` \| `"UNDEFINED"`
 
-Defined in: [src/compatibility.ts:4](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L4)
+Defined in: [src/compatibility.ts:4](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L4)
 
 
 # TravelHistoryEntry<P> (/docs/api-reference/type-aliases/TravelHistoryEntry)
 
 > **TravelHistoryEntry**\<`P`\> = `object`
 
-Defined in: [src/type.ts:51](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L51)
+Defined in: [src/type.ts:51](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L51)
 
 ## Type Parameters [#type-parameters]
 
@@ -3056,7 +3056,7 @@ Defined in: [src/type.ts:51](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > **inversePatches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:53](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L53)
+Defined in: [src/type.ts:53](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L53)
 
 ***
 
@@ -3064,7 +3064,7 @@ Defined in: [src/type.ts:53](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `optional` **metadata**: [`TravelMetadata`](TravelMetadata.mdx)
 
-Defined in: [src/type.ts:54](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L54)
+Defined in: [src/type.ts:54](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L54)
 
 ***
 
@@ -3072,14 +3072,14 @@ Defined in: [src/type.ts:54](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > **patches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:52](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L52)
+Defined in: [src/type.ts:52](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L52)
 
 
 # TravelJournal<S, F, A, P> (/docs/api-reference/type-aliases/TravelJournal)
 
 > **TravelJournal**\<`S`, `F`, `A`, `P`\> = `Readonly`\<`Pick`\<[`Travels`](Travels.mdx)\<`S`, `F`, `A`, `P`\>, `"subscribe"` \| `"getState"` \| `"getRevision"` \| `"getHistory"` \| `"getHistorySnapshot"` \| `"go"` \| `"back"` \| `"forward"` \| `"reset"` \| `"rebase"` \| `"canBack"` \| `"canForward"` \| `"getPosition"` \| `"getPatches"` \| `"serialize"` \| `"assertPersistenceCompatible"` \| `"getMetadata"` \| `"getHistoryEntries"`\> & `object` & `A` *extends* `false` ? `object` : `object`\>
 
-Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravelJournal.ts#L27)
+Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravelJournal.ts#L27)
 
 Public surface for a timeline whose state is owned by another runtime.
 
@@ -3110,7 +3110,7 @@ through `recordPatches()`; navigation and reset leave through `apply`.
 
 > **TravelJournalOptions**\<`S`, `F`, `A`, `P`\> = `Omit`\<[`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>, `"mutable"`\> & `object`
 
-Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/createTravelJournal.ts#L63)
+Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/createTravelJournal.ts#L63)
 
 ## Type Declaration [#type-declaration]
 
@@ -3143,7 +3143,7 @@ Apply a navigation transition through the external state owner.
 
 > **TravelMetadata** = `object`
 
-Defined in: [src/type.ts:44](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L44)
+Defined in: [src/type.ts:44](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L44)
 
 Metadata attached to a history entry. Keep custom values JSON-compatible
 when the history will be persisted with `serialize()`.
@@ -3158,7 +3158,7 @@ when the history will be persisted with `serialize()`.
 
 > `optional` **label**: `string`
 
-Defined in: [src/type.ts:45](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L45)
+Defined in: [src/type.ts:45](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L45)
 
 ***
 
@@ -3166,7 +3166,7 @@ Defined in: [src/type.ts:45](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `optional` **source**: `string`
 
-Defined in: [src/type.ts:47](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L47)
+Defined in: [src/type.ts:47](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L47)
 
 ***
 
@@ -3174,14 +3174,14 @@ Defined in: [src/type.ts:47](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `optional` **timestamp**: `number`
 
-Defined in: [src/type.ts:46](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L46)
+Defined in: [src/type.ts:46](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L46)
 
 
 # TravelPatches<P> (/docs/api-reference/type-aliases/TravelPatches)
 
 > **TravelPatches**\<`P`\> = `object`
 
-Defined in: [src/type.ts:15](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L15)
+Defined in: [src/type.ts:15](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L15)
 
 Forward/inverse JSON Patch groups. Retained-history APIs use one group per
 entry; observer events use event-local transition groups. Persisted paths use
@@ -3199,7 +3199,7 @@ JSON Pointer strings or dense arrays of strings/non-negative integers.
 
 > **inversePatches**: `Patches`\<`P`\>[]
 
-Defined in: [src/type.ts:17](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L17)
+Defined in: [src/type.ts:17](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L17)
 
 ***
 
@@ -3207,14 +3207,14 @@ Defined in: [src/type.ts:17](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > **patches**: `Patches`\<`P`\>[]
 
-Defined in: [src/type.ts:16](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L16)
+Defined in: [src/type.ts:16](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L16)
 
 
 # Travels<S, _F, A, P> (/docs/api-reference/type-aliases/Travels)
 
 > **Travels**\<`S`, `_F`, `A`, `P`\> = `object` & `A` *extends* `false` ? `object` : `object`
 
-Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/travels.ts#L100)
+Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/travels.ts#L100)
 
 Public state-owning Travels capability surface.
 
@@ -3602,7 +3602,7 @@ readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
 
 > **TravelsBranchDiscardEvent**\<`P`\> = `object`
 
-Defined in: [src/type.ts:238](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L238)
+Defined in: [src/type.ts:238](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L238)
 
 ## Type Parameters [#type-parameters]
 
@@ -3616,7 +3616,7 @@ Defined in: [src/type.ts:238](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **discarded**: [`TravelHistoryEntry`](TravelHistoryEntry.mdx)\<`P`\>[]
 
-Defined in: [src/type.ts:240](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L240)
+Defined in: [src/type.ts:240](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L240)
 
 ***
 
@@ -3624,14 +3624,14 @@ Defined in: [src/type.ts:240](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **position**: `number`
 
-Defined in: [src/type.ts:239](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L239)
+Defined in: [src/type.ts:239](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L239)
 
 
 # TravelsControlledApply()<S, P> (/docs/api-reference/type-aliases/TravelsControlledApply)
 
 > **TravelsControlledApply**\<`S`, `P`\> = (`transition`) => `S`
 
-Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L76)
+Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L76)
 
 Synchronous executor used when another runtime owns the authoritative state.
 Return that runtime's committed state after applying `transition.patches`.
@@ -3661,7 +3661,7 @@ Return that runtime's committed state after applying `transition.patches`.
 
 > **TravelsControlledTransition**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:61](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L61)
+Defined in: [src/type.ts:61](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L61)
 
 Patch transition delegated to an external state owner by a controlled
 Travels journal.
@@ -3682,7 +3682,7 @@ Travels journal.
 
 > `readonly` **fromPosition**: `number`
 
-Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L68)
+Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L68)
 
 ***
 
@@ -3690,7 +3690,7 @@ Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `readonly` **inversePatches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:67](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L67)
+Defined in: [src/type.ts:67](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L67)
 
 Composed patches that roll the transition back.
 
@@ -3700,7 +3700,7 @@ Composed patches that roll the transition back.
 
 > `readonly` **patches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:65](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L65)
+Defined in: [src/type.ts:65](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L65)
 
 Composed patches that move from `fromPosition` to `toPosition`.
 
@@ -3710,7 +3710,7 @@ Composed patches that move from `fromPosition` to `toPosition`.
 
 > `readonly` **state**: `S`
 
-Defined in: [src/type.ts:63](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L63)
+Defined in: [src/type.ts:63](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L63)
 
 State known to Travels before the transition is applied.
 
@@ -3720,14 +3720,14 @@ State known to Travels before the transition is applied.
 
 > `readonly` **toPosition**: `number`
 
-Defined in: [src/type.ts:69](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L69)
+Defined in: [src/type.ts:69](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L69)
 
 
 # TravelsDeserializeOptions<S, P> (/docs/api-reference/type-aliases/TravelsDeserializeOptions)
 
 > **TravelsDeserializeOptions**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:204](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L204)
+Defined in: [src/type.ts:204](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L204)
 
 ## Type Parameters [#type-parameters]
 
@@ -3745,7 +3745,7 @@ Defined in: [src/type.ts:204](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `optional` **fallback**: [`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\> \| () => [`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
 
-Defined in: [src/type.ts:218](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L218)
+Defined in: [src/type.ts:218](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L218)
 
 Fallback snapshot used when parsing, migration, or validation fails.
 Function fallbacks must return synchronously.
@@ -3756,7 +3756,7 @@ Function fallbacks must return synchronously.
 
 > `optional` **migrate**: [`TravelsMigration`](TravelsMigration.mdx)\<`S`, `P`\>
 
-Defined in: [src/type.ts:213](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L213)
+Defined in: [src/type.ts:213](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L213)
 
 Migrate old persisted snapshots into the current schema before validation.
 The callback must return synchronously; perform asynchronous I/O before
@@ -3768,7 +3768,7 @@ calling `deserialize()`.
 
 > `optional` **onError**: (`error`) => `void`
 
-Defined in: [src/type.ts:224](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L224)
+Defined in: [src/type.ts:224](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L224)
 
 Receive typed persistence errors before a fallback is returned or the error is thrown.
 
@@ -3788,7 +3788,7 @@ Receive typed persistence errors before a fallback is returned or the error is t
 
 > `optional` **replayOptions**: [`TravelsReplayOptions`](TravelsReplayOptions.mdx)
 
-Defined in: [src/type.ts:235](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L235)
+Defined in: [src/type.ts:235](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L235)
 
 Mutative options used while semantically replaying every history entry.
 Supply the same strict/mark settings that were used to record the history.
@@ -3799,7 +3799,7 @@ Supply the same strict/mark settings that were used to record the history.
 
 > `optional` **validation**: [`TravelsHistoryValidationMode`](TravelsHistoryValidationMode.mdx)
 
-Defined in: [src/type.ts:230](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L230)
+Defined in: [src/type.ts:230](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L230)
 
 `structural` validates the encoded schema and patch shapes (default).
 `semantic` additionally replays and reverses every entry and is recommended
@@ -3810,14 +3810,14 @@ for snapshots that have not crossed a trusted verification boundary.
 
 > **TravelsErrorCode** = `"ASYNC_CALLBACK"` \| `"CONTROLLED_JOURNAL_REQUIRED"` \| `"CONTROLLED_OPERATION_UNAVAILABLE"` \| `"EMPTY_PATCH_ENTRY"` \| `"HISTORY_REPLAY_FAILED"` \| `"INVALID_OPERATION"` \| `"INVALID_OPTION"` \| `"INVALID_PATCH_ENTRY"` \| `"PERSISTENCE_INCOMPATIBLE"` \| `"REENTRANT_MUTATION"` \| `"TRANSACTION_FAILED"` \| `"UNCLONEABLE_PATCH_VALUE"` \| `"UNSUPPORTED_STATE"`
 
-Defined in: [src/type.ts:319](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L319)
+Defined in: [src/type.ts:319](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L319)
 
 
 # TravelsEvent<S, P> (/docs/api-reference/type-aliases/TravelsEvent)
 
 > **TravelsEvent**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:297](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L297)
+Defined in: [src/type.ts:297](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L297)
 
 ## Type Parameters [#type-parameters]
 
@@ -3835,7 +3835,7 @@ Defined in: [src/type.ts:297](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **historyLength**: `number`
 
-Defined in: [src/type.ts:314](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L314)
+Defined in: [src/type.ts:314](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L314)
 
 Number of entries currently retained in history.
 
@@ -3845,7 +3845,7 @@ Number of entries currently retained in history.
 
 > `readonly` `optional` **metadata**: `Readonly`\<[`TravelMetadata`](TravelMetadata.mdx)\>
 
-Defined in: [src/type.ts:316](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L316)
+Defined in: [src/type.ts:316](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L316)
 
 Lazily cloned, shallow-frozen metadata shared by this event's observers.
 
@@ -3855,7 +3855,7 @@ Lazily cloned, shallow-frozen metadata shared by this event's observers.
 
 > `readonly` **patches**: [`ReadonlyTravelPatches`](ReadonlyTravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:312](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L312)
+Defined in: [src/type.ts:312](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L312)
 
 Lazily materialized event-local patches that transform the previously
 published state. Treat the shared snapshot as read-only.
@@ -3866,7 +3866,7 @@ published state. Treat the shared snapshot as read-only.
 
 > `readonly` **position**: `number`
 
-Defined in: [src/type.ts:307](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L307)
+Defined in: [src/type.ts:307](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L307)
 
 ***
 
@@ -3874,7 +3874,7 @@ Defined in: [src/type.ts:307](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **state**: [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>
 
-Defined in: [src/type.ts:306](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L306)
+Defined in: [src/type.ts:306](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L306)
 
 Borrowed live state view. Mutate state only through Travels operations.
 
@@ -3884,7 +3884,7 @@ Borrowed live state view. Mutate state only through Travels operations.
 
 > `readonly` **type**: [`TravelsEventType`](TravelsEventType.mdx)
 
-Defined in: [src/type.ts:304](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L304)
+Defined in: [src/type.ts:304](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L304)
 
 The committed operation. Handle unrecognized values in a `default` branch.
 
@@ -3893,7 +3893,7 @@ The committed operation. Handle unrecognized values in a `default` branch.
 
 > **TravelsEventType** = [`TravelsKnownEventType`](TravelsKnownEventType.mdx) \| `string` & `Record`\<`never`, `never`\>
 
-Defined in: [src/type.ts:293](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L293)
+Defined in: [src/type.ts:293](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L293)
 
 Event names are intentionally extensible so minor releases can add new
 operations without breaking exhaustive TypeScript switches.
@@ -3903,14 +3903,14 @@ operations without breaking exhaustive TypeScript switches.
 
 > **TravelsHistoryValidationMode** = `"semantic"` \| `"structural"`
 
-Defined in: [src/type.ts:191](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L191)
+Defined in: [src/type.ts:191](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L191)
 
 
 # TravelsKnownEventType (/docs/api-reference/type-aliases/TravelsKnownEventType)
 
 > **TravelsKnownEventType** = `"setState"` \| `"recordPatches"` \| `"archive"` \| `"transaction"` \| `"go"` \| `"reset"` \| `"rebase"` \| `"replaceStateWithoutHistory"`
 
-Defined in: [src/type.ts:279](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L279)
+Defined in: [src/type.ts:279](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L279)
 
 Unified event published to `subscribe()` listeners and the `devtools` hook.
 
@@ -3925,7 +3925,7 @@ added `'recordPatches'`. Keep a `default` branch when switching on
 
 > **TravelsMigration**\<`S`, `P`\> = (`snapshot`) => [`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
 
-Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L199)
+Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L199)
 
 ## Type Parameters [#type-parameters]
 
@@ -3952,7 +3952,7 @@ Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **TravelsObserverErrorEvent** = `object`
 
-Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L266)
+Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L266)
 
 ## Properties [#properties]
 
@@ -3960,7 +3960,7 @@ Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **error**: `unknown`
 
-Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L268)
+Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L268)
 
 ***
 
@@ -3968,21 +3968,21 @@ Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **source**: [`TravelsObserverErrorSource`](TravelsObserverErrorSource.mdx)
 
-Defined in: [src/type.ts:267](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L267)
+Defined in: [src/type.ts:267](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L267)
 
 
 # TravelsObserverErrorSource (/docs/api-reference/type-aliases/TravelsObserverErrorSource)
 
 > **TravelsObserverErrorSource** = `"listener"` \| `"devtools"` \| `"onBranchDiscard"` \| `"onError"` \| `"onWarning"` \| `"compatibilityCheck"`
 
-Defined in: [src/type.ts:243](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L243)
+Defined in: [src/type.ts:243](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L243)
 
 
 # TravelsOptions<F, A, P, S> (/docs/api-reference/type-aliases/TravelsOptions)
 
 > **TravelsOptions**\<`F`, `A`, `P`, `S`\> = `object` & `Omit`\<`MutativeOptions`\<`true`, `F`\>, `"enablePatches"`\> & `object`
 
-Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L334)
+Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L334)
 
 ## Type Declaration [#type-declaration]
 
@@ -4140,14 +4140,14 @@ uses them to implement history, navigation, and persistence.
 
 > **TravelsPersistenceErrorCode** = `"PARSE_ERROR"` \| `"INVALID_SCHEMA"` \| `"UNSUPPORTED_VERSION"` \| `"INVALID_PATCHES"` \| `"INVALID_HISTORY"` \| `"MIGRATION_FAILED"` \| `"FALLBACK_FAILED"`
 
-Defined in: [src/type.ts:175](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L175)
+Defined in: [src/type.ts:175](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L175)
 
 
 # TravelsReplayOptions (/docs/api-reference/type-aliases/TravelsReplayOptions)
 
 > **TravelsReplayOptions** = `object`
 
-Defined in: [src/type.ts:184](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L184)
+Defined in: [src/type.ts:184](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L184)
 
 ## Properties [#properties]
 
@@ -4155,7 +4155,7 @@ Defined in: [src/type.ts:184](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `optional` **mark**: `MutativeOptions`\<`false`, `boolean`\>\[`"mark"`\]
 
-Defined in: [src/type.ts:188](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L188)
+Defined in: [src/type.ts:188](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L188)
 
 Match the Mutative `mark` option used when the history was recorded.
 
@@ -4165,7 +4165,7 @@ Match the Mutative `mark` option used when the history was recorded.
 
 > `optional` **strict**: `boolean`
 
-Defined in: [src/type.ts:186](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L186)
+Defined in: [src/type.ts:186](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L186)
 
 Match the `strict` option used when the history was recorded.
 
@@ -4174,7 +4174,7 @@ Match the `strict` option used when the history was recorded.
 
 > **TravelsSerializeOptions** = `object`
 
-Defined in: [src/type.ts:193](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L193)
+Defined in: [src/type.ts:193](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L193)
 
 ## Properties [#properties]
 
@@ -4182,7 +4182,7 @@ Defined in: [src/type.ts:193](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `optional` **strict**: `boolean`
 
-Defined in: [src/type.ts:195](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L195)
+Defined in: [src/type.ts:195](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L195)
 
 Throw when state, retained patches, or metadata are not durable JSON data.
 
@@ -4191,7 +4191,7 @@ Throw when state, retained patches, or metadata are not durable JSON data.
 
 > **TravelsSerializedHistory**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:164](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L164)
+Defined in: [src/type.ts:164](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L164)
 
 ## Type Parameters [#type-parameters]
 
@@ -4209,7 +4209,7 @@ Defined in: [src/type.ts:164](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `optional` **metadata**: ([`TravelMetadata`](TravelMetadata.mdx) \| `undefined`)[]
 
-Defined in: [src/type.ts:172](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L172)
+Defined in: [src/type.ts:172](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L172)
 
 ***
 
@@ -4217,7 +4217,7 @@ Defined in: [src/type.ts:172](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **patches**: [`TravelPatches`](TravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:170](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L170)
+Defined in: [src/type.ts:170](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L170)
 
 ***
 
@@ -4225,7 +4225,7 @@ Defined in: [src/type.ts:170](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **position**: `number`
 
-Defined in: [src/type.ts:171](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L171)
+Defined in: [src/type.ts:171](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L171)
 
 ***
 
@@ -4233,7 +4233,7 @@ Defined in: [src/type.ts:171](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **state**: `S`
 
-Defined in: [src/type.ts:169](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L169)
+Defined in: [src/type.ts:169](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L169)
 
 ***
 
@@ -4241,14 +4241,14 @@ Defined in: [src/type.ts:169](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > **version**: `1`
 
-Defined in: [src/type.ts:168](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L168)
+Defined in: [src/type.ts:168](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L168)
 
 
 # TravelsWarning (/docs/api-reference/type-aliases/TravelsWarning)
 
 > **TravelsWarning** = `object`
 
-Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L261)
+Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L261)
 
 ## Properties [#properties]
 
@@ -4256,7 +4256,7 @@ Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **code**: [`TravelsWarningCode`](TravelsWarningCode.mdx)
 
-Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L262)
+Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L262)
 
 ***
 
@@ -4264,21 +4264,21 @@ Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **message**: `string`
 
-Defined in: [src/type.ts:263](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L263)
+Defined in: [src/type.ts:263](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L263)
 
 
 # TravelsWarningCode (/docs/api-reference/type-aliases/TravelsWarningCode)
 
 > **TravelsWarningCode** = `"HISTORY_DISABLED"` \| `"HISTORY_DISCARDED"` \| `"HISTORY_TRIMMED"` \| `"INVALID_POSITION"` \| `"MUTABLE_FALLBACK"` \| `"MUTABLE_ROOT_REPLACEMENT"` \| `"PERSISTENCE_COMPATIBILITY"` \| `"POSITION_CLAMPED"`
 
-Defined in: [src/type.ts:251](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L251)
+Defined in: [src/type.ts:251](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L251)
 
 
 # Updater<S> (/docs/api-reference/type-aliases/Updater)
 
 > **Updater**\<`S`\> = `S` \| () => `S` \| `DraftFunction`\<`S`\>
 
-Defined in: [src/type.ts:398](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L398)
+Defined in: [src/type.ts:398](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L398)
 
 ## Type Parameters [#type-parameters]
 
@@ -4291,14 +4291,14 @@ Defined in: [src/type.ts:398](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `const` **TRAVELS\_HISTORY\_SCHEMA\_VERSION**: `1`
 
-Defined in: [src/persistence.ts:24](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/persistence.ts#L24)
+Defined in: [src/persistence.ts:24](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/persistence.ts#L24)
 
 
 # Travels (/docs/api-reference/variables/Travels)
 
 > **Travels**: `Readonly`\<\{ `deserialize`: [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>; \}\>
 
-Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/travels.ts#L100)
+Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/travels.ts#L100)
 
 Persistence namespace retained without exposing the internal constructor.
 

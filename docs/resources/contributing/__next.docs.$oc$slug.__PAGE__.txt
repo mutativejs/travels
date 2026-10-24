@@ -1,41 +1,41 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
-1c:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
-1d:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1c:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+1d:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
 2e:"ViewportBoundary"
-2f:I[13693,["$4","$5","$6","$7"],"$2e"]
+2f:I[27135,["$4","$5","$6","$7"],"$2e"]
 30:"MetadataBoundary"
-31:I[13693,["$4","$5","$6","$7"],"$30"]
+31:I[27135,["$4","$5","$6","$7"],"$30"]
 32:"$Sreact.suspense"
-33:I[14017,["$4","$5","$6","$7"],"IconMark"]
+33:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#development-setup","title":"Development Setup"},{"depth":2,"url":"#pull-request-expectations","title":"Pull Request Expectations"},{"depth":2,"url":"#compatibility","title":"Compatibility"},{"depth":2,"url":"#release-process","title":"Release Process"}],"children":[["$","$L14",null,{"children":"Contributing"}],["$","$L15",null,{"className":"mb-0","children":"Set up the repository, make focused changes, and validate a contribution."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/contributing/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/contributing/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/resources/contributing.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"Thanks for improving Travels. This project values correctness, clear trade-offs, and small focused changes."}],"\n",["$","$L1b",null,{"as":"h2","id":"development-setup","children":"Development Setup"}],"\n",["$","$L1c",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"<svg viewBox=\"0 0 24 24\"><path d=\"m 4,4 a 1,1 0 0 0 -0.7070312,0.2929687 1,1 0 0 0 0,1.4140625 L 8.5859375,11 3.2929688,16.292969 a 1,1 0 0 0 0,1.414062 1,1 0 0 0 1.4140624,0 l 5.9999998,-6 a 1.0001,1.0001 0 0 0 0,-1.414062 L 4.7070312,4.2929687 A 1,1 0 0 0 4,4 Z m 8,14 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 h 8 a 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 z\" fill=\"currentColor\" /></svg>","children":["$","$L1d",null,{"children":["$","code",null,{"children":[["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"corepack"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" enable"}]]}],"\n",["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" install"}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" --frozen-lockfile"}]]}],"\n",["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" build"}]]}],"\n",["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" test"}]]}]]}]}]}],"\n",["$","p",null,{"children":"Useful checks:"}],"\n",["$","$L1c",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"<svg viewBox=\"0 0 24 24\"><path d=\"m 4,4 a 1,1 0 0 0 -0.7070312,0.2929687 1,1 0 0 0 0,1.4140625 L 8.5859375,11 3.2929688,16.292969 a 1,1 0 0 0 0,1.414062 1,1 0 0 0 1.4140624,0 l 5.9999998,-6 a 1.0001,1.0001 0 0 0 0,-1.414062 L 4.7070312,4.2929687 A 1,1 0 0 0 4,4 Z m 8,14 a 1,1 0 0 0 -1,1 1,1 0 0 0 1,1 h 8 a 1,1 0 0 0 1,-1 1,1 0 0 0 -1,-1 z\" fill=\"currentColor\" /></svg>","children":["$","$L1d",null,{"children":["$","code",null,{"children":[["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],"$L1e"]}],"\n","$L1f","\n","$L20","\n","$L21"]}]}]}],"\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29"]}]]}],["$L2a","$L2b"],"$L2c"]}],"p":"$@2d","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"resources/contributing","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L31",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$32",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Contributing — Travels"}],["$","meta","1",{"name":"description","content":"Set up the repository, make focused changes, and validate a contribution."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Contributing — Travels"}],["$","meta","5",{"property":"og:description","content":"Set up the repository, make focused changes, and validate a contribution."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/contributing/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L33","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@34","v":null,"s":"$c"}},"a":"$@35","u":"$@36","b":"nY7QYmpsNjXzWBy8v02-V"}
-37:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
-38:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L31",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$32",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Contributing — Travels"}],["$","meta","1",{"name":"description","content":"Set up the repository, make focused changes, and validate a contribution."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Contributing — Travels"}],["$","meta","5",{"property":"og:description","content":"Set up the repository, make focused changes, and validate a contribution."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/contributing/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L33","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@34","v":null,"s":"$c"}},"a":"$@35","u":"$@36","b":"b1attFnVjaFPhavg6DsFG"}
+37:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+38:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1e:["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" test:types"}]
 1f:["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" test:browser"}]]}]
 20:["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"pnpm"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" run"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" coverage"}]]}]
@@ -48,8 +48,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 27:["$","p",null,{"children":["See the ",["$","$L37",null,{"href":"/docs/reference/compatibility","children":"Compatibility Policy"}]," for supported runtimes and dependency policy."]}]
 28:["$","$L1b",null,{"as":"h2","id":"release-process","children":"Release Process"}]
 29:["$","p",null,{"children":["See the ",["$","$L37",null,{"href":"/docs/resources/release-checklist","children":"Release Checklist"}],". Releases are prepared on ",["$","code",null,{"children":"main"}],", tagged manually with the package version, and published by the tag-triggered GitHub Actions workflow."]}]
-2a:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-2b:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+2a:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+2b:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 2c:["$","$L38",null,{"children":["$","$32",null,{"name":"Next.MetadataOutlet","children":"$@39"}]}]
 36:true
 c:300

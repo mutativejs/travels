@@ -1,41 +1,41 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
-1c:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1c:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
 2d:"ViewportBoundary"
-2e:I[13693,["$4","$5","$6","$7"],"$2d"]
+2e:I[27135,["$4","$5","$6","$7"],"$2d"]
 2f:"MetadataBoundary"
-30:I[13693,["$4","$5","$6","$7"],"$2f"]
+30:I[27135,["$4","$5","$6","$7"],"$2f"]
 31:"$Sreact.suspense"
-32:I[14017,["$4","$5","$6","$7"],"IconMark"]
+32:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#core-examples","title":"Core examples"},{"depth":2,"url":"#framework-integrations","title":"Framework integrations"},{"depth":2,"url":"#editing-applications","title":"Editing applications"},{"depth":2,"url":"#run-repository-checks","title":"Run repository checks"},{"depth":2,"url":"#related-documentation","title":"Related documentation"}],"children":[["$","$L14",null,{"children":"Examples"}],["$","$L15",null,{"className":"mb-0","children":"Runnable and copyable Travels examples for core history, frameworks, persistence, and editing applications."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/examples/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/examples/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/resources/examples.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"The repository contains small examples that exercise the public API without hiding the integration boundary behind a demo framework. Use them alongside the focused guides in this documentation."}],"\n",["$","$L1b",null,{"as":"h2","id":"core-examples","children":"Core examples"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Example"}],["$","th",null,{"children":"What it demonstrates"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/basic.ts","children":"Basic usage"}]}],["$","td",null,{"children":"Create a timeline, update state, navigate, and subscribe."}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/manual-archive.ts","children":"Manual archive"}]}],["$","td",null,{"children":"Group pending updates into application-defined undo steps."}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/persistence.ts","children":"Persistence"}]}],["$","td",null,{"children":"Serialize, deserialize, and restore a versioned timeline."}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/local-first-persistence.ts","children":"Local-first persistence"}]}],["$","td",null,{"children":"A durable editing flow built around stored snapshots."}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/persistence-adapters.ts","children":"Persistence adapters"}]}],["$","td",null,{"children":"Storage-oriented adapter patterns and recovery."}]]}]]}]]}]}],"\n",["$","$L1b",null,{"as":"h2","id":"framework-integrations","children":"Framework integrations"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Example"}],["$","th",null,{"children":"Framework or pattern"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/react-integration.tsx","children":"React integration"}]}],["$","td",null,{"children":[["$","code",null,{"children":"useSyncExternalStore"}],", revisions, state, and controls."]}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/vue.ts","children":"Vue integration"}]}],["$","td",null,{"children":"Vue state binding and undo/redo."}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/zustand.ts","children":"Zustand integration"}]}],"$L1d"]}],"$L1e","$L1f"]}]]}]}],"\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28"]}]]}],["$L29","$L2a"],"$L2b"]}],"p":"$@2c","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"resources/examples","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2e",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L30",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$31",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Examples — Travels"}],["$","meta","1",{"name":"description","content":"Runnable and copyable Travels examples for core history, frameworks, persistence, and editing applications."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Examples — Travels"}],["$","meta","5",{"property":"og:description","content":"Runnable and copyable Travels examples for core history, frameworks, persistence, and editing applications."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/examples/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L32","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@33","v":null,"s":"$c"}},"a":"$@34","u":"$@35","b":"nY7QYmpsNjXzWBy8v02-V"}
-36:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
-37:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
-38:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2e",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L30",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$31",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Examples — Travels"}],["$","meta","1",{"name":"description","content":"Runnable and copyable Travels examples for core history, frameworks, persistence, and editing applications."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Examples — Travels"}],["$","meta","5",{"property":"og:description","content":"Runnable and copyable Travels examples for core history, frameworks, persistence, and editing applications."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/examples/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L32","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@33","v":null,"s":"$c"}},"a":"$@34","u":"$@35","b":"b1attFnVjaFPhavg6DsFG"}
+36:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+37:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+38:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1d:["$","td",null,{"children":"Immutable timeline synchronization with a store."}]
 1e:["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/mobx.ts","children":"MobX integration"}]}],["$","td",null,{"children":"Reference-stable mutable history."}]]}]
 1f:["$","tr",null,{"children":[["$","td",null,{"children":["$","$L1c",null,{"href":"https://github.com/mutativejs/travels/blob/main/examples/pinia.ts","children":"Pinia integration"}]}],["$","td",null,{"children":"A setup store with mutable Travels state."}]]}]
@@ -48,8 +48,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 26:["$","p",null,{"children":"The examples are included in the TypeScript example checks. When adapting one, keep the core invariants: one authoritative update path, synchronous timeline callbacks, read-only shared views, and semantic validation for unverified persisted history."}]
 27:["$","$L1b",null,{"as":"h2","id":"related-documentation","children":"Related documentation"}]
 28:["$","div",null,{"children":[["$","$L1c",null,{"href":"/docs/getting-started/quick-start","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Quick Start"}],null,["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1c",null,{"href":"/docs/integrations","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Framework Integrations"}],null,["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1c",null,{"href":"/docs/persistence/storage-adapters","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Storage Adapters"}],null,["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1c",null,{"href":"/docs/resources/contributing","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Contributing"}],null,["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]],"className":"grid grid-cols-2 gap-3 @container"}]
-29:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-2a:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+29:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+2a:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 2b:["$","$L38",null,{"children":["$","$31",null,{"name":"Next.MetadataOutlet","children":"$@39"}]}]
 35:true
 c:300

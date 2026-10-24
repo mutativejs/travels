@@ -2,7 +2,7 @@
 
 > **StateCompatibilityIssue** = `object`
 
-Defined in: [src/compatibility.ts:20](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L20)
+Defined in: [src/compatibility.ts:20](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L20)
 
 ## Properties [#properties]
 
@@ -10,7 +10,7 @@ Defined in: [src/compatibility.ts:20](https://github.com/mutativejs/travels/blob
 
 > **code**: [`StateCompatibilityIssueCode`](StateCompatibilityIssueCode.mdx)
 
-Defined in: [src/compatibility.ts:21](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L21)
+Defined in: [src/compatibility.ts:21](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L21)
 
 ***
 
@@ -18,7 +18,7 @@ Defined in: [src/compatibility.ts:21](https://github.com/mutativejs/travels/blob
 
 > **message**: `string`
 
-Defined in: [src/compatibility.ts:23](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L23)
+Defined in: [src/compatibility.ts:23](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L23)
 
 ***
 
@@ -26,4 +26,4 @@ Defined in: [src/compatibility.ts:23](https://github.com/mutativejs/travels/blob
 
 > **path**: `string`
 
-Defined in: [src/compatibility.ts:22](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/compatibility.ts#L22)
+Defined in: [src/compatibility.ts:22](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/compatibility.ts#L22)

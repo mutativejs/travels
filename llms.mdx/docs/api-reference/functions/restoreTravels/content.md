@@ -4,7 +4,7 @@
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options?`): `object`
 
-Defined in: [src/restoreTravels.ts:35](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L35)
+Defined in: [src/restoreTravels.ts:35](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L35)
 
 Restore an auto-archiving timeline from one complete persisted snapshot.
 
@@ -389,7 +389,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/restoreTravels.ts:47](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L47)
+Defined in: [src/restoreTravels.ts:47](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L47)
 
 Restore a manually archived timeline from one complete persisted snapshot.
 
@@ -425,7 +425,7 @@ Restore a manually archived timeline from one complete persisted snapshot.
 
 > **restoreTravels**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/restoreTravels.ts:59](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L59)
+Defined in: [src/restoreTravels.ts:59](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L59)
 
 Restore a timeline whose archive mode is selected dynamically.
 

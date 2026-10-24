@@ -1,41 +1,41 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
-1c:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+1c:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
 3e:"ViewportBoundary"
-3f:I[13693,["$4","$5","$6","$7"],"$3e"]
+3f:I[27135,["$4","$5","$6","$7"],"$3e"]
 40:"MetadataBoundary"
-41:I[13693,["$4","$5","$6","$7"],"$40"]
+41:I[27135,["$4","$5","$6","$7"],"$40"]
 42:"$Sreact.suspense"
-43:I[14017,["$4","$5","$6","$7"],"IconMark"]
+43:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#an-update-does-not-appear-in-history","title":"An update does not appear in history"},{"depth":2,"url":"#undo-or-redo-buttons-stay-stale","title":"Undo or redo buttons stay stale"},{"depth":2,"url":"#instanceof-travels-fails-or-throws","title":[["$","code",null,{"children":"instanceof Travels"}]," fails or throws"]},{"depth":2,"url":"#a-restored-snapshot-throws","title":"A restored snapshot throws"},{"depth":2,"url":"#json-persistence-loses-values","title":"JSON persistence loses values"},{"depth":2,"url":"#a-mutable-store-loses-or-unexpectedly-changes-its-root-reference","title":"A mutable store loses or unexpectedly changes its root reference"},{"depth":2,"url":"#a-transaction-did-not-roll-everything-back","title":"A transaction did not roll everything back"},{"depth":2,"url":"#observer-errors-or-reentrant-mutations","title":"Observer errors or reentrant mutations"},{"depth":2,"url":"#controlled-journal-history-diverges-from-the-owner","title":"Controlled journal history diverges from the owner"},{"depth":2,"url":"#the-website-needs-a-markdown-or-llm-version","title":"The website needs a Markdown or LLM version"},{"depth":2,"url":"#still-stuck","title":"Still stuck?"}],"children":[["$","$L14",null,{"children":"Troubleshooting"}],["$","$L15",null,{"className":"mb-0","children":"Diagnose common update, navigation, persistence, mutable-mode, and integration problems."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/troubleshooting/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/resources/troubleshooting/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/resources/troubleshooting.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":["Use the sections below to isolate whether a problem belongs to state ownership, history recording, replay, persistence, or the UI binding. Stable error and warning codes are listed in ",["$","$L1b",null,{"href":"/docs/guides/error-handling","children":"Error Handling"}],"."]}],"\n",["$","$L1c",null,{"as":"h2","id":"an-update-does-not-appear-in-history","children":"An update does not appear in history"}],"\n",["$","p",null,{"children":"Check these conditions in order:"}],"\n",["$","ol",null,{"children":["\n",["$","li",null,{"children":[["$","strong",null,{"children":"Did the value actually change?"}]," No-op patch groups create no entry and no event."]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":["Is ",["$","code",null,{"children":"autoArchive: false"}]," enabled?"]}]," Pending updates need ",["$","code",null,{"children":"archive()"}]," or an operation that implicitly archives them."]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":"Is tracking paused?"}]," Resume it in a ",["$","code",null,{"children":"finally"}]," block."]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":"Are you writing through Travels?"}]," Direct assignments to ",["$","code",null,{"children":"getState()"}],", a MobX/Vue store, or another owner are not recorded."]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":"Are you using a controlled journal?"}]," Call ",["$","code",null,{"children":"recordPatches()"}]," with the owner’s exact patch pair; journals intentionally omit ",["$","code",null,{"children":"setState()"}],"."]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":"Did an updater throw or return a Promise?"}]," Keep callbacks synchronous and await data before calling them."]}],"\n"]}],"\n",["$","p",null,{"children":["Use ",["$","code",null,{"children":"getRevision()"}]," to verify whether a committed event occurred and ",["$","code",null,{"children":"subscribe()"}]," to inspect the event type."]}],"\n",["$","$L1c",null,{"as":"h2","id":"undo-or-redo-buttons-stay-stale","children":"Undo or redo buttons stay stale"}],"\n","$L1d","\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d","\n","$L2e","\n","$L2f","\n","$L30","\n","$L31","\n","$L32","\n","$L33","\n","$L34","\n","$L35","\n","$L36","\n","$L37","\n","$L38","\n","$L39"]}]]}],["$L3a","$L3b"],"$L3c"]}],"p":"$@3d","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"resources/troubleshooting","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L3f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L41",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$42",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Troubleshooting — Travels"}],["$","meta","1",{"name":"description","content":"Diagnose common update, navigation, persistence, mutable-mode, and integration problems."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Troubleshooting — Travels"}],["$","meta","5",{"property":"og:description","content":"Diagnose common update, navigation, persistence, mutable-mode, and integration problems."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/troubleshooting/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L43","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@44","v":null,"s":"$c"}},"a":"$@45","u":"$@46","b":"nY7QYmpsNjXzWBy8v02-V"}
-47:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
-49:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
-4b:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L3f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L41",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$42",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Troubleshooting — Travels"}],["$","meta","1",{"name":"description","content":"Diagnose common update, navigation, persistence, mutable-mode, and integration problems."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Troubleshooting — Travels"}],["$","meta","5",{"property":"og:description","content":"Diagnose common update, navigation, persistence, mutable-mode, and integration problems."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/resources/troubleshooting/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L43","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@44","v":null,"s":"$c"}},"a":"$@45","u":"$@46","b":"b1attFnVjaFPhavg6DsFG"}
+47:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+49:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+4b:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1d:["$","p",null,{"children":["State identity is not enough to invalidate controls. ",["$","code",null,{"children":"archive()"}]," and ",["$","code",null,{"children":"rebase()"}]," can change the timeline without replacing state."]}]
 1e:["$","ul",null,{"children":["\n",["$","li",null,{"children":["In React, subscribe with ",["$","code",null,{"children":"useSyncExternalStore(travels.subscribe, travels.getRevision)"}],"."]}],"\n",["$","li",null,{"children":["In another store, mirror ",["$","code",null,{"children":"getRevision()"}]," or relevant controls after every committed event."]}],"\n",["$","li",null,{"children":"Confirm the subscription was not disposed prematurely."}],"\n",["$","li",null,{"children":"Do not create a new timeline on every component render."}],"\n"]}]
 1f:["$","p",null,{"children":["See ",["$","$L1b",null,{"href":"/docs/guides/navigation-and-controls","children":"Navigation and Controls"}],"."]}]
@@ -65,8 +65,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 37:["$","p",null,{"children":["Every documentation page exposes Markdown through the page’s copy/view controls. The site also exports ",["$","code",null,{"children":"/llms.txt"}]," and ",["$","code",null,{"children":"/llms-full.txt"}]," for documentation discovery and full-text consumption. These routes describe the documentation site; they do not change Travels runtime behavior."]}]
 38:["$","$L1c",null,{"as":"h2","id":"still-stuck","children":"Still stuck?"}]
 39:["$","p",null,{"children":["Compare against a runnable ",["$","$L1b",null,{"href":"/docs/resources/examples","children":"Example"}],", then open a ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels/issues","children":"GitHub issue"}]," with a minimal reproduction, the Travels and Mutative versions, runtime/browser details, stable error code, and the smallest state/patch payload that demonstrates the problem. Remove secrets and private user data first."]}]
-3a:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-3b:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+3a:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+3b:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 3c:["$","$L4b",null,{"children":["$","$42",null,{"name":"Next.MetadataOutlet","children":"$@4c"}]}]
 46:true
 c:300

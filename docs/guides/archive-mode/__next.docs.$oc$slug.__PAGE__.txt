@@ -1,41 +1,41 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
-1c:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
-1e:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1c:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+1e:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
 3e:"ViewportBoundary"
-3f:I[13693,["$4","$5","$6","$7"],"$3e"]
+3f:I[27135,["$4","$5","$6","$7"],"$3e"]
 40:"MetadataBoundary"
-41:I[13693,["$4","$5","$6","$7"],"$40"]
+41:I[27135,["$4","$5","$6","$7"],"$40"]
 42:"$Sreact.suspense"
-43:I[14017,["$4","$5","$6","$7"],"IconMark"]
+43:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 1d:T4dc,<svg viewBox="0 0 24 24"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z" fill="currentColor" /></svg>d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#automatic-archive--the-default","title":"Automatic archive — the default"},{"depth":2,"url":"#manual-archive","title":"Manual archive"},{"depth":2,"url":"#metadata-selection","title":"Metadata selection"},{"depth":2,"url":"#navigation-implicitly-archives-pending-work","title":"Navigation implicitly archives pending work"},{"depth":2,"url":"#transactions-in-manual-mode","title":"Transactions in manual mode"},{"depth":2,"url":"#cancelled-pending-changes","title":"Cancelled pending changes"},{"depth":2,"url":"#automatic-versus-manual","title":"Automatic versus manual"}],"children":[["$","$L14",null,{"children":"Archive Mode"}],["$","$L15",null,{"className":"mb-0","children":"Choose automatic entries or explicitly group pending updates with manual archives."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/guides/archive-mode/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/guides/archive-mode/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/guides/archive-mode.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"The archive mode defines when effective state changes become undoable history entries. It does not change when current state updates: pending manual edits are already visible in current state."}],"\n",["$","$L1b",null,{"as":"h2","id":"automatic-archive--the-default","children":"Automatic archive — the default"}],"\n",["$","$L1c",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"$1d","children":["$","$L1e",null,{"children":["$","code",null,{"children":[["$","span",null,{"className":"line","children":[["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"const"}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" travels"}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":" ="}],["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":" createTravels"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"({ count: "}],"$L1f","$L20"]}],"\n","$L21","\n","$L22","\n","$L23","\n","$L24"]}]}]}],"\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d","\n","$L2e","\n","$L2f","\n","$L30","\n","$L31","\n","$L32","\n","$L33","\n","$L34","\n","$L35","\n","$L36","\n","$L37","\n","$L38","\n","$L39"]}]]}],["$L3a","$L3b"],"$L3c"]}],"p":"$@3d","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"guides/archive-mode","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L3f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L41",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$42",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Archive Mode — Travels"}],["$","meta","1",{"name":"description","content":"Choose automatic entries or explicitly group pending updates with manual archives."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Archive Mode — Travels"}],["$","meta","5",{"property":"og:description","content":"Choose automatic entries or explicitly group pending updates with manual archives."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/guides/archive-mode/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L43","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@44","v":null,"s":"$c"}},"a":"$@45","u":"$@46","b":"nY7QYmpsNjXzWBy8v02-V"}
-51:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
-52:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L3f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L41",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$42",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Archive Mode — Travels"}],["$","meta","1",{"name":"description","content":"Choose automatic entries or explicitly group pending updates with manual archives."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Archive Mode — Travels"}],["$","meta","5",{"property":"og:description","content":"Choose automatic entries or explicitly group pending updates with manual archives."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/guides/archive-mode/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L43","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@44","v":null,"s":"$c"}},"a":"$@45","u":"$@46","b":"b1attFnVjaFPhavg6DsFG"}
+51:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+52:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1f:["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"0"}]
 20:["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" });"}]
 21:["$","span",null,{"className":"line"}]
@@ -63,8 +63,8 @@ c:X
 37:["$","$L1b",null,{"as":"h2","id":"automatic-versus-manual","children":"Automatic versus manual"}]
 38:["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Behavior"}],["$","th",null,{"children":"Automatic"}],["$","th",null,{"children":"Manual"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["Effective ",["$","code",null,{"children":"setState()"}]," creates an entry"]}],["$","td",null,{"children":"Immediately"}],["$","td",null,{"children":"Only when archived"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Current state updates"}],["$","td",null,{"children":"Immediately"}],["$","td",null,{"children":"Immediately"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":[["$","code",null,{"children":"archive()"}]," / ",["$","code",null,{"children":"canArchive()"}]]}],["$","td",null,{"children":"Absent"}],["$","td",null,{"children":"Available"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Typical boundary"}],["$","td",null,{"children":"One update call"}],["$","td",null,{"children":"Application-defined gesture or commit"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Root transaction"}],["$","td",null,{"children":"One grouped entry"}],["$","td",null,{"children":"Also archives earlier pending work"}]]}]]}]]}]}]
 39:["$","p",null,{"children":"Start with automatic mode. Choose manual mode only when the application has a clear commit boundary; an update that is never archived cannot be navigated as an independent completed step."}]
-3a:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-3b:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+3a:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+3b:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 3c:["$","$L52",null,{"children":["$","$42",null,{"name":"Next.MetadataOutlet","children":"$@53"}]}]
 46:true
 c:300

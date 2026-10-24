@@ -2,7 +2,7 @@
 
 > **TravelMetadata** = `object`
 
-Defined in: [src/type.ts:44](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L44)
+Defined in: [src/type.ts:44](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L44)
 
 Metadata attached to a history entry. Keep custom values JSON-compatible
 when the history will be persisted with `serialize()`.
@@ -17,7 +17,7 @@ when the history will be persisted with `serialize()`.
 
 > `optional` **label**: `string`
 
-Defined in: [src/type.ts:45](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L45)
+Defined in: [src/type.ts:45](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L45)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [src/type.ts:45](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `optional` **source**: `string`
 
-Defined in: [src/type.ts:47](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L47)
+Defined in: [src/type.ts:47](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L47)
 
 ***
 
@@ -33,4 +33,4 @@ Defined in: [src/type.ts:47](https://github.com/mutativejs/travels/blob/5b79ab07
 
 > `optional` **timestamp**: `number`
 
-Defined in: [src/type.ts:46](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L46)
+Defined in: [src/type.ts:46](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L46)

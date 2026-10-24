@@ -1,6 +1,6 @@
 # ManualTravelsControls<S, P> (/docs/api-reference/interfaces/ManualTravelsControls)
 
-Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L470)
+Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L470)
 
 ## Extends [#extends]
 
@@ -22,7 +22,7 @@ Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `readonly` **archive**: (`metadata?`) => `void`
 
-Defined in: [src/type.ts:477](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L477)
+Defined in: [src/type.ts:477](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L477)
 
 Archive the current state
 
@@ -42,7 +42,7 @@ Archive the current state
 
 > `readonly` **back**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L432)
+Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L432)
 
 Go back in the history
 
@@ -66,7 +66,7 @@ Go back in the history
 
 > `readonly` **canArchive**: () => `boolean`
 
-Defined in: [src/type.ts:481](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L481)
+Defined in: [src/type.ts:481](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L481)
 
 Check if it's possible to archive the current state
 
@@ -80,7 +80,7 @@ Check if it's possible to archive the current state
 
 > `readonly` **canBack**: () => `boolean`
 
-Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L448)
+Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L448)
 
 Check if it's possible to go back
 
@@ -98,7 +98,7 @@ Check if it's possible to go back
 
 > `readonly` **canForward**: () => `boolean`
 
-Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L452)
+Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L452)
 
 Check if it's possible to go forward
 
@@ -116,7 +116,7 @@ Check if it's possible to go forward
 
 > `readonly` **forward**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L436)
+Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L436)
 
 Go forward in the history
 
@@ -140,7 +140,7 @@ Go forward in the history
 
 > `readonly` **getHistory**: () => readonly `Immutable`\<`S`\>[]
 
-Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L415)
+Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L415)
 
 Get the shared history cache.
 
@@ -163,7 +163,7 @@ The returned array is Travels' shared internal cache. Use
 
 > `readonly` **getHistorySnapshot**: () => `S`[]
 
-Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L419)
+Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L419)
 
 Get fully detached history snapshots that the caller owns.
 
@@ -181,7 +181,7 @@ Get fully detached history snapshots that the caller owns.
 
 > `readonly` **go**: (`position`) => `void`
 
-Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L444)
+Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L444)
 
 Go to a specific position in the history
 
@@ -205,7 +205,7 @@ Go to a specific position in the history
 
 > `readonly` **patches**: [`ReadonlyTravelPatches`](../type-aliases/ReadonlyTravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L428)
+Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L428)
 
 Shared read-only view of the retained patch history.
 
@@ -225,7 +225,7 @@ a detached, caller-owned copy.
 
 > `readonly` **position**: `number`
 
-Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L407)
+Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L407)
 
 The current position in the history
 
@@ -239,7 +239,7 @@ The current position in the history
 
 > `readonly` **reset**: () => `void`
 
-Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L440)
+Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L440)
 
 Reset the history
 

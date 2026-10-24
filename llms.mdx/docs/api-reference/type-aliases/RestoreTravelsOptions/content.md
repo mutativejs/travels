@@ -2,7 +2,7 @@
 
 > **RestoreTravelsOptions**\<`S`, `F`, `A`, `P`\> = [`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\> & `object`
 
-Defined in: [src/restoreTravels.ts:20](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/restoreTravels.ts#L20)
+Defined in: [src/restoreTravels.ts:20](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/restoreTravels.ts#L20)
 
 Options accepted by `restoreTravels()`.
 

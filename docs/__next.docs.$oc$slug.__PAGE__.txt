@@ -1,42 +1,42 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
 1c:I[6465,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
-1d:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1d:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
 33:"ViewportBoundary"
-34:I[13693,["$4","$5","$6","$7"],"$33"]
+34:I[27135,["$4","$5","$6","$7"],"$33"]
 35:"MetadataBoundary"
-36:I[13693,["$4","$5","$6","$7"],"$35"]
+36:I[27135,["$4","$5","$6","$7"],"$35"]
 37:"$Sreact.suspense"
-38:I[14017,["$4","$5","$6","$7"],"IconMark"]
+38:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#start-with-your-goal","title":"Start with your goal"},{"depth":2,"url":"#a-complete-example-in-one-minute","title":"A complete example in one minute"},{"depth":2,"url":"#when-travels-is-a-good-fit","title":"When Travels is a good fit"},{"depth":2,"url":"#the-public-building-blocks","title":"The public building blocks"},{"depth":2,"url":"#project-resources","title":"Project resources"}],"children":[["$","$L14",null,{"children":"Travels Documentation"}],["$","$L15",null,{"className":"mb-0","children":"Learn, integrate, and operate patch-based undo/redo with Travels 3."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/index.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":"Travels is a framework-agnostic state history engine for durable undo/redo. It records forward and inverse JSON Patches, so applications with large state and small, frequent edits can retain compact timelines, persist them, and restore them later."}],"\n",["$","p",null,{"children":["Write updates with familiar mutation syntax. Travels uses ",["$","$L1b",null,{"href":"https://mutative.js.org/","children":"Mutative"}]," to produce immutable state by default, while mutable mode and controlled journals support reactive stores and externally owned state."]}],"\n",["$","div",null,{"className":"flex gap-2 my-4 rounded-xl border bg-fd-card p-3 ps-1 text-sm text-fd-card-foreground","style":{"--callout-color":"var(--color-fd-info, var(--color-fd-muted))"},"children":[["$","div",null,{"role":"none","className":"w-0.5 bg-(--callout-color)/50 rounded-sm"}],["$","$L1c",null,{"icon":{"name":"info","size":24,"node":[["circle",{"cx":"12","cy":"12","r":"10","key":"1mglay"}],["path",{"d":"M12 16v-4","key":"1dtifu"}],["path",{"d":"M12 8h.01","key":"e9boi3"}]]},"className":"size-5 -me-0.5 fill-(--callout-color) text-fd-card"}],["$","div",null,{"className":"flex flex-col gap-2 min-w-0 flex-1","children":[["$","p",null,{"className":"font-medium my-0!","children":"Travels 3"}],["$","div",null,{"className":"text-fd-muted-foreground prose-no-margin empty:hidden","children":["$","p",null,{"children":["Version 3 uses explicit factories, one atomic persistence restore path, read-only shared views, and separate capabilities for state-owning timelines and external journals. Upgrading? Start with the ",["$","$L1b",null,{"href":"/docs/migration","children":"Migration Guide"}],"."]}]}]]}]]}],"\n",["$","$L1d",null,{"as":"h2","id":"start-with-your-goal","children":"Start with your goal"}],"\n",["$","div",null,{"children":[["$","$L1b",null,{"href":"/docs/getting-started/installation","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Install and build a timeline"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"Requirements, package installation, and a minimal working example."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1b",null,{"href":"/docs/concepts/how-it-works","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Understand the history model"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"State, patches, positions, archives, branches, and baselines."}],"$L1e"]}],"$L1f","$L20","$L21","$L22"],"className":"grid grid-cols-2 gap-3 @container"}],"\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d","\n","$L2e"]}]]}],["$L2f","$L30"],"$L31"]}],"p":"$@32","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L34",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L36",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$37",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Travels Documentation — Travels"}],["$","meta","1",{"name":"description","content":"Learn, integrate, and operate patch-based undo/redo with Travels 3."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Travels Documentation — Travels"}],["$","meta","5",{"property":"og:description","content":"Learn, integrate, and operate patch-based undo/redo with Travels 3."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L38","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@39","v":null,"s":"$c"}},"a":"$@3a","u":"$@3b","b":"nY7QYmpsNjXzWBy8v02-V"}
-3c:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
-3e:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
-58:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L34",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L36",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$37",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Travels Documentation — Travels"}],["$","meta","1",{"name":"description","content":"Learn, integrate, and operate patch-based undo/redo with Travels 3."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Travels Documentation — Travels"}],["$","meta","5",{"property":"og:description","content":"Learn, integrate, and operate patch-based undo/redo with Travels 3."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L38","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@39","v":null,"s":"$c"}},"a":"$@3a","u":"$@3b","b":"b1attFnVjaFPhavg6DsFG"}
+3c:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+3e:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+58:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1e:["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]
 1f:["$","$L1b",null,{"href":"/docs/integrations","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Connect your framework"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"React, Vue, Zustand, MobX, Pinia, forms, and external stores."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]
 20:["$","$L1b",null,{"href":"/docs/persistence","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Persist complete histories"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"Serialize, validate, restore, migrate, and recover timeline snapshots."}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]
@@ -54,8 +54,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 2c:["$","p",null,{"children":["All exports are documented in the ",["$","$L1b",null,{"href":"/docs/api-reference","children":"API Reference"}],"."]}]
 2d:["$","$L1d",null,{"as":"h2","id":"project-resources","children":"Project resources"}]
 2e:["$","p",null,{"children":["Travels is MIT licensed and written in TypeScript. Find runnable examples in the documentation’s ",["$","$L1b",null,{"href":"/docs/resources/examples","children":"Examples"}]," page, or browse the ",["$","$L1b",null,{"href":"https://github.com/mutativejs/travels","children":"GitHub repository"}],". The official bindings are ",["$","$L1b",null,{"href":"https://github.com/mutativejs/use-travel","children":"use-travel"}]," for React and ",["$","$L1b",null,{"href":"https://github.com/mutativejs/zustand-travel","children":"zustand-travel"}]," for Zustand."]}]
-2f:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-30:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+2f:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+30:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 31:["$","$L58",null,{"children":["$","$37",null,{"name":"Next.MetadataOutlet","children":"$@59"}]}]
 3b:true
 c:300

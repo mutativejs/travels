@@ -1,38 +1,38 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
 29:"ViewportBoundary"
-2a:I[13693,["$4","$5","$6","$7"],"$29"]
+2a:I[27135,["$4","$5","$6","$7"],"$29"]
 2b:"MetadataBoundary"
-2c:I[13693,["$4","$5","$6","$7"],"$2b"]
+2c:I[27135,["$4","$5","$6","$7"],"$2b"]
 2d:"$Sreact.suspense"
-2e:I[14017,["$4","$5","$6","$7"],"IconMark"]
+2e:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#runtime-support","title":"Runtime Support"},{"depth":2,"url":"#browser-support","title":"Browser Support"},{"depth":2,"url":"#peer-dependencies","title":"Peer Dependencies"},{"depth":2,"url":"#official-bindings","title":"Official Bindings"},{"depth":2,"url":"#state-compatibility","title":"State Compatibility"},{"depth":2,"url":"#versioning","title":"Versioning"}],"children":[["$","$L14",null,{"children":"Compatibility Policy"}],["$","$L15",null,{"className":"mb-0","children":"Supported runtimes, browsers, state shapes, official bindings, and versioning."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/reference/compatibility/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/reference/compatibility/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/reference/compatibility.mdx"}]]}],["$","$L1a",null,{"children":[["$","$L1b",null,{"as":"h2","id":"runtime-support","children":"Runtime Support"}],"\n",["$","p",null,{"children":"Travels is tested on:"}],"\n",["$","ul",null,{"children":["\n",["$","li",null,{"children":"Node.js 22.x"}],"\n",["$","li",null,{"children":"Node.js 24.x"}],"\n",["$","li",null,{"children":"jsdom browser-like environment through Vitest"}],"\n"]}],"\n",["$","p",null,{"children":"Node.js 22 is the minimum supported runtime. The package is distributed as ESM, CJS, UMD, and TypeScript declarations."}],"\n",["$","$L1b",null,{"as":"h2","id":"browser-support","children":"Browser Support"}],"\n",["$","p",null,{"children":["Travels targets modern browsers that support the required standard JavaScript and JSON APIs. Persistence examples use ",["$","code",null,{"children":"localStorage"}],", IndexedDB, and BroadcastChannel when available."]}],"\n",["$","p",null,{"children":["Mutative 2 builds target ES2018 and read ",["$","code",null,{"children":"process.env.NODE_ENV"}]," to select their development or production build. Bundlers that define ",["$","code",null,{"children":"NODE_ENV"}]," handle both. Without a bundler, load ",["$","code",null,{"children":"mutative/dist/mutative.esm.production.min.mjs"}]," or Mutative's UMD build, because Mutative's default ES module needs a ",["$","code",null,{"children":"process"}]," global."]}],"\n",["$","$L1b",null,{"as":"h2","id":"peer-dependencies","children":"Peer Dependencies"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"mutative"}]," is a peer dependency and is supported at ",["$","code",null,{"children":"^2.0.0"}],". Mutative 1.x is not supported, because some of its patches cannot undo the changes they record. The test suite runs against the repository's pinned development version."]}],"\n",["$","$L1b",null,{"as":"h2","id":"official-bindings","children":"Official Bindings"}],"\n",["$","p",null,{"children":"The v3 official bindings use the public factory capability instead of the internal constructor:"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Binding"}],["$","th",null,{"children":"Binding version"}],["$","th",null,{"children":"Supported Travels versions"}],["$","th",null,{"children":"Restored history handoff"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":["$","code",null,{"children":"use-travel"}]}],["$","td",null,{"children":["$","code",null,{"children":"3.x"}]}],["$","td",null,{"children":["$","code",null,{"children":"^3.0.0"}]}],["$","td",null,{"children":[["$","code",null,{"children":"restoreTravels(snapshot)"}]," then ",["$","code",null,{"children":"useTravelStore"}]]}]]}],["$","tr",null,{"children":[["$","td",null,{"children":["$","code",null,{"children":"zustand-travel"}]}],["$","td",null,{"children":["$","code",null,{"children":"3.x"}]}],["$","td",null,{"children":["$","code",null,{"children":"^3.0.1"}]}],["$","td",null,{"children":["$","code",null,{"children":"travel(initializer, { snapshot })"}]}]]}]]}]]}]}],"\n",["$","p",null,{"children":["Each binding major declares the same ","$L1c"," peer range as Travels (","$L1d","), so the three packages install together without a peer conflict. The binding majors require Travels 3 so their factory overloads, atomic restore path, read-only shared views, and control capabilities have one stable contract. Publish and install the core major first, then validate and release each binding major against that published artifact. Binding-owned timelines remain immutable, and the bindings reject removed or incompatible ownership options rather than silently discarding them."]}],"\n","$L1e","\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24"]}]]}],["$L25","$L26"],"$L27"]}],"p":"$@28","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"reference/compatibility","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2a",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L2c",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$2d",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Compatibility Policy — Travels"}],["$","meta","1",{"name":"description","content":"Supported runtimes, browsers, state shapes, official bindings, and versioning."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Compatibility Policy — Travels"}],["$","meta","5",{"property":"og:description","content":"Supported runtimes, browsers, state shapes, official bindings, and versioning."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/reference/compatibility/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L2e","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@2f","v":null,"s":"$c"}},"a":"$@30","u":"$@31","b":"nY7QYmpsNjXzWBy8v02-V"}
-32:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L2a",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L2c",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$2d",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Compatibility Policy — Travels"}],["$","meta","1",{"name":"description","content":"Supported runtimes, browsers, state shapes, official bindings, and versioning."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Compatibility Policy — Travels"}],["$","meta","5",{"property":"og:description","content":"Supported runtimes, browsers, state shapes, official bindings, and versioning."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/reference/compatibility/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L2e","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@2f","v":null,"s":"$c"}},"a":"$@30","u":"$@31","b":"b1attFnVjaFPhavg6DsFG"}
+32:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1c:["$","code",null,{"children":"mutative"}]
 1d:["$","code",null,{"children":"^2.0.0"}]
 1e:["$","$L1b",null,{"as":"h2","id":"state-compatibility","children":"State Compatibility"}]
@@ -42,8 +42,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 22:["$","p",null,{"children":"Travels follows semver:"}]
 23:["$","ul",null,{"children":["\n",["$","li",null,{"children":"Patch releases fix bugs without intentional API changes."}],"\n",["$","li",null,{"children":"Minor releases may add APIs and warnings while preserving existing behavior."}],"\n",["$","li",null,{"children":"Major releases may change public API, persisted schema semantics, or runtime support."}],"\n"]}]
 24:["$","p",null,{"children":["Persisted history snapshots include a schema version. Use ",["$","code",null,{"children":"Travels.deserialize(..., { migrate })"}]," when upgrading storage formats."]}]
-25:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-26:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+25:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+26:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 27:["$","$L32",null,{"children":["$","$2d",null,{"name":"Next.MetadataOutlet","children":"$@33"}]}]
 31:true
 c:300

@@ -1,41 +1,41 @@
 3:"$Sreact.fragment"
-4:"/travels/_next/static/chunks/3cymue4ywkmx_.js"
-5:"/travels/_next/static/chunks/197w2eqrew31i.js"
-6:"/travels/_next/static/chunks/336ref_41vxre.js"
-7:"/travels/_next/static/chunks/1e_p2pr0sehwi.js"
-8:I[42194,["$4","$5","$6","$7"],"default"]
-9:I[5817,["$4","$5","$6","$7"],"default"]
-e:"/travels/_next/static/chunks/0kpsz1im0z1mq.js"
-f:"/travels/_next/static/chunks/42vyes1kozzpa.js"
-10:"/travels/_next/static/chunks/443-b63fbci1j.js"
-11:"/travels/_next/static/chunks/0o0z99g05qe9w.js"
-12:"/travels/_next/static/chunks/42ss24b1x2sfq.js"
-13:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
-14:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
-15:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
+4:"/travels/_next/static/chunks/0j4qbso4c6cf0.js"
+5:"/travels/_next/static/chunks/0t1mz4d-2ous7.js"
+6:"/travels/_next/static/chunks/2jiac805ho1up.js"
+7:"/travels/_next/static/chunks/3sp84899l0h61.js"
+8:I[91560,["$4","$5","$6","$7"],"default"]
+9:I[79149,["$4","$5","$6","$7"],"default"]
+e:"/travels/_next/static/chunks/3d6a5-pa6l7ss.js"
+f:"/travels/_next/static/chunks/44dsebmz4akvv.js"
+10:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+11:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+12:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+13:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsPage"]
+14:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsTitle"]
+15:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsDescription"]
 16:"MarkdownCopyButton"
-17:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
+17:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$16"]
 18:"ViewOptionsPopover"
-19:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
-1a:I[37457,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
-1b:I[27753,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
-1c:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
-1d:I[78000,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
+19:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"$18"]
+1a:I[50027,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"DocsBody"]
+1b:I[84452,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Heading"]
+1c:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"CodeBlock"]
+1d:I[53326,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"Pre"]
 30:"ViewportBoundary"
-31:I[13693,["$4","$5","$6","$7"],"$30"]
+31:I[27135,["$4","$5","$6","$7"],"$30"]
 32:"MetadataBoundary"
-33:I[13693,["$4","$5","$6","$7"],"$32"]
+33:I[27135,["$4","$5","$6","$7"],"$32"]
 34:"$Sreact.suspense"
-35:I[14017,["$4","$5","$6","$7"],"IconMark"]
+35:I[73677,["$4","$5","$6","$7"],"IconMark"]
 b:X
 b:C
 c:X
 d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$","$L13",null,{"toc":[{"depth":2,"url":"#put-verification-before-deserialization","title":"Put verification before deserialization"},{"depth":2,"url":"#choose-controls-for-the-trust-model","title":"Choose controls for the trust model"},{"depth":2,"url":"#snapshot-and-prototype-safety","title":"Snapshot and prototype safety"},{"depth":2,"url":"#multi-device-and-collaborative-editing","title":"Multi-device and collaborative editing"},{"depth":2,"url":"#protect-availability","title":"Protect availability"},{"depth":2,"url":"#reporting-vulnerabilities","title":"Reporting vulnerabilities"}],"children":[["$","$L14",null,{"children":"Security and Integrity"}],["$","$L15",null,{"className":"mb-0","children":"Understand what semantic validation proves and where authentication, revisions, and conflict handling belong."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L17",null,{"markdownUrl":"/travels/llms.mdx/docs/persistence/security-and-integrity/content.md"}],["$","$L19",null,{"markdownUrl":"/travels/llms.mdx/docs/persistence/security-and-integrity/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/persistence/security-and-integrity.mdx"}]]}],["$","$L1a",null,{"children":[["$","p",null,{"children":[["$","code",null,{"children":"Travels.deserialize({ validation: 'semantic' })"}]," proves that the stored anchor and reachable patch entries can replay and reverse consistently on an isolated graph. It does ",["$","strong",null,{"children":"not"}]," prove who wrote the snapshot, whether it is the latest generation, or whether the reconstructed past is the history originally recorded."]}],"\n",["$","$L1b",null,{"as":"h2","id":"put-verification-before-deserialization","children":"Put verification before deserialization"}],"\n",["$","$L1c",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"<svg viewBox=\"0 0 24 24\"><path d=\"M 6,1 C 4.354992,1 3,2.354992 3,4 v 16 c 0,1.645008 1.354992,3 3,3 h 12 c 1.645008,0 3,-1.354992 3,-3 V 8 7 A 1.0001,1.0001 0 0 0 20.707031,6.2929687 l -5,-5 A 1.0001,1.0001 0 0 0 15,1 h -1 z m 0,2 h 7 v 3 c 0,1.645008 1.354992,3 3,3 h 3 v 11 c 0,0.564129 -0.435871,1 -1,1 H 6 C 5.4358712,21 5,20.564129 5,20 V 4 C 5,3.4358712 5.4358712,3 6,3 Z M 15,3.4140625 18.585937,7 H 16 C 15.435871,7 15,6.5641288 15,6 Z\" fill=\"currentColor\" /></svg>","children":["$","$L1d",null,{"children":["$","code",null,{"children":[["$","span",null,{"className":"line","children":["$","span",null,{"children":"stored bytes"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → verify application envelope"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → check document / tenant identity and revision"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → decode or decompress snapshot"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → Travels.deserialize(..., { validation: 'semantic' })"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → restoreTravels(...) or restoreTravelJournal(...)"}]}]]}]}]}],"\n",["$","p",null,{"children":["If external verification fails, discard the unverified snapshot and choose a trusted default or last-known-good generation. Do not expect ",["$","code",null,{"children":"fallback"}]," to detect an internally consistent but unauthorized history."]}],"\n",["$","$L1b",null,{"as":"h2","id":"choose-controls-for-the-trust-model","children":"Choose controls for the trust model"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":"$L1e"}],"\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b"]}]]}],["$L2c","$L2d"],"$L2e"]}],"p":"$@2f","v":null,"s":"$c"}}]]
 2:[["children",{"s":{"n":"slug","t":"oc","k":"persistence/security-and-integrity","s":[]},"h":64,"d":{"r":["$","$3","c",{"children":[null,["$","$L8",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@a","v":"$b","s":"$c"},"c":"$Qd"}]]
 1:[["children",{"s":"docs","h":32,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L31",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L33",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$34",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Security and Integrity — Travels"}],["$","meta","1",{"name":"description","content":"Understand what semantic validation proves and where authentication, revisions, and conflict handling belong."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Security and Integrity — Travels"}],["$","meta","5",{"property":"og:description","content":"Understand what semantic validation proves and where authentication, revisions, and conflict handling belong."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/persistence/security-and-integrity/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L35","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@36","v":null,"s":"$c"}},"a":"$@37","u":"$@38","b":"nY7QYmpsNjXzWBy8v02-V"}
-39:I[88032,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
-3a:I[13693,["$4","$5","$6","$7"],"OutletBoundary"]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$3","h",{"children":[null,["$","$L31",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L33",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$34",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Security and Integrity — Travels"}],["$","meta","1",{"name":"description","content":"Understand what semantic validation proves and where authentication, revisions, and conflict handling belong."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"property":"og:title","content":"Security and Integrity — Travels"}],["$","meta","5",{"property":"og:description","content":"Understand what semantic validation proves and where authentication, revisions, and conflict handling belong."}],["$","meta","6",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/persistence/security-and-integrity/image.png"}],["$","meta","7",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","8",{"name":"twitter:title","content":"Travels — Every change. A way back."}],["$","meta","9",{"name":"twitter:description","content":"Patch-based undo/redo for modern applications."}],["$","meta","10",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og-image.png"}],["$","link","11",{"rel":"icon","href":"/travels/icon.png?icon.306anqrsydlj4.png","sizes":"128x128","type":"image/png"}],["$","link","12",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.2e43h3zkig9qy.png","sizes":"180x180","type":"image/png"}],["$","$L35","13",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@36","v":null,"s":"$c"}},"a":"$@37","u":"$@38","b":"b1attFnVjaFPhavg6DsFG"}
+39:I[53632,["$4","$5","$6","$7","$e","$f","$10","$11","$12"],"default"]
+3a:I[27135,["$4","$5","$6","$7"],"OutletBoundary"]
 1e:["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"Scenario"}],["$","th",null,{"children":"Host-application responsibility"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"Ephemeral local undo/redo"}],["$","td",null,{"children":"Replay validation and a safe fallback are normally sufficient"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Important offline drafts"}],["$","td",null,{"children":"Checksum exact bytes, keep a monotonic revision, retain a previously verified generation"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Multi-device synchronization"}],["$","td",null,{"children":"Bind tenant/user/document identity to a server-controlled revision and resolve stale/conflicting snapshots"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Tamper-resistant storage"}],["$","td",null,{"children":"Verify a server-held HMAC, signature, or authenticated-encryption tag"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Audit-grade history"}],["$","td",null,{"children":"Use a server-authoritative append-only event log and trusted chain head or equivalent commitment"}]]}]]}]]}]
 1f:["$","p",null,{"children":"A checksum detects accidental corruption; it does not authenticate the writer. A key stored beside attacker-controlled browser data does not establish trust. Hash chains and checkpoints inside the same mutable blob can be rewritten together with that blob."}]
 20:["$","$L1b",null,{"as":"h2","id":"snapshot-and-prototype-safety","children":"Snapshot and prototype safety"}]
@@ -50,8 +50,8 @@ d:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$3","c",{"children":[["$",
 29:["$","p",null,{"children":"Mutable navigation can retain writes made before a replay failure. Semantic validation before restore is therefore both a correctness and availability safeguard for unverified histories."}]
 2a:["$","$L1b",null,{"as":"h2","id":"reporting-vulnerabilities","children":"Reporting vulnerabilities"}]
 2b:["$","p",null,{"children":["For Travels library vulnerabilities, follow the project’s ",["$","$L39",null,{"href":"/docs/resources/security","children":"Security Policy"}],". Do not include real user documents, secrets, or private persistence payloads in public issues."]}]
-2c:["$","script","script-0",{"src":"/travels/_next/static/chunks/0o0z99g05qe9w.js","async":true}]
-2d:["$","script","script-1",{"src":"/travels/_next/static/chunks/42ss24b1x2sfq.js","async":true}]
+2c:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+2d:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
 2e:["$","$L3a",null,{"children":["$","$34",null,{"name":"Next.MetadataOutlet","children":"$@3b"}]}]
 38:true
 c:300

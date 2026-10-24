@@ -2,7 +2,7 @@
 
 > **TravelsReplayOptions** = `object`
 
-Defined in: [src/type.ts:184](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L184)
+Defined in: [src/type.ts:184](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L184)
 
 ## Properties [#properties]
 
@@ -10,7 +10,7 @@ Defined in: [src/type.ts:184](https://github.com/mutativejs/travels/blob/5b79ab0
 
 > `optional` **mark**: `MutativeOptions`\<`false`, `boolean`\>\[`"mark"`\]
 
-Defined in: [src/type.ts:188](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L188)
+Defined in: [src/type.ts:188](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L188)
 
 Match the Mutative `mark` option used when the history was recorded.
 
@@ -20,6 +20,6 @@ Match the Mutative `mark` option used when the history was recorded.
 
 > `optional` **strict**: `boolean`
 
-Defined in: [src/type.ts:186](https://github.com/mutativejs/travels/blob/5b79ab071f0129c7c1248a058104f08217dcfe6e/src/type.ts#L186)
+Defined in: [src/type.ts:186](https://github.com/mutativejs/travels/blob/41d4a4ba6df4982eb3033dfe6b4c511aa00ff635/src/type.ts#L186)
 
 Match the `strict` option used when the history was recorded.
