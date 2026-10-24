@@ -1137,7 +1137,7 @@ travels.setState = function (updater: any, metadata?: TravelMetadata) {
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Release checklist](docs/release-checklist.md)
-- API docs site is built by the [`API Docs`](.github/workflows/docs.yml) workflow.
+- The website is built from the current source with `pnpm run build:doc:site`. Release tags deploy it through the [`API Docs`](.github/workflows/docs.yml) workflow; maintainers can publish the current checkout with `pnpm run deploy:doc:site`.
 
 ## Related Projects
 

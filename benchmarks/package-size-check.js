@@ -28,9 +28,10 @@ const limits = {
   developmentBundleMap: 283.5 * KiB,
   // The CommonJS declaration twins for the `require` condition add 11 files,
   // 28.1 KiB unpacked and 7.1 KiB packed, to the 3.0.0 package
-  // (533.1 KiB packed / 2069.9 KiB unpacked).
-  packagePacked: 540.5 * KiB,
-  packageUnpacked: 2098.5 * KiB,
+  // (533.1 KiB packed / 2069.9 KiB unpacked). The 2026-10 documentation
+  // refresh grows only the README and bundled guides; bundle budgets stay fixed.
+  packagePacked: 541 * KiB,
+  packageUnpacked: 2101 * KiB,
 };
 
 const failures = [];

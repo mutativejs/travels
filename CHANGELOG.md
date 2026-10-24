@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- Keep library coverage scoped to runtime sources instead of counting the Fumadocs website and operational scripts in the unit-test thresholds, and exclude the generated `gh-pages` branch from Node CI.
+- Make branch-based website deployment remove stale visible and hidden files, including workflow files that could otherwise trigger library CI on the static branch.
+- Account for the expanded README and bundled documentation in the npm package-size budgets; all JavaScript bundle budgets remain unchanged.
+
 ## [3.0.1] - 2026-10-19
 
 ### Fixed

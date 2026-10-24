@@ -73,4 +73,14 @@ node website/scripts/validate-static.mjs
 - `NEXT_PUBLIC_BASE_PATH`: populated from `BASE_PATH` by `next.config.mjs` for public asset URLs.
 - `SITE_URL`: deployed site URL. Its origin is used for absolute metadata URLs, while `BASE_PATH` supplies the project path. The release workflow sets the project GitHub Pages URL.
 
-The existing documentation and release workflows install both lockfiles and run the same root build command used locally.
+## Deploy to GitHub Pages
+
+From the repository root, build and publish the current checkout with:
+
+```bash
+pnpm run deploy:doc:site
+```
+
+This command requires push access to the repository. It rebuilds the production site and replaces the `gh-pages` branch contents, including stale hidden files, without changing the current source branch. Configure GitHub Pages to deploy from the `gh-pages` branch at `/` (root).
+
+The release-triggered `API Docs` workflow installs both lockfiles, runs the same production build, and publishes the validated release tag to the same branch. Do not dispatch it for an older tag unless you intentionally want to roll back the website.

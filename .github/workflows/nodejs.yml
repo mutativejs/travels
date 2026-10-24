@@ -2,8 +2,8 @@ name: Node CI
 
 on:
   push:
-    branches:
-      - '**'
+    branches-ignore:
+      - 'gh-pages'
   pull_request:
 
 permissions:

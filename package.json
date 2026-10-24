@@ -62,6 +62,7 @@
     "build:doc": "typedoc --plugin typedoc-plugin-markdown --out api-docs src/index.ts",
     "build:doc:site": "pnpm --dir website build && node scripts/sync-docs-site.mjs",
     "dev:doc:site": "pnpm --dir website dev",
+    "deploy:doc:site": "BASE_PATH=/travels SITE_URL=https://mutativejs.github.io/travels pnpm run build:doc:site && gh-pages --dist docs-site --branch gh-pages --dotfiles --remove \"{**/*,**/.*,**/.*/**/*}\" --message \"Deploy website\"",
     "commit": "git-cz"
   },
   "keywords": [
@@ -99,6 +100,7 @@
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.29.1",
     "fast-check": "^4.7.0",
+    "gh-pages": "^6.3.0",
     "idb": "8.0.3",
     "jsdom": "^27.0.0",
     "localforage": "1.10.0",

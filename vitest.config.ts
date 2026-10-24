@@ -25,6 +25,8 @@ export default defineConfig({
         'dist/**',
         'api-docs/**',
         'docs-site/**',
+        'scripts/**',
+        'website/**',
         'e2e/**',
         'use-travel/**',
         'zustand-travel/**',

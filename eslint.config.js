@@ -6,12 +6,14 @@ import tsParser from '@typescript-eslint/parser';
 const globals = {
   __dirname: 'readonly',
   __DEV__: 'readonly',
+  AbortSignal: 'readonly',
   Atomics: 'readonly',
   BroadcastChannel: 'readonly',
   Buffer: 'readonly',
   console: 'readonly',
   document: 'readonly',
   exports: 'readonly',
+  fetch: 'readonly',
   global: 'readonly',
   globalThis: 'readonly',
   module: 'readonly',
@@ -82,6 +84,9 @@ export default [
       '**/coverage/**',
       '**/api-docs/**',
       '**/docs-site/**',
+      '**/.next/**',
+      '**/out/**',
+      '**/artifacts/**',
       '**/playwright-report/**',
       '**/test-results/**',
     ],
@@ -140,6 +145,13 @@ export default [
       // Object literals with accessors need a lexical receiver because `this`
       // inside them refers to the literal rather than the enclosing instance.
       '@typescript-eslint/no-this-alias': ['error', { allowedNames: ['self'] }],
+    },
+  },
+  {
+    // Next.js resolves extensionless `@/` aliases through website/tsconfig.json.
+    files: ['website/**/*.{ts,tsx}'],
+    rules: {
+      'import/extensions': 'off',
     },
   },
   {
