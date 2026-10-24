@@ -1,0 +1,106 @@
+---
+title: Updating State
+description: Use draft mutations, replacement values, metadata, and synchronous updates correctly.
+---
+
+State-owning timelines accept updates through `setState(updater, metadata?)`. External journals intentionally do not expose this method; their owner records an already-produced patch pair instead.
+
+## Draft mutation — recommended
+
+```ts
+travels.setState((draft) => {
+  draft.document.title = 'Roadmap';
+  draft.document.tags.push('planning');
+});
+```
+
+Mutative turns the recipe into an immutable result by default and gives Travels the forward/inverse patches. Draft mutation usually produces the most precise operations and preserves in-place behavior in mutable mode.
+
+## Direct replacement
+
+```ts
+travels.setState({
+  document: { title: 'Roadmap', tags: ['planning'] },
+});
+```
+
+Use a direct value when replacing the root is intentional. In mutable mode, replacing the root can require an immutable fallback, so prefer drafting localized changes for reference-stable stores.
+
+## Function returning a new state
+
+```ts
+travels.setState(() => ({
+  document: { title: 'Roadmap', tags: ['planning'] },
+}));
+```
+
+A function returning `undefined` is treated as a draft recipe, not as a request to set state to `undefined`. Pass `undefined` directly when `undefined` is genuinely the next state, provided your application accepts the persistence consequences.
+
+## Synchronous boundary
+
+Updater callbacks must finish synchronously. Async functions and Promise-like results are rejected so a later continuation cannot mutate state outside the history transition.
+
+```ts
+// Wrong: the recipe escapes the timeline boundary.
+travels.setState(async (draft) => {
+  draft.title = await loadTitle();
+});
+
+// Right: await first, then commit synchronously.
+const title = await loadTitle();
+travels.setState((draft) => {
+  draft.title = title;
+});
+```
+
+## Metadata
+
+Metadata labels an entry without mixing product concerns into document state:
+
+```ts
+travels.setState(
+  (draft) => {
+    draft.layers[0].name = 'Hero';
+  },
+  {
+    label: 'Rename Layer',
+    source: 'layers-panel',
+    timestamp: Date.now(),
+    userId: currentUser.id,
+  }
+);
+```
+
+Read aligned metadata with `getMetadata()` or entries with `getHistoryEntries()`. Observer events expose the current operation’s metadata. Custom values must obey the same durable contract as state when the timeline will be serialized.
+
+## No-op updates
+
+An update that produces no patches creates no history entry, publishes no subscriber event, and does not advance `getRevision()`:
+
+```ts
+travels.setState((draft) => {
+  if (draft.completed) draft.completed = true;
+});
+```
+
+This keeps repeated form notifications and idempotent actions from bloating history. Mutative’s value semantics determine whether a replacement counts as a change; replacing a value with an equal but distinct object can still produce patches.
+
+## Read state, write through Travels
+
+`getState()` returns the live state used by history, typed as `S` for store interoperability. Treat it as read-only:
+
+```ts
+// Wrong: bypasses recording and can rewrite retained patch values.
+travels.getState().title = 'Untracked';
+
+// Right:
+travels.setState((draft) => {
+  draft.title = 'Tracked';
+});
+```
+
+Enable `enableAutoFreeze` in immutable mode to make accidental mutation fail. Copy a value with `structuredClone()` before handing it to code that must mutate it.
+
+## Validate before commit
+
+The simplest validation boundary is inside the update recipe or before calling it. Throwing prevents the operation from committing. If you wrap `setState()` to add shared validation, forward both the updater and optional metadata, preserve draft versus returned-state behavior, and throw rather than silently returning when history must remain unchanged. Complete wrapper examples are in [Advanced Patterns](/docs/guides/advanced-patterns).

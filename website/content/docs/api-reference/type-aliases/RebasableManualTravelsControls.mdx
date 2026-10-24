@@ -1,0 +1,36 @@
+---
+title: "RebasableManualTravelsControls<S, P>"
+description: "Travels 3 API reference for RebasableManualTravelsControls."
+---
+
+> **RebasableManualTravelsControls**\<`S`, `P`\> = [`ManualTravelsControls`](../interfaces/ManualTravelsControls.mdx)\<`S`, `P`\> & `object`
+
+Defined in: [src/type.ts:484](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L484)
+
+## Type Declaration
+
+### rebase()
+
+> `readonly` **rebase**: () => `void`
+
+Remove all history and make the current state as the new initial state.
+
+#### Returns
+
+`void`
+
+#### Remarks
+
+**IMPORTANT**: This is a destructive operation. All previous and future history entries are discarded,
+and the current state (including any unarchived temp patches) becomes the new baseline (position 0). Any subsequent `reset()`
+calls will return to this new baseline, not the original initial state.
+
+## Type Parameters
+
+### S
+
+`S`
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}

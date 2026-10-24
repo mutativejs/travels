@@ -115,7 +115,12 @@ jobs:
         with:
           node-version: '22.x'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run build:doc:site
+      - run: pnpm --dir website install --frozen-lockfile
+      - name: Build Fumadocs website
+        env:
+          BASE_PATH: /travels
+          SITE_URL: https://mutativejs.github.io/travels
+        run: pnpm run build:doc:site
 
   publish-npm:
     runs-on: ubuntu-latest

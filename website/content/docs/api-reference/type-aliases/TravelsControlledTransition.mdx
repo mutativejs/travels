@@ -1,0 +1,67 @@
+---
+title: "TravelsControlledTransition<S, P>"
+description: "Travels 3 API reference for TravelsControlledTransition."
+---
+
+> **TravelsControlledTransition**\<`S`, `P`\> = `object`
+
+Defined in: [src/type.ts:61](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L61)
+
+Patch transition delegated to an external state owner by a controlled
+Travels journal.
+
+## Type Parameters
+
+### S
+
+`S`
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+
+## Properties
+
+### fromPosition
+
+> `readonly` **fromPosition**: `number`
+
+Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L68)
+
+***
+
+### inversePatches
+
+> `readonly` **inversePatches**: `Patches`\<`P`\>
+
+Defined in: [src/type.ts:67](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L67)
+
+Composed patches that roll the transition back.
+
+***
+
+### patches
+
+> `readonly` **patches**: `Patches`\<`P`\>
+
+Defined in: [src/type.ts:65](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L65)
+
+Composed patches that move from `fromPosition` to `toPosition`.
+
+***
+
+### state
+
+> `readonly` **state**: `S`
+
+Defined in: [src/type.ts:63](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L63)
+
+State known to Travels before the transition is applied.
+
+***
+
+### toPosition
+
+> `readonly` **toPosition**: `number`
+
+Defined in: [src/type.ts:69](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L69)

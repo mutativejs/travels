@@ -1,0 +1,181 @@
+---
+title: "TravelsControls<S, P>"
+description: "Travels 3 API reference for TravelsControls."
+---
+
+Defined in: [src/type.ts:403](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L403)
+
+## Extended by
+
+- [`ManualTravelsControls`](ManualTravelsControls.mdx)
+
+## Type Parameters
+
+### S
+
+`S`
+
+### P
+
+`P` *extends* [`PatchesOption`](../type-aliases/PatchesOption.mdx) = \{ \}
+
+## Properties
+
+### back()
+
+> `readonly` **back**: (`amount?`) => `void`
+
+Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L432)
+
+Go back in the history
+
+#### Parameters
+
+##### amount?
+
+`number`
+
+#### Returns
+
+`void`
+
+***
+
+### canBack()
+
+> `readonly` **canBack**: () => `boolean`
+
+Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L448)
+
+Check if it's possible to go back
+
+#### Returns
+
+`boolean`
+
+***
+
+### canForward()
+
+> `readonly` **canForward**: () => `boolean`
+
+Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L452)
+
+Check if it's possible to go forward
+
+#### Returns
+
+`boolean`
+
+***
+
+### forward()
+
+> `readonly` **forward**: (`amount?`) => `void`
+
+Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L436)
+
+Go forward in the history
+
+#### Parameters
+
+##### amount?
+
+`number`
+
+#### Returns
+
+`void`
+
+***
+
+### getHistory()
+
+> `readonly` **getHistory**: () => readonly `Immutable`\<`S`\>[]
+
+Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L415)
+
+Get the shared history cache.
+
+#### Returns
+
+readonly `Immutable`\<`S`\>[]
+
+#### Remarks
+
+The returned array is Travels' shared internal cache. Use
+[getHistorySnapshot](#gethistorysnapshot) when you need an array you can keep or change.
+
+***
+
+### getHistorySnapshot()
+
+> `readonly` **getHistorySnapshot**: () => `S`[]
+
+Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L419)
+
+Get fully detached history snapshots that the caller owns.
+
+#### Returns
+
+`S`[]
+
+***
+
+### go()
+
+> `readonly` **go**: (`position`) => `void`
+
+Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L444)
+
+Go to a specific position in the history
+
+#### Parameters
+
+##### position
+
+`number`
+
+#### Returns
+
+`void`
+
+***
+
+### patches
+
+> `readonly` **patches**: [`ReadonlyTravelPatches`](../type-aliases/ReadonlyTravelPatches.mdx)\<`P`\>
+
+Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L428)
+
+Shared read-only view of the retained patch history.
+
+#### Remarks
+
+The view is cached and keeps its reference until history changes, so it
+is cheap to read during rendering. Use `getPatches()` on the timeline for
+a detached, caller-owned copy.
+
+***
+
+### position
+
+> `readonly` **position**: `number`
+
+Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L407)
+
+The current position in the history
+
+***
+
+### reset()
+
+> `readonly` **reset**: () => `void`
+
+Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L440)
+
+Reset the history
+
+#### Returns
+
+`void`

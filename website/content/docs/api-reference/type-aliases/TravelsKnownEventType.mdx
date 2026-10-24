@@ -1,0 +1,16 @@
+---
+title: "TravelsKnownEventType"
+description: "Travels 3 API reference for TravelsKnownEventType."
+---
+
+> **TravelsKnownEventType** = `"setState"` \| `"recordPatches"` \| `"archive"` \| `"transaction"` \| `"go"` \| `"reset"` \| `"rebase"` \| `"replaceStateWithoutHistory"`
+
+Defined in: [src/type.ts:279](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L279)
+
+Unified event published to `subscribe()` listeners and the `devtools` hook.
+
+## Remarks
+
+The `type` union is open: minor releases may add new event types, as 2.1.0
+added `'recordPatches'`. Keep a `default` branch when switching on
+`event.type` instead of asserting exhaustiveness with `never`.

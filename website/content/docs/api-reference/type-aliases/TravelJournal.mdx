@@ -1,0 +1,32 @@
+---
+title: "TravelJournal<S, F, A, P>"
+description: "Travels 3 API reference for TravelJournal."
+---
+
+> **TravelJournal**\<`S`, `F`, `A`, `P`\> = `Readonly`\<`Pick`\<[`Travels`](Travels.mdx)\<`S`, `F`, `A`, `P`\>, `"subscribe"` \| `"getState"` \| `"getRevision"` \| `"getHistory"` \| `"getHistorySnapshot"` \| `"go"` \| `"back"` \| `"forward"` \| `"reset"` \| `"rebase"` \| `"canBack"` \| `"canForward"` \| `"getPosition"` \| `"getPatches"` \| `"serialize"` \| `"assertPersistenceCompatible"` \| `"getMetadata"` \| `"getHistoryEntries"`\> & `object` & `A` *extends* `false` ? `object` : `object`\>
+
+Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/createTravelJournal.ts#L27)
+
+Public surface for a timeline whose state is owned by another runtime.
+
+State-owning methods such as `setState()`, transactions, tracking controls,
+and `getControls()` are intentionally excluded. External commits enter
+through `recordPatches()`; navigation and reset leave through `apply`.
+
+## Type Parameters
+
+### S
+
+`S`
+
+### F
+
+`F` *extends* `boolean` = `false`
+
+### A
+
+`A` *extends* `boolean` = `true`
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}

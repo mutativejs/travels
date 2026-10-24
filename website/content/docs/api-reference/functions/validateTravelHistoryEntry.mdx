@@ -1,0 +1,29 @@
+---
+title: "validateTravelHistoryEntry()"
+description: "Validate a forward and inverse history entry."
+---
+
+> **validateTravelHistoryEntry**\<`P`\>(`entry`): \{ `error`: `string`; \} \| \{ `entry`: [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>; `error`: `null`; \}
+
+Defined in: [src/persistence.ts:232](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/persistence.ts#L232)
+
+Validate and normalize one externally supplied forward/inverse patch pair.
+Accessor-backed or inherited fields are rejected without being evaluated.
+Use `assertTravelHistoryEntryRecordable()` to also apply the detached-value
+rules of `recordPatches()`.
+
+## Type Parameters
+
+### P
+
+`P` *extends* `object` = \{ \}
+
+## Parameters
+
+### entry
+
+`unknown`
+
+## Returns
+
+\{ `error`: `string`; \} \| \{ `entry`: [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>; `error`: `null`; \}

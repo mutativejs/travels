@@ -1,0 +1,11 @@
+---
+title: "JsonPrimitive"
+description: "Travels 3 API reference for JsonPrimitive."
+---
+
+> **JsonPrimitive** = `string` \| `number` \| `boolean` \| `null`
+
+Defined in: [src/type.ts:86](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L86)
+
+A JSON primitive by TypeScript shape. `number` cannot statically exclude
+`NaN`, infinities, or `-0`; use `findStateCompatibilityIssues` at runtime.

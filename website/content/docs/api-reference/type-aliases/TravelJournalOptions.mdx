@@ -1,0 +1,34 @@
+---
+title: "TravelJournalOptions<S, F, A, P>"
+description: "Travels 3 API reference for TravelJournalOptions."
+---
+
+> **TravelJournalOptions**\<`S`, `F`, `A`, `P`\> = `Omit`\<[`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>, `"mutable"`\> & `object`
+
+Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/createTravelJournal.ts#L63)
+
+## Type Declaration
+
+### apply
+
+> **apply**: [`TravelsControlledApply`](TravelsControlledApply.mdx)\<`S`, `P`\>
+
+Apply a navigation transition through the external state owner.
+
+## Type Parameters
+
+### S
+
+`S`
+
+### F
+
+`F` *extends* `boolean` = `false`
+
+### A
+
+`A` *extends* `boolean` = `true`
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}

@@ -1,0 +1,15 @@
+{
+  "title": "Travels",
+  "pages": [
+    "index",
+    "getting-started",
+    "concepts",
+    "guides",
+    "integrations",
+    "persistence",
+    "migration",
+    "reference",
+    "resources",
+    "api-reference"
+  ]
+}

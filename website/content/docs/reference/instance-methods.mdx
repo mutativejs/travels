@@ -1,0 +1,88 @@
+---
+title: Instance Methods
+description: A task-oriented index of timeline, journal, navigation, history, and persistence methods.
+---
+
+This page groups the public methods by task. For exact generics, overloads, return objects, and source-linked signatures, use the generated [API Reference](/docs/api-reference).
+
+## State and revision
+
+| Method | Returns | Notes |
+| --- | --- | --- |
+| `getState()` | `S` | Current live state; treat as read-only. |
+| `getRevision()` | `number` | O(1) monotonically increasing committed-event token. |
+| `mutable` | `boolean` | Whether a state-owning timeline uses mutable mode. |
+| `isTravels(value)` | Type guard | Detects state-owning timelines from this copy of Travels. |
+
+## Updates and grouping
+
+| Method | Availability | Purpose |
+| --- | --- | --- |
+| `setState(updater, metadata?)` | State-owning timelines | Commit a direct value, returned state, or draft recipe. |
+| `transaction(metadata?, fn)` | State-owning timelines | Atomically group synchronous operations; one root event. |
+| `batch(metadata?, fn)` | State-owning timelines | Alias for `transaction()`. |
+| `recordPatches(state, entry)` | Controlled journals | Record an external owner’s exact forward/inverse patch pair. |
+| `archive(metadata?)` | Manual timelines/journals | Commit pending updates as one entry. |
+| `canArchive()` | Manual timelines/journals | Check whether work is pending. |
+
+Updater and transaction callbacks must be synchronous. Controlled journals do not expose `setState()`, transactions, tracking controls, or `getControls()`.
+
+## Navigation
+
+| Method | Purpose |
+| --- | --- |
+| `back(amount?)` | Undo one or more retained entries. |
+| `forward(amount?)` | Redo one or more retained entries. |
+| `go(position)` | Jump to a retained cursor position. |
+| `canBack()` / `canForward()` | Check navigation availability. |
+| `getPosition()` | Read current cursor. |
+| `reset()` | Restore the existing instance baseline through the owner. |
+
+Navigation publishes `go`. Manual pending work is archived as part of successful navigation. Controlled journals delegate patch application through `apply` and must not record that navigation again as a new external edit.
+
+## Baseline and tracking
+
+| Method | Purpose |
+| --- | --- |
+| `rebase()` | Keep current state and discard all past/future history. |
+| `replaceStateWithoutHistory(updater)` | State-owning only: update state, clear history, establish a new baseline. |
+| `pauseTracking()` / `resumeTracking()` | State-owning only: apply untracked updates around a new baseline. |
+
+Use these methods deliberately; they change what future undo and reset operations can reach.
+
+## History reads
+
+| Method | Ownership and purpose |
+| --- | --- |
+| `getHistory()` | Shared cached read-only state timeline. |
+| `getHistorySnapshot()` | Detached caller-owned history states. |
+| `getPatches()` | Detached retained forward/inverse patch groups. |
+| `getMetadata()` | Metadata aligned with retained entries, including pending manual work when present. |
+| `getHistoryEntries()` | Forward/inverse entries plus optional metadata. |
+| `getControls()` | Cached frozen navigation/read-only facade for state-owning timelines. |
+
+`getHistorySnapshot()` copies supported runtime values without enforcing the full durable JSON contract. Strict persistence validation belongs to `serialize({ strict: true })` or `assertPersistenceCompatible()`.
+
+## Persistence
+
+| API | Purpose |
+| --- | --- |
+| `serialize(options?)` | Return one detached versioned state/history snapshot. |
+| `assertPersistenceCompatible()` | Throw path-specific diagnostics for non-durable state, patches, paths, or metadata. |
+| `Travels.deserialize(input, options?)` | Parse, migrate, and validate a snapshot before restore. |
+| `restoreTravels(snapshot, options?)` | Atomically restore a state-owning timeline. |
+| `restoreTravelJournal(snapshot, options)` | Atomically restore an externally owned journal. |
+
+The exported `Travels` value is the persistence namespace, not a constructor.
+
+## Validation helpers
+
+- `findStateCompatibilityIssues(value, options?)` inspects durable-data hazards.
+- `validateTravelPatches(...)` validates patch structure and retained values.
+- `validateTravelHistoryEntry(...)` validates one forward/inverse history entry.
+- `assertTravelHistoryEntryRecordable(...)` preflights controlled ingress without changing journal state.
+- `createPatchableTravels(...)` constrains initial state statically and validates it immediately at runtime.
+
+## Subscriptions
+
+`subscribe(listener)` returns an unsubscribe function. Events publish after commit; observer failures are isolated through `onObserverError`. Do not synchronously call mutating methods from an observer. See [Observers and Events](/docs/guides/observers-and-events).

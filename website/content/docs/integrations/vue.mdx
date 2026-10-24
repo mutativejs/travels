@@ -1,0 +1,88 @@
+---
+title: Vue Integration
+description: Use immutable refs or preserve a reactive store reference with mutable mode.
+---
+
+Vue supports both Travels ownership styles. Use immutable mode with a ref when replacing state is acceptable, or mutable mode when the timeline must update the same `reactive()` object observed by components.
+
+## Immutable composable
+
+```ts
+import { readonly, ref, shallowRef } from 'vue';
+import { createTravels, type TravelsOptions, type Updater } from 'travels';
+
+export function useTravel<S>(initialState: S) {
+  const travels = createTravels(initialState);
+  const state = shallowRef(travels.getState());
+  const revision = ref(travels.getRevision());
+
+  const unsubscribe = travels.subscribe(({ state: nextState }) => {
+    state.value = nextState as any;
+    revision.value = travels.getRevision();
+  });
+
+  return {
+    state: readonly(state),
+    revision: readonly(revision),
+    setState: travels.setState,
+    controls: travels.getControls(),
+    dispose: unsubscribe,
+  };
+}
+```
+
+`shallowRef` is appropriate for immutable root replacement and avoids deeply wrapping the state in another reactive layer. `revision` gives components a signal for control-only changes such as `archive()` and `rebase()`.
+
+Call `dispose()` from the composable owner’s unmount lifecycle when the timeline is component-scoped. A shared application timeline can instead live in a dedicated store module with an explicit owner.
+
+## Mutable reactive state
+
+Pass the same reactive object to Travels when replacing its reference would break your store design:
+
+```ts
+import { reactive } from 'vue';
+import { createTravels } from 'travels';
+
+const state = reactive({
+  items: [] as Array<{ id: string; text: string }>,
+});
+
+const travels = createTravels(state, { mutable: true });
+
+function addItem(text: string) {
+  travels.setState((draft) => {
+    draft.items.push({ id: crypto.randomUUID(), text });
+  });
+}
+
+function undo() {
+  travels.back(); // Mutates state in place
+}
+```
+
+Components continue reading `state`; Travels records and applies patches against that same object. Do not combine mutable mode with `enableAutoFreeze`.
+
+## Restoring into reactive state
+
+```ts
+import { restoreTravels, Travels } from 'travels';
+
+const snapshot = Travels.deserialize<typeof state>(stored, {
+  validation: 'semantic',
+});
+
+const travels = restoreTravels(snapshot, {
+  mutable: true,
+  target: state,
+});
+
+console.log(travels.getState() === state); // true
+```
+
+`target` requires mutable mode and a compatible object or array root. Travels overwrites it in place with detached snapshot state, keeping the live object and restored history aligned.
+
+## Mutation and transaction caution
+
+Vue watchers attached directly to mutable state can observe provisional writes during a transaction, while Travels subscribers see only the settled root transaction. Direct assignments to `state` bypass Travels and are not rolled back. Route all undoable writes through `travels.setState()`.
+
+For a complete store example, continue to [MobX and Pinia](/docs/integrations/mobx-pinia) or browse the [Vue source example](https://github.com/mutativejs/travels/blob/main/examples/vue.ts).

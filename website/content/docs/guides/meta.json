@@ -1,0 +1,16 @@
+{
+  "title": "Guides",
+  "pages": [
+    "index",
+    "updating-state",
+    "navigation-and-controls",
+    "archive-mode",
+    "transactions",
+    "tracking-and-replacement",
+    "mutable-mode",
+    "controlled-journal",
+    "observers-and-events",
+    "error-handling",
+    "advanced-patterns"
+  ]
+}

@@ -1,0 +1,112 @@
+---
+title: Observers and Events
+description: Subscribe to committed transitions and consume shared read-only event data safely.
+---
+
+`subscribe()` and the `devtools` option receive the same `TravelsEvent` envelope for a committed notification. Observers run after state, cursor, and history have settled.
+
+## Event shape
+
+```ts
+const unsubscribe = travels.subscribe((event) => {
+  console.log(event.type);
+  console.log(event.state);
+  console.log(event.patches);
+  console.log(event.position);
+  console.log(event.historyLength);
+  console.log(event.metadata);
+});
+```
+
+| Field | Meaning |
+| --- | --- |
+| `type` | The committed operation name. |
+| `state` | The borrowed current state view. |
+| `patches` | The event-local forward/inverse delta from the previously published state. |
+| `position` | The committed cursor. |
+| `historyLength` | The number of retained entries. |
+| `metadata` | Optional metadata associated with the operation. |
+
+Known types include `setState`, `recordPatches`, `archive`, `transaction`, `go`, `reset`, `rebase`, and `replaceStateWithoutHistory`. `back()` and `forward()` publish `go`; controlled external commits publish `recordPatches`.
+
+The event type is intentionally open so a minor release can add operations. Keep a `default` branch rather than asserting exhaustive `never` in application switches.
+
+## Event-local patches
+
+`event.patches` describes only that notification’s transition. It is not the complete retained history returned by `getPatches()`.
+
+- Root transactions compose internal steps into one final delta.
+- `archive()` and `rebase()` can publish empty state patches while changing timeline controls.
+- Patch data is materialized lazily.
+- Patch containers, groups, operations, and array paths are frozen.
+- Forward and inverse directions are independent clones.
+
+Nested values and metadata are detached from state and retained history but can be shared by observers handling the same event. Treat the complete event as read-only; one observer must not change what a later observer sees.
+
+## Shared envelope and borrowed state
+
+Each notification creates one shallow-frozen envelope shared by listeners and devtools. `event.state` is the live state used by the timeline and is typed as `ReadonlyState<S>`.
+
+Do not write through it. In immutable mode, direct mutation can both bypass recording and alter an object referenced by retained patches. In mutable mode, write through Travels so the patch pair and transaction journal remain correct.
+
+Use `getPatches()` for a detached full retained-history snapshot, or `structuredClone()` when an observer needs an owned state value.
+
+## Reentrant mutations
+
+Synchronous calls to mutating Travels APIs from an observer are rejected to prevent nested transitions from mixing event versions:
+
+```ts
+travels.subscribe(() => {
+  // Wrong: reentrant mutation.
+  // travels.setState(updateDerivedField);
+
+  // Right: schedule a later task when a follow-up is truly required.
+  queueMicrotask(() => travels.setState(updateDerivedField));
+});
+```
+
+Reads remain available. Design derived state carefully so a follow-up update does not create an endless notification cycle.
+
+## Observer failures
+
+A listener exception is isolated from other observers and does not roll back the committed transition. Configure `onObserverError` to receive structured failures:
+
+```ts
+const travels = createTravels(initialState, {
+  onObserverError({ source, error }) {
+    reportError({ source, error });
+  },
+});
+```
+
+Sources include `listener`, `devtools`, `onBranchDiscard`, `onError`, `onWarning`, and `compatibilityCheck`. Observer Promises are not awaited; rejected Promises are isolated and reported through the same path. Do not use an observer as a transactional validator—validate before commit instead.
+
+## External-store revisions
+
+`getRevision()` is an O(1), monotonically increasing token. It advances once for every committed subscriber event, including manual `archive()` and `rebase()` when state identity stays unchanged. No-op updates and failed transactions do not advance it.
+
+```ts
+useSyncExternalStore(
+  travels.subscribe,
+  travels.getRevision,
+  travels.getRevision
+);
+```
+
+This makes revision the correct invalidation signal for React and other external-store bindings.
+
+## Devtools
+
+```ts
+const travels = createTravels(initialState, {
+  devtools(event) {
+    timelinePane.push({
+      type: event.type,
+      position: event.position,
+      metadata: event.metadata,
+    });
+  },
+});
+```
+
+Devtools follows the same post-commit, shared-view, and error-isolation rules as a subscriber. Keep devtools work light, avoid synchronous timeline mutations, and copy data that must outlive the event.

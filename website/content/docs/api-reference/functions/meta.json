@@ -1,0 +1,15 @@
+{
+  "title": "Functions",
+  "pages": [
+    "assertTravelHistoryEntryRecordable",
+    "createPatchableTravels",
+    "createTravelJournal",
+    "createTravels",
+    "findStateCompatibilityIssues",
+    "isTravels",
+    "restoreTravelJournal",
+    "restoreTravels",
+    "validateTravelHistoryEntry",
+    "validateTravelPatches"
+  ]
+}

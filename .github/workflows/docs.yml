@@ -39,7 +39,9 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            website/pnpm-lock.yaml
       - name: Verify release tag
         env:
           RELEASE_REF: ${{ inputs.release_ref }}
@@ -50,8 +52,13 @@ jobs:
             exit 1
           fi
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --dir website install --frozen-lockfile
       - uses: actions/configure-pages@v6
-      - run: pnpm run build:doc:site
+      - name: Build Fumadocs website
+        env:
+          BASE_PATH: /travels
+          SITE_URL: https://mutativejs.github.io/travels
+        run: pnpm run build:doc:site
       - uses: actions/upload-pages-artifact@v4
         with:
           path: docs-site

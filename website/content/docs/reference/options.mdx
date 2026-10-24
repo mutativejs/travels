@@ -1,0 +1,77 @@
+---
+title: Configuration Options
+description: Reference for timeline creation, restore, persistence, patches, hooks, and Mutative options.
+---
+
+Factory overloads infer archive mode and patch options from the options you provide. The exact generated types are available under [`TravelsOptions`](/docs/api-reference/type-aliases/TravelsOptions) and [`RestoreTravelsOptions`](/docs/api-reference/type-aliases/RestoreTravelsOptions).
+
+## Timeline options
+
+| Option | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `maxHistory` | `number` | `10` | Maximum retained patch entries; must be a non-negative integer. |
+| `autoArchive` | `boolean` | `true` | Archive every effective update automatically, or expose manual `archive()` controls. |
+| `mutable` | `boolean` | `false` | Apply patches to the live object for identity-sensitive reactive stores. |
+| `warnOnUnsupportedState` | `boolean` | `true` in development | Enable compatibility diagnostics for state, patches, paths, and metadata. |
+| `patchesOptions` | `PatchesOption` | `{}` | Customize patch representation, including `pathAsArray`; patches cannot be disabled. |
+| `enableAutoFreeze` | `boolean` | `false` | Freeze produced immutable states; incompatible with `mutable: true`. |
+| `strict` | Mutative strict option | `false` | Match Mutative’s stricter immutability behavior. |
+| `mark` | Mutative mark option | Mutative default | Customize which objects Mutative treats as immutable/draftable. |
+
+See the [Mutative documentation](https://mutative.js.org/docs/api-reference/create) for the underlying `strict`, `mark`, and auto-freeze semantics. When persisted history was recorded with custom `strict` or `mark`, pass matching values through `replayOptions` during semantic deserialization.
+
+## Observer and lifecycle hooks
+
+| Option | Signature input | When it runs |
+| --- | --- | --- |
+| `devtools` | `TravelsEvent<S, P>` | After each committed event, alongside subscribers. |
+| `onError` | Wrapped core `Error` | When Travels reports a core operation failure; nested transaction errors settle at the root. |
+| `onBranchDiscard` | `{ position, discarded }` | After a committed edit removes redo entries. |
+| `onWarning` | `{ code, message }` | For non-fatal normalization, compatibility, position, and history warnings. |
+| `onObserverError` | `{ source, error }` | When a listener or lifecycle/diagnostic hook throws after commit. |
+
+Observer errors do not roll back committed transitions. Hook functions should not synchronously mutate the same timeline.
+
+## Restore options
+
+`restoreTravels(snapshot, options?)` accepts applicable creation options but deliberately does not accept a separate `initialState` or `history`; the complete snapshot is the atomic state/history input.
+
+For mutable integration, it additionally accepts:
+
+```ts
+const restored = restoreTravels(snapshot, {
+  mutable: true,
+  target: reactiveStore,
+});
+```
+
+`target` must be a compatible object or array root and requires `mutable: true`. Travels overwrites it in place with detached snapshot state. `restoreTravelJournal(snapshot, { apply, ...options })` instead requires the external owner’s synchronous navigation callback and does not expose state-owning mutable options.
+
+## Serialization options
+
+```ts
+travels.serialize({ strict: true });
+```
+
+`strict` rejects any current state, retained patch value/path, or metadata that cannot round-trip through the documented JSON persistence contract. Use `assertPersistenceCompatible()` when validation should happen without creating a snapshot.
+
+## Deserialization options
+
+| Option | Purpose |
+| --- | --- |
+| `validation` | `'structural'` by default; `'semantic'` additionally replays and reverses reachable entries. |
+| `fallback` | A snapshot or synchronous factory used after detected parse/migration/validation failure. |
+| `migrate` | A synchronous callback that converts old input into the current snapshot schema. |
+| `onError` | Receives `TravelsPersistenceError` before fallback or throw. |
+| `replayOptions` | Matching Mutative `strict` and `mark` settings for semantic replay. |
+
+All storage, network, decompression, and application-envelope verification work belongs before the synchronous deserialization call.
+
+## Capability-specific options
+
+- `createTravels()` owns updates and supports `mutable`, tracking, transactions, and controls.
+- `createPatchableTravels()` accepts the durable state contract and validates initial state immediately.
+- `createTravelJournal()` requires `apply` and rejects state-owning `mutable` options.
+- Automatic timelines omit `archive()` and `canArchive()`; manual factories expose them in runtime and TypeScript.
+
+These distinctions fail closed instead of silently ignoring ownership-specific options.

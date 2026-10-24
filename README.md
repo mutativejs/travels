@@ -1,6 +1,12 @@
-# Travels
-
-![Node CI](https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg) [![npm](https://img.shields.io/npm/v/travels.svg)](https://www.npmjs.com/package/travels) ![license](https://img.shields.io/npm/l/travels)
+<div align="center">
+  <img src="./website/public/travels-logo.png" alt="Travels logo" width="120" />
+  <h1>Travels</h1>
+  <p>
+    <img src="https://github.com/mutativejs/travels/workflows/Node%20CI/badge.svg" alt="Node CI" />
+    <a href="https://www.npmjs.com/package/travels"><img src="https://img.shields.io/npm/v/travels.svg" alt="npm" /></a>
+    <img src="https://img.shields.io/npm/l/travels" alt="License" />
+  </p>
+</div>
 
 **Patch-based undo/redo optimized for large state, small updates, long history, and persistence.**
 
@@ -122,7 +128,7 @@ travels.back();
 travels.forward();
 
 // Get current state
-console.log(travels.getState()); // { count: 1 }
+console.log(travels.getState()); // { count: 2 }
 
 // Cleanup when done
 unsubscribe();
@@ -172,15 +178,15 @@ Use this factory instead of `new Travels(...)`. The exported `Travels` value is 
 | `autoArchive`            | boolean        | Automatically save each change to history (see [Archive Mode](#archive-mode-control-when-changes-are-saved))                                                                                                                             | true                             |
 | `mutable`                | boolean        | Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)                                                                                                                                                        | false                            |
 | `warnOnUnsupportedState` | boolean        | Development warnings for weak state, retained patch path/value, or metadata persistence semantics                                                                                                                                        | true in development              |
-| `onError`                | function       | Receives typed `TravelsError` failures from core helper APIs                                                                                                                                                                             | undefined                        |
+| `onError`                | function       | Receives wrapped core operation `Error` failures                                                                                                                                                                                         | undefined                        |
 | `onBranchDiscard`        | function       | Called when a committed edit after undo discards redo entries; root transactions report only entries visible before they began                                                                                                           | undefined                        |
 | `onWarning`              | function       | Receives structured non-fatal warnings with stable codes; otherwise warnings are written to the console only in development                                                                                                                | undefined                        |
 | `onObserverError`        | function       | Receives errors thrown by listeners, devtools, and lifecycle hooks after the transition has committed                                                                                                                                    | undefined                        |
 | `devtools`               | function       | Receives `TravelsEvent<S>` timeline events, typed with the timeline state, for external devtools integrations                                                                                                                            | undefined                        |
-| `patchesOptions`         | PatchesOptions | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#enablepatches) | `{}`                             |
+| `patchesOptions`         | PatchesOption  | Customize JSON Patch format. Supports `{ pathAsArray: boolean }` to control path format. Patches are always enabled and cannot be set to `false`. See [Mutative patches docs](https://mutative.js.org/docs/api-reference/create#enablepatches) | `{}`                             |
 | `enableAutoFreeze`       | boolean        | Prevent accidental state mutations outside setState ([learn more](https://mutative.js.org/docs/api-reference/create#enableautofreeze)). Not available with `mutable: true`                                                               | false                            |
 | `strict`                 | boolean        | Enable stricter immutability checks ([learn more](https://mutative.js.org/docs/api-reference/create#strict))                                                                                                                             | false                            |
-| `mark`                   | Mark<O, F>[]   | Mark certain objects as immutable ([learn more](https://mutative.js.org/docs/api-reference/create#mark))                                                                                                                                 | () => void                       |
+| `mark`                   | Mark<O, F> \| Mark<O, F>[] | Mark certain objects as immutable ([learn more](https://mutative.js.org/docs/api-reference/create#mark))                                                                                                                          | Mutative default                 |
 
 </details>
 
@@ -543,7 +549,7 @@ See the [Controlled Journal Guide](docs/controlled-journal.md) for the complete 
 ### When to Enable It
 
 - You pass a reactive store into `createTravels` and swapping the reference would break your observers.
-- You expect subscribers (`travels.subscribe`) to always receive the exact same object instance.
+- You need ordinary draft updates and localized navigation to preserve the observed object reference.
 - You batch multiple mutations with `autoArchive: false` but still need the UI to reflect every intermediate change.
 
 Stick with the default immutable mode for reducer-driven stores (Redux, Zustand) where replacing the root object is the norm.
@@ -551,11 +557,11 @@ Stick with the default immutable mode for reducer-driven stores (Redux, Zustand)
 <details>
 <summary><b>Behavior at a Glance</b></summary>
 
-- `setState` keeps the reference stable as long as the current state root is an object. Primitive roots (number, string, `null`) trigger an automatic immutable fallback plus a dev warning.
+- Localized `setState` draft updates keep object and array roots stable. Primitive roots (number, string, `null`) trigger an automatic immutable fallback plus a dev warning.
 - Function updaters that return a brand-new root (root replacement) also fall back to immutable assignment in mutable mode, with a dev warning.
 - No-op updates (producing empty patches) are optimized away and won't create history entries or notify subscribers.
 - `back`, `forward`, and `go` also mutate in place unless the history entry performs a root-level replacement (patch path `[]`). Those rare steps reassign the reference to keep history correct.
-- `reset` replays a diff from the original initial state, so the observable reference survives a reset.
+- `reset` replays a diff from the current instance baseline and preserves the observable reference only when the current state and baseline are both plain objects or both arrays, neither with an own `__proto__` key; otherwise it reassigns the root.
 - `archive` (manual mode) merges temporary patches and still mutates the live object before saving history.
 - `getHistory()` reconstructs and caches snapshots from the stored patches. Treat the returned array and every entry as read-only; they are not reactive proxies.
 - `subscribe` listeners receive a read-only typed view of the live mutable object as `event.state`, so `event.state === travels.getState()` stays true. Mutate it only through Travels operations.
@@ -833,23 +839,23 @@ function bindHistoryToForm(form: FormApi<FormValues>) {
 
   const handleKeyDown = (event: KeyboardEvent) => {
     const modifier = event.metaKey || event.ctrlKey;
+    if (!modifier) return;
 
-    if (modifier && event.key === 'z' && !event.shiftKey) {
+    const key = event.key.toLowerCase();
+    if (key === 'z' && !event.shiftKey && travels.canBack()) {
       event.preventDefault();
-      if (!travels.canBack()) return;
       travels.back();
-      form.setValues(travels.getState());
+      form.setValues(structuredClone(travels.getState()));
       return;
     }
 
     if (
-      (modifier && event.key === 'z' && event.shiftKey) ||
-      (modifier && event.key === 'y')
+      ((key === 'z' && event.shiftKey) || key === 'y') &&
+      travels.canForward()
     ) {
       event.preventDefault();
-      if (!travels.canForward()) return;
       travels.forward();
-      form.setValues(travels.getState());
+      form.setValues(structuredClone(travels.getState()));
     }
   };
 
@@ -863,7 +869,7 @@ function bindHistoryToForm(form: FormApi<FormValues>) {
 
 Call `syncToHistory()` whenever the form values change, and call `commitHistoryStep()` whenever your form layer considers those changes a single undoable step, for example on blur, submit, or a debounced commit.
 
-`getValues()` should return a detached snapshot, not a live mutable reference owned by the form manager. If your form library returns live objects, clone them before passing them to Travels.
+Clone values in both directions so Travels never retains a live form object and the form manager cannot later mutate a state object retained by Travels. This also applies when `getValues()` returns live objects.
 
 For `react-hook-form`, `getValues()` maps naturally to `form.getValues()`, and `setValues(...)` is typically implemented with `form.reset(...)`.
 

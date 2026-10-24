@@ -1,0 +1,69 @@
+---
+title: Tracking and Replacement
+description: Apply untracked updates, replace authoritative state, and deliberately reset the history baseline.
+---
+
+Not every state change should become an undo step. Travels provides separate tools for suspending tracking, replacing a document, and clearing history around current state.
+
+## Pause and resume tracking
+
+Use `pauseTracking()` when subsequent updates should not create history entries, then `resumeTracking()` to return to normal recording:
+
+```ts
+travels.pauseTracking();
+try {
+  travels.setState((draft) => {
+    draft.remoteRevision = serverRevision;
+    draft.permissions = serverPermissions;
+  });
+} finally {
+  travels.resumeTracking();
+}
+```
+
+Paused updates become part of a new baseline so later undo/redo cannot replay retained patches against mismatched state. Always resume in `finally`; leaving tracking paused silently changes the meaning of later edits.
+
+Use this sparingly for synchronization or hydration that should be invisible to history. For a normal user edit, use `setState()` without pausing.
+
+## Replace state without history
+
+`replaceStateWithoutHistory(updater)` applies a direct value or recipe, clears retained history, and makes the result the new baseline:
+
+```ts
+const document = await loadDocument(documentId);
+
+travels.replaceStateWithoutHistory(() => ({
+  id: document.id,
+  title: document.title,
+  blocks: document.blocks,
+}));
+```
+
+It is a good fit for switching documents, accepting an authoritative server snapshot, or resetting external store data. It is intentionally destructive to the old timeline.
+
+If the update throws, the replacement and history clearing do not commit. Wrappers that intercept `setState()` also run for this operation because replacement applies its update through that path. A wrapper that silently returns can leave a cleared timeline with unchanged state; throw when a blocked replacement must preserve history.
+
+## Rebase current state
+
+Unlike replacement, `rebase()` does not load a new state. It keeps the current state, including unarchived temp patches, and discards all retained past and future history:
+
+```ts
+travels.rebase();
+```
+
+Use it when current state becomes the clean starting point. Controlled journals expose `rebase()` as the safe way to clear history while preserving externally owned state.
+
+## Reset to the existing baseline
+
+`reset()` returns to the baseline rather than creating a new one. The baseline may be the original creation state, the validated restore baseline, or the result of a later rebase/replacement/paused update.
+
+| Operation | Changes current state | Clears history | Establishes a new baseline |
+| --- | --- | --- | --- |
+| `pauseTracking()` + update | Yes, through updater | Old timeline is made incompatible with new baseline | Yes |
+| `replaceStateWithoutHistory()` | Yes, through updater | Yes | Yes |
+| `rebase()` | No | Yes | Yes, current state |
+| `reset()` | Yes, to baseline | Yes | No, uses existing baseline |
+
+## Remote synchronization caution
+
+Travels does not merge concurrent edits or resolve conflicts. Decide document identity, revision ordering, and conflict handling before replacing or rebasing local state. When history provenance matters, verify the remote snapshot outside Travels before deserialization or replacement. See [Security and Integrity](/docs/persistence/security-and-integrity).

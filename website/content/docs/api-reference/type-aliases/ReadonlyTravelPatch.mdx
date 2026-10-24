@@ -1,0 +1,24 @@
+---
+title: "ReadonlyTravelPatch<P>"
+description: "Travels 3 API reference for ReadonlyTravelPatch."
+---
+
+> **ReadonlyTravelPatch**\<`P`\> = `Omit`\<`Readonly`\<`Patch`\<`P`\>\>, `"path"`\> & `object`
+
+Defined in: [src/type.ts:25](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L25)
+
+A shallow read-only patch operation exposed through a shared observer event.
+Object-valued patch payloads are event-local but remain shared by observers
+handling that event.
+
+## Type Declaration
+
+### path
+
+> `readonly` **path**: `Patch`\<`P`\>\[`"path"`\] *extends* readonly infer Segment[] ? readonly `Segment`[] : `Patch`\<`P`\>\[`"path"`\]
+
+## Type Parameters
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}

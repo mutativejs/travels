@@ -25,12 +25,12 @@ travels.setState((draft) => {
 });
 ```
 
-`travels.getState()` now always returns the same reference (`store`), but every mutation still produces patches so undo/redo keeps working.
+After this ordinary draft update, `travels.getState()` still returns `store`. Effective changes still produce patches, but explicit root replacements and primitive roots can change the root reference as described below.
 
 ## How It Works Under the Hood
 
-1. `createTravels` keeps the object you pass as the live state and stores a copy of it, made with `structuredClone()`, as the baseline for `reset()`.
-2. Each `setState` call runs through Mutative's `create(...)` to generate patches/inverse patches. Those patches are immediately applied back to the live object via `apply(..., { mutable: true })`, so the reference never changes.
+1. `createTravels` keeps the object you pass as the live state and stores a detached baseline copy for `reset()`, using `structuredClone()` when possible and a custom deep-clone fallback otherwise.
+2. Each ordinary object-root draft update runs through Mutative's `create(...)` to generate patches/inverse patches. Those patches are immediately applied back to the live object via `apply(..., { mutable: true })`, preserving its reference. Explicit root replacements instead use an immutable fallback.
 3. Navigation commands (`back`, `forward`, `go`) reuse the stored patches. `reset()` instead computes a fresh diff back to that baseline copy so it can restore the original data without replaying every history step.
 4. If a history step replaces the entire root (patch path `[]` with `op: 'replace'`), Travels falls back to immutable assignment for that jump to guarantee correctness.
 
@@ -51,7 +51,7 @@ const snapshot = Travels.deserialize<typeof store>(stored, {
 const travels = restoreTravels(snapshot, { mutable: true, target: store });
 
 travels.getState() === store; // true
-travels.back(); // mutates `store` in place
+travels.back(); // Localized patches mutate `store`; root replacements can reassign it
 ```
 
 Travels overwrites `target` in place with a copy of `snapshot.state` before it records anything, so the live object and the restored patch history always start from the same data. The snapshot itself is never mutated. `target` requires `mutable: true` and must have the same root kind (plain object or array) as the snapshot state, and neither root may have an own `__proto__` key; it is rejected with `INVALID_OPTION` otherwise.
@@ -60,13 +60,13 @@ Travels overwrites `target` in place with a copy of `snapshot.state` before it r
 
 | Operation            | Reference preserved?                                       | Notes                                                                                 |
 | -------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `setState`           | Yes, as long as current state root is an object            | Non-object roots (numbers, strings, `null`) trigger an automatic immutable fallback   |
+| `setState`           | Usually                                                    | Localized draft updates preserve object/array roots; primitive roots and explicit root replacements use immutable fallback |
 | `back` / `forward`   | Yes, unless the step applies a root-level replacement      | Happens when you undo a change that swapped the entire state object or type           |
 | `go(position)`       | Same as `back/forward`                                     | Travels checks for root-replace patches before deciding whether it can mutate in place|
 | `archive` (manual)   | Yes                                                        | Temporary patches are merged and applied to the same live object                      |
 | `reset`              | Usually                                                    | Mutates in place only when the current state and the stored initial snapshot are both plain objects or both arrays, neither with an own `__proto__` key; otherwise it reassigns the root |
 | `getHistory`         | Mixed                                                      | Includes the live state for the current position. Past and future entries share unchanged objects with it, so in-place updates also change an array returned earlier; keep copies with `getHistorySnapshot()` |
-| `subscribe`          | Receives the live (mutated) reference                      | Subscribers can safely compare by reference; values reflect the current undo position |
+| `subscribe`          | Receives the current live root                              | In-place operations preserve its reference; root-replacement steps can provide a new root |
 
 ## Fallback & Safety Rails
 
@@ -76,8 +76,8 @@ Travels overwrites `target` in place with a copy of `snapshot.state` before it r
 - **Unreplayable history**: Navigation applies retained patches to the live object in place. If one cannot be applied, as in a corrupt snapshot that passed the default structural validation, `go()` throws `HISTORY_REPLAY_FAILED` and the writes made before it remain. Inside a transaction the rollback undoes what it can and, if some change cannot be undone, throws `TRANSACTION_FAILED` with that error as its `cause`. Validate untrusted snapshots with `Travels.deserialize(snapshot, { validation: 'semantic' })` before restoring them.
 - **Function updaters returning a new root**: In mutable mode, `setState(() => newState)` that replaces the root falls back to immutable assignment for that update (dev warning emitted).
 - **Own `__proto__` keys at the root**: `JSON.parse` turns a `"__proto__"` member into an own key. A Mutative draft cannot receive that key by assignment, and Mutative will not apply a patch path naming it, so a value update or `reset()` whose current or new root has one replaces the root instead of overwriting it in place.
-- **Reset baseline is a copy**: `reset()` returns to a copy of the state taken at creation or restore, or by the last `rebase()`, `replaceStateWithoutHistory()`, or update while tracking is paused. The copy is made with `structuredClone()`, so `Date`, `undefined`, `NaN`, `-0`, and `bigint` survive, while class instances come back as plain objects without their prototype and values it cannot copy, such as functions, are kept by reference. Both modes reset to the same data.
-- **Detached history values**: Mutable timelines keep `structuredClone()` copies of the values their patches carry, so later in-place writes cannot rewrite history. A class instance drafted through `mark` that undo or redo inserts back into the state therefore returns as a plain object without its prototype; edits to fields of an instance that stays in place keep the instance, and immutable timelines keep instances throughout.
+- **Reset baseline is a copy**: `reset()` returns to a copy of the state taken at creation or restore, or by the last `rebase()`, `replaceStateWithoutHistory()`, or update while tracking is paused. The copy uses `structuredClone()` when possible and a deep-clone fallback otherwise, so `Date`, `undefined`, `NaN`, `-0`, and `bigint` survive. Structured-cloneable class instances lose their prototypes; values that cannot be cloned, such as functions and unsupported runtime objects, can be retained by reference through the fallback. Both modes reset to the same data.
+- **Detached history values**: Mutable timelines detach object values in their patches with structured cloning plus a fallback, so later in-place writes to cloned data cannot rewrite history. A class instance drafted through `mark` that structured cloning handles returns as a plain object when undo or redo inserts it; fallback-only values can instead retain their reference and runtime type. Edits to fields of an instance that stays in place keep the instance, and immutable timelines keep instances throughout.
 - **Draft best practices**: Prefer mutating the provided draft (`draft.count++`) instead of returning a brand new object. Mutating drafts lets Travels keep using in-place patches during navigation.
 
 ## Integration Patterns
@@ -126,13 +126,13 @@ The reactive `state` reference is the same object that Vue components bind to, s
 ```ts
 const travels = createTravels(store, { mutable: true, autoArchive: false });
 
-function commitTransaction(cb: () => void) {
-  cb();            // Run multiple travels.setState calls
+function commitChanges(cb: () => void) {
+  cb();              // Run multiple travels.setState calls
   travels.archive(); // Save them as one undoable step
 }
 ```
 
-Because the state is mutated in place, your UI keeps updating during the transaction, but history only grows when you call `archive()`.
+Because the state is mutated in place, your UI keeps updating while the grouped changes run. This helper defines a manual archive boundary, not an atomic transaction; use `travels.transaction()` when you need rollback and one settled observer event.
 
 ### Transactions + Mutable State
 
@@ -172,4 +172,4 @@ Use `travels.setState(...)` for every mutation that must share the transaction's
 
 ## Summary
 
-Mutable mode gives Travels the ergonomics of reactive stores without giving up its patch-based history. Enable it when you need reference stability, follow the JSON-only constraint, and prefer draft mutations to keep undo/redo fast and predictable.
+Mutable mode gives Travels the ergonomics of reactive stores without giving up its patch-based history. Enable it when ordinary operations need reference stability, follow the durable-data contract when persisting, and prefer draft mutations. Check the operation table whenever strict root identity matters.

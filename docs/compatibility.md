@@ -27,7 +27,7 @@ The v3 official bindings use the public factory capability instead of the intern
 | Binding          | Binding version | Supported Travels versions | Restored history handoff                         |
 | ---------------- | --------------- | -------------------------- | ------------------------------------------------ |
 | `use-travel`     | `3.x`           | `^3.0.0`                   | `restoreTravels(snapshot)` then `useTravelStore` |
-| `zustand-travel` | `3.x`           | `^3.0.0`                   | `travel(initializer, { snapshot })`              |
+| `zustand-travel` | `3.x`           | `^3.0.1`                   | `travel(initializer, { snapshot })`              |
 
 Each binding major declares the same `mutative` peer range as Travels (`^2.0.0`), so the three packages install together without a peer conflict. The binding majors require Travels 3 so their factory overloads, atomic restore path, read-only shared views, and control capabilities have one stable contract. Publish and install the core major first, then validate and release each binding major against that published artifact. Binding-owned timelines remain immutable, and the bindings reject removed or incompatible ownership options rather than silently discarding them.
 

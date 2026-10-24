@@ -170,7 +170,7 @@ const useStore = create<State & Actions>()(
 );
 ```
 
-Both binding v3 packages require `travels@^3.0.0`. Publish or install the core major first, then upgrade each binding. This keeps the factory overloads, `restoreTravels()` boundary, read-only shared views, and returned controls on one versioned contract instead of making their behavior depend on peer resolution.
+`use-travel@3` requires `travels@^3.0.0`, while `zustand-travel@3` requires `travels@^3.0.1`; installing `travels@^3.0.1` satisfies both. Publish or install the core major first, then upgrade each binding. This keeps the factory overloads, `restoreTravels()` boundary, read-only shared views, and returned controls on one versioned contract instead of making their behavior depend on peer resolution.
 
 ### Navigation archives pending work in one event
 

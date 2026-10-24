@@ -1,0 +1,8 @@
+{
+  "title": "Classes",
+  "pages": [
+    "TravelsError",
+    "TravelsPersistenceError",
+    "TravelsTypeError"
+  ]
+}

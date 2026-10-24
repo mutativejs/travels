@@ -10,9 +10,11 @@
    ```bash
    corepack enable
    pnpm install --frozen-lockfile
+   pnpm --dir website install --frozen-lockfile
    pnpm exec playwright install chromium
    pnpm run lint
    pnpm run size:ci
+   pnpm run build:doc:site
    pnpm run test:types
    pnpm run test:examples
    pnpm run test

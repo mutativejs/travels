@@ -1,0 +1,468 @@
+---
+title: "createTravels()"
+description: "Create a state-owning timeline with automatic or manual archiving."
+---
+
+Create a new Travels instance
+
+## Call Signature
+
+> **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
+
+Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/createTravels.ts#L8)
+
+Create a new Travels instance with auto archive mode
+
+### Type Parameters
+
+#### S
+
+`S`
+
+#### F
+
+`F` *extends* `boolean` = `false`
+
+#### P
+
+`P` *extends* `object` = \{ \}
+
+### Parameters
+
+#### initialState
+
+`S`
+
+#### options?
+
+`Omit`\<[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `true`, `P`, `S`\>, `"autoArchive"`\> & `object`
+
+### Returns
+
+#### getRevision()
+
+> `readonly` **getRevision**: () => `number`
+
+Monotonic token for committed observable timeline transitions.
+
+##### Returns
+
+`number`
+
+#### getState()
+
+> `readonly` **getState**: () => `S`
+
+Borrowed live state, the same value observers receive as `event.state`.
+
+##### Returns
+
+`S`
+
+##### Remarks
+
+Typed as `S` so it can flow into stores and APIs that expect the state
+type, but it must be treated as read-only: history patches apply to this
+value, so mutating it outside Travels operations desynchronizes undo/redo.
+In immutable mode its objects are also the values of retained patches, so
+such a mutation rewrites the history that redo replays.
+`enableAutoFreeze` freezes every state Travels produces after creation.
+
+#### mutable
+
+> `readonly` **mutable**: `boolean`
+
+#### subscribe()
+
+> `readonly` **subscribe**: (`listener`) => () => `void`
+
+##### Parameters
+
+###### listener
+
+(`event`) => `void`
+
+##### Returns
+
+> (): `void`
+
+###### Returns
+
+`void`
+
+#### assertPersistenceCompatible()
+
+> **assertPersistenceCompatible**(): `void`
+
+##### Returns
+
+`void`
+
+#### back()
+
+> **back**(`amount?`): `void`
+
+##### Parameters
+
+###### amount?
+
+`number`
+
+##### Returns
+
+`void`
+
+#### batch()
+
+##### Call Signature
+
+> **batch**\<`FN`\>(`metadata`, `fn`): `void`
+
+###### Type Parameters
+
+###### FN
+
+`FN` *extends* () => `unknown`
+
+###### Parameters
+
+###### metadata
+
+[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+
+###### fn
+
+`FN` & () => `unknown`
+
+###### Returns
+
+`void`
+
+##### Call Signature
+
+> **batch**\<`FN`\>(`fn`): `void`
+
+###### Type Parameters
+
+###### FN
+
+`FN` *extends* () => `unknown`
+
+###### Parameters
+
+###### fn
+
+`FN` & () => `unknown`
+
+###### Returns
+
+`void`
+
+#### canBack()
+
+> **canBack**(): `boolean`
+
+##### Returns
+
+`boolean`
+
+#### canForward()
+
+> **canForward**(): `boolean`
+
+##### Returns
+
+`boolean`
+
+#### forward()
+
+> **forward**(`amount?`): `void`
+
+##### Parameters
+
+###### amount?
+
+`number`
+
+##### Returns
+
+`void`
+
+#### getControls()
+
+> **getControls**(): [`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+
+##### Returns
+
+[`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+
+#### getHistory()
+
+> **getHistory**(): readonly `Immutable`\<`S`\>[]
+
+##### Returns
+
+readonly `Immutable`\<`S`\>[]
+
+#### getHistoryEntries()
+
+> **getHistoryEntries**(): [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+
+##### Returns
+
+[`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+
+#### getHistorySnapshot()
+
+> **getHistorySnapshot**(): `S`[]
+
+##### Returns
+
+`S`[]
+
+#### getMetadata()
+
+> **getMetadata**(): (`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+
+##### Returns
+
+(`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+
+#### getPatches()
+
+> **getPatches**(): [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+
+##### Returns
+
+[`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+
+#### getPosition()
+
+> **getPosition**(): `number`
+
+##### Returns
+
+`number`
+
+#### go()
+
+> **go**(`nextPosition`): `void`
+
+##### Parameters
+
+###### nextPosition
+
+`number`
+
+##### Returns
+
+`void`
+
+#### pauseTracking()
+
+> **pauseTracking**(): `void`
+
+##### Returns
+
+`void`
+
+#### rebase()
+
+> **rebase**(): `void`
+
+##### Returns
+
+`void`
+
+#### replaceStateWithoutHistory()
+
+> **replaceStateWithoutHistory**\<`U`\>(`updater`): `void`
+
+##### Type Parameters
+
+###### U
+
+`U`
+
+##### Parameters
+
+###### updater
+
+##### Returns
+
+`void`
+
+#### reset()
+
+> **reset**(): `void`
+
+##### Returns
+
+`void`
+
+#### resumeTracking()
+
+> **resumeTracking**(): `void`
+
+##### Returns
+
+`void`
+
+#### serialize()
+
+> **serialize**(`options?`): [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+
+##### Parameters
+
+###### options?
+
+[`TravelsSerializeOptions`](../type-aliases/TravelsSerializeOptions.mdx)
+
+##### Returns
+
+[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+
+#### setState()
+
+> **setState**\<`U`\>(`updater`, `metadata?`): `void`
+
+##### Type Parameters
+
+###### U
+
+`U`
+
+##### Parameters
+
+###### updater
+
+###### metadata?
+
+[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+
+##### Returns
+
+`void`
+
+#### transaction()
+
+##### Call Signature
+
+> **transaction**\<`FN`\>(`metadata`, `fn`): `void`
+
+###### Type Parameters
+
+###### FN
+
+`FN` *extends* () => `unknown`
+
+###### Parameters
+
+###### metadata
+
+[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+
+###### fn
+
+`FN` & () => `unknown`
+
+###### Returns
+
+`void`
+
+##### Call Signature
+
+> **transaction**\<`FN`\>(`fn`): `void`
+
+###### Type Parameters
+
+###### FN
+
+`FN` *extends* () => `unknown`
+
+###### Parameters
+
+###### fn
+
+`FN` & () => `unknown`
+
+###### Returns
+
+`void`
+
+## Call Signature
+
+> **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+
+Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/createTravels.ts#L22)
+
+Create a new Travels instance with manual archive mode
+
+### Type Parameters
+
+#### S
+
+`S`
+
+#### F
+
+`F` *extends* `boolean` = `false`
+
+#### P
+
+`P` *extends* `object` = \{ \}
+
+### Parameters
+
+#### initialState
+
+`S`
+
+#### options
+
+`Omit`\<[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `false`, `P`, `S`\>, `"autoArchive"`\> & `object`
+
+### Returns
+
+[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+
+## Call Signature
+
+> **createTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+
+Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/createTravels.ts#L37)
+
+Create a new Travels instance when the archive mode is selected dynamically
+or forwarded through a generic adapter.
+
+### Type Parameters
+
+#### S
+
+`S`
+
+#### F
+
+`F` *extends* `boolean` = `false`
+
+#### A
+
+`A` *extends* `boolean` = `true`
+
+#### P
+
+`P` *extends* `object` = \{ \}
+
+### Parameters
+
+#### initialState
+
+`S`
+
+#### options
+
+[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>
+
+### Returns
+
+[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>

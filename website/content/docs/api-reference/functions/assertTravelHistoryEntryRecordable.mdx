@@ -1,0 +1,27 @@
+---
+title: "assertTravelHistoryEntryRecordable()"
+description: "Preflight a controlled patch pair before an external commit."
+---
+
+> **assertTravelHistoryEntryRecordable**\<`P`\>(`entry`): `void`
+
+Defined in: [src/history-entry.ts:48](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/history-entry.ts#L48)
+
+Verify that an external history entry can be detached before its owner
+publishes the corresponding state commit.
+
+## Type Parameters
+
+### P
+
+`P` *extends* `object` = \{ \}
+
+## Parameters
+
+### entry
+
+`unknown`
+
+## Returns
+
+`void`

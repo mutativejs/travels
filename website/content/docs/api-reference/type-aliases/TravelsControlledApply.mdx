@@ -1,0 +1,31 @@
+---
+title: "TravelsControlledApply()<S, P>"
+description: "Travels 3 API reference for TravelsControlledApply."
+---
+
+> **TravelsControlledApply**\<`S`, `P`\> = (`transition`) => `S`
+
+Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L76)
+
+Synchronous executor used when another runtime owns the authoritative state.
+Return that runtime's committed state after applying `transition.patches`.
+
+## Type Parameters
+
+### S
+
+`S`
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+
+## Parameters
+
+### transition
+
+[`TravelsControlledTransition`](TravelsControlledTransition.mdx)\<`S`, `P`\>
+
+## Returns
+
+`S`

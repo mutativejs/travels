@@ -1,0 +1,42 @@
+---
+title: "restoreTravelJournal()"
+description: "Restore a controlled journal from a complete history snapshot."
+---
+
+> **restoreTravelJournal**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
+
+Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/createTravelJournal.ts#L164)
+
+Restore an externally owned journal from one complete persisted snapshot.
+
+## Type Parameters
+
+### S
+
+`S`
+
+### F
+
+`F` *extends* `boolean` = `false`
+
+### A
+
+`A` *extends* `boolean` = `true`
+
+### P
+
+`P` *extends* `object` = \{ \}
+
+## Parameters
+
+### snapshot
+
+[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+
+### options
+
+[`TravelJournalOptions`](../type-aliases/TravelJournalOptions.mdx)\<`S`, `F`, `A`, `P`\>
+
+## Returns
+
+[`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>

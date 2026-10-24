@@ -1,0 +1,11 @@
+{
+  "title": "API Reference",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

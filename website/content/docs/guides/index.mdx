@@ -1,0 +1,31 @@
+---
+title: History Guides
+description: Practical guidance for updates, navigation, grouping, observers, ownership, and failures.
+---
+
+These guides explain the behavior that matters after the first undo button works. Start with updates and navigation, then choose the archive and ownership models that match your application.
+
+## Everyday operations
+
+<Cards>
+  <Card title="Updating State" href="/docs/guides/updating-state" description="Draft recipes, replacement values, metadata, synchronous boundaries, and no-op updates." />
+  <Card title="Navigation and Controls" href="/docs/guides/navigation-and-controls" description="Undo, redo, jumps, revisions, history views, and narrow UI controls." />
+  <Card title="Archive Mode" href="/docs/guides/archive-mode" description="Choose when pending changes become undoable entries." />
+  <Card title="Transactions" href="/docs/guides/transactions" description="Atomic multi-step edits, nesting, rollback, and observer semantics." />
+</Cards>
+
+## Ownership and lifecycle
+
+<Cards>
+  <Card title="Tracking and Replacement" href="/docs/guides/tracking-and-replacement" description="Pause history, accept remote state, and establish a new baseline." />
+  <Card title="Mutable Mode" href="/docs/guides/mutable-mode" description="Keep reactive object references stable without losing patches." />
+  <Card title="Controlled Journal" href="/docs/guides/controlled-journal" description="Record history for an external state owner through its commit path." />
+</Cards>
+
+## Production behavior
+
+<Cards>
+  <Card title="Observers and Events" href="/docs/guides/observers-and-events" description="Committed event envelopes, read-only views, devtools, and error isolation." />
+  <Card title="Error Handling" href="/docs/guides/error-handling" description="Stable error codes, warnings, observer failures, and recovery boundaries." />
+  <Card title="Advanced Patterns" href="/docs/guides/advanced-patterns" description="Validation, permissions, metadata, logging, and composable wrappers." />
+</Cards>

@@ -1,0 +1,159 @@
+---
+title: "TravelsOptions<F, A, P, S>"
+description: "Travels 3 API reference for TravelsOptions."
+---
+
+> **TravelsOptions**\<`F`, `A`, `P`, `S`\> = `object` & `Omit`\<`MutativeOptions`\<`true`, `F`\>, `"enablePatches"`\> & `object`
+
+Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/32aa40f19c0ec6736500b5b44991476424041688/src/type.ts#L334)
+
+## Type Declaration
+
+### autoArchive?
+
+> `optional` **autoArchive**: `A`
+
+Whether to automatically archive the current state, by default `true`
+
+### devtools()?
+
+> `optional` **devtools**: (`event`) => `void`
+
+Optional hook for external devtools or debugging timelines. Factories
+type its event with the timeline state.
+
+#### Parameters
+
+##### event
+
+[`TravelsEvent`](TravelsEvent.mdx)\<`S`, `P`\>
+
+#### Returns
+
+`void`
+
+### maxHistory?
+
+> `optional` **maxHistory**: `number`
+
+The maximum number of history to keep, by default `10`
+
+### mutable?
+
+> `optional` **mutable**: \[`F`\] *extends* \[`true`\] ? `false` : `boolean`
+
+Whether to mutate the state in place (for observable state like MobX, Vue, Pinia)
+When true, apply patches directly to the existing state object
+When false (default), create new immutable state objects
+
+Cannot be combined with `enableAutoFreeze: true`. TypeScript rejects the
+pair when the freeze flag is the literal `true`; the factories also reject
+it at runtime with `INVALID_OPTION`.
+
+#### Default
+
+```ts
+false
+```
+
+### onBranchDiscard()?
+
+> `optional` **onBranchDiscard**: (`event`) => `void`
+
+Called when undoing and then making a committed edit discards redo history.
+Root transactions report only entries that were visible before they began.
+
+#### Parameters
+
+##### event
+
+[`TravelsBranchDiscardEvent`](TravelsBranchDiscardEvent.mdx)\<`P`\>
+
+#### Returns
+
+`void`
+
+### onError()?
+
+> `optional` **onError**: (`error`) => `void`
+
+Called when Travels wraps a thrown core operation error. Errors raised by
+nested transactions are published after the root transaction settles.
+
+#### Parameters
+
+##### error
+
+`Error`
+
+#### Returns
+
+`void`
+
+### onObserverError()?
+
+> `optional` **onObserverError**: (`event`) => `void`
+
+Receives errors thrown by notification hooks. Observer errors never roll
+back or interrupt an already committed state transition.
+
+#### Parameters
+
+##### event
+
+[`TravelsObserverErrorEvent`](TravelsObserverErrorEvent.mdx)
+
+#### Returns
+
+`void`
+
+### onWarning()?
+
+> `optional` **onWarning**: (`warning`) => `void`
+
+Receives non-fatal normalization, compatibility, and migration warnings.
+Without this hook warnings are written to the console only in development.
+
+#### Parameters
+
+##### warning
+
+[`TravelsWarning`](TravelsWarning.mdx)
+
+#### Returns
+
+`void`
+
+### warnOnUnsupportedState?
+
+> `optional` **warnOnUnsupportedState**: `boolean`
+
+Warn in development about weak patch or JSON persistence semantics in
+state, retained patches, or history metadata. Defaults to `true`.
+
+## Type Declaration
+
+### patchesOptions?
+
+> `optional` **patchesOptions**: `P`
+
+Configure patch formatting. Patches cannot be disabled because Travels
+uses them to implement history, navigation, and persistence.
+
+## Type Parameters
+
+### F
+
+`F` *extends* `boolean`
+
+### A
+
+`A` *extends* `boolean`
+
+### P
+
+`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+
+### S
+
+`S` = `any`
