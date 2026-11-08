@@ -19,9 +19,11 @@
     "fumadocs-mdx": "15.4.10",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.17.8",
     "lucide-react": "^1.61.0",
+    "mutative": "^2.0.2",
     "next": "16.4.2",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "travels": "^3.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

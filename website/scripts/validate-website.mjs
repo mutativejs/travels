@@ -140,6 +140,17 @@ try {
   assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'pnpm add travels mutative');
   checks.push('Install command copy');
 
+  const historyStack = page.getByRole('group', { name: 'Travels history stack' });
+  const historySlider = historyStack.getByRole('slider', { name: 'History position' });
+  const startPosition = Number(await historySlider.inputValue());
+  await historyStack.getByRole('button', { name: 'Undo', exact: true }).click();
+  assert.equal(Number(await historySlider.inputValue()), startPosition - 1, 'Undo should step the hero timeline back.');
+  await page.keyboard.press('Control+Shift+KeyZ');
+  assert.equal(Number(await historySlider.inputValue()), startPosition, 'The redo shortcut should restore the step.');
+  await historyStack.getByRole('button', { name: 'Apply a new edit' }).click();
+  assert.equal(Number(await historySlider.inputValue()), startPosition + 1, 'A new edit should extend the timeline.');
+  checks.push('Hero history stack undo, redo shortcut, and new edit');
+
   const searchButton = page.getByRole('button', { name: /search/i }).first();
   await searchButton.click();
   const searchInput = page.locator('input[placeholder]').last();

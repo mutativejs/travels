@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { CopyButton } from '@/components/home/copy-button';
-import { HeroVisual } from '@/components/home/hero-visual';
+import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
 
 const installCommand = 'pnpm add travels mutative';
@@ -130,7 +130,7 @@ export default function HomePage() {
             <span>Works with</span> React · Vue · Zustand · MobX · Pinia · Vanilla JS
           </p>
         </div>
-        <HeroVisual />
+        <TimeStack />
       </section>
 
       <section className="proof-strip" aria-label="Key capabilities">

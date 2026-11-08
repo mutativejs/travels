@@ -126,6 +126,13 @@ try {
   await page.screenshot({ path: resolve(artifactsDir, 'production-home.png'), fullPage: false });
   checks.push('Production home, prefixed logo, CTA, assets, and social image');
 
+  const historyStack = page.getByRole('group', { name: 'Travels history stack' });
+  const historySlider = historyStack.getByRole('slider', { name: 'History position' });
+  const startPosition = Number(await historySlider.inputValue());
+  await historyStack.getByRole('button', { name: 'Undo', exact: true }).click();
+  assert.equal(Number(await historySlider.inputValue()), startPosition - 1);
+  checks.push('Production hero history stack');
+
   await page.getByRole('button', { name: /search/i }).first().click();
   const input = page.locator('input[placeholder]').last();
   await input.fill('transaction');

@@ -25,7 +25,7 @@ Open the local URL printed by Next.js. The homepage is `/`; documentation starts
 
 - `app/(home)/page.tsx`: custom product homepage.
 - `app/global.css`: brand theme, responsive homepage, and Fumadocs color tokens.
-- `components/`: brand, homepage, search, and MDX components.
+- `components/`: brand, homepage, search, and MDX components. The interactive homepage demos in `components/home/` run on the published `travels` and `mutative` packages.
 - `content/docs/`: hand-written English guides and navigation metadata.
 - `content/docs/api-reference/`: complete API pages generated from the current package source.
 - `lib/source.ts`: Fumadocs source, page tree, and LLM integration.
