@@ -711,22 +711,125 @@ code {
 .ownership-card p { max-width: 470px; min-height: 50px; }
 
 .ownership-flow {
-  display: flex;
+  --flow-line: #a9bcd6;
+  --flow-packet: #3477f2;
+  --flow-core: linear-gradient(135deg, #3477f2, #2158d5);
+  display: grid;
+  grid-template-columns: auto minmax(22px, 1fr) auto minmax(22px, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 14px 10px;
   margin: 26px 0;
-  padding: 15px;
+  padding: 16px;
   color: #60748d;
   background: #f6f8fb;
   border: 1px solid #e7edf4;
-  border-radius: 9px;
+  border-radius: 12px;
   font-size: 12.5px;
   font-weight: 650;
 }
 
-.dark .ownership-flow { color: #9cafc6; background: #0e1826; border-color: #223248; }
-.ownership-flow svg { color: #8ca2bb; }
+.ownership-orange .ownership-flow {
+  --flow-packet: #ec6a3d;
+  --flow-core: linear-gradient(135deg, #f0784c, #d4592c);
+}
+
+.dark .ownership-flow { --flow-line: #3a5070; color: #9cafc6; background: #0e1826; border-color: #223248; }
+
+.flow-node {
+  padding: 7px 11px;
+  color: var(--home-ink);
+  background: var(--home-card);
+  border: 1px solid var(--home-line);
+  border-radius: 9px;
+  box-shadow: 0 2px 6px rgb(24 54 96 / 6%);
+  white-space: nowrap;
+}
+
+.flow-node.is-core {
+  color: #fff;
+  background: var(--flow-core);
+  border-color: transparent;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--flow-packet) 30%, transparent);
+}
+
+.flow-link {
+  position: relative;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--flow-line) 0 6px, transparent 6px 10px);
+}
+
+.flow-link::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 7px;
+  height: 7px;
+  content: '';
+  border-top: 2px solid var(--flow-line);
+  border-right: 2px solid var(--flow-line);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.flow-link i {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: var(--flow-packet);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--flow-packet) 18%, transparent), 0 0 12px var(--flow-packet);
+  opacity: 0;
+  animation: flow-packet 2.6s cubic-bezier(0.45, 0, 0.55, 1) var(--flow-delay, 0s) infinite;
+}
+
+.flow-link.is-reverse::after {
+  right: auto;
+  left: 0;
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+.flow-link.is-reverse i {
+  animation-name: flow-packet-reverse;
+}
+
+.flow-return {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  gap: 7px;
+  padding: 0 34px;
+}
+
+.flow-return-short {
+  grid-column: 3 / -1;
+}
+
+.flow-return .flow-link {
+  --flow-line: color-mix(in srgb, #f0784c 55%, transparent);
+  --flow-packet: #f0784c;
+}
+
+.flow-caption {
+  color: var(--home-muted);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-align: center;
+}
+
+@keyframes flow-packet {
+  0% { left: 0; opacity: 0; }
+  12%, 88% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@keyframes flow-packet-reverse {
+  0% { left: 100%; opacity: 0; }
+  12%, 88% { opacity: 1; }
+  100% { left: 0; opacity: 0; }
+}
 
 .use-cases-section {
   position: relative;
@@ -905,7 +1008,9 @@ code {
   .code-section-grid { gap: 38px; }
   .ownership-card { padding: 25px 21px; }
   .ownership-card h3 { font-size: 16px; }
-  .ownership-flow { padding: 12px 9px; font-size: 11px; }
+  .ownership-flow { gap: 12px 6px; padding: 12px 9px; font-size: 11px; }
+  .flow-node { padding: 6px 7px; }
+  .flow-return { padding: 0 16px; }
   .use-cases-section { padding-block: 75px; }
   .docs-card { min-height: 0; }
   .api-banner { grid-template-columns: auto 1fr; padding: 20px; }

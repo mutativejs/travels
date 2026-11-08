@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -216,14 +217,36 @@ export default function HomePage() {
             <div className="ownership-top"><Layers size={24} /><span>STATE-OWNING</span></div>
             <h3>createTravels()</h3>
             <p>Send updates through Travels and receive immutable states, patches, navigation, and controls.</p>
-            <div className="ownership-flow"><span>Your update</span><ArrowRight size={15} /><span>Travels</span><ArrowRight size={15} /><span>Your UI</span></div>
+            <div className="ownership-flow">
+              <p className="sr-only">Updates flow from your code through Travels to your UI. back() and forward() go from your UI to Travels.</p>
+              <span className="flow-node" aria-hidden="true">Your update</span>
+              <span className="flow-link" aria-hidden="true"><i /></span>
+              <span className="flow-node is-core" aria-hidden="true">Travels</span>
+              <span className="flow-link" aria-hidden="true" style={{ '--flow-delay': '1.3s' } as CSSProperties}><i /></span>
+              <span className="flow-node" aria-hidden="true">Your UI</span>
+              <span className="flow-return flow-return-short" aria-hidden="true">
+                <span className="flow-link is-reverse" style={{ '--flow-delay': '0.65s' } as CSSProperties}><i /></span>
+                <span className="flow-caption">back() · forward()</span>
+              </span>
+            </div>
             <Link href="/docs/getting-started/quick-start" className="card-link">Own state with Travels <ArrowRight size={14} /></Link>
           </div>
           <div className="ownership-card ownership-orange">
             <div className="ownership-top"><Network size={24} /><span>EXTERNALLY OWNED</span></div>
             <h3>createTravelJournal()</h3>
             <p>Record patches from an existing store or state machine, then delegate undo/redo through its commit path.</p>
-            <div className="ownership-flow"><span>Your store</span><ArrowRight size={15} /><span>Journal</span><ArrowRight size={15} /><span>Your UI</span></div>
+            <div className="ownership-flow">
+              <p className="sr-only">Your store commits and records patches in the journal, which drives your UI. back() and forward() are delegated back through your store&rsquo;s commit path.</p>
+              <span className="flow-node" aria-hidden="true">Your store</span>
+              <span className="flow-link" aria-hidden="true"><i /></span>
+              <span className="flow-node is-core" aria-hidden="true">Journal</span>
+              <span className="flow-link" aria-hidden="true" style={{ '--flow-delay': '1.3s' } as CSSProperties}><i /></span>
+              <span className="flow-node" aria-hidden="true">Your UI</span>
+              <span className="flow-return" aria-hidden="true">
+                <span className="flow-link is-reverse" style={{ '--flow-delay': '0.65s' } as CSSProperties}><i /></span>
+                <span className="flow-caption">back() delegates to your store</span>
+              </span>
+            </div>
             <Link href="/docs/guides/controlled-journal" className="card-link">Connect an external owner <ArrowRight size={14} /></Link>
           </div>
         </div>
