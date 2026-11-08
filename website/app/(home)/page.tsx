@@ -93,7 +93,7 @@ const documentation = [
 
 export default function HomePage() {
   return (
-    <main className="home-page">
+    <div className="home-page">
       <section className="home-hero home-container">
         <div className="hero-copy">
           <Link href="/docs/migration" className="release-pill">
@@ -311,6 +311,6 @@ export default function HomePage() {
         </div>
         <div className="home-container footer-bottom"><span>© {new Date().getFullYear()} Travels contributors</span><span>MIT licensed · Built with Fumadocs</span></div>
       </footer>
-    </main>
+    </div>
   );
 }
