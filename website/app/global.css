@@ -91,6 +91,23 @@ code {
   filter: drop-shadow(0 4px 8px rgb(34 92 220 / 14%));
 }
 
+/* The logo is a looping arrow: hovering it rewinds one full turn. */
+a:hover > .brand .brand-logo {
+  animation: brand-rewind 900ms cubic-bezier(0.5, 0, 0.2, 1);
+}
+
+@keyframes brand-rewind {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Over the hero the bar stays clear until the page scrolls. */
+#nd-nav > nav:not([class*='bg-fd-background']) {
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+}
+
 .brand-wordmark {
   color: #12233d;
   font-size: 23px;
@@ -154,6 +171,7 @@ code {
 }
 
 .home-page {
+  --home-nav-height: 3.5rem;
   --home-ink: #10223b;
   --home-muted: #5a6d84;
   --home-soft: #eff4fa;
@@ -161,6 +179,8 @@ code {
   --home-card: #ffffff;
   position: relative;
   flex: 1;
+  margin-top: calc(var(--home-nav-height) * -1);
+  padding-top: var(--home-nav-height);
   overflow: hidden;
   color: var(--home-ink);
   background:
@@ -937,8 +957,53 @@ code {
 .final-cta .hero-actions { justify-content: center; margin-top: 28px; }
 
 .site-footer {
+  position: relative;
   background: #f5f8fb;
   border-top: 1px solid var(--home-line);
+}
+
+.site-footer::before {
+  position: absolute;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  content: '';
+  background: linear-gradient(90deg, transparent, rgb(59 123 246 / 55%) 30%, rgb(240 120 76 / 55%) 70%, transparent);
+}
+
+.footer-bottom-end {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  color: var(--home-muted);
+  background: var(--home-card);
+  border: 1px solid var(--home-line);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.back-to-top:hover {
+  color: var(--home-ink);
+  border-color: #9bb9ed;
+  transform: translateY(-1px);
+}
+
+.back-to-top:focus-visible {
+  outline: 3px solid rgb(64 126 250 / 32%);
+  outline-offset: 3px;
 }
 
 .dark .site-footer { background: #0c1522; }

@@ -21,6 +21,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { Brand } from '@/components/brand';
+import { BackToTop } from '@/components/home/back-to-top';
 import { CopyButton } from '@/components/home/copy-button';
 import { CodeWalkthrough } from '@/components/home/code-walkthrough';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
@@ -323,11 +324,11 @@ export default function HomePage() {
       <footer className="site-footer">
         <div className="home-container footer-main">
           <div className="footer-brand"><Brand compact /><p>Patch-based state history for<br />modern applications.</p></div>
-          <div className="footer-links"><strong>Learn</strong><Link href="/docs/getting-started/quick-start">Quick Start</Link><Link href="/docs/concepts/how-it-works">Core Concepts</Link><Link href="/docs/guides">Guides</Link></div>
+          <div className="footer-links"><strong>Learn</strong><Link href="/docs/getting-started/quick-start">Quick Start</Link><Link href="/docs/concepts/how-it-works">Core Concepts</Link><Link href="/docs/guides">Guides</Link><Link href="/#playground">Playground</Link></div>
           <div className="footer-links"><strong>Integrate</strong><Link href="/docs/integrations/react">React</Link><Link href="/docs/integrations/vue">Vue</Link><Link href="/docs/persistence">Persistence</Link></div>
-          <div className="footer-links"><strong>Project</strong><a href={repositoryUrl}>GitHub</a><a href={`${repositoryUrl}/releases`}>Releases</a><Link href="/docs/resources/security">Security</Link></div>
+          <div className="footer-links"><strong>Project</strong><a href={repositoryUrl}>GitHub</a><a href="https://www.npmjs.com/package/travels">npm</a><a href={`${repositoryUrl}/releases`}>Releases</a><Link href="/docs/resources/security">Security</Link></div>
         </div>
-        <div className="home-container footer-bottom"><span>© {new Date().getFullYear()} Travels contributors</span><span>MIT licensed · Built with Fumadocs</span></div>
+        <div className="home-container footer-bottom"><span>© {new Date().getFullYear()} Travels contributors</span><span className="footer-bottom-end"><span>MIT licensed · Built with Fumadocs</span><BackToTop /></span></div>
       </footer>
     </div>
   );
