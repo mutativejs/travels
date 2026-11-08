@@ -2,7 +2,6 @@
 
 .hero-backdrop {
   --floor-line: rgb(39 100 235 / 23%);
-  --floor-cell: 76px;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -41,25 +40,25 @@
   position: absolute;
   inset: auto 0 0;
   height: 360px;
-  perspective: 1000px;
-  perspective-origin: 50% 100%;
   mask-image: radial-gradient(ellipse 52% 120% at 66% 100%, #000 34%, transparent 74%);
   -webkit-mask-image: radial-gradient(ellipse 52% 120% at 66% 100%, #000 34%, transparent 74%);
 }
 
-.hero-floor-plane {
-  position: absolute;
-  bottom: 0;
-  left: -60%;
-  width: 220%;
-  height: 3200px;
-  background-image:
-    linear-gradient(var(--floor-line) 1.5px, transparent 1.5px),
-    linear-gradient(90deg, var(--floor-line) 1.5px, transparent 1.5px);
-  background-position: 50% 100%;
-  background-size: var(--floor-cell) var(--floor-cell);
-  transform: rotateX(75deg);
-  transform-origin: 50% 100%;
+.hero-floor svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-floor stop {
+  stop-color: var(--floor-line);
+}
+
+/* Every line stays one pixel wide however the view box is scaled. */
+.hero-floor path {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
 @media (max-width: 900px) {
