@@ -2,7 +2,7 @@
 
 > **TravelsControlledApply**\<`S`, `P`\> = (`transition`) => `S`
 
-Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L76)
+Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L76)
 
 Synchronous executor used when another runtime owns the authoritative state.
 Return that runtime's committed state after applying `transition.patches`.

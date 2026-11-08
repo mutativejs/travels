@@ -2,7 +2,7 @@
 
 > **TravelsEventType** = [`TravelsKnownEventType`](TravelsKnownEventType.mdx) \| `string` & `Record`\<`never`, `never`\>
 
-Defined in: [src/type.ts:293](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L293)
+Defined in: [src/type.ts:293](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L293)
 
 Event names are intentionally extensible so minor releases can add new
 operations without breaking exhaustive TypeScript switches.

@@ -2,7 +2,7 @@
 
 > **TravelsWarning** = `object`
 
-Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L261)
+Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L261)
 
 ## Properties [#properties]
 
@@ -10,7 +10,7 @@ Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/c31287d
 
 > `readonly` **code**: [`TravelsWarningCode`](TravelsWarningCode.mdx)
 
-Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L262)
+Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L262)
 
 ***
 
@@ -18,4 +18,4 @@ Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/c31287d
 
 > `readonly` **message**: `string`
 
-Defined in: [src/type.ts:263](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L263)
+Defined in: [src/type.ts:263](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L263)

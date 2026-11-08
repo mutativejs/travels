@@ -2,4 +2,4 @@
 
 > **StateCompatibilityIssueCode** = `"CIRCULAR_REFERENCE"` \| `"SHARED_REFERENCE"` \| `"DATE"` \| `"FUNCTION"` \| `"CLASS_INSTANCE"` \| `"DOM_NODE"` \| `"MAP_SET"` \| `"BIGINT"` \| `"NON_JSON_NUMBER"` \| `"ARRAY_SHAPE"` \| `"OBJECT_SHAPE"` \| `"WEAK_COLLECTION"` \| `"SYMBOL"` \| `"UNDEFINED"`
 
-Defined in: [src/compatibility.ts:4](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/compatibility.ts#L4)
+Defined in: [src/compatibility.ts:4](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/compatibility.ts#L4)

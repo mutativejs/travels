@@ -6,7 +6,7 @@ Create a new Travels instance
 
 > **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
 
-Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/createTravels.ts#L8)
+Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/createTravels.ts#L8)
 
 Create a new Travels instance with auto archive mode
 
@@ -391,7 +391,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/createTravels.ts#L22)
+Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/createTravels.ts#L22)
 
 Create a new Travels instance with manual archive mode
 
@@ -427,7 +427,7 @@ Create a new Travels instance with manual archive mode
 
 > **createTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/createTravels.ts#L37)
+Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/createTravels.ts#L37)
 
 Create a new Travels instance when the archive mode is selected dynamically
 or forwarded through a generic adapter.

@@ -2,4 +2,4 @@
 
 > `const` **TRAVELS\_HISTORY\_SCHEMA\_VERSION**: `1`
 
-Defined in: [src/persistence.ts:24](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L24)
+Defined in: [src/persistence.ts:24](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L24)

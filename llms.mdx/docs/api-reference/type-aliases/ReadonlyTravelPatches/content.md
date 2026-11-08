@@ -2,7 +2,7 @@
 
 > **ReadonlyTravelPatches**\<`P`\> = `object`
 
-Defined in: [src/type.ts:35](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L35)
+Defined in: [src/type.ts:35](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L35)
 
 Shallow read-only event-local patch groups shared by one event's observers.
 
@@ -18,7 +18,7 @@ Shallow read-only event-local patch groups shared by one event's observers.
 
 > `readonly` **inversePatches**: readonly readonly [`ReadonlyTravelPatch`](ReadonlyTravelPatch.mdx)\<`P`\>[][]
 
-Defined in: [src/type.ts:37](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L37)
+Defined in: [src/type.ts:37](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L37)
 
 ***
 
@@ -26,4 +26,4 @@ Defined in: [src/type.ts:37](https://github.com/mutativejs/travels/blob/c31287d0
 
 > `readonly` **patches**: readonly readonly [`ReadonlyTravelPatch`](ReadonlyTravelPatch.mdx)\<`P`\>[][]
 
-Defined in: [src/type.ts:36](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L36)
+Defined in: [src/type.ts:36](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L36)

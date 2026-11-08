@@ -1,6 +1,6 @@
 # TravelsPersistenceError (/docs/api-reference/classes/TravelsPersistenceError)
 
-Defined in: [src/persistence.ts:26](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L26)
+Defined in: [src/persistence.ts:26](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L26)
 
 ## Extends [#extends]
 
@@ -12,7 +12,7 @@ Defined in: [src/persistence.ts:26](https://github.com/mutativejs/travels/blob/c
 
 > **new TravelsPersistenceError**(`code`, `message`, `options`): `TravelsPersistenceError`
 
-Defined in: [src/persistence.ts:32](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L32)
+Defined in: [src/persistence.ts:32](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L32)
 
 #### Parameters [#parameters]
 
@@ -52,7 +52,7 @@ Defined in: [src/persistence.ts:32](https://github.com/mutativejs/travels/blob/c
 
 > `readonly` `optional` **cause**: `unknown`
 
-Defined in: [src/persistence.ts:28](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L28)
+Defined in: [src/persistence.ts:28](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L28)
 
 ***
 
@@ -60,7 +60,7 @@ Defined in: [src/persistence.ts:28](https://github.com/mutativejs/travels/blob/c
 
 > `readonly` **code**: [`TravelsPersistenceErrorCode`](../type-aliases/TravelsPersistenceErrorCode.mdx)
 
-Defined in: [src/persistence.ts:27](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L27)
+Defined in: [src/persistence.ts:27](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L27)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [src/persistence.ts:27](https://github.com/mutativejs/travels/blob/c
 
 > `readonly` `optional` **direction**: `"inverse"` \| `"forward"`
 
-Defined in: [src/persistence.ts:30](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L30)
+Defined in: [src/persistence.ts:30](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L30)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [src/persistence.ts:30](https://github.com/mutativejs/travels/blob/c
 
 > `readonly` `optional` **entryIndex**: `number`
 
-Defined in: [src/persistence.ts:29](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/persistence.ts#L29)
+Defined in: [src/persistence.ts:29](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/persistence.ts#L29)
 
 ***
 

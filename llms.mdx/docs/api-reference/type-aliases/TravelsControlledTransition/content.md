@@ -2,7 +2,7 @@
 
 > **TravelsControlledTransition**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:61](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L61)
+Defined in: [src/type.ts:61](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L61)
 
 Patch transition delegated to an external state owner by a controlled
 Travels journal.
@@ -23,7 +23,7 @@ Travels journal.
 
 > `readonly` **fromPosition**: `number`
 
-Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L68)
+Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L68)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [src/type.ts:68](https://github.com/mutativejs/travels/blob/c31287d0
 
 > `readonly` **inversePatches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:67](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L67)
+Defined in: [src/type.ts:67](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L67)
 
 Composed patches that roll the transition back.
 
@@ -41,7 +41,7 @@ Composed patches that roll the transition back.
 
 > `readonly` **patches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:65](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L65)
+Defined in: [src/type.ts:65](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L65)
 
 Composed patches that move from `fromPosition` to `toPosition`.
 
@@ -51,7 +51,7 @@ Composed patches that move from `fromPosition` to `toPosition`.
 
 > `readonly` **state**: `S`
 
-Defined in: [src/type.ts:63](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L63)
+Defined in: [src/type.ts:63](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L63)
 
 State known to Travels before the transition is applied.
 
@@ -61,4 +61,4 @@ State known to Travels before the transition is applied.
 
 > `readonly` **toPosition**: `number`
 
-Defined in: [src/type.ts:69](https://github.com/mutativejs/travels/blob/c31287d0eea25480209692beb7fcfd61e9e84337/src/type.ts#L69)
+Defined in: [src/type.ts:69](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L69)
