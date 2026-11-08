@@ -1,0 +1,175 @@
+/* Documentation polish. Every rule is scoped to the docs layout's own ids. */
+
+#nd-docs-layout {
+  --docs-blue: #2f6ee8;
+  --docs-orange: #ec6f42;
+  --docs-glow: rgb(59 123 246 / 7%);
+  background:
+    radial-gradient(ellipse 55% 320px at 62% -60px, var(--docs-glow), transparent 75%),
+    var(--color-fd-background);
+}
+
+.dark #nd-docs-layout {
+  --docs-blue: #6b9cff;
+  --docs-orange: #ff9b70;
+  --docs-glow: rgb(78 140 255 / 12%);
+}
+
+/* Page title and lead */
+
+#nd-page > h1 {
+  font-size: clamp(2rem, 1.6rem + 1.4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+#nd-page > h1 + p {
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+/* Headings */
+
+#nd-page .prose h2 {
+  margin-top: 2.6em;
+  padding-top: 1.4em;
+  border-top: 1px solid var(--color-fd-border);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+#nd-page .prose > h2:first-child,
+#nd-page .prose > :first-child + h2 {
+  margin-top: 1.2em;
+  padding-top: 0;
+  border-top: 0;
+}
+
+#nd-page .prose h3 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Links and inline code */
+
+#nd-page .prose a:not([data-card]) {
+  text-decoration-color: color-mix(in srgb, var(--color-fd-primary) 35%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease, color 150ms ease;
+}
+
+#nd-page .prose a:not([data-card]):hover {
+  text-decoration-color: var(--color-fd-primary);
+}
+
+#nd-page .prose :not(pre) > code {
+  padding: 0.12em 0.4em;
+  color: color-mix(in srgb, var(--color-fd-primary) 55%, var(--color-fd-foreground));
+  background: color-mix(in srgb, var(--color-fd-primary) 7%, var(--color-fd-muted));
+  border: 1px solid color-mix(in srgb, var(--color-fd-primary) 14%, var(--color-fd-border));
+  border-radius: 6px;
+  font-size: 0.86em;
+}
+
+/* Code blocks get a thin brand edge and a soft lift. */
+
+#nd-page figure.shiki {
+  position: relative;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgb(16 34 59 / 4%),
+    0 14px 30px -20px rgb(16 34 59 / 28%);
+}
+
+#nd-page figure.shiki::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 2px;
+  content: '';
+  background: linear-gradient(90deg, var(--docs-blue), #8b6cf0 55%, var(--docs-orange));
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.dark #nd-page figure.shiki {
+  box-shadow: 0 14px 30px -20px rgb(0 0 0 / 60%);
+}
+
+/* Callouts and cards */
+
+#nd-page [style*='--callout-color'] {
+  background: color-mix(in srgb, var(--callout-color) 6%, var(--color-fd-card));
+  border-color: color-mix(in srgb, var(--callout-color) 28%, var(--color-fd-border));
+  border-radius: 14px;
+}
+
+#nd-page [data-card='true'] {
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease;
+}
+
+#nd-page a[data-card='true']:hover {
+  border-color: color-mix(in srgb, var(--color-fd-primary) 45%, var(--color-fd-border));
+  box-shadow: 0 14px 28px -18px rgb(30 70 140 / 40%);
+  transform: translateY(-2px);
+}
+
+/* Tables */
+
+#nd-page .prose table {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+#nd-page .prose thead th {
+  background: color-mix(in srgb, var(--color-fd-primary) 5%, var(--color-fd-muted));
+}
+
+/* Steps: numbered markers in the brand gradient. */
+
+#nd-page .fd-steps {
+  border-inline-start-color: color-mix(in srgb, var(--color-fd-primary) 25%, var(--color-fd-border));
+}
+
+#nd-page .fd-step::before {
+  color: #fff;
+  background: linear-gradient(135deg, #3477f2, #2158d5);
+  box-shadow: 0 0 0 4px var(--color-fd-background);
+  font-weight: 700;
+}
+
+/* Previous and next page links */
+
+#nd-page > .\@container > a {
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    background-color 150ms ease;
+}
+
+#nd-page > .\@container > a:hover {
+  border-color: color-mix(in srgb, var(--color-fd-primary) 40%, var(--color-fd-border));
+  transform: translateY(-2px);
+}
+
+/* Navigation: the active page carries the blue-to-orange accent. */
+
+#nd-sidebar a[data-active='true'] {
+  font-weight: 650;
+}
+
+#nd-sidebar a[data-active='true']::before {
+  width: 2px;
+  background: linear-gradient(var(--docs-blue), var(--docs-orange));
+  border-radius: 2px;
+}
+
+#nd-toc a[data-active='true'] {
+  font-weight: 600;
+}
