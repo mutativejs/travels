@@ -1,0 +1,149 @@
+/* Final call to action: patch orbits around the history icon. */
+
+.time-orbit {
+  display: block;
+  width: 150px;
+  height: 150px;
+  margin: -14px auto 14px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  perspective: 700px;
+}
+
+.time-orbit:focus-visible {
+  outline: 3px solid rgb(120 165 255 / 55%);
+  outline-offset: 4px;
+}
+
+.orbit-scene {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.orbit-scene.is-rewinding {
+  animation: orbit-rewind 1.25s cubic-bezier(0.55, 0, 0.25, 1);
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 10px;
+  border: 1.5px solid rgb(143 182 255 / 42%);
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgb(80 140 255 / 18%), inset 0 0 18px rgb(80 140 255 / 12%);
+  transform-style: preserve-3d;
+  animation: orbit-spin var(--orbit-speed) linear infinite;
+}
+
+.orbit-ring-1 {
+  --orbit-tilt: rotateZ(0deg) rotateX(70deg);
+  --orbit-speed: 7s;
+}
+
+.orbit-ring-2 {
+  --orbit-tilt: rotateZ(60deg) rotateX(70deg);
+  --orbit-speed: 9s;
+  border-color: rgb(255 160 120 / 42%);
+  box-shadow: 0 0 18px rgb(255 130 82 / 16%), inset 0 0 18px rgb(255 130 82 / 10%);
+}
+
+.orbit-ring-3 {
+  --orbit-tilt: rotateZ(-60deg) rotateX(70deg);
+  --orbit-speed: 11s;
+}
+
+.orbit-ring i {
+  position: absolute;
+  top: -5px;
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  background: #b9d1ff;
+  border-radius: 50%;
+  box-shadow: 0 0 12px 2px rgb(110 160 255 / 75%);
+}
+
+.orbit-ring-2 i {
+  background: #ffc2a6;
+  box-shadow: 0 0 12px 2px rgb(255 130 82 / 75%);
+}
+
+.orbit-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  color: #d6e4ff;
+  background:
+    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 22%), transparent 55%),
+    linear-gradient(145deg, #2b5fd1, #183a85);
+  border: 1px solid rgb(170 200 255 / 35%);
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgb(70 130 255 / 45%), inset 0 1px 0 rgb(255 255 255 / 25%);
+  transition: transform 200ms ease;
+}
+
+.time-orbit:hover .orbit-core {
+  transform: scale(1.06);
+}
+
+/* A faint field of moments behind the call to action. */
+.final-cta-glow::before,
+.final-cta-glow::after {
+  position: absolute;
+  inset: -40px;
+  content: '';
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, rgb(255 255 255 / 55%), transparent),
+    radial-gradient(1.5px 1.5px at 28% 78%, rgb(180 205 255 / 45%), transparent),
+    radial-gradient(1px 1px at 44% 36%, rgb(255 255 255 / 45%), transparent),
+    radial-gradient(1.5px 1.5px at 63% 18%, rgb(255 200 170 / 45%), transparent),
+    radial-gradient(1px 1px at 76% 66%, rgb(255 255 255 / 50%), transparent),
+    radial-gradient(1.5px 1.5px at 88% 34%, rgb(180 205 255 / 50%), transparent),
+    radial-gradient(1px 1px at 8% 64%, rgb(255 255 255 / 40%), transparent),
+    radial-gradient(1px 1px at 54% 86%, rgb(255 200 170 / 40%), transparent);
+  animation: orbit-drift 26s linear infinite alternate;
+}
+
+.final-cta-glow::after {
+  background-position: 37% 41%;
+  opacity: 0.6;
+  animation-duration: 34s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: var(--orbit-tilt) rotateZ(0deg);
+  }
+  to {
+    transform: var(--orbit-tilt) rotateZ(360deg);
+  }
+}
+
+@keyframes orbit-rewind {
+  to {
+    transform: rotateZ(-720deg);
+  }
+}
+
+@keyframes orbit-drift {
+  to {
+    transform: translate3d(24px, -18px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-ring {
+    transform: var(--orbit-tilt);
+  }
+}

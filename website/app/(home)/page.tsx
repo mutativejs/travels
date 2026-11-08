@@ -11,7 +11,6 @@ import {
   Code2,
   Database,
   FileText,
-  History,
   Layers,
   LayoutTemplate,
   Network,
@@ -28,6 +27,7 @@ import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { PatchPlayground } from '@/components/home/patch-playground';
 import { RevealEffects } from '@/components/home/reveal-effects';
 import { TiltEffects } from '@/components/home/tilt-effects';
+import { TimeOrbit } from '@/components/home/time-orbit';
 import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
 
@@ -309,7 +309,7 @@ export default function HomePage() {
       <section className="home-container final-cta">
         <div className="final-cta-glow" />
         <div className="final-cta-content" data-reveal>
-          <span className="final-icon"><History size={28} /></span>
+          <TimeOrbit />
           <p className="section-eyebrow">MAKE YOUR NEXT EDIT REVERSIBLE</p>
           <h2>Your users make mistakes.<br />Your state doesn’t have to.</h2>
           <p>One small package. A complete history engine.</p>

@@ -931,7 +931,6 @@ code {
 }
 
 .final-cta-content { position: relative; z-index: 1; }
-.final-icon { display: grid; place-items: center; width: 53px; height: 53px; margin: 0 auto 23px; color: #b8d0fa; background: rgb(255 255 255 / 7%); border: 1px solid rgb(255 255 255 / 12%); border-radius: 14px; }
 .final-cta .section-eyebrow { color: #91b6f4; }
 .final-cta h2 { color: #f4f8fd; }
 .final-cta-content > p:not(.section-eyebrow) { margin: 18px 0 0; color: #a2b6ce; font-size: 17px; }
