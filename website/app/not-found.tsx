@@ -6,7 +6,6 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { UndoPatch } from '@/components/not-found/undo-patch';
 import { baseOptions } from '@/lib/layout.shared';
-import './not-found.css';
 
 export const metadata: Metadata = {
   title: 'Page not found',

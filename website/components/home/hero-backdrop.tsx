@@ -1,5 +1,4 @@
 import type { CSSProperties } from 'react';
-import './hero-backdrop.css';
 
 /** Light trails that race toward the horizon, like patches replaying. */
 const comets = [

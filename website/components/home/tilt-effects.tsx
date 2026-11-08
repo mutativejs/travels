@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import './tilt-effects.css';
 
 const DEFAULT_TILT = 7;
 

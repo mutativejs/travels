@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import './reveal-effects.css';
 
 const STAGGER_MS = 90;
 

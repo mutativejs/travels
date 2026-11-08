@@ -2,7 +2,6 @@
 
 import { History } from 'lucide-react';
 import { useState } from 'react';
-import './time-orbit.css';
 
 /**
  * Three patch orbits around the history icon, drawn in CSS 3D. Clicking it

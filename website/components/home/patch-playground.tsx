@@ -26,7 +26,6 @@ import {
 } from 'react';
 import { createTravels, restoreTravels, Travels } from 'travels';
 import { isEditableTarget, padStep, shortJson, toPointer, type DemoPatch } from './demo-utils';
-import './patch-playground.css';
 
 type Color = 'blue' | 'orange' | 'violet' | 'mint' | 'amber' | 'slate';
 type World = { columns: Record<string, Color[]> };

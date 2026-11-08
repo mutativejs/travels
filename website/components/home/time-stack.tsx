@@ -12,7 +12,6 @@ import {
 } from 'react';
 import { createTravels, type TravelsBranchDiscardEvent } from 'travels';
 import { describePatch, isEditableTarget, padStep } from './demo-utils';
-import './time-stack.css';
 
 type Hue = 'blue' | 'orange' | 'violet' | 'mint';
 type ShapeKind = 'circle' | 'square' | 'pill';

@@ -2,6 +2,20 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
+/*
+ * Component styles live next to their components but load through this one
+ * stylesheet, so no page preloads route-specific CSS it never uses.
+ */
+@import '../components/home/hero-backdrop.css';
+@import '../components/home/time-stack.css';
+@import '../components/home/patch-playground.css';
+@import '../components/home/code-walkthrough.css';
+@import '../components/home/tilt-effects.css';
+@import '../components/home/reveal-effects.css';
+@import '../components/home/time-orbit.css';
+@import './docs/docs.css';
+@import './not-found.css';
+
 @theme inline {
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;

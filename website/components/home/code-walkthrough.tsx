@@ -5,7 +5,6 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type React
 import { createTravels } from 'travels';
 import { CopyButton } from './copy-button';
 import { describePatch } from './demo-utils';
-import './code-walkthrough.css';
 
 type Token = readonly [className: string | null, text: string];
 
