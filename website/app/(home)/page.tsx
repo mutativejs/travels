@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { CopyButton } from '@/components/home/copy-button';
+import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
 
@@ -95,6 +96,7 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <section className="home-hero home-container">
+        <HeroBackdrop />
         <div className="hero-copy">
           <Link href="/docs/migration" className="release-pill">
             <span className="release-dot" />
