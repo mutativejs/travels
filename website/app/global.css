@@ -658,30 +658,6 @@ code {
 
 .code-window-bar .copy-button { color: #8197b2; }
 
-.home-code {
-  min-height: 315px;
-  margin: 0;
-  padding: 30px 31px;
-  overflow-x: auto;
-  font-size: 13.5px;
-  line-height: 1.85;
-}
-
-.code-result {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  color: #7791b2;
-  background: #0a1423;
-  border-top: 1px solid #203249;
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 11.5px;
-}
-
-.code-result span { display: flex; align-items: center; gap: 6px; }
-.code-result span:first-child { color: #92b3ef; }
-
 .split-heading {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -927,7 +903,6 @@ code {
   .feature-card { min-height: 0; }
   .code-section { padding-block: 70px; }
   .code-section-grid { gap: 38px; }
-  .home-code { min-height: 0; padding: 22px 18px; font-size: 12px; }
   .ownership-card { padding: 25px 21px; }
   .ownership-card h3 { font-size: 16px; }
   .ownership-flow { padding: 12px 9px; font-size: 11px; }

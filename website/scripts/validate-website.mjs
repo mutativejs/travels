@@ -169,6 +169,12 @@ try {
   await checkNoOverflow(page, 'Desktop home after playground use');
   checks.push('Playground block placement, patch inspector, reload restore, and undo');
 
+  const walkthrough = page.getByRole('group', { name: 'Quick start walkthrough' });
+  await walkthrough.getByRole('button', { name: 'Run to step 3: back()' }).click();
+  assert.match(await walkthrough.locator('.cw-result').innerText(), /getPosition\(\)\s+0/);
+  assert.match(await walkthrough.locator('.cw-result').innerText(), /'Untitled'/);
+  checks.push('Quick start walkthrough runs back()');
+
   const searchButton = page.getByRole('button', { name: /search/i }).first();
   await searchButton.click();
   const searchInput = page.locator('input[placeholder]').last();

@@ -10,7 +10,6 @@ import {
   Code2,
   Database,
   FileText,
-  GitBranch,
   History,
   Layers,
   LayoutTemplate,
@@ -23,25 +22,13 @@ import {
 } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { CopyButton } from '@/components/home/copy-button';
+import { CodeWalkthrough } from '@/components/home/code-walkthrough';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { PatchPlayground } from '@/components/home/patch-playground';
 import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
 
 const installCommand = 'pnpm add travels mutative';
-const quickStartCode = `import { createTravels } from 'travels';
-
-const travels = createTravels({
-  document: { title: 'Untitled' }
-});
-
-travels.setState((draft) => {
-  draft.document.title = 'Hello, Travels';
-});
-
-travels.back();
-travels.forward();`;
-
 const features = [
   {
     icon: Braces,
@@ -203,26 +190,7 @@ export default function HomePage() {
               Explore state updates <ArrowRight size={15} />
             </Link>
           </div>
-          <div className="code-window">
-            <div className="code-window-bar">
-              <div className="window-dots"><span /><span /><span /></div>
-              <span>quick-start.ts</span>
-              <CopyButton text={quickStartCode} />
-            </div>
-            <pre className="home-code"><code>
-              <span className="code-keyword">import</span> {'{ createTravels }'} <span className="code-keyword">from</span> <span className="code-string">'travels'</span>;{'\n\n'}
-              <span className="code-keyword">const</span> travels = <span className="code-function">createTravels</span>({'{'}{'\n'}
-              {'  '}document: {'{'} title: <span className="code-string">'Untitled'</span> {'}'}{'\n'}{'}'});{'\n\n'}
-              travels.<span className="code-function">setState</span>((draft) <span className="code-keyword">=&gt;</span> {'{'}{'\n'}
-              {'  '}draft.document.title = <span className="code-string">'Hello, Travels'</span>;{'\n'}{'}'});{'\n\n'}
-              travels.<span className="code-function">back</span>();  <span className="code-comment">// undo</span>{'\n'}
-              travels.<span className="code-function">forward</span>(); <span className="code-comment">// redo</span>
-            </code></pre>
-            <div className="code-result">
-              <span><GitBranch size={14} /> position: 1</span>
-              <span><History size={14} /> history retained</span>
-            </div>
-          </div>
+          <CodeWalkthrough />
         </div>
       </section>
 
