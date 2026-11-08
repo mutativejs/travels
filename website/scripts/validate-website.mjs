@@ -157,10 +157,17 @@ try {
   await page.keyboard.press('Enter');
   assert.equal(await playgroundSlider.inputValue(), '1', 'Placing a block should archive one playground step.');
   assert.match(await playground.getByRole('tabpanel').innerText(), /add\s+\/columns\/x3y4/, 'The recorded patch should be listed.');
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForFunction(
+    () => document.querySelector('input[aria-label="Playground history position"]')?.value === '1',
+    null,
+    { timeout: 10_000 },
+  );
+  assert.match(await playground.locator('.pg-persist-status').innerText(), /Restored 1 step/);
   await playground.getByRole('button', { name: 'Undo', exact: true }).click();
   assert.equal(await playgroundSlider.inputValue(), '0', 'Undo should remove the placed block.');
   await checkNoOverflow(page, 'Desktop home after playground use');
-  checks.push('Playground block placement, patch inspector, and undo');
+  checks.push('Playground block placement, patch inspector, reload restore, and undo');
 
   const searchButton = page.getByRole('button', { name: /search/i }).first();
   await searchButton.click();

@@ -174,10 +174,10 @@ export default function HomePage() {
               <h2 id="playground-title">Build it up. Take it back.</h2>
             </div>
             <p>
-              Every block below is a real Travels update. A whole drag stroke is
-              archived as one step, so one undo takes it all back. Inspect the
-              patches, scrub the timeline, and see what a snapshot stack would
-              have stored instead.
+              Every block below is a real Travels update, and a whole drag
+              stroke is archived as one undoable step. Inspect the patches,
+              scrub the timeline, then reload the page: the history is restored
+              from this browser&rsquo;s storage.
             </p>
           </div>
           <PatchPlayground />

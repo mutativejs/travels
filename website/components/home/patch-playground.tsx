@@ -4,6 +4,7 @@ import {
   Box,
   Braces,
   Brush,
+  Database,
   Eraser,
   ListOrdered,
   Redo2,
@@ -23,7 +24,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
-import { createTravels } from 'travels';
+import { createTravels, restoreTravels, Travels } from 'travels';
 import { isEditableTarget, padStep, shortJson, toPointer, type DemoPatch } from './demo-utils';
 import './patch-playground.css';
 
@@ -47,6 +48,9 @@ const VIEW_W = 2 * ORIGIN_X;
 const VIEW_H = ORIGIN_Y + (2 * SIZE - 1) * HALF_H + SLAB + PAD;
 const MAX_HISTORY = 100;
 const COLUMN_LETTERS = 'ABCDEFGH';
+const STORAGE_KEY = 'travels:playground:history';
+const PREFERENCE_KEY = 'travels:playground:persist';
+const COLUMN_KEY = new RegExp(`^x[0-${SIZE - 1}]y[0-${SIZE - 1}]$`);
 /** Metadata for a stroke that is still pending; `archive()` relabels it. */
 const PENDING = { label: 'Drawing…' };
 
@@ -168,8 +172,57 @@ function createWorldTimeline() {
   });
 }
 
+/** Whether a restored state is a block scene this page can draw. */
+function isWorld(value: unknown): value is World {
+  if (typeof value !== 'object' || value === null) return false;
+  const columns = (value as { columns?: unknown }).columns;
+  if (typeof columns !== 'object' || columns === null || Array.isArray(columns)) return false;
+  return Object.entries(columns).every(
+    ([key, stack]) =>
+      COLUMN_KEY.test(key) &&
+      Array.isArray(stack) &&
+      stack.length > 0 &&
+      stack.length <= MAX_LEVEL &&
+      stack.every((color) => typeof color === 'string' && Object.hasOwn(SHADES, color))
+  );
+}
+
+/**
+ * Restore a saved timeline. Semantic validation replays every entry in both
+ * directions, and every restored state must still be a drawable scene.
+ */
+function restoreWorldTimeline(raw: string) {
+  const snapshot = Travels.deserialize<World>(raw, { validation: 'semantic' });
+  const restored = restoreTravels(snapshot, {
+    autoArchive: false,
+    maxHistory: MAX_HISTORY,
+    onWarning: () => undefined,
+  });
+  if (!restored.getHistory().every(isWorld)) {
+    throw new Error('The saved playground history is not a block scene.');
+  }
+  return restored;
+}
+
+function readStorage(key: string) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key: string, value: string | null) {
+  try {
+    if (value === null) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, value);
+  } catch {
+    // Storage can be full or blocked; the in-memory timeline still works.
+  }
+}
+
 function byteLength(value: unknown) {
-  return new TextEncoder().encode(JSON.stringify(value)).length;
+  return new TextEncoder().encode(typeof value === 'string' ? value : JSON.stringify(value)).length;
 }
 
 function formatBytes(bytes: number) {
@@ -206,7 +259,10 @@ function OperationList({ operations, empty }: { operations: readonly DemoPatch[]
 }
 
 export function PatchPlayground() {
-  const [travels] = useState(createWorldTimeline);
+  const [travels, setTravels] = useState(createWorldTimeline);
+  const [persist, setPersist] = useState(true);
+  const [storageReady, setStorageReady] = useState(false);
+  const [notice, setNotice] = useState<{ text: string; revision: number } | null>(null);
   const subscribe = useCallback(
     (notify: () => void) => travels.subscribe(() => notify()),
     [travels]
@@ -234,12 +290,24 @@ export function PatchPlayground() {
     const position = travels.getPosition();
     const metadata = travels.getMetadata();
     const patches = travels.getPatches();
-    const persistedBytes = byteLength(travels.serialize());
+    const serialized = JSON.stringify(travels.serialize());
+    const persistedBytes = byteLength(serialized);
     const snapshotBytes = byteLength(history);
-    return { world, history, position, metadata, patches, persistedBytes, snapshotBytes, revision };
+    return {
+      world,
+      history,
+      position,
+      metadata,
+      patches,
+      serialized,
+      persistedBytes,
+      snapshotBytes,
+      revision,
+    };
   }, [travels, revision]);
 
-  const { world, history, position, metadata, patches, persistedBytes, snapshotBytes } = view;
+  const { world, history, position, metadata, patches, serialized, persistedBytes, snapshotBytes } =
+    view;
   const last = history.length - 1;
   const labelFor = useCallback(
     (index: number) => (index === 0 ? 'Starting scene' : metadata[index - 1]?.label ?? `Edit ${index}`),
@@ -347,6 +415,43 @@ export function PatchPlayground() {
   useEffect(() => {
     if (!/mac|iphone|ipad/i.test(navigator.platform)) setModifierKey('Ctrl');
   }, []);
+
+  // Bring back the visitor's previous session before anything is saved.
+  useEffect(() => {
+    if (readStorage(PREFERENCE_KEY) === 'off') {
+      setPersist(false);
+    } else {
+      const raw = readStorage(STORAGE_KEY);
+      if (raw) {
+        try {
+          const timeline = restoreWorldTimeline(raw);
+          const steps = timeline.getHistory().length - 1;
+          setTravels(timeline);
+          setNotice({
+            text: `Restored ${steps} ${steps === 1 ? 'step' : 'steps'} from your last visit`,
+            revision: timeline.getRevision(),
+          });
+        } catch {
+          writeStorage(STORAGE_KEY, null);
+          setNotice({
+            text: 'Saved history failed validation and was cleared',
+            revision: travels.getRevision(),
+          });
+        }
+      }
+    }
+    setStorageReady(true);
+  }, []);
+
+  // Save each committed timeline; a pending stroke is saved once archived.
+  useEffect(() => {
+    if (!storageReady || stroke.current) return;
+    writeStorage(STORAGE_KEY, persist ? serialized : null);
+  }, [persist, serialized, storageReady]);
+
+  useEffect(() => {
+    if (storageReady) writeStorage(PREFERENCE_KEY, persist ? null : 'off');
+  }, [persist, storageReady]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -803,6 +908,29 @@ export function PatchPlayground() {
             <code>getHistory()</code>. Snapshots can win while a scene is tiny; small edits to
             larger state widen the gap.
           </p>
+        </div>
+
+        <div className="pg-persist">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={persist}
+            className="pg-switch"
+            onClick={() => setPersist((value) => !value)}
+          >
+            <span className="pg-switch-track" aria-hidden="true">
+              <span className="pg-switch-thumb" />
+            </span>
+            Keep history after reload
+          </button>
+          <span className="pg-persist-status">
+            <Database size={14} aria-hidden="true" />
+            {!persist
+              ? 'Kept in memory only'
+              : notice && notice.revision === revision
+                ? notice.text
+                : `${formatBytes(persistedBytes)} saved in this browser`}
+          </span>
         </div>
       </div>
 
