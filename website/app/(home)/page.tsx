@@ -25,6 +25,7 @@ import { CopyButton } from '@/components/home/copy-button';
 import { CodeWalkthrough } from '@/components/home/code-walkthrough';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { PatchPlayground } from '@/components/home/patch-playground';
+import { TiltEffects } from '@/components/home/tilt-effects';
 import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
 
@@ -83,6 +84,7 @@ const documentation = [
 export default function HomePage() {
   return (
     <div className="home-page">
+      <TiltEffects />
       <section className="home-hero home-container">
         <HeroBackdrop />
         <div className="hero-copy">
@@ -143,7 +145,7 @@ export default function HomePage() {
         </div>
         <div className="feature-grid">
           {features.map((feature) => (
-            <Link href={feature.href} className="feature-card" key={feature.title}>
+            <Link href={feature.href} className="feature-card" data-tilt key={feature.title}>
               <span className="feature-icon"><feature.icon size={21} /></span>
               <h3>{feature.title}</h3>
               <p>{feature.text}</p>
@@ -231,19 +233,19 @@ export default function HomePage() {
             <p>From a single field to a complex canvas, make exploration feel safe.</p>
           </div>
           <div className="use-case-grid">
-            <div className="use-case-card">
+            <div className="use-case-card" data-tilt="5">
               <span className="use-case-number">01</span><PenTool size={27} />
               <h3>Visual editors</h3>
               <p>Group complex canvas operations into atomic steps and keep long editing sessions compact.</p>
               <span className="use-case-tag">Canvas · Design tools · Whiteboards</span>
             </div>
-            <div className="use-case-card">
+            <div className="use-case-card" data-tilt="5">
               <span className="use-case-number">02</span><LayoutTemplate size={27} />
               <h3>Forms & builders</h3>
               <p>Choose when edits become undoable steps with manual archives and external form ownership.</p>
               <span className="use-case-tag">Forms · Page builders · Workflows</span>
             </div>
-            <div className="use-case-card">
+            <div className="use-case-card" data-tilt="5">
               <span className="use-case-number">03</span><FileText size={27} />
               <h3>Local-first apps</h3>
               <p>Persist complete timelines, validate restored history, and recover intentionally from bad data.</p>
@@ -261,7 +263,7 @@ export default function HomePage() {
         </div>
         <div className="docs-card-grid">
           {documentation.map((item) => (
-            <Link href={item.href} className="docs-card" key={item.title}>
+            <Link href={item.href} className="docs-card" data-tilt key={item.title}>
               <div className="docs-card-icon"><item.icon size={22} /></div>
               <span className="docs-card-eyebrow">{item.eyebrow}</span>
               <h3>{item.title}</h3>

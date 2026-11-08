@@ -1,0 +1,81 @@
+/* Homepage cards that tilt toward the pointer, with a light that follows it. */
+
+.home-page [data-tilt] {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --spot-x: 50%;
+  --spot-y: 50%;
+  --lift: 0px;
+  --glow: rgb(59 123 246 / 95%);
+  --spot: rgb(59 123 246 / 11%);
+  position: relative;
+  transform: perspective(1000px) translateY(var(--lift)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition:
+    transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.dark .home-page [data-tilt],
+.home-page .use-case-card[data-tilt] {
+  --glow: rgb(140 182 255 / 95%);
+  --spot: rgb(130 175 255 / 14%);
+}
+
+.home-page [data-tilt]:hover {
+  --lift: -5px;
+  transform: perspective(1000px) translateY(var(--lift)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+}
+
+.home-page [data-tilt].is-tilting {
+  transition-duration: 140ms, 200ms, 200ms, 200ms;
+}
+
+/* A border highlight that tracks the pointer. */
+.home-page [data-tilt]::before,
+.home-page [data-tilt]::after {
+  position: absolute;
+  content: '';
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.home-page [data-tilt]::before {
+  inset: -1px;
+  padding: 1.5px;
+  background: radial-gradient(300px circle at var(--spot-x) var(--spot-y), var(--glow), transparent 64%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+}
+
+/* A soft light under the pointer. */
+.home-page [data-tilt]::after {
+  inset: 0;
+  background: radial-gradient(380px circle at var(--spot-x) var(--spot-y), var(--spot), transparent 55%);
+}
+
+.home-page [data-tilt].is-tilting::before,
+.home-page [data-tilt].is-tilting::after {
+  opacity: 1;
+}
+
+/* Lift icons off the card so the tilt reads as depth. */
+.home-page [data-tilt] .feature-icon,
+.home-page [data-tilt] .docs-card-icon,
+.home-page .use-case-card[data-tilt] > svg {
+  transform: translateZ(28px);
+  transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.home-page [data-tilt] h3 {
+  transform: translateZ(14px);
+}
