@@ -25,6 +25,7 @@ import { CopyButton } from '@/components/home/copy-button';
 import { CodeWalkthrough } from '@/components/home/code-walkthrough';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { PatchPlayground } from '@/components/home/patch-playground';
+import { RevealEffects } from '@/components/home/reveal-effects';
 import { TiltEffects } from '@/components/home/tilt-effects';
 import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
@@ -85,6 +86,7 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <TiltEffects />
+      <RevealEffects />
       <section className="home-hero home-container">
         <HeroBackdrop />
         <div className="hero-copy">
@@ -135,7 +137,7 @@ export default function HomePage() {
       </section>
 
       <section className="home-section home-container">
-        <div className="section-heading centered">
+        <div className="section-heading centered" data-reveal>
           <p className="section-eyebrow">WHY TRAVELS</p>
           <h2>A smaller history. A bigger editing experience.</h2>
           <p>
@@ -143,7 +145,7 @@ export default function HomePage() {
             that need to survive a reload—not just the current render.
           </p>
         </div>
-        <div className="feature-grid">
+        <div className="feature-grid" data-reveal="stagger">
           {features.map((feature) => (
             <Link href={feature.href} className="feature-card" data-tilt key={feature.title}>
               <span className="feature-icon"><feature.icon size={21} /></span>
@@ -157,7 +159,7 @@ export default function HomePage() {
 
       <section className="playground-section" id="playground" aria-labelledby="playground-title">
         <div className="home-container">
-          <div className="section-heading split-heading">
+          <div className="section-heading split-heading" data-reveal>
             <div>
               <p className="section-eyebrow">TRY IT LIVE</p>
               <h2 id="playground-title">Build it up. Take it back.</h2>
@@ -169,12 +171,14 @@ export default function HomePage() {
               from this browser&rsquo;s storage.
             </p>
           </div>
-          <PatchPlayground />
+          <div data-reveal>
+            <PatchPlayground />
+          </div>
         </div>
       </section>
 
       <section className="code-section">
-        <div className="home-container code-section-grid">
+        <div className="home-container code-section-grid" data-reveal="stagger">
           <div className="code-section-copy">
             <p className="section-eyebrow">NATURAL UPDATES, PRECISE HISTORY</p>
             <h2>Write like it’s mutable.<br />Travel like it’s immutable.</h2>
@@ -197,7 +201,7 @@ export default function HomePage() {
       </section>
 
       <section className="home-section home-container">
-        <div className="section-heading split-heading">
+        <div className="section-heading split-heading" data-reveal>
           <div>
             <p className="section-eyebrow">ONE CORE, TWO OWNERSHIP MODELS</p>
             <h2>History that fits your architecture.</h2>
@@ -207,7 +211,7 @@ export default function HomePage() {
             The history contract stays explicit in both directions.
           </p>
         </div>
-        <div className="ownership-grid">
+        <div className="ownership-grid" data-reveal="stagger">
           <div className="ownership-card ownership-blue">
             <div className="ownership-top"><Layers size={24} /><span>STATE-OWNING</span></div>
             <h3>createTravels()</h3>
@@ -227,12 +231,12 @@ export default function HomePage() {
 
       <section className="use-cases-section">
         <div className="home-container">
-          <div className="section-heading centered light-heading">
+          <div className="section-heading centered light-heading" data-reveal>
             <p className="section-eyebrow">MADE FOR MEANINGFUL EDITS</p>
             <h2>Give every interaction a way back.</h2>
             <p>From a single field to a complex canvas, make exploration feel safe.</p>
           </div>
-          <div className="use-case-grid">
+          <div className="use-case-grid" data-reveal="stagger">
             <div className="use-case-card" data-tilt="5">
               <span className="use-case-number">01</span><PenTool size={27} />
               <h3>Visual editors</h3>
@@ -256,12 +260,12 @@ export default function HomePage() {
       </section>
 
       <section className="home-section home-container docs-section">
-        <div className="section-heading centered">
+        <div className="section-heading centered" data-reveal>
           <p className="section-eyebrow">DOCUMENTATION FOR THE WHOLE JOURNEY</p>
           <h2>Start small. Understand every edge.</h2>
           <p>Practical guides, integration recipes, operational guardrails, and source-generated API reference.</p>
         </div>
-        <div className="docs-card-grid">
+        <div className="docs-card-grid" data-reveal="stagger">
           {documentation.map((item) => (
             <Link href={item.href} className="docs-card" data-tilt key={item.title}>
               <div className="docs-card-icon"><item.icon size={22} /></div>
@@ -272,7 +276,7 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-        <div className="api-banner">
+        <div className="api-banner" data-reveal>
           <div className="api-banner-icon"><BookOpen size={26} /></div>
           <div><h3>Need the exact signature?</h3><p>Browse every exported function, interface, type alias, class, and variable.</p></div>
           <Link href="/docs/api-reference" className="button button-secondary">API Reference <ArrowRight size={16} /></Link>
@@ -281,7 +285,7 @@ export default function HomePage() {
 
       <section className="home-container final-cta">
         <div className="final-cta-glow" />
-        <div className="final-cta-content">
+        <div className="final-cta-content" data-reveal>
           <span className="final-icon"><History size={28} /></span>
           <p className="section-eyebrow">MAKE YOUR NEXT EDIT REVERSIBLE</p>
           <h2>Your users make mistakes.<br />Your state doesn’t have to.</h2>
