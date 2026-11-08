@@ -24,6 +24,7 @@ import {
 import { Brand } from '@/components/brand';
 import { CopyButton } from '@/components/home/copy-button';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
+import { PatchPlayground } from '@/components/home/patch-playground';
 import { TimeStack } from '@/components/home/time-stack';
 import { repositoryUrl } from '@/lib/shared';
 
@@ -162,6 +163,24 @@ export default function HomePage() {
               <span className="card-link">Explore <ArrowRight size={14} /></span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="playground-section" id="playground" aria-labelledby="playground-title">
+        <div className="home-container">
+          <div className="section-heading split-heading">
+            <div>
+              <p className="section-eyebrow">TRY IT LIVE</p>
+              <h2 id="playground-title">Build it up. Take it back.</h2>
+            </div>
+            <p>
+              Every block below is a real Travels update. A whole drag stroke is
+              archived as one step, so one undo takes it all back. Inspect the
+              patches, scrub the timeline, and see what a snapshot stack would
+              have stored instead.
+            </p>
+          </div>
+          <PatchPlayground />
         </div>
       </section>
 

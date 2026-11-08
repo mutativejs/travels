@@ -151,6 +151,17 @@ try {
   assert.equal(Number(await historySlider.inputValue()), startPosition + 1, 'A new edit should extend the timeline.');
   checks.push('Hero history stack undo, redo shortcut, and new edit');
 
+  const playground = page.getByRole('group', { name: 'Travels playground' });
+  const playgroundSlider = playground.getByRole('slider', { name: 'Playground history position' });
+  await playground.getByRole('application', { name: /Block builder/ }).focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await playgroundSlider.inputValue(), '1', 'Placing a block should archive one playground step.');
+  assert.match(await playground.getByRole('tabpanel').innerText(), /add\s+\/columns\/x3y4/, 'The recorded patch should be listed.');
+  await playground.getByRole('button', { name: 'Undo', exact: true }).click();
+  assert.equal(await playgroundSlider.inputValue(), '0', 'Undo should remove the placed block.');
+  await checkNoOverflow(page, 'Desktop home after playground use');
+  checks.push('Playground block placement, patch inspector, and undo');
+
   const searchButton = page.getByRole('button', { name: /search/i }).first();
   await searchButton.click();
   const searchInput = page.locator('input[placeholder]').last();
