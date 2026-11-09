@@ -1,6 +1,21 @@
 # Travels Website
 
-The official Travels documentation and marketing site, built with Next.js, Fumadocs, Fumadocs MDX, and Tailwind CSS. All user-facing content is in English and the production site is fully statically exported.
+The official Travels documentation and marketing site, built with Next.js, Fumadocs, Fumadocs MDX, and Tailwind CSS. The site is fully static and ships in English and Simplified Chinese.
+
+## Routes
+
+| Content | English | Chinese |
+| --- | --- | --- |
+| Homepage | `/` | `/zh` |
+| Documentation | `/docs` | `/zh/docs` |
+| API reference | `/docs/api-reference` | `/zh/docs/api-reference` |
+| Full-document LLM index | `/llms.txt` | `/zh/llms.txt` |
+| Full-document LLM corpus | `/llms-full.txt` | `/zh/llms-full.txt` |
+| Page Markdown | `/llms.mdx/docs/...` | `/zh/llms.mdx/docs/...` |
+
+English keeps the existing unprefixed paths. Chinese uses the `/zh` prefix and sets `<html lang="zh-CN">`. Every localized page advertises both languages through `hreflang`/Open Graph alternates.
+
+The generated TypeDoc API pages are canonical English. A page without a Chinese translation still renders under `/zh/docs` as a fallback with a Chinese notice, `noindex`, and an English canonical URL. Hand-written guides are required to have a Chinese translation; the content check enforces that.
 
 ## Develop
 
@@ -19,16 +34,22 @@ pnpm --dir website dev
 
 You can also run `npm run dev` from this directory. CLI host and port arguments are forwarded to Next.js, for example `npm run dev -- --hostname 127.0.0.1 --port 7100`.
 
-Open the local URL printed by Next.js. The homepage is `/`; documentation starts at `/docs`.
+Open the local URL printed by Next.js. The English site starts at `/`; the Chinese site starts at `/zh`.
 
 ## Content
 
-- `app/(home)/page.tsx`: custom product homepage.
-- `app/global.css`: brand theme, responsive homepage, and Fumadocs color tokens.
-- `components/`: brand, homepage, search, and MDX components. The interactive homepage demos in `components/home/` run on the published `travels` and `mutative` packages.
-- `content/docs/`: hand-written English guides and navigation metadata.
-- `content/docs/api-reference/`: complete API pages generated from the current package source.
-- `lib/source.ts`: Fumadocs source, page tree, and LLM integration.
+- `app/(en)/`: English root layout and routes.
+- `app/(zh)/`: Chinese root layout and routes under `/zh`.
+- `app/global-not-found.tsx`: locale-aware branded 404 for statically exported unknown URLs.
+- `app/(en)/(home)/page.tsx`: custom product homepage content lives in `lib/home-content.ts` and `components/home/home-page.tsx`.
+- `app/global.css`: brand theme, responsive homepage, documentation polish, and the CJK font stack.
+- `components/`: brand, homepage, search, locale switch, and MDX components. The interactive homepage demos run on the published `travels` and `mutative` packages.
+- `content/docs/`: hand-written English guides, generated API pages, and navigation metadata.
+- `content/docs/zh/`: Simplified Chinese translations with the same relative paths and their own `meta.json` files.
+- `lib/i18n.ts`: Fumadocs i18n config and UI translations, including the official `@fumadocs/language/zh-cn` pack.
+- `lib/source.ts`: locale-aware Fumadocs source, page tree, search, and LLM integration.
+- `lib/locale.ts`: locale codes and path helpers shared by route and UI code.
+- `lib/metadata.ts`: localized titles, descriptions, canonical URLs, and language alternates.
 - `public/`: optimized Travels logo, social image, and static assets.
 
 Edit hand-written guides directly. Do not manually edit generated files inside the API `functions`, `classes`, `interfaces`, `type-aliases`, or `variables` directories; regenerate them instead:
@@ -39,6 +60,22 @@ pnpm --dir website docs:api
 
 The `predev` and `prebuild` scripts also regenerate API pages from `src/index.ts`, so root development dependencies must be installed.
 
+## Translate a page
+
+1. Add the Chinese file at the same relative path under `content/docs/zh/`. For example, `content/docs/guides/transactions.mdx` becomes `content/docs/zh/guides/transactions.mdx`.
+2. Translate the `title` and `description` frontmatter fields. Keep the same field names.
+3. Translate prose, headings, table headers, callout titles, card titles, and prose attributes. Keep code blocks, identifiers, package names, type names, error codes, and file names unchanged.
+4. Rewrite absolute internal links to the Chinese tree: `/docs/...` becomes `/zh/docs/...`, and `/` becomes `/zh`. External links stay unchanged.
+5. Use the established glossary: 状态, 补丁, 时间线, 历史记录, 游标, 位置, 基线, 归档, 事务, 分支, 撤销, 重做, 日志, 持久化, 快照, 序列化, 反序列化, 恢复, 迁移, 校验, 元数据. Keep **Store** capitalized in prose.
+6. Run the content and type checks:
+
+```bash
+pnpm --dir website check:content
+pnpm --dir website types:check
+```
+
+The content check verifies translation coverage, matching code fences and MDX components, internal links, navigation entries, and that English pages contain no Chinese text. See below for the browser checks.
+
 ## Validate and build
 
 ```bash
@@ -46,7 +83,7 @@ pnpm --dir website types:check
 pnpm --dir website build
 ```
 
-The static export is written to `out/`. Search, Markdown pages, `llms.txt`, `llms-full.txt`, and documentation Open Graph images are generated statically.
+The static export is written to `out/`. Search (one index per locale), Markdown pages, `llms.txt`, `llms-full.txt`, documentation Open Graph images, and the branded 404 are generated statically.
 
 Run the browser checks from the repository root after installing its development dependencies. Each script starts a temporary server and stops it when finished:
 
@@ -54,13 +91,15 @@ Run the browser checks from the repository root after installing its development
 node website/scripts/validate-website.mjs
 ```
 
+The browser checks cover the English and Chinese homepages, documentation, search, language switching, API fallback notice, Chinese 404 status, localized LLM routes, responsive overflow, and console/request failures.
+
 To build and synchronize the repository’s GitHub Pages artifact:
 
 ```bash
 pnpm run build:doc:site
 ```
 
-That root command builds this website and replaces `docs-site/` with the static export. To validate the exact project-path deployment locally, build with the production environment and run the static browser checks:
+That command builds the website and replaces `docs-site/` with the static export. To validate the exact project-path deployment locally, build with the production environment and run the static browser checks:
 
 ```bash
 BASE_PATH=/travels SITE_URL=https://mutativejs.github.io/travels pnpm run build:doc:site
