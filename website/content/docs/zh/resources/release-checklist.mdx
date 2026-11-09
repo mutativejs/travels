@@ -1,0 +1,71 @@
+---
+title: "发布清单"
+description: "用于验证并发布 Travels 版本的项目清单。"
+---
+
+1. 在本地更新发布版本：
+
+   - 更新 `package.json` 中的版本号
+   - 更新 `CHANGELOG.md`，把版本标题中的 `Unreleased` 替换为发布日期
+
+2. 打标签前运行本地验证：
+
+   ```bash
+   corepack enable
+   pnpm install --frozen-lockfile
+   pnpm --dir website install --frozen-lockfile
+   pnpm exec playwright install chromium
+   pnpm run lint
+   pnpm run size:ci
+   pnpm run build:doc:site
+   pnpm run test:types
+   pnpm run test:examples
+   pnpm run test
+   pnpm run test:browser
+   pnpm run test:e2e:types
+   pnpm run test:e2e:ci
+   pnpm run coverage
+   pnpm run test:mutation:smoke
+   pnpm run benchmark:ci
+   ```
+
+3. 对照 `benchmarks/README.md` 审查 README 中的性能声明。
+4. 审查持久化模式变更与迁移说明。
+5. 确认 `docs/compatibility.md` 仍与运行时支持情况一致。
+6. 把版本与变更日志的改动提交到 `main`。
+
+### 协调发布 v3 绑定
+
+如果主版本更改了工厂函数或恢复边界，请按依赖顺序发布：
+
+1. 完成本清单中所有 Travels 检查项，并基于经过测试的确切产物发布 `travels@3`。
+2. 在干净的 `use-travel` 与 `zustand-travel` 检出目录中安装已发布的核心包。把它们的 `mutative` peer 范围与开发依赖范围提升到 Travels 要求的范围（Travels 3 为 `^2.0.0`），将锁文件更新到已发布版本，并重新运行每个仓库的类型检查、测试、生产构建与包冒烟测试。
+3. 只有这些基于已发布核心包的运行全部通过后，才发布各绑定的主版本。
+4. 在一个干净的使用方项目中，把三个已发布包全部与 `mutative@2` 一起安装，确认安装过程没有报告 peer 依赖冲突，并对新建时间线与原子恢复的时间线做冒烟测试。
+
+本地同级链接是有用的候选证据，但不能取代第 2 步和第 4 步中针对已发布包的检查。不要为需要未发布核心版本的绑定发布打标签。
+
+7. 推送 `main`，然后创建并推送匹配的发布标签：
+
+   ```bash
+   VERSION=$(node -p "require('./package.json').version")
+   git push origin main
+   git tag "v$VERSION"
+   git push origin "v$VERSION"
+   ```
+
+   标签必须与 `package.json` 中的版本完全一致，并以 `v` 开头。
+
+   发布任务会自行选择 npm dist-tag：高于已发布 `latest` 的版本会成为 `latest`，预发布版本会成为 `next`，较旧主版本的维护版本会成为 `v<major>-latest`（例如 `v2-latest`），因此它绝不会替换当前主版本。
+
+8. 确认由标签触发的发布流程已完成：
+
+   - `Release`
+   - `API Docs`，由 `Release` 使用发布标签触发
+
+9. 对已发布包做冒烟测试：
+
+   ```bash
+   npm view travels version
+   npm pack travels --dry-run
+   ```

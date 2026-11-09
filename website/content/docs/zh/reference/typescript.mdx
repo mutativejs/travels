@@ -1,0 +1,116 @@
+---
+title: TypeScript 指南
+description: 推断时间线类型、约束持久状态，并安全使用只读视图与开放事件类型。
+---
+
+Travels 使用 TypeScript 编写，并为 ESM 与 CommonJS 使用方提供声明文件。大多数应用可以依赖工厂函数的类型推断，而不必逐个写出泛型参数。
+
+## 从工厂函数推断状态类型
+
+```ts
+import { createTravels } from 'travels';
+
+const travels = createTravels({
+  count: 0,
+  todos: [] as Array<{ id: string; text: string }>,
+});
+
+travels.setState((draft) => {
+  draft.count += 1;
+  draft.todos.push({ id: crypto.randomUUID(), text: 'Try Travels' });
+});
+```
+
+你也可以显式提供状态类型：
+
+```ts
+interface EditorState {
+  title: string;
+  blocks: Array<{ id: string; text: string }>;
+}
+
+const travels = createTravels<EditorState>({ title: '', blocks: [] });
+```
+
+## 重要的导出类型
+
+| 类型 | 用途 |
+| --- | --- |
+| `Travels<S, F, A, P>` | 拥有状态的时间线能力。 |
+| `TravelJournal<S, F, A, P>` | 由外部拥有的日志能力。 |
+| `TravelsOptions<F, A, P, S>` | 工厂选项，包括观察者钩子。 |
+| `Updater<S>` | 直接状态、返回状态的函数或草稿函数。 |
+| `TravelPatches<P>` | 保留的正向与反向补丁组。 |
+| `TravelHistoryEntry<P>` | 一个补丁对及可选的元数据。 |
+| `TravelMetadata` | 标签、时间戳、来源与自定义元数据。 |
+| `TravelsEvent<S, P>` | 统一的订阅者/devtools 事件。 |
+| `TravelsSerializedHistory<S, P>` | 带版本号的持久化快照。 |
+| `ReadonlyState<S>` | 共享的只读状态视图。 |
+| `ReadonlyTravelPatches<P>` | 共享的、冻结的事件本地补丁视图。 |
+| `JsonValue` / `PatchableState` | 持久的 JSON 形态数据契约。 |
+| `PatchableInput<T>` | 对持久化输入的尽力而为静态约束。 |
+
+`F`、`A`、`P` 参数分别追踪自动冻结、归档模式与补丁格式，因此特定能力的方法只会在有效时出现。在应用边界处优先使用推断，并为自己的 API 定义更简单的别名。
+
+## 持久化输入检查
+
+```ts
+import {
+  createPatchableTravels,
+  type JsonValue,
+  type PatchableState,
+} from 'travels';
+
+const initial = {
+  title: 'Draft',
+  blocks: [] as Array<{ id: string; text: string }>,
+} satisfies JsonValue;
+
+const travels = createPatchableTravels(initial);
+
+function createHistory<S extends PatchableState>(state: S) {
+  return createPatchableTravels(state);
+}
+```
+
+`PatchableInput<T>` 使用有限深度的递归检查，因此递归接口仍然可用。宽泛或类似 `any` 的类型无法证明运行时内容，TypeScript 的 `number` 也无法排除 `NaN`、无穷大或 `-0`。在不可信边界仍应保留运行时校验。
+
+## 只读视图
+
+`getHistory()` 返回 `readonly ReadonlyState<S>[]`；观察者的状态视图与补丁视图同样是只读的。这些类型描述的是共享缓存与借用的事件值，并不表示可以强制转换后修改。
+
+```ts
+const visible = travels.getHistory();
+const owned = travels.getHistorySnapshot();
+
+// Use owned when sorting, retaining, transferring, or editing.
+const newestFirst = travels.getHistorySnapshot().reverse();
+```
+
+`getControls()` 与日志门面在所有构建中都是冻结的。它们收窄的类型有助于防止状态所有权意外泄漏到展示组件中。
+
+## 开放的事件名称
+
+`TravelsEvent['type']` 接受已知名称，也接受未来新增的字符串。不要使用穷尽的 `never` 断言，否则次版本新增事件后就会失效：
+
+```ts
+function logEvent(event: TravelsEvent<EditorState>) {
+  switch (event.type) {
+    case 'setState':
+    case 'transaction':
+      console.log('Edit:', event.metadata);
+      break;
+    case 'go':
+      console.log('Navigation:', event.position);
+      break;
+    default:
+      console.log('Timeline event:', event.type);
+  }
+}
+```
+
+## 包声明
+
+该包通过导出映射提供开发版与默认 ESM 构建、CommonJS 默认构建与声明文件、UMD 以及类型声明。请根据应用情况使用能够理解包导出的现代 TypeScript 模块解析模式，例如 `bundler`、`node16` 或 `nodenext`。
+
+由源码生成的[类型别名参考](/zh/docs/api-reference/type-aliases/Travels)包含本版本确切的泛型约束与返回结构。

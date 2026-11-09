@@ -1,0 +1,77 @@
+---
+title: 配置选项
+description: 时间线创建、恢复、持久化、补丁、钩子与 Mutative 选项参考。
+---
+
+工厂函数重载会根据你提供的选项推断归档模式与补丁选项。确切的生成类型见 [`TravelsOptions`](/zh/docs/api-reference/type-aliases/TravelsOptions) 与 [`RestoreTravelsOptions`](/zh/docs/api-reference/type-aliases/RestoreTravelsOptions)。
+
+## 时间线选项
+
+| 选项 | 类型 | 默认值 | 用途 |
+| --- | --- | --- | --- |
+| `maxHistory` | `number` | `10` | 保留的补丁条目上限；必须是非负整数。 |
+| `autoArchive` | `boolean` | `true` | 自动归档每次有效更新，或暴露手动的 `archive()` 控制接口。 |
+| `mutable` | `boolean` | `false` | 把补丁应用到实时对象，适用于依赖引用同一性的响应式 Store。 |
+| `warnOnUnsupportedState` | `boolean` | 开发环境中为 `true` | 为状态、补丁、路径与元数据启用兼容性诊断。 |
+| `patchesOptions` | `PatchesOption` | `{}` | 自定义补丁的表示形式，包括 `pathAsArray`；补丁无法禁用。 |
+| `enableAutoFreeze` | `boolean` | `false` | 冻结生成的不可变状态；与 `mutable: true` 不兼容。 |
+| `strict` | Mutative `strict` 选项 | `false` | 与 Mutative 更严格的不可变性行为保持一致。 |
+| `mark` | Mutative `mark` 选项 | Mutative 默认值 | 自定义 Mutative 将哪些对象视为不可变或可起草。 |
+
+底层 `strict`、`mark` 与自动冻结语义见 [Mutative 文档](https://mutative.js.org/docs/api-reference/create)。如果记录持久化历史时使用了自定义 `strict` 或 `mark`，请在语义反序列化期间通过 `replayOptions` 传入匹配的值。
+
+## 观察者与生命周期钩子
+
+| 选项 | 传入参数 | 运行时机 |
+| --- | --- | --- |
+| `devtools` | `TravelsEvent<S, P>` | 每次事件提交后，与订阅者一同触发。 |
+| `onError` | 包装后的核心 `Error` | Travels 报告核心操作失败时；嵌套事务中的错误会在根事务结算时统一上报。 |
+| `onBranchDiscard` | `{ position, discarded }` | 已提交的编辑移除重做条目后。 |
+| `onWarning` | `{ code, message }` | 用于非致命的规范化、兼容性、位置与历史记录警告。 |
+| `onObserverError` | `{ source, error }` | 监听器或生命周期/诊断钩子在提交后抛出异常时。 |
+
+观察者错误不会回滚已提交的转换。钩子函数不应同步修改同一条时间线。
+
+## 恢复选项
+
+`restoreTravels(snapshot, options?)` 接受适用的创建选项，但有意不接受单独的 `initialState` 或 `history`；完整快照才是原子的状态/历史记录输入。
+
+对于可变模式集成，它还接受：
+
+```ts
+const restored = restoreTravels(snapshot, {
+  mutable: true,
+  target: reactiveStore,
+});
+```
+
+`target` 必须是兼容的对象或数组根，并且要求 `mutable: true`。Travels 会用分离的快照状态就地覆盖它。`restoreTravelJournal(snapshot, { apply, ...options })` 则要求外部所有者提供同步的导航回调，并且不暴露与拥有状态相关的可变选项。
+
+## 序列化选项
+
+```ts
+travels.serialize({ strict: true });
+```
+
+`strict` 会拒绝任何无法通过文档中定义的 JSON 持久化契约往返的当前状态、保留的补丁值/路径或元数据。如果只想校验而不创建快照，可使用 `assertPersistenceCompatible()`。
+
+## 反序列化选项
+
+| 选项 | 用途 |
+| --- | --- |
+| `validation` | 默认值为 `'structural'`；`'semantic'` 还会双向重放可达条目。 |
+| `fallback` | 检测到解析、迁移或校验失败后使用的快照或同步工厂。 |
+| `migrate` | 把旧输入转换为当前快照模式的同步回调。 |
+| `onError` | 在回退或抛出之前接收 `TravelsPersistenceError`。 |
+| `replayOptions` | 用于语义重放、与记录时一致的 Mutative `strict` 与 `mark` 设置。 |
+
+所有存储、网络、解压缩与应用层信封校验工作，都应在同步反序列化调用之前完成。
+
+## 能力专属选项
+
+- `createTravels()` 掌管更新，并支持 `mutable`、追踪、事务与控制接口。
+- `createPatchableTravels()` 接受持久化状态契约，并立即校验初始状态。
+- `createTravelJournal()` 要求提供 `apply`，并拒绝与拥有状态相关的可变选项。
+- 自动时间线不包含 `archive()` 与 `canArchive()`；手动工厂会在运行时与 TypeScript 中暴露它们。
+
+这些区分采用故障关闭策略，而不是静默忽略与所有权相关的选项。

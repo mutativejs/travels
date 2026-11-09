@@ -1,0 +1,4 @@
+{
+  "title": "资源",
+  "pages": ["examples", "troubleshooting", "testing", "contributing", "security", "release-checklist"]
+}
