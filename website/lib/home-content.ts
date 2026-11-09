@@ -409,7 +409,7 @@ const zh: HomeContent = {
   final: {
     eyebrow: '让下一次编辑可撤销',
     line1: '用户会犯错。',
-    line2: '状态不必如此。',
+    line2: '状态不必跟着错。',
     text: '一个小巧的包。一套完整的历史引擎。',
     primary: '安装 Travels',
     primaryHref: '/zh/docs/getting-started/installation',
