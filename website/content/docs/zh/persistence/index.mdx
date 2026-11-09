@@ -1,0 +1,146 @@
+---
+title: 持久化
+description: 序列化、校验、存储、恢复并迁移完整的 Travels 时间线。
+---
+
+Travels 的持久化不依赖具体存储。`serialize()` 返回一个带版本号的快照；如何编码和存储，由你的应用决定。恢复始终只走一条路径：先用 `Travels.deserialize()` 解码，再把完整结果传给 `restoreTravels()` 或 `restoreTravelJournal()`。
+
+## 快照契约
+
+`TravelsSerializedHistory<S>` 包含以下内容：
+
+```ts
+const snapshot: TravelsSerializedHistory<DocumentState> = {
+  version: TRAVELS_HISTORY_SCHEMA_VERSION,
+  state: currentState,
+  patches: {
+    patches: forwardEntries,
+    inversePatches: inverseEntries,
+  },
+  position: currentPosition,
+  metadata: alignedMetadata, // Optional; omit it when no metadata is retained
+};
+```
+
+状态、保留的补丁值、补丁路径和元数据都必须满足[持久化状态契约](/zh/docs/concepts/state-requirements)。`serialize()` 会克隆返回的状态、补丁和元数据，因此后续编辑不会改写该快照。
+
+## 保存快照
+
+```ts
+import { createTravels } from 'travels';
+
+const travels = createTravels(defaultDocument);
+
+function saveToLocalStorage() {
+  const snapshot = travels.serialize({ strict: true });
+  localStorage.setItem('travels:document:main', JSON.stringify(snapshot));
+}
+
+const unsubscribe = travels.subscribe(saveToLocalStorage);
+```
+
+`strict: true` 会拒绝无法按照文档定义的 JSON 契约往返的值。普通的 `serialize()` 不会调用 `JSON.stringify()`、压缩数据，也不会规范化仅存在于运行时的值。当持久化的正确性很重要时，建议显式采用 `strict` 路径。
+
+为清晰起见，上面的示例在每次事件触发时都会写入。生产应用通常会对写入做防抖、在保存时才序列化、将异步写入排队，并在路由切换或所有者销毁前立即写入。[存储适配器](/zh/docs/persistence/storage-adapters)指南提供了一个可复用的自动保存模式。
+
+## 恢复快照
+
+```ts
+import {
+  restoreTravels,
+  Travels,
+  TravelsPersistenceError,
+  TRAVELS_HISTORY_SCHEMA_VERSION,
+  type TravelsSerializedHistory,
+} from 'travels';
+
+const createEmptySnapshot = (): TravelsSerializedHistory<DocumentState> => ({
+  version: TRAVELS_HISTORY_SCHEMA_VERSION,
+  state: createDefaultDocument(),
+  patches: { patches: [], inversePatches: [] },
+  position: 0,
+});
+
+function loadDocument() {
+  const stored = localStorage.getItem('travels:document:main');
+
+  const snapshot = Travels.deserialize<DocumentState>(
+    stored ?? createEmptySnapshot(),
+    {
+      validation: 'semantic',
+      fallback: createEmptySnapshot,
+      onError(error) {
+        if (error instanceof TravelsPersistenceError) {
+          console.warn('Could not restore history:', error.code);
+        }
+      },
+    }
+  );
+
+  return restoreTravels(snapshot, { maxHistory: 100 });
+}
+```
+
+`Travels.deserialize()` 接受已解析的对象或 JSON 字符串。它始终执行结构校验；`validation: 'semantic'` 还会在独立的校验图上检查可达补丁的适用性与可逆性。
+
+恢复后的时间线持有快照状态的独立副本。解码后的快照和共享的回退常量，都不会成为运行中的可变状态。
+
+## 恢复到响应式目标
+
+对于 MobX、Vue 或 Pinia，恢复到正在使用的 Store 对象中：
+
+```ts
+const snapshot = Travels.deserialize<typeof store>(stored, {
+  validation: 'semantic',
+});
+
+const travels = restoreTravels(snapshot, {
+  mutable: true,
+  target: store,
+});
+```
+
+`target` 要求启用可变模式，且根类型必须兼容。Travels 会用快照状态的独立副本就地覆盖目标。
+
+## 受控日志恢复
+
+当状态由另一个运行时持有时，用日志的同步 `apply` 回调来恢复：
+
+```ts
+const snapshot = Travels.deserialize<State>(stored, {
+  validation: 'semantic',
+});
+
+const journal = restoreTravelJournal(snapshot, {
+  apply(transition) {
+    authoritativeState = commitThroughOwner(transition.patches);
+    return authoritativeState;
+  },
+});
+```
+
+Travels 会把快照状态和时间线当作一个原子输入整体接收。后续导航中补丁如何提交，仍由所有者决定。
+
+## 结构校验与语义校验
+
+| 模式 | 检查内容 | 适用场景 |
+| --- | --- | --- |
+| `structural`（默认） | 模式、版本、补丁形状、路径、值、位置 | 可信输入，或已经过其他验证边界且对延迟敏感的恢复 |
+| `semantic` | 结构校验，加上正向/反向重放与图隔离 | 未经验证的浏览器存储、导入的文件、可能已损坏的快照 |
+
+语义校验的开销随状态结构和可达历史记录增长。它证明的是重放一致性，而不是真实性或来源。参见[安全与完整性](/zh/docs/persistence/security-and-integrity)。
+
+## 谨慎选择存储
+
+- 仅在快照较小且只需简单的同步保存时使用 **localStorage**。
+- 历史记录较大或需要异步存储时，使用 **IndexedDB**、Dexie 或 idb。
+- 需要键值 API 与驱动回退时，使用 localForage 或 localspace。
+- 按应用和文档为键划分命名空间，例如 `travels:editor:<documentId>`。
+- 当快照体积很重要时，在存储前压缩已编码的快照；反序列化前再解压。
+- 对重要草稿，保留最近一次已知可用的快照。
+
+<Cards>
+  <Card title="存储适配器" href="/zh/docs/persistence/storage-adapters" description="Dexie、idb、localForage、localspace、事务与自动保存。" />
+  <Card title="迁移与恢复" href="/zh/docs/persistence/migration-and-recovery" description="模式迁移、回退、校验模式与类型化错误。" />
+  <Card title="安全与完整性" href="/zh/docs/persistence/security-and-integrity" description="信任边界、来源、修订号与多设备相关问题。" />
+</Cards>
