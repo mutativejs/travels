@@ -25,6 +25,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { createTravels, restoreTravels, Travels } from 'travels';
+import type { Locale } from '@/lib/locale';
 import { isEditableTarget, padStep, shortJson, toPointer, type DemoPatch } from './demo-utils';
 
 type Color = 'blue' | 'orange' | 'violet' | 'mint' | 'amber' | 'slate';
@@ -95,6 +96,146 @@ const INITIAL_WORLD: World = {
   },
 };
 const HOME_CELL: Cell = { x: 3, y: 4 };
+
+const toolNames = {
+  en: { build: 'Build', paint: 'Paint', erase: 'Erase' },
+  zh: { build: '建造', paint: '涂色', erase: '擦除' },
+} as const;
+
+const colorNames = {
+  en: { blue: 'Blue', orange: 'Orange', violet: 'Violet', mint: 'Mint', amber: 'Amber', slate: 'Slate' },
+  zh: { blue: '蓝色', orange: '橙色', violet: '紫色', mint: '薄荷绿', amber: '琥珀色', slate: '石板灰' },
+} as const;
+
+function localizeHistoryLabel(label: string, locale: Locale) {
+  if (locale !== 'zh') return label;
+  if (label === 'Starting scene') return '起始场景';
+  if (label.startsWith('Edit ')) return `编辑 ${label.slice(5)}`;
+  if (label === 'Drawing…') return '绘制中…';
+  const match = label.match(/^(Place|Paint|Erase) (\d+) (block|blocks)$/);
+  if (!match) return label;
+  const verbs: Record<string, string> = { Place: '放置', Paint: '涂色', Erase: '擦除' };
+  return `${verbs[match[1]]} ${match[2]} 个方块`;
+}
+
+const pgCopy = {
+  en: {
+    playground: 'Travels playground',
+    tool: 'Tool',
+    color: 'Block color',
+    sceneRole: 'block builder',
+    sceneAria: (blocks: number, tool: string) =>
+      `Block builder, ${blocks} blocks. Current tool: ${tool}.`,
+    help: 'Click or drag across the board. One drag is archived as one undo step.',
+    helpKeys:
+      'Keyboard: arrows move, Enter applies, Delete erases, B/P/E switch tools, 1–6 pick a color, R rotates.',
+    undo: 'Undo',
+    redo: 'Redo',
+    historyPosition: 'Playground history position',
+    rotate: 'Rotate view',
+    rotateTitle: 'Rotate view (R) — view state, not history',
+    reset: 'Reset playground',
+    resetTitle: 'Reset to the starting scene',
+    inspector: 'Inspector',
+    patches: 'Patches',
+    timeline: 'Timeline',
+    baseline: 'baseline',
+    ops: (count: number) => `${count} ${count === 1 ? 'op' : 'ops'}`,
+    forwardDirection: (index: number) =>
+      `patches[${index}] forward · redo replays these`,
+    inverseDirection: (index: number) =>
+      `inversePatches[${index}] inverse · undo applies these`,
+    emptyForward: 'The starting scene has no incoming patch. Place a block to record one.',
+    emptyInverse: 'Nothing to undo from here.',
+    historySize: 'History size, measured live',
+    ratioSmaller: (ratio: string) => `${ratio}× smaller`,
+    ratioEven: 'about even so far',
+    ratioSnapshots: 'snapshots lead for now',
+    travelsBar: 'Travels · state + patches',
+    snapshotsBar: 'Snapshot stack · every state',
+    stepThis: (patch: string, snapshot: string) => (
+      <>
+        This step: <b>+{patch}</b> as patches · <b>+{snapshot}</b> as a snapshot
+      </>
+    ),
+    eachStep: 'Each step adds the whole scene to a snapshot stack, but only the change to Travels.',
+    meterNote: 'Snapshots can win while a scene is tiny; small edits to larger state widen the gap.',
+    keepHistory: 'Keep history after reload',
+    keptMemory: 'Kept in memory only',
+    saved: (bytes: string) => `${bytes} saved in this browser`,
+    restored: (steps: number) => `Restored ${steps} ${steps === 1 ? 'step' : 'steps'} from your last visit`,
+    invalidSaved: 'Saved history failed validation and was cleared',
+    archiveAnnounce: (label: string) => `Archived ${label}`,
+    undoAnnounce: (label: string) => `Undid ${label}`,
+    redoAnnounce: (label: string) => `Redid ${label}`,
+    travelAnnounce: (label: string) => `Traveled to ${label}`,
+    resetAnnounce: 'Reset to the starting scene',
+    cellAnnounce: (name: string, height: number) =>
+      `${name}, ${height} ${height === 1 ? 'block' : 'blocks'}`,
+    stepOf: (position: number, total: number, label: string) =>
+      `Step ${position} of ${total}: ${label}`,
+    announcement: (message: string, position: number, total: number) =>
+      `${message}. Step ${position} of ${total}.`,
+  },
+  zh: {
+    playground: 'Travels 演练场',
+    tool: '工具',
+    color: '方块颜色',
+    sceneRole: '方块搭建器',
+    sceneAria: (blocks: number, tool: string) =>
+      `方块搭建器，当前有 ${blocks} 个方块。当前工具：${tool}。`,
+    help: '在棋盘上点击或拖动。一次完整的拖拽会被归档为一个撤销步骤。',
+    helpKeys:
+      '键盘：方向键移动，Enter 应用，Delete 擦除，B/P/E 切换工具，1–6 选择颜色，R 旋转。',
+    undo: '撤销',
+    redo: '重做',
+    historyPosition: '演练场历史位置',
+    rotate: '旋转视角',
+    rotateTitle: '旋转视角（R）——只改变视图，不写入历史',
+    reset: '重置演练场',
+    resetTitle: '重置到起始场景',
+    inspector: '检查器',
+    patches: '补丁',
+    timeline: '时间线',
+    baseline: '基线',
+    ops: (count: number) => `${count} 个操作`,
+    forwardDirection: (index: number) =>
+      `patches[${index}] 正向 · 重做会重放这些操作`,
+    inverseDirection: (index: number) =>
+      `inversePatches[${index}] 反向 · 撤销会应用这些操作`,
+    emptyForward: '起始场景没有入站补丁。放置一个方块即可记录一条。',
+    emptyInverse: '从这里没有可撤销的内容。',
+    historySize: '实时测量的历史体积',
+    ratioSmaller: (ratio: string) => `小 ${ratio} 倍`,
+    ratioEven: '目前大致持平',
+    ratioSnapshots: '当前快照更小',
+    travelsBar: 'Travels · 状态 + 补丁',
+    snapshotsBar: '快照栈 · 每个状态',
+    stepThis: (patch: string, snapshot: string) => (
+      <>
+        本步：补丁 <b>+{patch}</b> · 快照 <b>+{snapshot}</b>
+      </>
+    ),
+    eachStep: '每一步都会把整个场景加入快照栈，但 Travels 只记录变化。',
+    meterNote: '场景很小时，快照可能更小；状态越大、编辑越局部，差距就越明显。',
+    keepHistory: '刷新后保留历史',
+    keptMemory: '仅保存在内存中',
+    saved: (bytes: string) => `已在此浏览器中保存 ${bytes}`,
+    restored: (steps: number) => `已从上次访问恢复 ${steps} 步`,
+    invalidSaved: '保存的历史未通过校验，已清理',
+    archiveAnnounce: (label: string) => `已归档「${label}」`,
+    undoAnnounce: (label: string) => `已撤销「${label}」`,
+    redoAnnounce: (label: string) => `已重做「${label}」`,
+    travelAnnounce: (label: string) => `已回溯到「${label}」`,
+    resetAnnounce: '已重置到起始场景',
+    cellAnnounce: (name: string, height: number) =>
+      `${name}，${height} 个方块`,
+    stepOf: (position: number, total: number, label: string) =>
+      `第 ${position} 步，共 ${total} 步：${label}`,
+    announcement: (message: string, position: number, total: number) =>
+      `${message}。第 ${position} 步，共 ${total} 步。`,
+  },
+} as const;
 
 const columnKey = (x: number, y: number) => `x${x}y${y}`;
 const cellName = ({ x, y }: Cell) => `${COLUMN_LETTERS[x]}${y + 1}`;
@@ -257,7 +398,8 @@ function OperationList({ operations, empty }: { operations: readonly DemoPatch[]
   );
 }
 
-export function PatchPlayground() {
+export function PatchPlayground({ locale = 'en' }: { locale?: Locale }) {
+  const text = pgCopy[locale];
   const [travels, setTravels] = useState(createWorldTimeline);
   const [persist, setPersist] = useState(true);
   const [storageReady, setStorageReady] = useState(false);
@@ -309,15 +451,20 @@ export function PatchPlayground() {
     view;
   const last = history.length - 1;
   const labelFor = useCallback(
-    (index: number) => (index === 0 ? 'Starting scene' : metadata[index - 1]?.label ?? `Edit ${index}`),
-    [metadata]
+    (index: number) => {
+      const label = index === 0 ? 'Starting scene' : metadata[index - 1]?.label ?? `Edit ${index}`;
+      return localizeHistoryLabel(label, locale);
+    },
+    [locale, metadata]
   );
 
   const announce = useCallback(
     (message: string) => {
-      setAnnouncement(`${message}. Step ${travels.getPosition()} of ${travels.getHistory().length - 1}.`);
+      setAnnouncement(
+        text.announcement(message, travels.getPosition(), travels.getHistory().length - 1)
+      );
     },
-    [travels]
+    [text, travels]
   );
 
   /** Apply one tool to one column as a pending, not yet archived, change. */
@@ -371,8 +518,8 @@ export function PatchPlayground() {
     if (!current || current.changed === 0 || !travels.canArchive()) return;
     const label = strokeLabel(current);
     travels.archive({ label });
-    announce(label);
-  }, [announce, travels]);
+    announce(text.archiveAnnounce(localizeHistoryLabel(label, locale)));
+  }, [announce, locale, text, travels]);
 
   const runStroke = useCallback(
     (cell: Cell, strokeTool = tool) => {
@@ -387,29 +534,29 @@ export function PatchPlayground() {
     if (stroke.current || !travels.canBack()) return;
     const label = labelFor(travels.getPosition());
     travels.back();
-    announce(`Undid ${label}`);
-  }, [announce, labelFor, travels]);
+    announce(text.undoAnnounce(label));
+  }, [announce, labelFor, text, travels]);
 
   const redo = useCallback(() => {
     if (stroke.current || !travels.canForward()) return;
     travels.forward();
-    announce(`Redid ${labelFor(travels.getPosition())}`);
-  }, [announce, labelFor, travels]);
+    announce(text.redoAnnounce(labelFor(travels.getPosition())));
+  }, [announce, labelFor, text, travels]);
 
   const travelTo = useCallback(
     (index: number) => {
       if (stroke.current || index === travels.getPosition()) return;
       travels.go(index);
-      announce(`Traveled to ${labelFor(index)}`);
+      announce(text.travelAnnounce(labelFor(index)));
     },
-    [announce, labelFor, travels]
+    [announce, labelFor, text, travels]
   );
 
   const reset = useCallback(() => {
     if (stroke.current) return;
     travels.reset();
-    announce('Reset to the starting scene');
-  }, [announce, travels]);
+    announce(text.resetAnnounce);
+  }, [announce, text, travels]);
 
   useEffect(() => {
     if (!/mac|iphone|ipad/i.test(navigator.platform)) setModifierKey('Ctrl');
@@ -427,20 +574,20 @@ export function PatchPlayground() {
           const steps = timeline.getHistory().length - 1;
           setTravels(timeline);
           setNotice({
-            text: `Restored ${steps} ${steps === 1 ? 'step' : 'steps'} from your last visit`,
+            text: text.restored(steps),
             revision: timeline.getRevision(),
           });
         } catch {
           writeStorage(STORAGE_KEY, null);
           setNotice({
-            text: 'Saved history failed validation and was cleared',
+            text: text.invalidSaved,
             revision: travels.getRevision(),
           });
         }
       }
     }
     setStorageReady(true);
-  }, []);
+  }, [text]);
 
   // Save each committed timeline; a pending stroke is saved once archived.
   useEffect(() => {
@@ -546,7 +693,7 @@ export function PatchPlayground() {
       );
       setTarget(next);
       const height = travels.getState().columns[columnKey(next.x, next.y)]?.length ?? 0;
-      setAnnouncement(`${cellName(next)}, ${height} ${height === 1 ? 'block' : 'blocks'}`);
+      setAnnouncement(text.cellAnnounce(cellName(next), height));
     } else if (key === 'Enter' || key === ' ') {
       event.preventDefault();
       setTarget(cursor);
@@ -587,10 +734,10 @@ export function PatchPlayground() {
   const showDots = history.length <= 32;
 
   return (
-    <div ref={rootRef} className="pg-workbench" role="group" aria-label="Travels playground">
+    <div ref={rootRef} className="pg-workbench" role="group" aria-label={text.playground}>
       <div className="pg-stage">
         <div className="pg-toolbar">
-          <div className="pg-segmented" role="radiogroup" aria-label="Tool">
+          <div className="pg-segmented" role="radiogroup" aria-label={text.tool}>
             {TOOLS.map((entry) => (
               <button
                 key={entry.id}
@@ -599,21 +746,21 @@ export function PatchPlayground() {
                 aria-checked={tool === entry.id}
                 className="pg-tool"
                 onClick={() => setTool(entry.id)}
-                title={`${entry.name} (${entry.key.toUpperCase()})`}
+                title={`${toolNames[locale][entry.id]} (${entry.key.toUpperCase()})`}
               >
-                <entry.icon size={15} /> {entry.name}
+                <entry.icon size={15} /> {toolNames[locale][entry.id]}
               </button>
             ))}
           </div>
-          <div className="pg-swatches" role="radiogroup" aria-label="Block color">
+          <div className="pg-swatches" role="radiogroup" aria-label={text.color}>
             {PALETTE.map((entry, index) => (
               <button
                 key={entry.id}
                 type="button"
                 role="radio"
                 aria-checked={color === entry.id}
-                aria-label={entry.name}
-                title={`${entry.name} (${index + 1})`}
+                aria-label={colorNames[locale][entry.id]}
+                title={`${colorNames[locale][entry.id]} (${index + 1})`}
                 className="pg-swatch"
                 style={{ '--swatch': entry.shades[1], '--swatch-top': entry.shades[0] } as CSSProperties}
                 onClick={() => setColor(entry.id)}
@@ -626,8 +773,8 @@ export function PatchPlayground() {
           className="pg-scene"
           tabIndex={0}
           role="application"
-          aria-roledescription="block builder"
-          aria-label={`Block builder, ${blockCount} blocks. Current tool: ${tool}.`}
+          aria-roledescription={text.sceneRole}
+          aria-label={text.sceneAria(blockCount, toolNames[locale][tool])}
           aria-describedby={helpId}
           onKeyDown={onSceneKeyDown}
           onFocus={() => setTarget((value) => value ?? HOME_CELL)}
@@ -702,11 +849,8 @@ export function PatchPlayground() {
         </div>
 
         <p id={helpId} className="pg-help">
-          Click or drag across the board. One drag is archived as one undo step.
-          <span className="pg-help-keys">
-            {' '}
-            Keyboard: arrows move, Enter applies, Delete erases, B/P/E switch tools, 1–6 pick a color, R rotates.
-          </span>
+          {text.help}
+          <span className="pg-help-keys"> {text.helpKeys}</span>
         </p>
 
         <div className="pg-controls">
@@ -715,8 +859,8 @@ export function PatchPlayground() {
             className="pg-button"
             onClick={undo}
             disabled={position === 0}
-            aria-label="Undo"
-            title={`Undo (${modifierKey}+Z)`}
+            aria-label={text.undo}
+            title={`${text.undo} (${modifierKey}+Z)`}
           >
             <Undo2 size={16} />
           </button>
@@ -725,8 +869,8 @@ export function PatchPlayground() {
             className="pg-button"
             onClick={redo}
             disabled={position === last}
-            aria-label="Redo"
-            title={modifierKey === '⌘' ? 'Redo (⇧⌘Z)' : 'Redo (Ctrl+Y)'}
+            aria-label={text.redo}
+            title={modifierKey === '⌘' ? `${text.redo} (⇧⌘Z)` : `${text.redo} (Ctrl+Y)`}
           >
             <Redo2 size={16} />
           </button>
@@ -748,8 +892,8 @@ export function PatchPlayground() {
               max={last}
               step={1}
               value={position}
-              aria-label="Playground history position"
-              aria-valuetext={`Step ${position} of ${last}: ${labelFor(position)}`}
+              aria-label={text.historyPosition}
+              aria-valuetext={text.stepOf(position, last, labelFor(position))}
               onChange={(event) => travelTo(Number(event.currentTarget.value))}
             />
           </div>
@@ -760,8 +904,8 @@ export function PatchPlayground() {
             type="button"
             className="pg-button"
             onClick={() => setTurn((value) => (value + 1) % 4)}
-            aria-label="Rotate view"
-            title="Rotate view (R) — view state, not history"
+            aria-label={text.rotate}
+            title={text.rotateTitle}
           >
             <Rotate3d size={16} />
           </button>
@@ -770,8 +914,8 @@ export function PatchPlayground() {
             className="pg-button"
             onClick={reset}
             disabled={last === 0 && position === 0}
-            aria-label="Reset playground"
-            title="Reset to the starting scene"
+            aria-label={text.reset}
+            title={text.resetTitle}
           >
             <TimerReset size={16} />
           </button>
@@ -779,11 +923,11 @@ export function PatchPlayground() {
       </div>
 
       <div className="pg-inspector">
-        <div className="pg-tabs" role="tablist" aria-label="Inspector">
+        <div className="pg-tabs" role="tablist" aria-label={text.inspector}>
           {(
             [
-              { id: 'patches', name: 'Patches', icon: Braces },
-              { id: 'timeline', name: 'Timeline', icon: ListOrdered },
+              { id: 'patches', name: text.patches, icon: Braces },
+              { id: 'timeline', name: text.timeline, icon: ListOrdered },
             ] as const
           ).map((entry) => (
             <button
@@ -822,20 +966,20 @@ export function PatchPlayground() {
               <span className="pg-entry-step">{padStep(position)}</span>
               <span className="pg-entry-label">{labelFor(position)}</span>
               <span className="pg-entry-meta">
-                {position > 0 ? `${forward.length} ${forward.length === 1 ? 'op' : 'ops'}` : 'baseline'}
+                {position > 0 ? text.ops(forward.length) : text.baseline}
               </span>
             </div>
             <p className="pg-direction">
-              <code>patches[{Math.max(position - 1, 0)}]</code> forward · redo replays these
+              <code>patches[{Math.max(position - 1, 0)}]</code> {locale === 'zh' ? '正向 · 重做会重放这些操作' : 'forward · redo replays these'}
             </p>
             <OperationList
               operations={forward}
-              empty="The starting scene has no incoming patch. Place a block to record one."
+              empty={text.emptyForward}
             />
             <p className="pg-direction">
-              <code>inversePatches[{Math.max(position - 1, 0)}]</code> inverse · undo applies these
+              <code>inversePatches[{Math.max(position - 1, 0)}]</code> {locale === 'zh' ? '反向 · 撤销会应用这些操作' : 'inverse · undo applies these'}
             </p>
-            <OperationList operations={inverse} empty="Nothing to undo from here." />
+            <OperationList operations={inverse} empty={text.emptyInverse} />
           </div>
         ) : (
           <div
@@ -857,8 +1001,8 @@ export function PatchPlayground() {
                     <span className="pg-step-label">{labelFor(index)}</span>
                     <span className="pg-step-meta">
                       {index === 0
-                        ? 'base'
-                        : `${patches.patches[index - 1]?.length ?? 0} ops`}
+                        ? text.baseline
+                        : text.ops(patches.patches[index - 1]?.length ?? 0)}
                     </span>
                   </button>
                 </li>
@@ -867,26 +1011,26 @@ export function PatchPlayground() {
           </div>
         )}
 
-        <div className="pg-meter" aria-label="History size">
+        <div className="pg-meter" aria-label={text.historySize}>
           <div className="pg-meter-heading">
-            <span>History size, measured live</span>
+            <span>{text.historySize}</span>
             <strong className={ratio < 1.05 ? 'is-behind' : undefined}>
               {ratio >= 1.05
-                ? `${ratio.toFixed(1)}× smaller`
+                ? text.ratioSmaller(ratio.toFixed(1))
                 : ratio > 0.95
-                  ? 'about even so far'
-                  : 'snapshots lead for now'}
+                  ? text.ratioEven
+                  : text.ratioSnapshots}
             </strong>
           </div>
           <div className="pg-bar-row">
-            <span>Travels · state + patches</span>
+            <span>{text.travelsBar}</span>
             <b>{formatBytes(persistedBytes)}</b>
           </div>
           <span className="pg-bar">
             <span className="pg-bar-fill is-patches" style={{ '--w': persistedBytes / largest } as CSSProperties} />
           </span>
           <div className="pg-bar-row">
-            <span>Snapshot stack · every state</span>
+            <span>{text.snapshotsBar}</span>
             <b>{formatBytes(snapshotBytes)}</b>
           </div>
           <span className="pg-bar">
@@ -894,18 +1038,16 @@ export function PatchPlayground() {
           </span>
           <p className="pg-meter-step">
             {position > 0 ? (
-              <>
-                This step: <b>+{formatBytes(stepPatchBytes)}</b> as patches ·{' '}
-                <b>+{formatBytes(stepSnapshotBytes)}</b> as a snapshot
-              </>
+              text.stepThis(formatBytes(stepPatchBytes), formatBytes(stepSnapshotBytes))
             ) : (
-              <>Each step adds the whole scene to a snapshot stack, but only the change to Travels.</>
+              <>{text.eachStep}</>
             )}
           </p>
           <p className="pg-meter-note">
-            <code>JSON.stringify(travels.serialize())</code> versus every state in{' '}
-            <code>getHistory()</code>. Snapshots can win while a scene is tiny; small edits to
-            larger state widen the gap.
+            <code>JSON.stringify(travels.serialize())</code>{' '}
+            {locale === 'zh' ? '与' : 'versus every state in'}{' '}
+            <code>getHistory()</code>
+            {locale === 'zh' ? ' 中的每个状态对比。' : '.'} {text.meterNote}
           </p>
         </div>
 
@@ -920,15 +1062,15 @@ export function PatchPlayground() {
             <span className="pg-switch-track" aria-hidden="true">
               <span className="pg-switch-thumb" />
             </span>
-            Keep history after reload
+            {text.keepHistory}
           </button>
           <span className="pg-persist-status">
             <Database size={14} aria-hidden="true" />
             {!persist
-              ? 'Kept in memory only'
+              ? text.keptMemory
               : notice && notice.revision === revision
                 ? notice.text
-                : `${formatBytes(persistedBytes)} saved in this browser`}
+                : text.saved(formatBytes(persistedBytes))}
           </span>
         </div>
       </div>

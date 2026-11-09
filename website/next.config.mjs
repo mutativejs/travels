@@ -16,6 +16,7 @@ const config = {
   // Dependency updates are reviewed explicitly; keep builds non-interactive.
   experimental: {
     agentUpgrade: false,
+    globalNotFound: true,
   },
   turbopack: {
     root: websiteRoot,

@@ -5,8 +5,8 @@ import { baseOptions } from '@/lib/layout.shared';
 export default function Layout({ children }: LayoutProps<'/docs'>) {
   return (
     <DocsLayout
-      tree={source.getPageTree()}
-      {...baseOptions()}
+      tree={source.getPageTree('en')}
+      {...baseOptions('en')}
       sidebar={{ defaultOpenLevel: 1, collapsible: true }}
     >
       {children}

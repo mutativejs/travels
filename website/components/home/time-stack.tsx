@@ -11,6 +11,7 @@ import {
   type CSSProperties,
 } from 'react';
 import { createTravels, type TravelsBranchDiscardEvent } from 'travels';
+import type { Locale } from '@/lib/locale';
 import { describePatch, isEditableTarget, padStep } from './demo-utils';
 
 type Hue = 'blue' | 'orange' | 'violet' | 'mint';
@@ -42,6 +43,115 @@ type Ghost = {
 };
 
 type AutoStep = 'edit' | 'back' | 'forward' | 'start' | 'end';
+
+const zhTitles: Record<string, string> = {
+  Untitled: '未命名',
+  'Launch board': '发布看板',
+  Moodboard: '情绪板',
+  'Sprint plan': '冲刺计划',
+  Roadmap: '路线图',
+};
+
+const zhKinds: Record<string, string> = {
+  circle: '圆形',
+  square: '方形',
+  pill: '胶囊',
+};
+
+const zhEditLabels: Record<string, string> = {
+  'Add a pill': '添加胶囊',
+  'Move circle': '移动圆形',
+  'Rename canvas': '重命名画布',
+};
+
+function localizeEditLabel(label: string, locale: Locale) {
+  if (locale !== 'zh') return label;
+  if (zhEditLabels[label]) return zhEditLabels[label];
+  const match = label.match(/^(Add a|Remove|Move|Recolor|Grow|Shrink) ([a-z]+)$/);
+  if (!match) return label;
+  const kind = zhKinds[match[2]] ?? match[2];
+  const verbs: Record<string, string> = {
+    'Add a': '添加',
+    Remove: '移除',
+    Move: '移动',
+    Recolor: '改色',
+    Grow: '放大',
+    Shrink: '缩小',
+  };
+  return `${verbs[match[1]]}${kind}`;
+}
+
+function localizeBoardTitle(title: string, locale: Locale) {
+  return locale === 'zh' ? (zhTitles[title] ?? title) : title;
+}
+
+const uiCopy = {
+  en: {
+    historyStack: 'Travels history stack',
+    interactiveDemo: 'interactive demo',
+    windowStart: 'Window start',
+    initialCanvas: 'Initial canvas',
+    editIndex: (index: number) => `Edit ${index}`,
+    lastEdit: 'the last edit',
+    nextEdit: 'the next edit',
+    discarded: 'Discarded',
+    undo: 'Undo',
+    redo: 'Redo',
+    newEdit: 'Apply a new edit',
+    pause: 'Pause demo',
+    play: 'Play demo',
+    historyPosition: 'History position',
+    stepOf: (position: number, total: number, label: string) =>
+      `Step ${position} of ${total}: ${label}`,
+    delta: 'Only the delta',
+    deltaDetail: (patch: number, snapshot: number) =>
+      `${patch} B patch · ${snapshot} B snapshot`,
+    baseline: 'Baseline state',
+    baselineDetail: 'nothing left to undo',
+    hint: 'Drag to orbit · click a layer to travel',
+    noPatch: 'no patch — the baseline',
+    redoDiscarded: (count: number) =>
+      `Redo branch discarded · ${count} ${count === 1 ? 'step' : 'steps'}`,
+    undid: (label: string) => `Undid ${label}`,
+    redid: (label: string) => `Redid ${label}`,
+    applied: (label: string) => `Applied ${label}`,
+    traveledTo: (label: string) => `Traveled to ${label}`,
+    announcement: (message: string, position: number, total: number) =>
+      `${message}. Step ${position} of ${total}.`,
+  },
+  zh: {
+    historyStack: 'Travels 历史堆栈',
+    interactiveDemo: '交互演示',
+    windowStart: '窗口起点',
+    initialCanvas: '初始画布',
+    editIndex: (index: number) => `编辑 ${index}`,
+    lastEdit: '上一次编辑',
+    nextEdit: '下一次编辑',
+    discarded: '已丢弃',
+    undo: '撤销',
+    redo: '重做',
+    newEdit: '应用一次新编辑',
+    pause: '暂停演示',
+    play: '播放演示',
+    historyPosition: '历史位置',
+    stepOf: (position: number, total: number, label: string) =>
+      `第 ${position} 步，共 ${total} 步：${label}`,
+    delta: '只保留增量',
+    deltaDetail: (patch: number, snapshot: number) =>
+      `${patch} B 补丁 · ${snapshot} B 快照`,
+    baseline: '基线状态',
+    baselineDetail: '没有可撤销的内容',
+    hint: '拖动以旋转 · 点击图层以回溯',
+    noPatch: '无补丁——当前为基线',
+    redoDiscarded: (count: number) => `已丢弃重做分支 · ${count} 步`,
+    undid: (label: string) => `已撤销「${label}」`,
+    redid: (label: string) => `已重做「${label}」`,
+    applied: (label: string) => `已应用「${label}」`,
+    traveledTo: (label: string) => `已回溯到「${label}」`,
+    announcement: (message: string, position: number, total: number) =>
+      `${message}。第 ${position} 步，共 ${total} 步。`,
+  },
+} as const;
 
 const MAX_HISTORY = 12;
 const WINDOW_BEFORE = 4;
@@ -225,6 +335,7 @@ function Plate({
   label,
   status,
   fade,
+  locale,
   onSelect,
   ghost = false,
 }: {
@@ -233,6 +344,7 @@ function Plate({
   label: string;
   status: 'past' | 'current' | 'future';
   fade: number;
+  locale: Locale;
   onSelect?: () => void;
   ghost?: boolean;
 }) {
@@ -243,11 +355,11 @@ function Plate({
       className={`ts-plate is-${status}${ghost ? ' is-ghost' : ''}`}
       style={{ '--i': index, '--fade': fade } as CSSProperties}
       onClick={onSelect}
-      title={ghost ? undefined : `Step ${padStep(index)} · ${label}`}
+      title={ghost ? undefined : `${padStep(index)} · ${label}`}
     >
       <span className="ts-plate-slab" />
       <span className="ts-plate-face">
-        <span className="ts-plate-title">{board.title}</span>
+        <span className="ts-plate-title">{localizeBoardTitle(board.title, locale)}</span>
         <span className="ts-plate-step">
           {padStep(index)} · {label}
         </span>
@@ -259,7 +371,8 @@ function Plate({
   );
 }
 
-export function TimeStack() {
+export function TimeStack({ locale = 'en' }: { locale?: Locale }) {
+  const text = uiCopy[locale];
   const discardHandler = useRef<(event: TravelsBranchDiscardEvent) => void>(() => undefined);
   const [travels] = useState(() =>
     createBoardTimeline((event) => discardHandler.current(event))
@@ -297,10 +410,11 @@ export function TimeStack() {
 
   const labelFor = useCallback(
     (index: number) => {
-      if (index === 0) return trimmed ? 'Window start' : 'Initial canvas';
-      return metadata[index - 1]?.label ?? `Edit ${index}`;
+      if (index === 0) return trimmed ? text.windowStart : text.initialCanvas;
+      const label = metadata[index - 1]?.label;
+      return label ? localizeEditLabel(label, locale) : text.editIndex(index);
     },
-    [metadata, trimmed]
+    [locale, metadata, text, trimmed]
   );
 
   const later = useCallback((callback: () => void, delay: number) => {
@@ -322,10 +436,10 @@ export function TimeStack() {
   useEffect(() => {
     discardHandler.current = (event) => {
       const count = event.discarded.length;
-      setToast(`Redo branch discarded · ${count} ${count === 1 ? 'step' : 'steps'}`);
+      setToast(text.redoDiscarded(count));
       later(() => setToast(null), 2400);
     };
-  }, [later]);
+  }, [later, text]);
 
   const applyEdit = useCallback(() => {
     const before = travels.getHistory() as readonly Board[];
@@ -359,22 +473,22 @@ export function TimeStack() {
     if (!travels.canBack()) return null;
     const label = travels.getMetadata()[travels.getPosition() - 1]?.label;
     travels.back();
-    return label ?? 'the last edit';
-  }, [travels]);
+    return label ? localizeEditLabel(label, locale) : text.lastEdit;
+  }, [locale, text, travels]);
 
   const redo = useCallback(() => {
     if (!travels.canForward()) return null;
     const label = travels.getMetadata()[travels.getPosition()]?.label;
     travels.forward();
-    return label ?? 'the next edit';
-  }, [travels]);
+    return label ? localizeEditLabel(label, locale) : text.nextEdit;
+  }, [locale, text, travels]);
 
   const announcePosition = useCallback(
     (message: string) => {
       const total = travels.getHistory().length - 1;
-      setAnnouncement(`${message}. Step ${travels.getPosition()} of ${total}.`);
+      setAnnouncement(text.announcement(message, travels.getPosition(), total));
     },
-    [travels]
+    [text, travels]
   );
 
   const takeControl = useCallback(() => setPlaying(false), []);
@@ -382,28 +496,28 @@ export function TimeStack() {
   const handleUndo = useCallback(() => {
     takeControl();
     const label = undo();
-    if (label) announcePosition(`Undid ${label}`);
-  }, [announcePosition, takeControl, undo]);
+    if (label) announcePosition(text.undid(label));
+  }, [announcePosition, takeControl, text, undo]);
 
   const handleRedo = useCallback(() => {
     takeControl();
     const label = redo();
-    if (label) announcePosition(`Redid ${label}`);
-  }, [announcePosition, redo, takeControl]);
+    if (label) announcePosition(text.redid(label));
+  }, [announcePosition, redo, takeControl, text]);
 
   const handleEdit = useCallback(() => {
     takeControl();
-    announcePosition(`Applied ${applyEdit()}`);
-  }, [announcePosition, applyEdit, takeControl]);
+    announcePosition(text.applied(applyEdit()));
+  }, [announcePosition, applyEdit, takeControl, text]);
 
   const travelTo = useCallback(
     (target: number) => {
       takeControl();
       if (target === travels.getPosition()) return;
       travels.go(target);
-      announcePosition(`Traveled to ${labelFor(target)}`);
+      announcePosition(text.traveledTo(labelFor(target)));
     },
-    [announcePosition, labelFor, takeControl, travels]
+    [announcePosition, labelFor, takeControl, text, travels]
   );
 
   // Autoplay a short choreography unless the visitor prefers reduced motion,
@@ -569,8 +683,8 @@ export function TimeStack() {
       ref={rootRef}
       className="time-stack"
       role="group"
-      aria-roledescription="interactive demo"
-      aria-label="Travels history stack"
+      aria-roledescription={text.interactiveDemo}
+      aria-label={text.historyStack}
     >
       <div
         ref={stageRef}
@@ -594,6 +708,7 @@ export function TimeStack() {
                   board={history[index]}
                   index={index}
                   label={labelFor(index)}
+                  locale={locale}
                   status={status}
                   fade={fade}
                   onSelect={() => travelTo(index)}
@@ -605,7 +720,8 @@ export function TimeStack() {
                 key={ghost.key}
                 board={ghost.board}
                 index={ghost.index}
-                label="Discarded"
+                label={text.discarded}
+                locale={locale}
                 status="future"
                 fade={0.9}
                 ghost
@@ -620,15 +736,15 @@ export function TimeStack() {
           </span>
           {position > 0 ? (
             <span>
-              <strong>Only the delta</strong>
+              <strong>{text.delta}</strong>
               <small>
-                {patchBytes} B patch · {snapshotBytes} B snapshot
+                {text.deltaDetail(patchBytes, snapshotBytes)}
               </small>
             </span>
           ) : (
             <span>
-              <strong>Baseline state</strong>
-              <small>nothing left to undo</small>
+              <strong>{text.baseline}</strong>
+              <small>{text.baselineDetail}</small>
             </span>
           )}
         </div>
@@ -640,7 +756,7 @@ export function TimeStack() {
         )}
 
         <p className="ts-hint" aria-hidden="true">
-          Drag to orbit · click a layer to travel
+          {text.hint}
         </p>
       </div>
 
@@ -651,8 +767,8 @@ export function TimeStack() {
             className="ts-button"
             onClick={handleUndo}
             disabled={position === 0}
-            aria-label="Undo"
-            title={`Undo (${modifierKey}+Z)`}
+            aria-label={text.undo}
+            title={`${text.undo} (${modifierKey}+Z)`}
           >
             <Undo2 size={16} />
           </button>
@@ -661,8 +777,8 @@ export function TimeStack() {
             className="ts-button"
             onClick={handleRedo}
             disabled={position === last}
-            aria-label="Redo"
-            title={`Redo (${modifierKey === '⌘' ? '⇧⌘' : 'Ctrl+'}${modifierKey === '⌘' ? 'Z' : 'Y'})`}
+            aria-label={text.redo}
+            title={`${text.redo} (${modifierKey === '⌘' ? '⇧⌘' : 'Ctrl+'}${modifierKey === '⌘' ? 'Z' : 'Y'})`}
           >
             <Redo2 size={16} />
           </button>
@@ -683,8 +799,8 @@ export function TimeStack() {
               max={last}
               step={1}
               value={position}
-              aria-label="History position"
-              aria-valuetext={`Step ${position} of ${last}: ${currentLabel}`}
+              aria-label={text.historyPosition}
+              aria-valuetext={text.stepOf(position, last, currentLabel)}
               onChange={(event) => travelTo(Number(event.currentTarget.value))}
             />
           </div>
@@ -695,8 +811,8 @@ export function TimeStack() {
             type="button"
             className="ts-button ts-button-accent"
             onClick={handleEdit}
-            aria-label="Apply a new edit"
-            title="Apply a new edit"
+            aria-label={text.newEdit}
+            title={text.newEdit}
           >
             <Plus size={16} />
           </button>
@@ -704,9 +820,9 @@ export function TimeStack() {
             type="button"
             className="ts-button"
             onClick={() => setPlaying((value) => !value)}
-            aria-label={playing ? 'Pause demo' : 'Play demo'}
+            aria-label={playing ? text.pause : text.play}
             aria-pressed={playing}
-            title={playing ? 'Pause the demo' : 'Play the demo'}
+            title={playing ? text.pause : text.play}
           >
             {playing ? <Pause size={15} /> : <Play size={15} />}
           </button>
@@ -715,7 +831,7 @@ export function TimeStack() {
           <span className="ts-current">
             <span className="ts-current-label">{currentLabel}</span>
             <code className="ts-op">
-              {firstOp ? describePatch(firstOp) : 'no patch — the baseline'}
+              {firstOp ? describePatch(firstOp) : text.noPatch}
               {extraOps > 0 && <span className="ts-op-more"> +{extraOps}</span>}
             </code>
           </span>

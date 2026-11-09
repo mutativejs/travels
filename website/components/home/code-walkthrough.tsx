@@ -3,6 +3,7 @@
 import { Play, RotateCcw } from 'lucide-react';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createTravels } from 'travels';
+import type { Locale } from '@/lib/locale';
 import { CopyButton } from './copy-button';
 import { describePatch } from './demo-utils';
 
@@ -33,6 +34,39 @@ const STEPS = [
 ] as const;
 
 const LAST_STEP = STEPS.length - 1;
+
+const uiCopy = {
+  en: {
+    walkthrough: 'Quick start walkthrough',
+    codeLabel: 'Quick start code',
+    steps: 'Steps',
+    runAgain: 'Run again',
+    runNext: 'Run next step',
+    runTo: (step: number, label: string) => `Run to step ${step}: ${label}`,
+    appliedInverse: 'applied inverse patch',
+    applied: 'applied patch',
+    none: 'none yet: position 0 is the baseline',
+    announcement: (label: string, position: number, title: string) =>
+      `Ran ${label}. Position ${position}, title ${title}.`,
+    copy: 'Copy',
+    copied: 'Copied',
+  },
+  zh: {
+    walkthrough: '快速开始演示',
+    codeLabel: '快速开始代码',
+    steps: '步骤',
+    runAgain: '再运行一遍',
+    runNext: '运行下一步',
+    runTo: (step: number, label: string) => `运行到第 ${step} 步：${label}`,
+    appliedInverse: '已应用的反向补丁',
+    applied: '已应用的补丁',
+    none: '尚无补丁：位置 0 是基线',
+    announcement: (label: string, position: number, title: string) =>
+      `已运行 ${label}。位置 ${position}，标题 ${title}。`,
+    copy: '复制',
+    copied: '已复制',
+  },
+} as const;
 
 /** Replay the snippet up to `step` on a fresh timeline and read it back. */
 function runTo(step: number) {
@@ -74,7 +108,8 @@ function Row({ name, children }: { name: string; children: ReactNode }) {
   );
 }
 
-export function CodeWalkthrough() {
+export function CodeWalkthrough({ locale = 'en' }: { locale?: Locale }) {
+  const text = uiCopy[locale];
   const [step, setStep] = useState(1);
   const [announcement, setAnnouncement] = useState('');
   const rootRef = useRef<HTMLDivElement>(null);
@@ -85,10 +120,8 @@ export function CodeWalkthrough() {
     if (fromUser) touched.current = true;
     setStep(next);
     const outcome = runTo(next);
-    setAnnouncement(
-      `Ran ${STEPS[next].label}. Position ${outcome.position}, title ${outcome.title}.`
-    );
-  }, []);
+    setAnnouncement(text.announcement(STEPS[next].label, outcome.position, outcome.title));
+  }, [text]);
 
   // Play the snippet once, step by step, the first time it scrolls into view.
   useEffect(() => {
@@ -117,7 +150,7 @@ export function CodeWalkthrough() {
   }, []);
 
   return (
-    <div ref={rootRef} className="code-window cw-window" role="group" aria-label="Quick start walkthrough">
+    <div ref={rootRef} className="code-window cw-window" role="group" aria-label={text.walkthrough}>
       <div className="code-window-bar">
         <div className="window-dots">
           <span />
@@ -125,10 +158,10 @@ export function CodeWalkthrough() {
           <span />
         </div>
         <span>quick-start.ts</span>
-        <CopyButton text={CODE} />
+        <CopyButton text={CODE} label={text.copy} copiedLabel={text.copied} />
       </div>
 
-      <pre className="cw-code" aria-label="Quick start code">
+      <pre className="cw-code" aria-label={text.codeLabel}>
         <code>
           {LINES.map((line, index) => (
             <span key={index} className={`cw-line ${lineStatus(index, step)}`}>
@@ -152,16 +185,16 @@ export function CodeWalkthrough() {
           onClick={() => goTo(step === LAST_STEP ? 0 : step + 1)}
         >
           {step === LAST_STEP ? <RotateCcw size={15} /> : <Play size={15} />}
-          {step === LAST_STEP ? 'Run again' : 'Run next step'}
+          {step === LAST_STEP ? text.runAgain : text.runNext}
         </button>
-        <div className="cw-steps" role="group" aria-label="Steps">
+        <div className="cw-steps" role="group" aria-label={text.steps}>
           {STEPS.map((entry, index) => (
             <button
               key={entry.label}
               type="button"
               className={`cw-chip${index === step ? ' is-active' : index < step ? ' is-done' : ''}`}
               aria-pressed={index === step}
-              aria-label={`Run to step ${index + 1}: ${entry.label}`}
+              aria-label={text.runTo(index + 1, entry.label)}
               onClick={() => goTo(index)}
             >
               <span className="cw-chip-index">{index + 1}</span>
@@ -184,11 +217,11 @@ export function CodeWalkthrough() {
           <Bool value={result.canBack} /> <span className="code-punctuation">/</span>{' '}
           <Bool value={result.canForward} />
         </Row>
-        <Row name={step === 2 ? 'applied inverse patch' : 'applied patch'}>
+        <Row name={step === 2 ? text.appliedInverse : text.applied}>
           {result.applied ? (
             <span className="cw-patch">{describePatch(result.applied)}</span>
           ) : (
-            <span className="code-comment">none yet: position 0 is the baseline</span>
+            <span className="code-comment">{text.none}</span>
           )}
         </Row>
       </dl>

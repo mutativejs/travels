@@ -2,20 +2,21 @@
 
 import { History } from 'lucide-react';
 import { useState } from 'react';
+import type { Locale } from '@/lib/locale';
 
 /**
  * Three patch orbits around the history icon, drawn in CSS 3D. Clicking it
  * winds everything backwards once, like an undo for time itself.
  */
-export function TimeOrbit() {
+export function TimeOrbit({ locale = 'en' }: { locale?: Locale }) {
   const [rewinds, setRewinds] = useState(0);
 
   return (
     <button
       type="button"
       className="time-orbit"
-      aria-label="Rewind the orbit animation"
-      title="Rewind"
+      aria-label={locale === 'zh' ? '倒放轨道动画' : 'Rewind the orbit animation'}
+      title={locale === 'zh' ? '倒放' : 'Rewind'}
       onClick={() => setRewinds((count) => count + 1)}
     >
       <span

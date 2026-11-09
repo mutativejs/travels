@@ -3,7 +3,7 @@
 import { Undo2 } from 'lucide-react';
 
 /** Scrolls back to the top of the page: the homepage's own undo. */
-export function BackToTop() {
+export function BackToTop({ label = 'Back to top' }: { label?: string }) {
   return (
     <button
       type="button"
@@ -13,7 +13,7 @@ export function BackToTop() {
         window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
       }}
     >
-      <Undo2 size={14} aria-hidden="true" /> Back to top
+      <Undo2 size={14} aria-hidden="true" /> {label}
     </button>
   );
 }

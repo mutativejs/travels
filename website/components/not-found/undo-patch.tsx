@@ -9,7 +9,15 @@ import { useEffect, useRef, useState } from 'react';
  * inverse patch, then returns to the previous page, or home when there is
  * no previous page in this tab.
  */
-export function UndoPatch({ path }: { path: string }) {
+export function UndoPatch({
+  path,
+  label = 'Travel back',
+  homeHref = '/',
+}: {
+  path: string;
+  label?: string;
+  homeHref?: string;
+}) {
   const router = useRouter();
   const [undone, setUndone] = useState(false);
   const timer = useRef<number | null>(null);
@@ -27,7 +35,7 @@ export function UndoPatch({ path }: { path: string }) {
     timer.current = window.setTimeout(
       () => {
         if (window.history.length > 1) router.back();
-        else router.push('/');
+        else router.push(homeHref);
       },
       reduced ? 0 : 750
     );
@@ -56,7 +64,7 @@ export function UndoPatch({ path }: { path: string }) {
         </div>
       </div>
       <button type="button" className="button button-primary nf-back" onClick={travelBack}>
-        <Undo2 size={17} aria-hidden="true" /> Travel back
+        <Undo2 size={17} aria-hidden="true" /> {label}
       </button>
     </div>
   );

@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from 'react';
 export function CopyButton({
   text,
   label,
+  copiedLabel = 'Copied',
   className = '',
 }: {
   text: string;
   label?: string;
+  copiedLabel?: string;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -38,11 +40,11 @@ export function CopyButton({
       type="button"
       className={`copy-button ${className}`}
       onClick={copy}
-      aria-label={copied ? 'Copied' : (label ?? 'Copy to clipboard')}
-      title={copied ? 'Copied' : (label ?? 'Copy to clipboard')}
+      aria-label={copied ? copiedLabel : (label ?? 'Copy to clipboard')}
+      title={copied ? copiedLabel : (label ?? 'Copy to clipboard')}
     >
       {copied ? <Check size={15} /> : <Copy size={15} />}
-      {label && <span>{copied ? 'Copied' : label}</span>}
+      {label && <span>{copied ? copiedLabel : label}</span>}
     </button>
   );
 }

@@ -7,7 +7,7 @@ export const revalidate = false;
 
 export async function GET(_req: Request, { params }: RouteContext<'/og/docs/[...slug]'>) {
   const { slug } = await params;
-  const page = source.getPage(slug.slice(0, -1));
+  const page = source.getPage(slug.slice(0, -1), 'en');
   if (!page) notFound();
 
   return generateOGImage({
@@ -18,7 +18,7 @@ export async function GET(_req: Request, { params }: RouteContext<'/og/docs/[...
 }
 
 export function generateStaticParams() {
-  return source.getPages().map((page) => ({
+  return source.getPages('en').map((page) => ({
     lang: page.locale,
     slug: getPageImageUrl(page).segments,
   }));

@@ -1104,3 +1104,97 @@ a:hover > .brand .brand-logo {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* Locale switch */
+
+.locale-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  color: var(--home-muted, var(--color-fd-muted-foreground));
+  background: transparent;
+  border: 1px solid var(--home-line, var(--color-fd-border));
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.locale-switch:hover {
+  color: var(--home-ink, var(--color-fd-foreground));
+  background: var(--home-soft, var(--color-fd-accent));
+  border-color: color-mix(in srgb, var(--home-line, var(--color-fd-border)) 70%, currentColor);
+}
+
+.locale-switch:focus-visible {
+  outline: 3px solid rgb(64 126 250 / 32%);
+  outline-offset: 3px;
+}
+
+/* Chinese typography */
+
+html:lang(zh) {
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Source Han Sans SC", var(--font-manrope), sans-serif;
+}
+
+html:lang(zh) body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Source Han Sans SC", var(--font-manrope), sans-serif;
+  line-height: 1.75;
+}
+
+html:lang(zh) .hero-copy h1 {
+  letter-spacing: -0.035em;
+  line-height: 1.14;
+}
+
+html:lang(zh) .section-heading h2,
+html:lang(zh) .code-section-copy h2,
+html:lang(zh) .final-cta h2 {
+  letter-spacing: -0.025em;
+  line-height: 1.24;
+}
+
+html:lang(zh) #nd-page > h1 {
+  letter-spacing: -0.025em;
+  line-height: 1.22;
+}
+
+html:lang(zh) #nd-page .prose h2,
+html:lang(zh) #nd-page .prose h3 {
+  letter-spacing: -0.012em;
+}
+
+html:lang(zh) .docs-card h3,
+html:lang(zh) .feature-card h3,
+html:lang(zh) .use-case-card h3 {
+  letter-spacing: 0;
+}
+
+/* Standalone global 404 (route groups have no shared root layout). */
+
+.nf-global-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1180px, calc(100% - 48px));
+  margin-inline: auto;
+  padding-block: 18px;
+}
+
+.nf-global-brand {
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .nf-global-top {
+    width: calc(100% - 30px);
+  }
+}
