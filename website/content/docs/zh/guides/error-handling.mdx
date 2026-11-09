@@ -39,6 +39,8 @@ try {
 | `CONTROLLED_JOURNAL_REQUIRED` | 该操作需要 Journal。 |
 | `CONTROLLED_OPERATION_UNAVAILABLE` | 从 Journal 请求了拥有状态的能力。 |
 
+异步事务会抛出错误码为 `TRANSACTION_FAILED` 的 `TravelsError`。无论传入原生 async 函数，还是在普通函数中返回 Promise，均可通过 `cause` 上的 `TravelsTypeError` 和 `ASYNC_CALLBACK` 识别原因。
+
 核心操作失败会被包装，可通过 `onError` 处理，尤其是在协调嵌套事务时。如果 UI 必须同步处理某些操作的错误，请在操作周围保留本地 `try/catch`；不要以为钩子会取代抛出的错误。
 
 ## 持久化错误

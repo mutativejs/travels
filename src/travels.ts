@@ -225,6 +225,18 @@ const isKnownAsyncFunction = (value: unknown): boolean =>
   typeof value === 'function' &&
   asyncFunctionTags.has(Object.prototype.toString.call(value));
 
+const transactionError = (cause: unknown): TravelsError => {
+  let message = 'Travels: TRANSACTION_FAILED';
+  try {
+    if (cause instanceof TravelsError) return cause;
+    const detail = cause instanceof Error ? cause.message : cause;
+    if (typeof detail === 'string' && detail) message += `: ${detail}`;
+  } catch {
+    // A thrown proxy or error with a throwing message getter is still the cause.
+  }
+  return new TravelsError('TRANSACTION_FAILED', message, { cause });
+};
+
 type TransactionSnapshot<S, P extends PatchesOption = {}> = {
   state: S;
   position: number;
@@ -1263,14 +1275,8 @@ export class TravelsCore<
     });
   }
 
-  private reportError(
-    code: 'TRANSACTION_FAILED',
-    error: unknown
-  ): TravelsError {
-    const travelsError =
-      error instanceof TravelsError
-        ? error
-        : new TravelsError(code, `Travels: ${code}`, { cause: error });
+  private reportTransactionError(error: unknown): TravelsError {
+    const travelsError = transactionError(error);
     if (this.onError) {
       if (this.transactionDepth > 0) {
         (this.transactionErrors ??= new Set()).add(travelsError);
@@ -1977,9 +1983,11 @@ export class TravelsCore<
     }
 
     if (isKnownAsyncFunction(fn)) {
-      throw this.reportError(
-        'TRANSACTION_FAILED',
-        new TypeError('Travels: transaction callback must be synchronous.')
+      throw this.reportTransactionError(
+        new TravelsTypeError(
+          'ASYNC_CALLBACK',
+          'Travels: transaction callback must be synchronous.'
+        )
       );
     }
 
@@ -2012,8 +2020,7 @@ export class TravelsCore<
       failed = true;
       const rolledBack = this.restoreTransactionSnapshot(transactionSnapshot);
       this.transactionMeta = previousMetadata;
-      throw this.reportError(
-        'TRANSACTION_FAILED',
+      throw this.reportTransactionError(
         rolledBack
           ? error
           : new TravelsError(
@@ -2072,7 +2079,7 @@ export class TravelsCore<
         this.transactionErrors = undefined;
         if (errors) {
           for (const error of errors) {
-            this.reportError('TRANSACTION_FAILED', error);
+            this.reportTransactionError(error);
           }
         }
       }

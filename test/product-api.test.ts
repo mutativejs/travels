@@ -1297,6 +1297,19 @@ describe('Productized history API', () => {
     expect(thenCalls).toBe(0);
   });
 
+  test('exposes the same asynchronous cause for both callback forms', () => {
+    const travels = createTravels(0);
+    for (const callback of [async () => {}, () => Promise.resolve()]) {
+      expect(() => travels.transaction(callback as () => void)).toThrowError(
+        expect.objectContaining({
+          code: 'TRANSACTION_FAILED',
+          message: expect.stringContaining('callback must be synchronous'),
+          cause: expect.objectContaining({ name: 'TravelsTypeError', code: 'ASYNC_CALLBACK' }),
+        })
+      );
+    }
+  });
+
   test('rejects async transactions before invocation', () => {
     const onError = vi.fn();
     const travels = createTravels({ count: 0 }, { onError });
