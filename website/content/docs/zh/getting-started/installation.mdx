@@ -1,0 +1,78 @@
+---
+title: 安装
+description: 在 TypeScript 或 JavaScript 应用中安装 Travels 3 与 Mutative 2。
+---
+
+## 环境要求
+
+- 服务端使用与仓库工具链需要 **Node.js 22 或更高版本**。
+- 浏览器应用需要支持标准 JavaScript 与 JSON API 的**现代浏览器**。
+- **Mutative 2** 是 Travels 的 peer dependency。
+- 需要能够定义 `process.env.NODE_ENV` 的打包器；如果要在不使用打包器的情况下加载 ES 模块，请显式使用 Mutative 的生产版浏览器构建。
+
+Travels 提供 ESM、CommonJS、UMD 与 TypeScript 声明文件。运行时支持策略见[兼容性](/zh/docs/reference/compatibility)。
+
+## 安装依赖
+
+<Tabs items={["pnpm", "npm", "yarn"]}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add travels mutative
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install travels mutative
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add travels mutative
+    ```
+  </Tab>
+</Tabs>
+
+请安装相互匹配的主版本：`travels@3` 需要 `mutative@^2.0.0`，不支持 Mutative 1。
+
+## 验证安装
+
+创建一条小型时间线，并执行一次可撤销的编辑：
+
+```ts
+import { createTravels } from 'travels';
+
+const travels = createTravels({ count: 0 });
+
+travels.setState((draft) => {
+  draft.count += 1;
+});
+
+console.log(travels.getState()); // { count: 1 }
+travels.back();
+console.log(travels.getState()); // { count: 0 }
+travels.forward();
+console.log(travels.getState()); // { count: 1 }
+```
+
+`createTravels()` 是公开的工厂函数。导出的 `Travels` 值是一个持久化命名空间，而不是构造函数；检测时间线时请使用 `isTravels()`，不要使用 `instanceof Travels`。
+
+## 可选的官方绑定
+
+如果你需要与框架无关的状态所有权、持久化或自定义集成，可以直接使用核心 API。若希望获得更符合框架习惯的绑定，请安装匹配的 v3 包：
+
+| 绑定 | 用途 | Travels 兼容版本 |
+| --- | --- | --- |
+| [`use-travel`](https://github.com/mutativejs/use-travel) | React Hook 与共享外部 Store 时间线 | `^3.0.0` |
+| [`zustand-travel`](https://github.com/mutativejs/zustand-travel) | Zustand 时间旅行中间件 | `^3.0.1` |
+
+## 浏览器打包说明
+
+Mutative 2 以 ES2018 为目标，并通过 `process.env.NODE_ENV` 选择开发版或生产版代码。Vite、webpack 以及类似的打包器通常会处理这一点。如果不用打包器，请使用 `mutative/dist/mutative.esm.production.min.mjs` 或 Mutative 的 UMD 构建，以免浏览器需要 `process` 全局变量。
+
+<Callout type="warn" title="规范化持久化状态">
+普通对象、稠密数组、字符串、除 `-0` 之外的有限数字、布尔值与 `null` 共同构成持久化状态契约。Map 与 Set 会被拒绝。持久化之前，请先规范化日期、类实例、非 JSON 数字、函数、ref 以及其他仅存在于运行时的值。参见[状态要求](/zh/docs/concepts/state-requirements)。
+</Callout>
+
+## 下一步
+
+跟随[快速开始](/zh/docs/getting-started/quick-start)，为时间线加入订阅、元数据、撤销/重做控件与持久化。
