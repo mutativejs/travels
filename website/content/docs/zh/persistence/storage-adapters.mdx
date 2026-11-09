@@ -16,7 +16,7 @@ Travels 的持久化不依赖具体存储。唯一需要存储的值，就是 `t
 
 | 库 | 核对的包版本 | 存储模型 | 适用场景 |
 | --- | --- | --- | --- |
-| Dexie.js | `dexie@4.4.2` | IndexedDB 表、索引、事务、丰富查询 | 多文档、可搜索的快照目录、自定义清理查询 |
+| Dexie.js | `dexie@4.4.2` | IndexedDB 表、索引、事务、复杂查询 | 多文档、可搜索的快照目录、自定义清理查询 |
 | idb | `idb@8.0.3` | 原生 IndexedDB 之上的轻量 Promise 封装 | 需要显式模式控制的小型 IndexedDB 适配器 |
 | localForage | `localforage@1.10.0` | 基于 IndexedDB 和 localStorage 的异步键值 API，并提供面向旧浏览器的遗留 WebSQL 驱动 | 简单浏览器键值持久化，兼顾遗留兼容性 |
 | localspace | `localspace@1.2.0` | 兼容 localForage 的异步键值 API，提供 IndexedDB/localStorage 驱动、批量 API、事务和插件 | TypeScript 优先的键值持久化、批处理，以及插件驱动的 TTL/压缩/加密 |
