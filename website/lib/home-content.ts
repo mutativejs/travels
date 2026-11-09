@@ -402,7 +402,7 @@ const zh: HomeContent = {
     cta: '阅读指南',
   },
   api: {
-    title: '需要精确签名？',
+    title: '需要查具体 API 定义？',
     text: '浏览每个导出的函数、接口、类型别名、类与变量。',
     cta: 'API 参考',
   },
