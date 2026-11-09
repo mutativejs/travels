@@ -81,6 +81,6 @@ const unsubscribe = travels.subscribe(({ state }) => {
 
 ## 单一权威更新路径
 
-不要让一个 action 独立写入两个 Store，从而制造出彼此不一致的状态。要么让更新都经过 Travels，并镜像它已提交的状态；要么让 Zustand 保持权威，并使用官方绑定或受控日志。
+不要让一个 action 独立写入两个 Store，从而制造出彼此不一致的状态。要么让更新都经过 Travels，并镜像它已提交的状态；要么让 Zustand 保持权威，并使用官方绑定或 Journal。
 
 如果独立表单或 Store 的所有者之后可能修改这些对象，就不要把仍然活动的可变引用未经克隆直接传给不可变 Travels。在集成边界上使用分离副本。

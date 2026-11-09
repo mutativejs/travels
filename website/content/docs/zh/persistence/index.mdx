@@ -102,9 +102,9 @@ const travels = restoreTravels(snapshot, {
 
 `target` 要求启用可变模式，且根类型必须兼容。Travels 会用快照状态的独立副本就地覆盖目标。
 
-## 受控日志恢复
+## Journal 恢复
 
-当状态由另一个运行时持有时，用日志的同步 `apply` 回调来恢复：
+当状态由另一个运行时持有时，用 Journal 的同步 `apply` 回调来恢复：
 
 ```ts
 const snapshot = Travels.deserialize<State>(stored, {

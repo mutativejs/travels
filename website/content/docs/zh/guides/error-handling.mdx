@@ -36,8 +36,8 @@ try {
 | `REENTRANT_MUTATION` | 同步观察者或受控回调尝试了嵌套变更。 |
 | `INVALID_PATCH_ENTRY` / `EMPTY_PATCH_ENTRY` | 受控补丁对格式错误或缺少所需操作。 |
 | `UNCLONEABLE_PATCH_VALUE` | 受控补丁值无法安全分离。 |
-| `CONTROLLED_JOURNAL_REQUIRED` | 该操作需要受控日志。 |
-| `CONTROLLED_OPERATION_UNAVAILABLE` | 从日志请求了拥有状态的能力。 |
+| `CONTROLLED_JOURNAL_REQUIRED` | 该操作需要 Journal。 |
+| `CONTROLLED_OPERATION_UNAVAILABLE` | 从 Journal 请求了拥有状态的能力。 |
 
 核心操作失败会被包装，可通过 `onError` 处理，尤其是在协调嵌套事务时。如果 UI 必须同步处理某些操作的错误，请在操作周围保留本地 `try/catch`；不要以为钩子会取代抛出的错误。
 

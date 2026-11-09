@@ -13,7 +13,7 @@ description: 诊断常见的更新、导航、持久化、可变模式与集成�
 2. **是否设置了 `autoArchive: false`？** 待处理的更新需要调用 `archive()`，或执行会隐式归档它们的操作。
 3. **追踪是否已暂停？** 请在 `finally` 块中恢复追踪。
 4. **你是否通过 Travels 写入？** 直接对 `getState()` 的返回值、MobX/Vue Store 或其他所有者赋值不会被记录。
-5. **是否使用了受控日志？** 请用所有者提供的精确补丁对调用 `recordPatches()`；日志有意不提供 `setState()`。
+5. **是否使用了 Journal？** 请用所有者提供的精确补丁对调用 `recordPatches()`；Journal 有意不提供 `setState()`。
 6. **更新函数是否抛出异常或返回了 Promise？** 请保持回调同步，并在调用前等待数据就绪。
 
 用 `getRevision()` 确认是否发生了已提交事件，用 `subscribe()` 检查事件类型。
@@ -31,7 +31,7 @@ description: 诊断常见的更新、导航、持久化、可变模式与集成�
 
 ## `instanceof Travels` 失败或抛出异常
 
-导出的 `Travels` 值是持久化命名空间，在 Travels 3 中不是构造函数。请用 `createTravels()` 创建实例，并用 `isTravels(value)` 检测。受控日志不是拥有状态的 Travels 实例，该类型守卫会返回 `false`。
+导出的 `Travels` 值是持久化命名空间，在 Travels 3 中不是构造函数。请用 `createTravels()` 创建实例，并用 `isTravels(value)` 检测。Journal 不是拥有状态的 Travels 实例，该类型守卫会返回 `false`。
 
 ## 恢复快照时抛出异常
 
@@ -77,7 +77,7 @@ Travels 会回滚通过自身 API 完成的写入。它无法回滚对可变 Sto
 
 观察者在提交后运行。它们无法否决或安全地变更同一次转换。把后续工作安排到之后的任务中，并避免循环。使用 `onObserverError` 隔离监听器或 devtools 的故障；观察者异常不会回滚已经提交的状态。
 
-## 受控日志的历史记录与所有者不一致
+## Journal 的历史记录与所有者不一致
 
 - 记录同一次转换提交后的精确状态，以及精确的正向/反向补丁对。
 - 不要在 Travels 内部重复执行更新函数。

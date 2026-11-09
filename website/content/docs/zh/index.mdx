@@ -5,10 +5,10 @@ description: 学习、集成并运维 Travels 3 的基于补丁的撤销/重做�
 
 Travels 是一个与框架无关的状态历史引擎，为应用提供可靠的撤销/重做能力。它记录正向与反向 JSON Patch，因此状态庞大、编辑频繁而细微的应用也能保留紧凑的时间线，将其持久化，并在之后恢复。
 
-你可以用熟悉的修改语法编写更新。Travels 默认通过 [Mutative](https://mutative.js.org/) 生成不可变状态；可变模式与受控日志则支持响应式 Store 和由外部持有的状态。
+你可以用熟悉的修改语法编写更新。Travels 默认通过 [Mutative](https://mutative.js.org/) 生成不可变状态；可变模式与 Journal 则支持响应式 Store 和由外部持有的状态。
 
 <Callout type="info" title="Travels 3">
-第 3 版采用显式工厂函数、唯一的原子持久化恢复路径、只读共享视图，并将“拥有状态的时间线”和“外部日志”拆分为不同能力。正在升级？请先阅读[迁移指南](/zh/docs/migration)。
+第 3 版采用显式工厂函数、唯一的原子持久化恢复路径、只读共享视图，并将“拥有状态的时间线”和“外部 Journal”拆分为不同能力。正在升级？请先阅读[迁移指南](/zh/docs/migration)。
 </Callout>
 
 ## 按目标开始
@@ -18,7 +18,7 @@ Travels 是一个与框架无关的状态历史引擎，为应用提供可靠的
   <Card title="理解历史模型" href="/zh/docs/concepts/how-it-works" description="状态、补丁、位置、归档、分支与基线。" />
   <Card title="接入你的框架" href="/zh/docs/integrations" description="React、Vue、Zustand、MobX、Pinia、表单与外部 Store。" />
   <Card title="持久化完整历史" href="/zh/docs/persistence" description="序列化、校验、恢复、迁移并修复时间线快照。" />
-  <Card title="掌握进阶行为" href="/zh/docs/guides" description="事务、手动归档、事件、可变状态与日志。" />
+  <Card title="掌握进阶行为" href="/zh/docs/guides" description="事务、手动归档、事件、可变状态与 Journal。" />
   <Card title="查阅精确 API" href="/zh/docs/api-reference" description="每个导出的函数、类、接口、类型别名与变量。" />
 </Cards>
 

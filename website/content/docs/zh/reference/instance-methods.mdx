@@ -1,6 +1,6 @@
 ---
 title: 实例方法
-description: 按任务组织的索引，涵盖时间线、日志、导航、历史记录与持久化方法。
+description: 按任务组织的索引，涵盖时间线、Journal、导航、历史记录与持久化方法。
 ---
 
 本页按任务对公开方法分组。确切的泛型、重载、返回对象与带源码链接的签名，见生成的 [API 参考](/zh/docs/api-reference)。
@@ -21,11 +21,11 @@ description: 按任务组织的索引，涵盖时间线、日志、导航、历�
 | `setState(updater, metadata?)` | 拥有状态的时间线 | 提交直接值、返回的状态或草稿函数。 |
 | `transaction(metadata?, fn)` | 拥有状态的时间线 | 以原子方式对同步操作分组；只产生一个根事件。 |
 | `batch(metadata?, fn)` | 拥有状态的时间线 | `transaction()` 的别名。 |
-| `recordPatches(state, entry)` | 受控日志 | 记录外部所有者给出的精确正向/反向补丁对。 |
-| `archive(metadata?)` | 手动时间线/日志 | 把待处理的更新作为一个条目提交。 |
-| `canArchive()` | 手动时间线/日志 | 检查是否有待处理的工作。 |
+| `recordPatches(state, entry)` | Journal | 记录外部所有者给出的精确正向/反向补丁对。 |
+| `archive(metadata?)` | 手动时间线/Journal | 把待处理的更新作为一个条目提交。 |
+| `canArchive()` | 手动时间线/Journal | 检查是否有待处理的工作。 |
 
-更新函数与事务回调必须是同步的。受控日志不暴露 `setState()`、事务、追踪控制或 `getControls()`。
+更新函数与事务回调必须是同步的。Journal 不暴露 `setState()`、事务、追踪控制或 `getControls()`。
 
 ## 导航
 
@@ -38,7 +38,7 @@ description: 按任务组织的索引，涵盖时间线、日志、导航、历�
 | `getPosition()` | 读取当前游标。 |
 | `reset()` | 通过所有者恢复实例的现有基线。 |
 
-导航会发布 `go` 事件。手动模式下待处理的工作会作为成功导航的一部分被归档。受控日志通过 `apply` 委托应用补丁，并且不得把该导航再次记录为新的外部编辑。
+导航会发布 `go` 事件。手动模式下待处理的工作会作为成功导航的一部分被归档。Journal 通过 `apply` 委托应用补丁，并且不得把该导航再次记录为新的外部编辑。
 
 ## 基线与追踪
 
@@ -71,7 +71,7 @@ description: 按任务组织的索引，涵盖时间线、日志、导航、历�
 | `assertPersistenceCompatible()` | 针对不可持久化的状态、补丁、路径或元数据，抛出带具体路径的诊断。 |
 | `Travels.deserialize(input, options?)` | 在恢复之前解析、迁移并校验快照。 |
 | `restoreTravels(snapshot, options?)` | 以原子方式恢复拥有状态的时间线。 |
-| `restoreTravelJournal(snapshot, options)` | 以原子方式恢复由外部拥有的日志。 |
+| `restoreTravelJournal(snapshot, options)` | 以原子方式恢复由外部拥有的 Journal。 |
 
 导出的 `Travels` 值是持久化命名空间，而不是构造函数。
 
@@ -80,7 +80,7 @@ description: 按任务组织的索引，涵盖时间线、日志、导航、历�
 - `findStateCompatibilityIssues(value, options?)` 检查可持久化数据中的隐患。
 - `validateTravelPatches(...)` 校验补丁结构与保留的值。
 - `validateTravelHistoryEntry(...)` 校验单个正向/反向历史记录条目。
-- `assertTravelHistoryEntryRecordable(...)` 在不改变日志状态的情况下预检受控入口。
+- `assertTravelHistoryEntryRecordable(...)` 在不改变 Journal 状态的情况下预检受控入口。
 - `createPatchableTravels(...)` 在静态层面约束初始状态，并在运行时立即校验。
 
 ## 订阅
