@@ -1,0 +1,178 @@
+---
+title: "可变模式"
+description: "在记录可逆补丁的同时，保持响应式对象引用不变。"
+---
+
+可变模式让 Travels 与可观察状态库（MobX、Vue 的 `reactive`、Pinia Store 等）顺畅协作，这些库依赖**稳定的对象引用**来通知订阅者。每次更新时，Travels 不再替换整个状态对象，而是就地修改原对象，同时仍然记录用于撤销/重做的 JSON Patch。
+
+本指南帮助你判断何时启用 `mutable: true`、理解其内部机制，并在生产应用中安全使用。
+
+## 何时应该启用可变模式
+
+- 你交给 Travels 的对象正是 UI 库所观察的对象，并且一旦替换该引用就会破坏响应式（MobX Store、Vue/Pinia Store、自定义代理）。
+- 你希望获得撤销/重做能力，又不愿引入额外的 `setState({...state})` 副本或垃圾回收开销。
+- 你使用 `autoArchive: false` 批量更新，但仍希望实时 Store 引用立即更新。
+
+如果你已经在替换引用（React/Redux 风格的 reducer、Zustand 等），或者更看重用于 diff 的结构共享，请继续使用默认的不可变模式。
+
+## 启用可变模式
+
+```ts
+import { createTravels } from 'travels';
+
+const store = reactive({ count: 0 }); // Vue/Pinia example
+const travels = createTravels(store, { mutable: true });
+
+travels.setState((draft) => {
+  draft.count += 1; // Mutates `store` in place
+});
+```
+
+经过这次普通的草稿更新后，`travels.getState()` 仍然返回 `store`。实际生效的变更仍会生成补丁，但显式的根替换和原始类型根可能改变根引用，具体见下文。
+
+## 内部实现
+
+1. `createTravels` 将你传入的对象保留为实时状态，并为 `reset()` 存储一份分离的基线副本：尽可能使用 `structuredClone()`，否则回退到自定义深拷贝。
+2. 每次针对对象根的普通草稿更新都会经过 Mutative 的 `create(...)` 生成补丁/反向补丁。这些补丁随即通过 `apply(..., { mutable: true })` 应用回实时对象，从而保持其引用不变。显式的根替换则改用不可变回退路径。
+3. 导航命令（`back`、`forward`、`go`）复用已存储的补丁。`reset()` 则重新计算到该基线副本的差异，因此无需重放每一步历史记录就能恢复原始数据。
+4. 如果某个历史步骤替换了整个根（补丁路径为 `[]` 且 `op: 'replace'`），Travels 会在该次跳转中回退到不可变赋值，以确保正确性。
+
+完整实现位于 `src/travels.ts`，并由 `test/mutable-mode.test.ts` 和 `test/primitive-edge-cases.test.ts` 覆盖。
+
+## 将持久化的历史记录恢复到实时 Store
+
+`restoreTravels(snapshot)` 恢复的是快照状态的分离副本，对于已经被观察的 Store 来说，这会破坏响应式。应改为把被观察的对象作为 `target` 传入：
+
+```ts
+import { reactive } from 'vue';
+import { restoreTravels, Travels } from 'travels';
+
+const store = reactive({ count: 0 });
+const snapshot = Travels.deserialize<typeof store>(stored, {
+  validation: 'semantic',
+});
+const travels = restoreTravels(snapshot, { mutable: true, target: store });
+
+travels.getState() === store; // true
+travels.back(); // Localized patches mutate `store`; root replacements can reassign it
+```
+
+Travels 在记录任何内容之前，会先用 `snapshot.state` 的副本就地覆盖 `target`，因此实时对象与恢复后的补丁历史总是从同一份数据开始。快照本身永远不会被修改。`target` 要求 `mutable: true`，并且其根类型（普通对象或数组）必须与快照状态一致；两个根都不得含有自有 `__proto__` 键，不满足时会以 `INVALID_OPTION` 拒绝。
+
+## 各操作的行为
+
+| 操作 | 是否保留引用 | 说明 |
+| --- | --- | --- |
+| `setState` | 通常 | 局部草稿更新会保留对象/数组根；原始类型根和显式根替换使用不可变回退 |
+| `back` / `forward` | 是，除非该步骤应用了根级替换 | 当你撤销的变更替换了整个状态对象或类型时会发生 |
+| `go(position)` | 与 `back`/`forward` 相同 | Travels 会先检查是否存在根替换补丁，再决定能否就地修改 |
+| `archive`（手动） | 是 | 临时补丁会合并并应用到同一实时对象 |
+| `reset` | 通常 | 仅当当前状态与存储的初始快照同为普通对象或同为数组，且二者都没有自有 `__proto__` 键时就地修改；否则重新赋值根 |
+| `getHistory` | 混合 | 包含当前位置的实时状态。过去与未来的条目与其共享未变更的对象，因此就地更新也会改变先前返回的数组；如需保留副本，请使用 `getHistorySnapshot()` |
+| `subscribe` | 接收当前实时根 | 就地操作会保留其引用；根替换步骤可能提供新的根 |
+
+## 回退与安全护栏
+
+- **不自动冻结**：`enableAutoFreeze` 不能与 `mutable: true` 同时使用。当 `enableAutoFreeze` 为字面量 `true` 时，TypeScript 会对这一组合报错，工厂函数也会在运行时以 `INVALID_OPTION` 拒绝。冻结每个生成的状态还会冻结它与实时对象共享的部分，导致下一次写入这些部分的更新抛出异常。
+- **非对象根**：如果当前状态是原始类型或 `null`，Travels 会记录一条开发警告，并在该次更新中采用不可变行为。撤销/重做仍然有效——只是无法就地修改原始类型。
+- **历史记录中的根替换**：导航到替换整个根的步骤（例如从 `{...}` 切换到 `[]` 或原始类型）时，仅该次跳转会强制使用新引用。
+- **无法重放的历史记录**：导航会将保留的补丁就地应用到实时对象。如果某个补丁无法应用（例如通过了默认结构校验的损坏快照），`go()` 会抛出 `HISTORY_REPLAY_FAILED`，且此前完成的写入会保留。在事务中，回滚会尽可能撤销，若某些变更无法撤销，则抛出 `TRANSACTION_FAILED`，并将该错误作为其 `cause`。恢复不可信快照之前，请先用 `Travels.deserialize(snapshot, { validation: 'semantic' })` 校验。
+- **返回新根的函数更新器**：在可变模式下，替换根的 `setState(() => newState)` 在该次更新中回退为不可变赋值（会发出开发警告）。
+- **根上的自有 `__proto__` 键**：`JSON.parse` 会把 `"__proto__"` 成员变成自有键。Mutative 草稿无法通过赋值接收该键，Mutative 也不会应用指向它的补丁路径，因此当值更新或 `reset()` 的当前根或新根含有该键时，会替换根而不是就地覆盖。
+- **重置基线是一份副本**：`reset()` 会回到一份状态副本，该副本取自创建或恢复时，或由最近一次 `rebase()`、`replaceStateWithoutHistory()` 或跟踪暂停期间的更新刷新。副本尽可能使用 `structuredClone()`，否则使用深拷贝回退，因此 `Date`、`undefined`、`NaN`、`-0` 和 `bigint` 都能保留。可被结构化克隆的类实例会丢失原型；无法克隆的值（例如函数和不支持的运行时对象）可以通过回退路径按引用保留。两种模式都会重置到相同的数据。
+- **分离的历史值**：可变时间线会通过结构化克隆加回退机制，将补丁中的对象值分离，因此之后对克隆数据的就地写入无法改写历史记录。通过 `mark` 进入草稿处理、且结构化克隆能够处理的类实例，在撤销或重做将其插入时会以普通对象返回；只能走回退路径的值则可以保留其引用和运行时类型。对保持在原位的实例字段的编辑会保留该实例，而不可变时间线自始至终保留实例。
+- **草稿最佳实践**：优先修改提供的草稿（`draft.count++`），而不是返回一个全新对象。修改草稿能让 Travels 在导航期间继续使用就地补丁。
+
+## 集成模式
+
+### MobX（简化版可观察对象）
+
+```ts
+const mobxStore = makeAutoObservable({ todos: [] });
+const travels = createTravels(mobxStore, { mutable: true });
+
+autorun(() => {
+  // mobxStore reference never changes
+  console.log(mobxStore.todos.length);
+});
+
+function addTodo(title: string) {
+  travels.setState((draft) => {
+    draft.todos.push({ id: nanoid(), title, done: false });
+  });
+}
+```
+
+### Vue / Pinia
+
+```ts
+export const useTodosStore = defineStore('todos', () => {
+  const state = reactive({ items: [] });
+  const travels = createTravels(state, { mutable: true });
+
+  const controls = travels.getControls();
+
+  function addTodo(text: string) {
+    travels.setState((draft) => {
+      draft.items.push({ id: crypto.randomUUID(), text, done: false });
+    });
+  }
+
+  return { state, addTodo, travels, controls };
+});
+```
+
+响应式的 `state` 引用与 Vue 组件绑定的是同一个对象，因此组件能立即看到变更，同时仍保留撤销/重做控制。
+
+### 手动归档 + 可变模式
+
+```ts
+const travels = createTravels(store, { mutable: true, autoArchive: false });
+
+function commitChanges(cb: () => void) {
+  cb();              // Run multiple travels.setState calls
+  travels.archive(); // Save them as one undoable step
+}
+```
+
+由于状态是就地修改的，分组变更执行期间 UI 会持续更新。这个辅助函数定义的是手动归档边界，而非原子事务；当你需要回滚以及单个稳定后的观察者事件时，请使用 `travels.transaction()`。
+
+### 事务 + 可变状态
+
+`travels.transaction(...)` 会把 Travels 操作产生的反向补丁记入日志。如果回调失败，这些已记录的变更会被还原，而实时状态对象保持其引用不变。直接写入该对象不会产生 Travels 补丁，因此它不在日志之中，回滚后依然保留：
+
+```ts
+const store = reactive({ saved: false, connectionStatus: 'online' });
+const travels = createTravels(store, { mutable: true });
+
+try {
+  travels.transaction(() => {
+    travels.setState((draft) => {
+      draft.saved = true; // Rolled back if the callback fails
+    });
+    store.connectionStatus = 'offline'; // Survives rollback
+    throw new Error('cancel');
+  });
+} catch {
+  // store.saved was restored; store.connectionStatus is still "offline".
+}
+```
+
+凡是必须纳入事务回滚边界的变更，都应使用 `travels.setState(...)`。Travels 的监听器和 devtools 只发布稳定后的根事务，但直接挂在实时对象上的 MobX、Vue、Pinia 或其他观察者会在临时性的就地变更发生时看到它们。
+
+## 性能与测试说明
+
+- 可变模式仍会生成 JSON Patch，因此你可以像在不可变模式下一样持久化或检查差异。
+- 专门的 `test/mutable-mode.test.ts` 测试套件验证了在 `setState`、`back`、`forward`、`go`、`reset`、`archive` 和 `subscribe` 过程中引用保持稳定。
+- `test/bug-fixes.test.ts` 和 `test/coverage-improvements.test.ts` 包含针对重置嵌套对象、删除多余属性以及处理稀疏数组的回归测试（可变值更新会回退为不可变方式以保留空位）。
+
+## 排查清单
+
+1. **根引用是否意外改变了？** 检查该历史步骤是否替换了整个状态（例如 `setState(() => newState)` 返回了一个全新对象）。优先使用草稿修改来避免这种情况。
+2. **在手动归档模式下看不到更新？** 记住 `travels.setState` 仍会立即修改对象；`archive()` 只决定哪些变更会成为可撤销的条目。
+3. **看到关于原始类型的警告？** 请确保根状态是对象。如果需要可变语义，可以把原始类型包装起来（`{ value: 0 }`）。
+4. **需要在运行时确认模式？** 查看 `travels.mutable`。它会返回当前模式，编写集成测试时很方便。
+
+## 小结
+
+可变模式让 Travels 拥有响应式 Store 的使用体验，同时不放弃基于补丁的历史记录。当普通操作需要引用稳定时启用它；持久化时遵守持久数据契约；并优先使用草稿修改。只要严格的根引用同一性很重要，就查阅上面的操作表。

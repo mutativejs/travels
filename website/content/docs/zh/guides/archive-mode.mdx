@@ -1,0 +1,88 @@
+---
+title: 归档模式
+description: 选择自动生成的条目，或通过手动归档显式分组待处理更新。
+---
+
+归档模式决定生效的状态变更何时成为可撤销的历史条目。它不改变当前状态更新的时机：手动模式下，待处理的编辑已经体现在当前状态中。
+
+## 自动归档：默认方式
+
+```ts
+const travels = createTravels({ count: 0 });
+
+travels.setState({ count: 1 }); // Entry 1
+travels.setState({ count: 2 }); // Entry 2
+travels.back();                 // count: 1
+```
+
+当每次调用都代表一个完整的用户操作时，使用自动模式。空操作更新不会创建条目。自动时间线在运行时和 TypeScript 类型中都不提供 `archive()` 和 `canArchive()`。
+
+## 手动归档
+
+```ts
+const travels = createTravels(
+  { title: '', description: '' },
+  { autoArchive: false }
+);
+
+travels.setState((draft) => { draft.title = 'Brief'; });
+travels.setState((draft) => { draft.description = 'Draft'; });
+
+travels.canArchive(); // true
+travels.archive({ label: 'Create brief' });
+travels.canArchive(); // false
+
+travels.back(); // Returns to the state before both edits
+```
+
+手动模式适用于：
+
+- 在失焦或保存时提交一组字段；
+- 把一次拖拽手势当作一步；
+- 由外部表单管理器决定撤销边界；
+- 组合多次更新，而不立即把它们暴露为多个独立的撤销条目。
+
+## 元数据选择
+
+`archive(metadata?)` 接受该条目最终的元数据。如果省略，Travels 会使用最近一次传给待处理 `setState()` 调用的元数据。
+
+```ts
+travels.setState(updateTitle, { source: 'title-field' });
+travels.setState(updateBody, { source: 'body-field' });
+travels.archive({ label: 'Edit document', source: 'editor' });
+```
+
+持久化历史记录时，要确保元数据也被持久化。
+
+## 导航会隐式归档待处理内容
+
+存在待处理的手动变更时，调用 `back()`、`forward()` 或 `go()` 会把这些变更作为导航的一部分归档，使游标位置仍然有意义。归档与移动会作为一次可观察的转换一并提交。
+
+```ts
+travels.setState(updateDraft);
+travels.back(); // Pending work is archived, then navigation occurs
+```
+
+在 Travels 3 中，这只会发布一个 `go` 事件，并使 `getRevision()` 推进一次。每个已提交事件都应触发持久化，而不只是 `archive` 事件。
+
+## 手动模式下的事务
+
+根 `transaction()` 会在提交时归档。事务开始前已经待处理的变更会并入其条目，因此撤销时它们会一起回退。事务元数据优先；如果未提供，则使用最近一次待处理更新的元数据。
+
+如果事务自身的更新相互抵消，更早的待处理内容可能继续保持待处理。完整的行为对照见[事务](/zh/docs/guides/transactions)。
+
+## 相互抵消的待处理变更
+
+相互抵消的待处理变更会被丢弃，而不会保留为有意义的撤销条目。即使最终没有净状态变更，`archive()` 仍可为归档操作本身发布 `archive` 事件。导航在计算位置时会把待处理条目计入，因此其行为遵循导航契约，而不是简单地删除该条目。
+
+## 自动与手动
+
+| 行为 | 自动 | 手动 |
+| --- | --- | --- |
+| 生效的 `setState()` 创建条目 | 立即 | 仅在归档后 |
+| 当前状态更新 | 立即 | 立即 |
+| `archive()` / `canArchive()` | 不提供 | 可用 |
+| 典型边界 | 一次更新调用 | 应用定义的手势或提交点 |
+| 根事务 | 一个分组条目 | 还会归档更早的待处理内容 |
+
+从自动模式开始。只有当应用有明确的提交边界时才选择手动模式；从未归档的更新无法作为一个独立的已完成步骤进行导航。
