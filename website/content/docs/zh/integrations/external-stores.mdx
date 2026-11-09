@@ -1,0 +1,109 @@
+---
+title: 表单与外部 Store
+description: 让表单管理器或状态运行时保持权威，同时加入可靠的撤销/重做历史。
+---
+
+当另一个库掌管状态时，要避免制造两个彼此独立的响应式事实来源。可以选择把状态的分离副本同步到拥有状态的时间线，也可以选择由所有者实际提交的补丁驱动的受控日志。
+
+## 表单值的分离副本配合手动归档
+
+当表单管理器提供 `getValues()` 以及用于重置或设置值的 API，但尚不生成 JSON Patch 时，这种模式很合适。
+
+```ts
+import { createTravels } from 'travels';
+
+type FormValues = { title: string; description: string };
+type FormApi<S> = {
+  getValues: () => S;
+  setValues: (values: S) => void;
+};
+
+const travels = createTravels<FormValues>(
+  { title: '', description: '' },
+  { autoArchive: false }
+);
+
+export function bindHistoryToForm(form: FormApi<FormValues>) {
+  const syncToHistory = () => {
+    travels.setState(structuredClone(form.getValues()));
+  };
+
+  const commitHistoryStep = () => {
+    if (travels.canArchive()) travels.archive();
+  };
+
+  const undo = () => {
+    if (!travels.canBack()) return;
+    travels.back();
+    form.setValues(structuredClone(travels.getState()));
+  };
+
+  const redo = () => {
+    if (!travels.canForward()) return;
+    travels.forward();
+    form.setValues(structuredClone(travels.getState()));
+  };
+
+  const handleHistoryKeyDown = (event: KeyboardEvent) => {
+    const modifier = event.metaKey || event.ctrlKey;
+    if (!modifier) return;
+
+    const key = event.key.toLowerCase();
+    if (key === 'z' && !event.shiftKey && travels.canBack()) {
+      event.preventDefault();
+      undo();
+    } else if (
+      ((key === 'z' && event.shiftKey) || key === 'y') &&
+      travels.canForward()
+    ) {
+      event.preventDefault();
+      redo();
+    }
+  };
+
+  return { syncToHistory, commitHistoryStep, undo, redo, handleHistoryKeyDown };
+}
+```
+
+表单值变化时调用 `syncToHistory()`，并在失焦、保存或防抖后的提交等有意义的产品边界上调用 `commitHistoryStep()`。两个方向都要克隆当前值：这样表单管理器之后就无法修改 Travels 保留的状态对象，Travels 也不会保留仍然活动的表单对象。
+
+对于 `react-hook-form`，`getValues()` 与表单 API 天然对应，`reset()` 则可以用来实现 `setValues()`。
+
+## 键盘快捷键
+
+返回的 `handleHistoryKeyDown` 同时支持 macOS 与 Windows 的修饰键，会规范化字母大小写，并且只在 Travels 能够处理该操作时才阻止浏览器默认行为。只有当产品的快捷键策略要求时，才忽略来自可编辑元素的事件目标：
+
+```ts
+const history = bindHistoryToForm(form);
+editorElement.addEventListener('keydown', history.handleHistoryKeyDown);
+
+// When the editor is disposed:
+editorElement.removeEventListener('keydown', history.handleHistoryKeyDown);
+```
+
+把监听器限定在当前活动的编辑器上，而不是为每个挂载的表单注册重复的全局处理器。
+
+## 何时使用受控日志
+
+当外部所有者已经能为每次提交生成精确的 `nextState`、`patches` 和 `inversePatches` 时，使用 `createTravelJournal()`。这样可以避免把更新逻辑执行两次，并让校验与订阅行为留在所有者正常的提交路径中。
+
+```ts
+const journal = createTravelJournal(authoritativeState, {
+  apply({ patches }) {
+    authoritativeState = commitThroughOwner(patches);
+    return authoritativeState;
+  },
+});
+
+journal.recordPatches(nextState, { patches, inversePatches });
+```
+
+所有者不能把委托的导航再次记录为一次新编辑。`apply` 是同步的；如果所有者在部分提交之后失败，Travels 无法回滚外部副作用。在选择这条路径之前，先完整阅读[受控日志契约](/zh/docs/guides/controlled-journal)。
+
+## 决策指南
+
+- 表单或 Store 返回普通值，但不提供补丁：使用分离副本进行 `setState()` 同步。
+- 多次变更通知应合并为一个撤销步骤：使用手动归档。
+- 所有者已经生成精确的正向与反向补丁：使用受控日志。
+- 需要向 Travels 观察者隐藏临时变更并自动回滚：在 Travels 掌管的更新外层使用同步事务。
+- 所有者无法回滚已经发布的提交：条件允许时，在发布前用 `assertTravelHistoryEntryRecordable()` 预检补丁条目。
