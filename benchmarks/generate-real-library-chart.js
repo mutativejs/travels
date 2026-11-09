@@ -191,7 +191,7 @@ function createBenchmarkSvg(report) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title description">
   <title id="title">Real-library undo and redo benchmark</title>
-  <desc id="description">Median and p95 update, undo, redo, retained heap, and serialized history measurements for Travels, Travels-backed Coaction history, MobX-State-Tree, mobx-keystone, Redux-undo, and Zundo. Lower values are better.</desc>
+  <desc id="description">Median and p95 update, undo, redo, retained heap, and serialized history measurements for Travels, Coaction history, MobX-State-Tree, mobx-keystone, Redux-undo, and Zundo. Lower values are better.</desc>
   <style>
     text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
     .title { font-size: 27px; font-weight: 500; }

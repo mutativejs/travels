@@ -12,11 +12,11 @@ This directory contains reproducible benchmarks for Travels history recording, n
 | Travels mutable                | JSON Patch             | Generic in-place root      |
 | MST + `UndoManager`            | JSON Patch             | MobX-State-Tree model tree |
 | mobx-keystone                  | Array-path patches     | mobx-keystone model tree   |
-| Coaction + `@coaction/history` | Travels JSON Patch     | Coaction store             |
+| Coaction + `@coaction/history` | Snapshots (locked 3.0.0) | Coaction store             |
 | Redux-undo                     | Snapshots              | Immutable root             |
 | Zundo                          | Snapshots              | Immutable root             |
 
-MST's patch-based `UndoManager` is imported from the community companion `mst-middlewares` package. mobx-keystone uses its built-in `undoMiddleware`, and Coaction uses `@coaction/history` with its patch-native Travels timeline.
+MST's patch-based `UndoManager` comes from `mst-middlewares`. mobx-keystone uses its built-in `undoMiddleware`. The locked npm versions of Coaction and `@coaction/history` in this run use snapshots. The runner also detects patch-based versions and records the measured strategy in the JSON report.
 
 ### Run
 
@@ -83,7 +83,7 @@ Store/model construction is excluded from timing and retained-heap deltas. This 
 
 ![Real-library undo/redo benchmark](./results/real-library-benchmark.svg)
 
-Use the adjacent JSON file for exact values and environment metadata. Absolute latency and heap values vary by machine; the representation-size comparison is usually more stable.
+The [recorded results](./results/real-library-benchmark.json) identify the exact Travels source revision, dependency versions, environment, and samples. Absolute latency and heap values vary by machine; the representation-size comparison is usually more stable.
 
 ## Scenario matrix
 
