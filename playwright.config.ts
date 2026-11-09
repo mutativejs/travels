@@ -23,5 +23,15 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testIgnore: '**/package-artifacts.spec.ts',
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      testIgnore: '**/package-artifacts.spec.ts',
+    },
   ],
 });

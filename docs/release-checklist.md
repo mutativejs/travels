@@ -11,7 +11,7 @@
    corepack enable
    pnpm install --frozen-lockfile
    pnpm --dir website install --frozen-lockfile
-   pnpm exec playwright install chromium
+   pnpm exec playwright install chromium firefox webkit
    pnpm run lint
    pnpm run size:ci
    pnpm run build:doc:site
