@@ -276,7 +276,7 @@ const zh: HomeContent = {
   ],
   features: {
     eyebrow: '为什么选择 TRAVELS',
-    title: '历史更小，编辑更自由。',
+    title: '历史更小，编辑更省心。',
     text: '为大规模状态、小步更新、长时间线，以及需要在刷新后依然存在——而不只是撑过当前渲染——的历史而构建。',
     items: [
       {
@@ -408,8 +408,8 @@ const zh: HomeContent = {
   },
   final: {
     eyebrow: '让下一次编辑可撤销',
-    line1: '用户会犯错。',
-    line2: '状态不必跟着错。',
+    line1: '改动可撤销，',
+    line2: '编辑更自由。',
     text: '一个小巧的包。一套完整的历史引擎。',
     primary: '安装 Travels',
     primaryHref: '/zh/docs/getting-started/installation',
