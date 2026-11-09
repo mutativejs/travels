@@ -262,7 +262,7 @@ const zh: HomeContent = {
     line1: '每一次改动，',
     line2: '都可撤销。',
     description:
-      '为现代应用打造的持久化撤销/重做。保留紧凑历史，用自然的修改风格编写更新，并无缝接入你正在使用的状态工具。',
+      '为现代应用打造的持久化撤销/重做。保留紧凑历史，用熟悉的草稿写法编写更新，并直接接入你正在使用的状态工具。',
     primary: '开始使用',
     secondary: '在 GitHub 查看',
     framework: '适用于 React · Vue · Zustand · MobX · Pinia · 原生 JavaScript',
@@ -276,7 +276,7 @@ const zh: HomeContent = {
   ],
   features: {
     eyebrow: '为什么选择 TRAVELS',
-    title: '更小的历史，更大的编辑空间。',
+    title: '历史更小，编辑更自由。',
     text: '为大规模状态、小步更新、长时间线，以及需要在刷新后依然存在——而不只是撑过当前渲染——的历史而构建。',
     items: [
       {
@@ -298,8 +298,8 @@ const zh: HomeContent = {
         href: '/zh/docs/integrations',
       },
       {
-        title: '边界行为可预期',
-        text: '原子事务、类型化错误、语义恢复校验，以及明确的兼容性。',
+        title: '边界行为可预测',
+        text: '原子事务、类型化错误、语义恢复校验，以及清晰的兼容性边界。',
         cta: '深入了解',
         href: '/zh/docs/guides/transactions',
       },
@@ -326,7 +326,7 @@ const zh: HomeContent = {
   ownership: {
     eyebrow: '一个核心，两种所有权模型',
     title: '契合你架构的历史记录。',
-    text: '让 Travels 掌管更新，或保留现有 Store 的权威地位。无论哪种方向，历史契约都保持明确。',
+    text: '让 Travels 负责更新，或让现有 Store 继续作为权威数据源。两种模式下，历史契约都保持明确。',
     cards: [
       {
         tag: '状态自有',
@@ -351,9 +351,9 @@ const zh: HomeContent = {
     ],
   },
   useCases: {
-    eyebrow: '为有意义的编辑而生',
+    eyebrow: '为有意义的编辑而设计',
     title: '让每一次交互都可撤销。',
-    text: '从一个字段到复杂画布，让探索变得安心。',
+    text: '从一个字段到复杂画布，让用户放心尝试。',
     items: [
       {
         title: '可视化编辑器',
@@ -373,9 +373,9 @@ const zh: HomeContent = {
     ],
   },
   docs: {
-    eyebrow: '覆盖完整旅程的文档',
+    eyebrow: '覆盖完整使用流程的文档',
     title: '从小处开始，理解每个边界。',
-    text: '实用指南、集成方案、运维护栏，以及由源码生成的 API 参考。',
+    text: '实用指南、集成方案、运维保障，以及由源码生成的 API 参考。',
     cards: [
       {
         eyebrow: '从这里开始',
