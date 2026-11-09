@@ -52,7 +52,7 @@ Open the local URL printed by Next.js. The English site starts at `/`; the Chine
 - `lib/metadata.ts`: localized titles, descriptions, canonical URLs, and language alternates.
 - `public/`: optimized Travels logo, social image, and static assets.
 
-Edit hand-written guides directly. Do not manually edit generated files inside the API `functions`, `classes`, `interfaces`, `type-aliases`, or `variables` directories; regenerate them instead:
+Edit the eight packaged English guides in the repository’s `docs/` directory, then run `pnpm --dir website docs:sync` to update their website bodies and links. Their MDX frontmatter and Chinese translations are edited on the website. Edit other hand-written guides directly. Do not manually edit generated files inside the API `functions`, `classes`, `interfaces`, `type-aliases`, or `variables` directories; regenerate them instead:
 
 ```bash
 pnpm --dir website docs:api

@@ -25,6 +25,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - run: node website/scripts/sync-guides.mjs
       - run: pnpm run lint
       - run: pnpm run test:types
       - run: pnpm run test:examples

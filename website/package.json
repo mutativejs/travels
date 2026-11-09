@@ -3,15 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/generate-api.mjs && node scripts/check-content.mjs",
+    "predev": "npm run check:content",
     "dev": "next dev",
-    "prebuild": "node scripts/generate-api.mjs && node scripts/check-content.mjs",
+    "prebuild": "npm run check:content",
     "build": "next build",
     "start": "serve out",
-    "pretypes:check": "node scripts/generate-api.mjs && node scripts/check-content.mjs",
+    "pretypes:check": "npm run check:content",
     "types:check": "next typegen && tsc --noEmit",
     "docs:api": "node scripts/generate-api.mjs",
-    "check:content": "node scripts/generate-api.mjs && node scripts/check-content.mjs"
+    "docs:sync": "node scripts/sync-guides.mjs --write",
+    "check:content": "node scripts/sync-guides.mjs && node scripts/generate-api.mjs && node scripts/check-content.mjs"
   },
   "dependencies": {
     "@fumadocs/language": "0.2.19",
