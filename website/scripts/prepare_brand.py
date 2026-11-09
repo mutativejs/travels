@@ -7,16 +7,24 @@ PUBLIC = WEBSITE / "public"
 PUBLIC.mkdir(parents=True, exist_ok=True)
 
 source = Image.open(WEBSITE / "assets" / "travels-logo.png").convert("RGBA")
-logo = source.copy()
+# Ignore near-transparent specks when finding the outline, but keep its antialiasing.
+bounds = source.getchannel("A").point(lambda alpha: 255 if alpha >= 4 else 0).getbbox()
+mark = source.crop(bounds)
+side = max(mark.size)
+side += 2 * round(side * 0.025)
+framed = Image.new("RGBA", (side, side))
+framed.paste(mark, ((side - mark.width) // 2, (side - mark.height) // 2))
+
+logo = framed.copy()
 logo.thumbnail((512, 512), Image.Resampling.LANCZOS)
 logo.save(PUBLIC / "travels-logo.png", optimize=True)
 logo.save(PUBLIC / "travels-logo.webp", quality=92, method=6)
 
-icon = source.copy()
+icon = framed.copy()
 icon.thumbnail((128, 128), Image.Resampling.LANCZOS)
 icon.save(WEBSITE / "app" / "icon.png", optimize=True)
 
-apple_icon = source.copy()
+apple_icon = framed.copy()
 apple_icon.thumbnail((180, 180), Image.Resampling.LANCZOS)
 apple_icon.save(WEBSITE / "app" / "apple-icon.png", optimize=True)
 
@@ -61,7 +69,7 @@ draw.text((64, 242), "A way back.", font=font(68, True), fill="#f7faff")
 draw.text((68, 355), "Patch-based undo/redo for modern applications.", font=font(26), fill="#b7c6d9")
 draw.text((68, 397), "Small updates. Durable history. Any framework.", font=font(26), fill="#b7c6d9")
 
-hero_logo = source.copy()
+hero_logo = framed.copy()
 hero_logo.thumbnail((405, 405), Image.Resampling.LANCZOS)
 image.alpha_composite(hero_logo, (745, 125))
 image.convert("RGB").save(PUBLIC / "og-image.png", optimize=True)
