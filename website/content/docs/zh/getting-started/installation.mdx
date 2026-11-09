@@ -82,6 +82,8 @@ Mutative 2 以 ES2018 为目标，并通过 `process.env.NODE_ENV` 选择开发�
 </script>
 ```
 
+使用上面的 3.0.1 脚本时，可通过 `Travels.restoreTravels(Travels.Travels.deserialize(stored, { validation: 'semantic' }))` 先校验再恢复已存储的快照。
+
 <Callout type="warn" title="规范化持久化状态">
 普通对象、稠密数组、字符串、除 `-0` 之外的有限数字、布尔值与 `null` 共同构成持久化状态契约。Map 与 Set 会被拒绝。持久化之前，请先规范化日期、类实例、非 JSON 数字、函数、ref 以及其他仅存在于运行时的值。参见[状态要求](/zh/docs/concepts/state-requirements)。
 </Callout>

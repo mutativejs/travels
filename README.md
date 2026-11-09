@@ -207,16 +207,16 @@ Use this factory instead of `new Travels(...)`. The exported `Travels` value is 
 
 ### `restoreTravels(snapshot, options?)`
 
-Restores a Travels instance from a complete snapshot object or JSON string. Use `restoreTravels<State>(stored, { validation: 'semantic' })` to verify patch reversibility before installing the state. Structural validation is the default. Use `Travels.deserialize()` first when you need migration or fallback. Creation options such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a separate `initialState` or `history` option is intentionally not accepted.
+In **3.0.1**, pass a complete snapshot object to `restoreTravels()`. To verify patch reversibility, pass the stored object or JSON string through `Travels.deserialize()` first. The `validation` option on `restoreTravels()` itself has no effect in 3.0.1.
 
-The restored timeline owns a detached copy of `snapshot.state`, so decoded snapshots and `fallback` constants are never mutated and can be restored again. To restore into a live reactive store object (MobX, Vue, Pinia), pass it as `target` together with `mutable: true`; Travels overwrites `target` in place with the snapshot state and keeps that reference:
+The next 3.x minor (unreleased) adds `restoreTravels<State>(stored, { validation: 'semantic' })` for objects and JSON strings. Structural validation remains the default. Use `deserialize()` for migration or fallback.
+
+Restore options include `maxHistory`, `autoArchive`, and observer hooks. The timeline owns a detached copy of the snapshot state. To restore into an existing reactive store on either version, validate the snapshot before passing the live store as the mutable target:
 
 ```ts
 const store = reactive(defaultState);
-const travels = restoreTravels(Travels.deserialize(stored), {
-  mutable: true,
-  target: store,
-});
+const snapshot = Travels.deserialize<typeof store>(stored, { validation: 'semantic' });
+const travels = restoreTravels(snapshot, { mutable: true, target: store });
 travels.getState() === store; // true
 ```
 

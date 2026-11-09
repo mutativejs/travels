@@ -82,6 +82,8 @@ Load the UMD scripts in this order to use Travels directly in a browser page.
 </script>
 ```
 
+With these 3.0.1 scripts, validate a stored snapshot before restoring it with `Travels.restoreTravels(Travels.Travels.deserialize(stored, { validation: 'semantic' }))`.
+
 <Callout type="warn" title="Normalize durable state">
 Plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null` form the durable state contract. Map and Set are rejected. Normalize dates, class instances, non-JSON numbers, functions, refs, and other runtime-only values before persistence. See [State Requirements](/docs/concepts/state-requirements).
 </Callout>

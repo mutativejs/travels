@@ -36,7 +36,9 @@ Observer errors do not roll back committed transitions. Hook functions should no
 
 `restoreTravels(snapshot, options?)` accepts applicable creation options but deliberately does not accept a separate `initialState` or `history`; the complete snapshot is the atomic state/history input.
 
-Accepts a complete snapshot object or JSON string. Set `validation: 'semantic'` to verify every entry before applying a restore target or trimming history. The restore's `strict` and `mark` options also apply to validation.
+In **3.0.1**, the factory takes a snapshot object and ignores a directly supplied `validation` option. To verify an object or JSON string, use `restoreTravels(Travels.deserialize<State>(stored, { validation: 'semantic' }))`.
+
+The next 3.x minor (unreleased) adds direct JSON string input and a `validation: 'semantic'` restore option. With that option, Travels checks the complete history using the restore's `strict` and `mark` settings before updating a target or trimming history.
 
 For mutable integration, it additionally accepts:
 

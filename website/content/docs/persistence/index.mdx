@@ -3,7 +3,9 @@ title: Persistence
 description: Serialize, validate, store, restore, and migrate complete Travels timelines.
 ---
 
-Travels persistence is storage-agnostic. `serialize()` returns one versioned snapshot; your application chooses how to encode and store it. Pass a snapshot object or JSON string to `restoreTravels()`. Select `validation: 'semantic'` to check reversibility while restoring. Use `Travels.deserialize()` first for migrations, fallback, or semantic validation of an external journal.
+`serialize()` returns a versioned snapshot. Your application chooses how to encode and store it. On **3.0.1**, verify a stored object or JSON string with `Travels.deserialize(stored, { validation: 'semantic' })`, then pass the result to `restoreTravels()`. See the example below.
+
+The next 3.x minor (unreleased) also accepts `restoreTravels<State>(stored, { validation: 'semantic' })`. On 3.0.1, passing `validation` directly to the restore factory skips semantic validation.
 
 ## Snapshot contract
 
