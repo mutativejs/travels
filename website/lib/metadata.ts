@@ -23,7 +23,7 @@ const copy = {
     openGraphAlternateLocale: 'zh_CN',
   },
   zh: {
-    title: 'Travels — 每一次改动，都有退路。',
+    title: 'Travels — 每一次改动，都可撤销。',
     description:
       '为现代应用打造的基于补丁的撤销/重做。紧凑的历史记录、可靠的持久化、原子事务，以及与框架无关的状态集成。',
     keywords: [

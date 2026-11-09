@@ -260,7 +260,7 @@ const zh: HomeContent = {
   hero: {
     eyebrow: '基于补丁的状态历史',
     line1: '每一次改动，',
-    line2: '都有退路。',
+    line2: '都可撤销。',
     description:
       '为现代应用打造的持久化撤销/重做。保留紧凑历史，用自然的修改风格编写更新，并无缝接入你正在使用的状态工具。',
     primary: '开始使用',
@@ -352,7 +352,7 @@ const zh: HomeContent = {
   },
   useCases: {
     eyebrow: '为有意义的编辑而生',
-    title: '让每一次交互都有退路。',
+    title: '让每一次交互都可撤销。',
     text: '从一个字段到复杂画布，让探索变得安心。',
     items: [
       {
