@@ -59,7 +59,7 @@ description: 按任务组织的索引，涵盖时间线、Journal、导航、历
 | `getPatches()` | 与缓存分离的保留正向/反向补丁组。 |
 | `getMetadata()` | 与保留条目对齐的元数据；若存在待处理的手动工作，也包含该工作的元数据。 |
 | `getHistoryEntries()` | 正向/反向条目以及可选的元数据。 |
-| `getControls()` | 为拥有状态的时间线提供的、缓存且冻结的导航/只读门面。 |
+| `getControls()` | 为拥有状态的时间线提供的、缓存且冻结的导航/只读接口对象。 |
 
 `getHistorySnapshot()` 会复制受支持的运行时值，但不强制满足完整的持久化 JSON 契约。严格的持久化校验由 `serialize({ strict: true })` 或 `assertPersistenceCompatible()` 负责。
 

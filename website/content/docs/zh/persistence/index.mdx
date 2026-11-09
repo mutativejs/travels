@@ -81,7 +81,7 @@ function loadDocument() {
 }
 ```
 
-`Travels.deserialize()` 接受已解析的对象或 JSON 字符串。它始终执行结构校验；`validation: 'semantic'` 还会在独立的校验图上检查可达补丁的适用性与可逆性。
+`Travels.deserialize()` 接受已解析的对象或 JSON 字符串。它始终执行结构校验；`validation: 'semantic'` 还会在独立的校验副本上检查可达补丁的适用性与可逆性。
 
 恢复后的时间线持有快照状态的独立副本。解码后的快照和共享的回退常量，都不会成为运行中的可变状态。
 

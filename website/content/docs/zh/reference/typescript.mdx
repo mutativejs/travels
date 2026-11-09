@@ -87,7 +87,7 @@ const owned = travels.getHistorySnapshot();
 const newestFirst = travels.getHistorySnapshot().reverse();
 ```
 
-`getControls()` 与 Journal 门面在所有构建中都是冻结的。它们收窄的类型有助于防止状态所有权意外泄漏到展示组件中。
+`getControls()` 与 Journal 接口对象在所有构建中都是冻结的。它们收窄的类型有助于防止状态所有权意外泄漏到展示组件中。
 
 ## 开放的事件名称
 

@@ -26,7 +26,7 @@ travels.go(0);        // Retained window start
 
 ## 面向组件的精简控件
 
-`getControls()` 返回一个缓存且冻结的门面对象，适合用于按钮、菜单和组件 props：
+`getControls()` 返回一个缓存且冻结的接口对象，适合用于按钮、菜单和组件 props：
 
 ```tsx
 const controls = travels.getControls();
@@ -44,7 +44,7 @@ function HistoryButtons() {
 }
 ```
 
-该门面包含导航、当前位置、只读的补丁与历史视图，以及 `rebase()`。手动时间线会暴露能感知手动模式的控制类型。`setState()` 等拥有状态的方法不在其中。
+该接口对象包含导航、当前位置、只读的补丁与历史视图，以及 `rebase()`。手动时间线会暴露能感知手动模式的控制类型。`setState()` 等拥有状态的方法不在其中。
 
 <Callout type="info" title="根据修订号重新渲染，而不只看状态引用">
 `archive()` 和 `rebase()` 可能在不改变当前状态引用的情况下改变控件。每个已提交的订阅者事件都会让 `getRevision()` 推进一次，因此它才是 `useSyncExternalStore` 的正确快照。

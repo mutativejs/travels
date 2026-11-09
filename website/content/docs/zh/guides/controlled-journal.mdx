@@ -54,7 +54,7 @@ const journal = createTravelJournal(authoritativeState, {
 
 ## 公开接口
 
-返回的 `TravelJournal` 只暴露对 Journal 安全的操作：
+返回的 `TravelJournal` 只暴露 Journal 可安全执行的操作：
 
 - 外部提交入口：`recordPatches()`；
 - 导航：`back()`、`forward()`、`go()`、`reset()`、`canBack()` 和 `canForward()`；
@@ -62,9 +62,9 @@ const journal = createTravelJournal(authoritativeState, {
 - 生命周期：`subscribe()` 和 `rebase()`；
 - 仅手动 Journal：`archive()` 和 `canArchive()`。
 
-在所有构建中，该门面都是一个冻结的只读能力对象；其方法无法在运行时被替换。
+在所有构建中，该接口对象都是冻结的只读能力视图；其方法无法在运行时被替换。
 
-拥有状态的操作（`setState()`、事务、`replaceStateWithoutHistory()`、跟踪控制以及 `getControls()`）在公开类型和运行时门面中都不存在。若要在保留当前外部状态作为新基线的同时清空保留的历史记录，`rebase()` 是安全的方式；`reset()` 则请求外部所有者恢复现有基线。
+拥有状态的操作（`setState()`、事务、`replaceStateWithoutHistory()`、跟踪控制以及 `getControls()`）在公开类型和运行时接口对象中都不存在。若要在保留当前外部状态作为新基线的同时清空保留的历史记录，`rebase()` 是安全的方式；`reset()` 则请求外部所有者恢复现有基线。
 
 ## 失败边界
 

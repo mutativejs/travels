@@ -65,7 +65,7 @@ travels.serialize({ strict: true });
 | `onError` | 在回退或抛出之前接收 `TravelsPersistenceError`。 |
 | `replayOptions` | 用于语义重放、与记录时一致的 Mutative `strict` 与 `mark` 设置。 |
 
-所有存储、网络、解压缩与应用层信封校验工作，都应在同步反序列化调用之前完成。
+所有存储、网络、解压缩与应用层封装校验工作，都应在同步反序列化调用之前完成。
 
 ## 能力专属选项
 
