@@ -72,14 +72,18 @@ export class ObserverHub<S, P extends PatchesOption = {}> {
     source: TravelsObserverErrorSource,
     error: unknown
   ): void {
-    if (!this.onObserverError) {
+    if (process.env.NODE_ENV === 'production' && !this.onObserverError) {
       return;
     }
 
     const notify = () => {
       try {
-        const result = this.onObserverError?.({ source, error });
-        consumePromiseLikeRejection(result, () => undefined);
+        if (this.onObserverError) {
+          const result = this.onObserverError({ source, error });
+          consumePromiseLikeRejection(result, () => undefined);
+        } else if (process.env.NODE_ENV !== 'production') {
+          console.error(`Travels: ${source} observer failed.`, error);
+        }
       } catch {
         // Error reporting must never replace the observer failure.
       }

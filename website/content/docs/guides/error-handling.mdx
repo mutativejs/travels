@@ -77,7 +77,7 @@ Without the hook, warnings are written to the console only in development. Disab
 
 ## Observer failures
 
-Errors thrown by listeners, devtools, branch-discard hooks, error/warning hooks, or compatibility checks after commit are routed to `onObserverError` when configured. They do not interrupt other observers or roll back an already committed transition.
+Errors thrown by listeners, devtools, branch-discard hooks, error/warning hooks, or compatibility checks after commit are routed to `onObserverError` when configured. They do not interrupt other observers or roll back an already committed transition. Without the hook, development builds log the observer source and the original error to `console.error`.
 
 ```ts
 const travels = createTravels(initialState, {

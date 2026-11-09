@@ -6,6 +6,22 @@ import {
 } from '../src/index';
 
 describe('observer publication atomicity', () => {
+  test('reports an unhandled listener failure in development and continues delivery', () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const travels = createTravels(0);
+      const error = new Error('boom');
+      const next = vi.fn();
+      travels.subscribe(() => { throw error; });
+      travels.subscribe(next);
+      travels.setState(1);
+      expect(next).toHaveBeenCalledOnce();
+      expect(log).toHaveBeenCalledExactlyOnceWith('Travels: listener observer failed.', error);
+    } finally {
+      log.mockRestore();
+    }
+  });
+
   test('a throwing branch observer cannot interrupt a committed transition', () => {
     const observerErrors: TravelsObserverErrorEvent[] = [];
     const listener = vi.fn();

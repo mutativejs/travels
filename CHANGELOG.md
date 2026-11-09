@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Report observer failures to the development console when no error hook is configured. Allow another 0.25 KiB for source maps.
 - Include the cause message in wrapped transaction failures. A rejected asynchronous callback exposes `ASYNC_CALLBACK` on its typed cause. The diagnostic adds up to 0.25 KiB to the raw bundle limits and 0.5 KiB to the map limits.
 - Document how paused edits discard undo and redo history. Allow 542 KiB for the packed package including the expanded README.
 - Keep library coverage scoped to runtime sources instead of counting the Fumadocs website and operational scripts in the unit-test thresholds, and exclude the generated `gh-pages` branch from Node CI.
