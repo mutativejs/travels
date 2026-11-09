@@ -402,7 +402,10 @@ In mutable mode, rollback replays inverse patches only for changes made through 
 
 #### `pauseTracking(): void` / `resumeTracking(): void`
 
-Temporarily apply state updates without creating history entries. Paused updates become the new baseline so later undo/redo cannot replay patches against mismatched state.
+> [!WARNING]
+> Each state-changing update while tracking is paused clears the undo and redo stacks, including pending edits. The updated state becomes position 0 and the new target for `reset()`. Pausing and resuming without a change preserves history.
+
+Subscriptions stay active. Outside a transaction, each such update publishes `replaceStateWithoutHistory`.
 
 #### `replaceStateWithoutHistory(updater): void`
 

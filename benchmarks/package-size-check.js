@@ -30,7 +30,7 @@ const limits = {
   // 28.1 KiB unpacked and 7.1 KiB packed, to the 3.0.0 package
   // (533.1 KiB packed / 2069.9 KiB unpacked). The 2026-10 documentation
   // refresh grows only the README and bundled guides; bundle budgets stay fixed.
-  packagePacked: 541 * KiB,
+  packagePacked: 542 * KiB,
   packageUnpacked: 2101 * KiB,
 };
 
