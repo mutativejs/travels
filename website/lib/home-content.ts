@@ -424,7 +424,7 @@ const zh: HomeContent = {
     quickStart: '快速开始',
     concepts: '核心概念',
     guides: '指南',
-    playground: '演练场',
+    playground: 'Playground',
     persistence: '持久化',
     security: '安全',
     releases: '发布记录',
