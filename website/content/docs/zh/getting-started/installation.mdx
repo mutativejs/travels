@@ -69,6 +69,19 @@ console.log(travels.getState()); // { count: 1 }
 
 Mutative 2 以 ES2018 为目标，并通过 `process.env.NODE_ENV` 选择开发版或生产版代码。Vite、webpack 以及类似的打包器通常会处理这一点。如果不用打包器，请使用 `mutative/dist/mutative.esm.production.min.mjs` 或 Mutative 的 UMD 构建，以免浏览器需要 `process` 全局变量。
 
+在浏览器页面中直接使用 UMD 构建时，先加载 Mutative，再加载 Travels。
+
+```html
+<script src="https://unpkg.com/mutative@2.0.0/dist/mutative.umd.production.min.js"></script>
+<script src="https://unpkg.com/travels@3.0.1/dist/index.umd.js"></script>
+<script>
+  const timeline = Travels.createTravels({ count: 0 });
+  timeline.setState(draft => { draft.count = 1; });
+  timeline.back();
+  console.log(timeline.getState().count); // 0
+</script>
+```
+
 <Callout type="warn" title="规范化持久化状态">
 普通对象、稠密数组、字符串、除 `-0` 之外的有限数字、布尔值与 `null` 共同构成持久化状态契约。Map 与 Set 会被拒绝。持久化之前，请先规范化日期、类实例、非 JSON 数字、函数、ref 以及其他仅存在于运行时的值。参见[状态要求](/zh/docs/concepts/state-requirements)。
 </Callout>

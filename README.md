@@ -90,6 +90,19 @@ pnpm add travels mutative
 
 Travels 3 requires Node.js 22 or newer for server-side use.
 
+For a browser page without a bundler, load Mutative before Travels. The UMD bundle exposes `Travels.createTravels` on the browser global.
+
+```html
+<script src="https://unpkg.com/mutative@2.0.0/dist/mutative.umd.production.min.js"></script>
+<script src="https://unpkg.com/travels@3.0.1/dist/index.umd.js"></script>
+<script>
+  const timeline = Travels.createTravels({ count: 0 });
+  timeline.setState(draft => { draft.count = 1; });
+  timeline.back();
+  console.log(timeline.getState().count); // 0
+</script>
+```
+
 #### Integrations
 
 - Zustand: [zustand-travel](https://github.com/mutativejs/zustand-travel) - A powerful and high-performance time-travel middleware for Zustand

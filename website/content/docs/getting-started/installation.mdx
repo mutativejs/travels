@@ -69,6 +69,19 @@ Use the core API directly when you need framework-agnostic ownership, persistenc
 
 Mutative 2 targets ES2018 and selects development or production code through `process.env.NODE_ENV`. Vite, webpack, and comparable bundlers normally handle this. Without a bundler, use `mutative/dist/mutative.esm.production.min.mjs` or Mutative’s UMD build so the browser does not need a `process` global.
 
+Load the UMD scripts in this order to use Travels directly in a browser page.
+
+```html
+<script src="https://unpkg.com/mutative@2.0.0/dist/mutative.umd.production.min.js"></script>
+<script src="https://unpkg.com/travels@3.0.1/dist/index.umd.js"></script>
+<script>
+  const timeline = Travels.createTravels({ count: 0 });
+  timeline.setState(draft => { draft.count = 1; });
+  timeline.back();
+  console.log(timeline.getState().count); // 0
+</script>
+```
+
 <Callout type="warn" title="Normalize durable state">
 Plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null` form the durable state contract. Map and Set are rejected. Normalize dates, class instances, non-JSON numbers, functions, refs, and other runtime-only values before persistence. See [State Requirements](/docs/concepts/state-requirements).
 </Callout>
