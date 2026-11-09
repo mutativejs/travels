@@ -194,7 +194,7 @@ Use this factory instead of `new Travels(...)`. The exported `Travels` value is 
 
 ### `restoreTravels(snapshot, options?)`
 
-Restores a Travels instance from one complete `TravelsSerializedHistory`. Decode untrusted storage with `Travels.deserialize()` first. Creation options such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a separate `initialState` or `history` option is intentionally not accepted.
+Restores a Travels instance from a complete snapshot object or JSON string. Use `restoreTravels<State>(stored, { validation: 'semantic' })` to verify patch reversibility before installing the state. Structural validation is the default. Use `Travels.deserialize()` first when you need migration or fallback. Creation options such as `maxHistory`, `autoArchive`, and observer hooks remain available, but a separate `initialState` or `history` option is intentionally not accepted.
 
 The restored timeline owns a detached copy of `snapshot.state`, so decoded snapshots and `fallback` constants are never mutated and can be restored again. To restore into a live reactive store object (MobX, Vue, Pinia), pass it as `target` together with `mutable: true`; Travels overwrites `target` in place with the snapshot state and keeps that reference:
 

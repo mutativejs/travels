@@ -3,7 +3,7 @@ title: Persistence
 description: Serialize, validate, store, restore, and migrate complete Travels timelines.
 ---
 
-Travels persistence is storage-agnostic. `serialize()` returns one versioned snapshot; your application chooses how to encode and store it. Restore always follows one path: decode with `Travels.deserialize()`, then pass the complete result to `restoreTravels()` or `restoreTravelJournal()`.
+Travels persistence is storage-agnostic. `serialize()` returns one versioned snapshot; your application chooses how to encode and store it. Pass a snapshot object or JSON string to `restoreTravels()`. Select `validation: 'semantic'` to check reversibility while restoring. Use `Travels.deserialize()` first for migrations, fallback, or semantic validation of an external journal.
 
 ## Snapshot contract
 

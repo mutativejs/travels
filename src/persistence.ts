@@ -847,7 +847,7 @@ const notifyPersistenceError = (
 };
 
 /**
- * Implementation behind `Travels.deserialize()`, its only public entry point.
+ * Decode and validate a complete snapshot for deserialization and restoration.
  *
  * @internal
  */

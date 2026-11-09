@@ -3,7 +3,7 @@ title: 持久化
 description: 序列化、校验、存储、恢复并迁移完整的 Travels 时间线。
 ---
 
-Travels 的持久化不依赖具体存储。`serialize()` 返回一个带版本号的快照；如何编码和存储，由你的应用决定。恢复始终只走一条路径：先用 `Travels.deserialize()` 解码，再把完整结果传给 `restoreTravels()` 或 `restoreTravelJournal()`。
+Travels 的持久化不依赖具体存储。`serialize()` 返回一个带版本号的快照；如何编码和存储，由你的应用决定。可以将快照对象或 JSON 字符串直接传给 `restoreTravels()`。设置 `validation: 'semantic'` 可以在恢复时校验历史是否可逆。需要迁移、回退或对外部 Journal 做语义校验时，先调用 `Travels.deserialize()`。
 
 ## 快照契约
 

@@ -20,7 +20,9 @@ import type {
   TravelsControlledApply,
   TravelsDeserializeOptions,
   TravelsEvent,
+  TravelsHistoryValidationMode,
   TravelsOptions,
+  TravelsReplayOptions,
   TravelsSerializedHistory,
   TravelsSerializeOptions,
   Updater,
@@ -172,7 +174,8 @@ type TravelsCoreSource<S, P extends PatchesOption> =
   | { type: 'initial'; state: S }
   | {
       type: 'snapshot';
-      snapshot: TravelsSerializedHistory<S, P>;
+      snapshot: TravelsSerializedHistory<S, P> | string;
+      validation?: TravelsHistoryValidationMode;
       /** Live mutable root that receives the restored state in place. */
       target?: object;
     };
@@ -690,7 +693,9 @@ export class TravelsCore<
     const restoredHistory =
       source.type === 'snapshot'
         ? deserializeTravelsHistory<S, P>(source.snapshot, {
-            validation: 'structural',
+            validation: source.validation,
+            // Patch-enabled marks return the subset also valid for patch replay.
+            replayOptions: mutativeOptions as TravelsReplayOptions,
           })
         : undefined;
     const restoreTarget =

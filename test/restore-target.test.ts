@@ -23,6 +23,24 @@ const createSnapshot = (): TravelsSerializedHistory<Doc> => {
 };
 
 describe('restoreTravels state ownership', () => {
+  test('validates object and JSON snapshots before trimming history or writing the target', () => {
+    const snapshot = createSnapshot();
+    const valid = JSON.stringify(snapshot);
+    const manual = restoreTravels<Doc>(valid, { validation: 'semantic', autoArchive: false });
+    manual.back();
+    expect(manual.getState().tags).toEqual([]);
+
+    snapshot.state.title = 'corrupt';
+    const target = { title: 'untouched', tags: [] };
+    for (const input of [snapshot, JSON.stringify(snapshot)]) {
+      expect(restoreTravels(input).getState()).toEqual(snapshot.state);
+      expect(() => restoreTravels(input, {
+        validation: 'semantic', maxHistory: 1, mutable: true, target,
+      })).toThrowError(expect.objectContaining({ code: 'INVALID_HISTORY' }));
+      expect(target).toEqual({ title: 'untouched', tags: [] });
+    }
+  });
+
   test('does not mutate a reused fallback snapshot in mutable mode', () => {
     const empty: TravelsSerializedHistory<Doc> = {
       version: 1,

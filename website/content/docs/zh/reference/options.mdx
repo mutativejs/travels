@@ -36,6 +36,8 @@ description: 时间线创建、恢复、持久化、补丁、钩子与 Mutative 
 
 `restoreTravels(snapshot, options?)` 接受适用的创建选项，但有意不接受单独的 `initialState` 或 `history`；完整快照才是原子的状态/历史记录输入。
 
+可传入完整的快照对象或 JSON 字符串。设置 `validation: 'semantic'` 后，会先校验每个历史条目，再写入目标对象或裁剪历史。恢复选项中的 `strict` 与 `mark` 同时用于语义校验。
+
 对于可变模式集成，它还接受：
 
 ```ts

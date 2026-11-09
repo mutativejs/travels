@@ -1,5 +1,6 @@
 import type {
   PatchesOption,
+  TravelsHistoryValidationMode,
   TravelsOptions,
   TravelsSerializedHistory,
 } from './type.js';
@@ -29,6 +30,8 @@ export type RestoreTravelsOptions<
    * snapshot state.
    */
   target?: S;
+  /** Select semantic replay to verify the complete snapshot before restoring. */
+  validation?: TravelsHistoryValidationMode;
 };
 
 /** Restore an auto-archiving timeline from one complete persisted snapshot. */
@@ -37,7 +40,7 @@ export function restoreTravels<
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P>,
+  snapshot: TravelsSerializedHistory<S, P> | string,
   options?: Omit<RestoreTravelsOptions<S, F, true, P>, 'autoArchive'> & {
     autoArchive?: true;
   }
@@ -49,7 +52,7 @@ export function restoreTravels<
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P>,
+  snapshot: TravelsSerializedHistory<S, P> | string,
   options: Omit<RestoreTravelsOptions<S, F, false, P>, 'autoArchive'> & {
     autoArchive: false;
   }
@@ -62,7 +65,7 @@ export function restoreTravels<
   A extends boolean = true,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P>,
+  snapshot: TravelsSerializedHistory<S, P> | string,
   options: RestoreTravelsOptions<S, F, A, P>
 ): Travels<S, F, A, P>;
 
@@ -72,7 +75,7 @@ export function restoreTravels<
   A extends boolean,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P>,
+  snapshot: TravelsSerializedHistory<S, P> | string,
   options: RestoreTravelsOptions<S, F, A, P> = {}
 ): Travels<S, F, A, P> {
   assertPublicFactoryOptions(options, {
@@ -80,11 +83,12 @@ export function restoreTravels<
     restoreFactory: 'restoreTravels',
     allowRestoreTarget: true,
   });
-  const { target, ...travelsOptions } = options;
+  const { target, validation, ...travelsOptions } = options;
   return createStateOwningTravels<S, F, A, P>(
     {
       type: 'snapshot',
       snapshot,
+      validation,
       target:
         hasOwnOption(options, 'target') && target !== undefined
           ? (target as object)
