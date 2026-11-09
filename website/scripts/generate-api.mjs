@@ -1,37 +1,13 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, mkdirSync, mkdtempSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const websiteRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(websiteRoot, '..');
-const temporaryOutput = join(websiteRoot, '.generated-api');
+const scratchRoot = join(websiteRoot, '.generated-api');
 const targetRoot = join(websiteRoot, 'content/docs/api-reference');
 const groups = ['functions', 'classes', 'interfaces', 'type-aliases', 'variables'];
-
-rmSync(temporaryOutput, { recursive: true, force: true });
-
-const result = spawnSync(
-  'pnpm',
-  [
-    '--dir',
-    repositoryRoot,
-    'exec',
-    'typedoc',
-    '--plugin',
-    'typedoc-plugin-markdown',
-    '--out',
-    temporaryOutput,
-    '--readme',
-    'none',
-    'src/index.ts',
-  ],
-  { stdio: 'inherit', shell: false }
-);
-
-if (result.status !== 0) {
-  process.exit(result.status ?? 1);
-}
 
 const descriptions = {
   createTravels: 'Create a state-owning timeline with automatic or manual archiving.',
@@ -67,62 +43,106 @@ function listMarkdownFiles(directory) {
   });
 }
 
-let pageCount = 0;
-for (const group of groups) {
-  const sourceDirectory = join(temporaryOutput, group);
-  const files = listMarkdownFiles(sourceDirectory);
-  const targetDirectory = join(targetRoot, group);
-  rmSync(targetDirectory, { recursive: true, force: true });
-  if (files.length === 0) continue;
-  mkdirSync(targetDirectory, { recursive: true });
+function generatePages(temporaryOutput) {
+  const output = new Map();
+  let pageCount = 0;
+  const activeGroups = [];
+  for (const group of groups) {
+    const sourceDirectory = join(temporaryOutput, group);
+    const files = listMarkdownFiles(sourceDirectory);
+    const targetDirectory = join(targetRoot, group);
+    if (files.length === 0) continue;
+    activeGroups.push(group);
 
-  const pages = [];
-  for (const file of files) {
-    const markdown = readFileSync(file, 'utf8');
-    const lines = markdown.split('\n');
-    const headingIndex = lines.findIndex((line) => /^# (Function|Class|Interface|Type Alias|Variable):/.test(line));
-    if (headingIndex === -1) continue;
+    const pages = [];
+    for (const file of files) {
+      const markdown = readFileSync(file, 'utf8');
+      const lines = markdown.split('\n');
+      const headingIndex = lines.findIndex((line) => /^# (Function|Class|Interface|Type Alias|Variable):/.test(line));
+      if (headingIndex === -1) continue;
 
-    const title = titleFromHeading(lines[headingIndex]);
-    const name = plainName(title);
-    const description = descriptions[name] ?? `Travels 3 API reference for ${name}.`;
-    const body = lines
-      .slice(headingIndex + 1)
-      .join('\n')
-      .replace(/^(?:\s|\*\*\*)+/, '')
-      .replace(/\.md(?=[)#])/g, '.mdx')
-      .replace(/\]\([^)]*globals\.mdx[^)]*\)/g, '](/docs/api-reference)')
-      .replace(/\]\([^)]*README\.mdx[^)]*\)/g, '](/docs)');
+      const title = titleFromHeading(lines[headingIndex]);
+      const name = plainName(title);
+      const description = descriptions[name] ?? `Travels 3 API reference for ${name}.`;
+      const body = lines
+        .slice(headingIndex + 1)
+        .join('\n')
+        .replace(/^(?:\s|\*\*\*)+/, '')
+        .replace(/\.md(?=[)#])/g, '.mdx')
+        .replace(/\]\([^)]*globals\.mdx[^)]*\)/g, '](/docs/api-reference)')
+        .replace(/\]\([^)]*README\.mdx[^)]*\)/g, '](/docs)');
 
-    const relativePath = relative(sourceDirectory, file).replace(/\.md$/, '.mdx');
-    const outputPath = join(targetDirectory, relativePath);
-    mkdirSync(dirname(outputPath), { recursive: true });
-    writeFileSync(
-      outputPath,
-      `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\n---\n\n${body.trim()}\n`
+      const relativePath = relative(sourceDirectory, file).replace(/\.md$/, '.mdx');
+      const outputPath = join(targetDirectory, relativePath);
+      output.set(
+        outputPath,
+        `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\n---\n\n${body.trim()}\n`
+      );
+      pages.push(relativePath.replace(/\.mdx$/, '').replaceAll('\\', '/'));
+      pageCount += 1;
+    }
+
+    const titles = {
+      functions: 'Functions',
+      classes: 'Classes',
+      interfaces: 'Interfaces',
+      'type-aliases': 'Type Aliases',
+      variables: 'Variables',
+    };
+    pages.sort((a, b) => a.localeCompare(b));
+    output.set(
+      join(targetDirectory, 'meta.json'),
+      `${JSON.stringify({ title: titles[group], pages }, null, 2)}\n`
     );
-    pages.push(relativePath.replace(/\.mdx$/, '').replaceAll('\\', '/'));
-    pageCount += 1;
   }
 
-  const titles = {
-    functions: 'Functions',
-    classes: 'Classes',
-    interfaces: 'Interfaces',
-    'type-aliases': 'Type Aliases',
-    variables: 'Variables',
-  };
-  pages.sort((a, b) => a.localeCompare(b));
-  writeFileSync(
-    join(targetDirectory, 'meta.json'),
-    `${JSON.stringify({ title: titles[group], pages }, null, 2)}\n`
+  output.set(
+    join(targetRoot, 'meta.json'),
+    `${JSON.stringify({ title: 'API Reference', pages: ['index', ...activeGroups] }, null, 2)}\n`
   );
+  return { output, pageCount };
 }
 
-writeFileSync(
-  join(targetRoot, 'meta.json'),
-  `${JSON.stringify({ title: 'API Reference', pages: ['index', ...groups.filter((group) => existsSync(join(targetRoot, group)))] }, null, 2)}\n`
-);
+// Publish complete files so another check or a running dev server always
+// sees readable pages. Remove obsolete entries only after navigation is ready.
+function publishPages(output, workDir) {
+  const staged = join(workDir, 'page.tmp');
+  for (const [file, content] of output) {
+    if (existsSync(file) && readFileSync(file, 'utf8') === content) continue;
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(staged, content);
+    renameSync(staged, file);
+  }
+  for (const group of groups) {
+    const directory = join(targetRoot, group);
+    if (!existsSync(directory)) continue;
+    for (const entry of readdirSync(directory, { recursive: true, withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      const file = join(entry.parentPath, entry.name);
+      if (!output.has(file)) rmSync(file, { force: true });
+    }
+  }
+}
 
-rmSync(temporaryOutput, { recursive: true, force: true });
-console.log(`Generated ${pageCount} Fumadocs API reference pages.`);
+mkdirSync(scratchRoot, { recursive: true });
+const workDir = mkdtempSync(join(scratchRoot, 'run-'));
+try {
+  const temporaryOutput = join(workDir, 'typedoc');
+  const result = spawnSync(
+    process.execPath,
+    [join(repositoryRoot, 'node_modules/typedoc/bin/typedoc'),
+      '--plugin', 'typedoc-plugin-markdown', '--out', temporaryOutput,
+      '--readme', 'none', 'src/index.ts'],
+    { cwd: repositoryRoot, stdio: 'inherit' }
+  );
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    process.exitCode = result.status ?? 1;
+  } else {
+    const { output, pageCount } = generatePages(temporaryOutput);
+    publishPages(output, workDir);
+    console.log(`Generated ${pageCount} Fumadocs API reference pages.`);
+  }
+} finally {
+  rmSync(workDir, { recursive: true, force: true });
+}
