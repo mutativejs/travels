@@ -232,10 +232,12 @@ const transactionError = (cause: unknown): TravelsError => {
   let message = 'Travels: TRANSACTION_FAILED';
   try {
     if (cause instanceof TravelsError) return cause;
-    const detail = cause instanceof Error ? cause.message : cause;
+    const detail = cause instanceof Error
+      ? Object.getOwnPropertyDescriptor(cause, 'message')?.value
+      : cause;
     if (typeof detail === 'string' && detail) message += `: ${detail}`;
   } catch {
-    // A thrown proxy or error with a throwing message getter is still the cause.
+    // A proxy can reject inspection. Preserve the original cause.
   }
   return new TravelsError('TRANSACTION_FAILED', message, { cause });
 };
@@ -1281,18 +1283,19 @@ export class TravelsCore<
   }
 
   private reportTransactionError(error: unknown): TravelsError {
-    const travelsError = transactionError(error);
-    if (this.onError) {
-      if (this.transactionDepth > 0) {
-        (this.transactionErrors ??= new Set()).add(travelsError);
-      } else {
-        const onError = this.onError;
-        this.observers.publish(() => {
+    // A thrown proxy can run traps during inspection after rollback.
+    return this.observers.publish(() => {
+      const travelsError = transactionError(error);
+      const onError = this.onError;
+      if (onError) {
+        if (this.transactionDepth > 0) {
+          (this.transactionErrors ??= new Set()).add(travelsError);
+        } else {
           this.observers.invoke('onError', () => onError(travelsError));
-        });
+        }
       }
-    }
-    return travelsError;
+      return travelsError;
+    });
   }
 
   private toEntries(

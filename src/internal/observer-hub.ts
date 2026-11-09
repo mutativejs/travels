@@ -36,18 +36,13 @@ export class ObserverHub<S, P extends PatchesOption = {}> {
     return this.publishing;
   }
 
-  public publish(effect: () => void): void {
-    const isRootPublication = !this.publishing;
-    if (isRootPublication) {
-      this.publishing = true;
-    }
-
+  public publish<T>(effect: () => T): T {
+    const previous = this.publishing;
+    this.publishing = true;
     try {
-      effect();
+      return effect();
     } finally {
-      if (isRootPublication) {
-        this.publishing = false;
-      }
+      this.publishing = previous;
     }
   }
 

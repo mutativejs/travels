@@ -1184,6 +1184,63 @@ describe('Productized history API', () => {
     expect(onError.mock.calls[0][0].code).toBe('TRANSACTION_FAILED');
   });
 
+  test.each([false, true])(
+    'transaction rollback skips message getters (mutable: %s)',
+    (mutable) => {
+      const travels = createTravels({ count: 0 }, { mutable });
+      travels.setState({ count: 1 });
+      travels.back();
+      const revision = travels.getRevision();
+      const listener = vi.fn();
+      travels.subscribe(listener);
+      const getMessage = vi.fn(() => {
+        travels.setState({ count: 42 });
+        return 'side effect';
+      });
+      const cause = Object.defineProperty(new Error(), 'message', {
+        get: getMessage,
+      });
+
+      let failure: unknown;
+      try {
+        travels.transaction(() => {
+          travels.setState({ count: 2 });
+          throw cause;
+        });
+      } catch (error) {
+        failure = error;
+      }
+
+      expect(failure).toBeInstanceOf(TravelsError);
+      expect((failure as TravelsError).cause).toBe(cause);
+      expect(getMessage).not.toHaveBeenCalled();
+      expect(travels.getState()).toEqual({ count: 0 });
+      expect(travels.getPosition()).toBe(0);
+      expect(travels.getRevision()).toBe(revision);
+      expect(travels.getHistory()).toEqual([{ count: 0 }, { count: 1 }]);
+      expect(listener).not.toHaveBeenCalled();
+      travels.forward();
+      expect(travels.getState()).toEqual({ count: 1 });
+    }
+  );
+
+  test('a thrown proxy cannot reenter the timeline during error formatting', () => {
+    const travels = createTravels(0);
+    const cause = new Proxy(new Error('failure'), {
+      getPrototypeOf(target) {
+        travels.setState(42);
+        return Reflect.getPrototypeOf(target);
+      },
+    });
+
+    expect(() => travels.transaction(() => {
+      throw cause;
+    })).toThrow(TravelsError);
+    expect(travels.getState()).toBe(0);
+    expect(travels.getHistory()).toEqual([0]);
+    expect(travels.getRevision()).toBe(0);
+  });
+
   test('failed transactions roll back partial state and history changes', () => {
     const travels = createTravels({ count: 0 });
 
