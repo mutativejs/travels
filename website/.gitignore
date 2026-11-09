@@ -3,6 +3,9 @@
 
 # generated content
 .source
+/.generated-api/
+/content/docs/api-reference/*
+!/content/docs/api-reference/index.mdx
 
 # test & build
 /coverage

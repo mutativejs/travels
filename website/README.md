@@ -58,7 +58,7 @@ Edit hand-written guides directly. Do not manually edit generated files inside t
 pnpm --dir website docs:api
 ```
 
-The `predev` and `prebuild` scripts also regenerate API pages from `src/index.ts`, so root development dependencies must be installed.
+Development, build, type checks, and content checks generate the API pages from `src/index.ts`. Install root development dependencies before running these commands. Git tracks the hand-written API landing page and translations. Generated pages and their navigation stay local so their source links can point at the commit being built.
 
 ## Translate a page
 

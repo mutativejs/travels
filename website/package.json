@@ -11,7 +11,7 @@
     "pretypes:check": "node scripts/generate-api.mjs && node scripts/check-content.mjs",
     "types:check": "next typegen && tsc --noEmit",
     "docs:api": "node scripts/generate-api.mjs",
-    "check:content": "node scripts/check-content.mjs"
+    "check:content": "node scripts/generate-api.mjs && node scripts/check-content.mjs"
   },
   "dependencies": {
     "@fumadocs/language": "0.2.19",
