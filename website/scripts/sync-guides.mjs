@@ -22,10 +22,13 @@ function websiteLink(link, path, anchor = '') {
 
 for (const [filename, slug] of guides) {
   const page = new URL(`${slug}.mdx`, pages);
-  const current = readFileSync(page, 'utf8');
+  const original = readFileSync(page, 'utf8');
+  const current = original.replace(/\r\n/g, '\n');
   const header = current.match(/^---\n[\s\S]*?\n---\n/);
   if (!header) throw new Error(`Missing frontmatter in ${slug}.mdx`);
-  const markdown = readFileSync(new URL(filename, docs), 'utf8').replace(/^# [^\n]+\n+/, '');
+  const markdown = readFileSync(new URL(filename, docs), 'utf8')
+    .replace(/\r\n/g, '\n')
+    .replace(/^# [^\n]+\n+/, '');
   // Keep code samples literal when translating repository links to site routes.
   const body = markdown.split(/(^[ \t]*```[^\n]*\n[\s\S]*?^[ \t]*```[ \t]*$)/m)
     .map((part, i) => i % 2 ? part : part.replace(/\]\(([^#():\s]+)(#[^()\s]*)?\)/g, websiteLink))
@@ -33,7 +36,8 @@ for (const [filename, slug] of guides) {
   const expected = `${header[0]}\n${body}`;
   if (expected === current) continue;
   if (process.argv.includes('--write')) {
-    writeFileSync(page, expected);
+    const newline = original.startsWith('---\r\n') ? '\r\n' : '\n';
+    writeFileSync(page, expected.replace(/\n/g, newline));
   } else {
     console.error(`${slug}.mdx differs from docs/${filename}. Run pnpm --dir website docs:sync.`);
     process.exitCode = 1;
