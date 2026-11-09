@@ -329,7 +329,7 @@ const zh: HomeContent = {
     text: '让 Travels 负责更新，或让现有 Store 继续作为权威数据源。两种模式下，历史契约都保持明确。',
     cards: [
       {
-        tag: '状态自有',
+        tag: '拥有状态',
         title: 'createTravels()',
         text: '通过 Travels 发送更新，获得不可变状态、补丁、导航与控制能力。',
         sr: '更新从你的代码流经 Travels 到达界面。back() 与 forward() 则从界面回到 Travels。',
@@ -339,7 +339,7 @@ const zh: HomeContent = {
         href: '/zh/docs/getting-started/quick-start',
       },
       {
-        tag: '外部所有',
+        tag: '外部持有',
         title: 'createTravelJournal()',
         text: '记录来自现有 Store 或状态机的补丁，再通过其提交路径委托撤销/重做。',
         sr: '你的 Store 提交更新并把补丁记录到日志，日志再驱动界面。back() 与 forward() 通过 Store 的提交路径委托执行。',
