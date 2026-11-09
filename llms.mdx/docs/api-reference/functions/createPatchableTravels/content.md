@@ -4,7 +4,7 @@
 
 > **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
 
-Defined in: [src/createPatchableTravels.ts:11](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/createPatchableTravels.ts#L11)
+Defined in: [src/createPatchableTravels.ts:11](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/createPatchableTravels.ts#L11)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -390,7 +390,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/createPatchableTravels.ts:22](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/createPatchableTravels.ts#L22)
+Defined in: [src/createPatchableTravels.ts:22](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/createPatchableTravels.ts#L22)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -427,7 +427,7 @@ durable JSON-shaped subset supported by patches and persistence.
 
 > **createPatchableTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createPatchableTravels.ts:33](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/createPatchableTravels.ts#L33)
+Defined in: [src/createPatchableTravels.ts:33](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/createPatchableTravels.ts#L33)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.

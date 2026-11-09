@@ -1,0 +1,57 @@
+5:"$Sreact.fragment"
+6:"/travels/_next/static/chunks/1glgytvfkcfvx.js"
+7:I[91560,["$6"],"default"]
+8:I[79149,["$6"],"default"]
+d:"/travels/_next/static/chunks/1zd4kqxn7o3d8.js"
+e:"/travels/_next/static/chunks/0hep1axo47au2.js"
+f:"/travels/_next/static/chunks/2jiac805ho1up.js"
+10:"/travels/_next/static/chunks/3sp84899l0h61.js"
+11:"/travels/_next/static/chunks/1v5bt88t0tz3d.js"
+12:"/travels/_next/static/chunks/3zwcscwyhlkgz.js"
+13:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+14:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+15:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+16:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsPage"]
+17:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsTitle"]
+18:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsDescription"]
+19:"MarkdownCopyButton"
+1a:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$19"]
+1b:"ViewOptionsPopover"
+1c:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$1b"]
+1d:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsBody"]
+1e:I[84452,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"Heading"]
+1f:I[53632,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"default"]
+2b:"ViewportBoundary"
+2c:I[27135,["$6"],"$2b"]
+2d:"MetadataBoundary"
+2e:I[27135,["$6"],"$2d"]
+2f:"$Sreact.suspense"
+30:I[73677,["$6"],"IconMark"]
+a:X
+a:C
+b:X
+c:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$5","c",{"children":[["$","$L16",null,{"toc":[{"depth":2,"url":"#按工作负载选择","title":"按工作负载选择"},{"depth":2,"url":"#比较成本","title":"比较成本"},{"depth":2,"url":"#选择所有权模型","title":"选择所有权模型"},{"depth":3,"url":"#createtravels","title":["$","code",null,{"children":"createTravels()"}]},{"depth":3,"url":"#createtraveljournal","title":["$","code",null,{"children":"createTravelJournal()"}]},{"depth":2,"url":"#选择归档模式","title":"选择归档模式"},{"depth":2,"url":"#实用决策清单","title":"实用决策清单"}],"children":[["$","$L17",null,{"children":"选择合适的方案"}],["$","$L18",null,{"className":"mb-0","children":"理解何时基于补丁的历史记录比快照、CRDT 或简单的撤销栈更合适。"}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L1a",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/getting-started/choosing-travels/content.md"}],["$","$L1c",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/getting-started/choosing-travels/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/zh/getting-started/choosing-travels.mdx"}]]}],["$","$L1d",null,{"children":[false,[["$","p",null,{"children":"Travels 围绕一个明确的取舍而设计：把一部分计算花在生成与应用补丁上，以缩小保留历史、让完整时间线的持久化变得可行。它并不打算在每一项更新延迟基准上都胜出。"}],"\n",["$","$L1e",null,{"as":"h2","id":"按工作负载选择","children":"按工作负载选择"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"场景"}],["$","th",null,{"children":"推荐方案"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"状态很大，编辑只涉及局部"}],["$","td",null,{"children":"Travels：保留补丁通常可以避免反复复制完整状态"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"历史很长，并且必须在刷新后依然存在"}],["$","td",null,{"children":"Travels：一个带版本的快照同时包含状态与历史"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"需要可重放的操作日志或撤销元数据"}],["$","td",null,{"children":"Travels：条目包含正向/反向补丁与元数据"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"状态很小，只需几条本地历史"}],["$","td",null,{"children":"快照栈、Redux-undo 或 Zundo 可能更简单也更快"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"每次编辑都会替换大部分或全部状态"}],["$","td",null,{"children":"两种方案都测一测；补丁成本可能接近快照"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"需要多人协作合并与并发冲突消解"}],["$","td",null,{"children":"使用 CRDT/OT 系统；Travels 本身不负责消解冲突"}]]}]]}]]}]}],"\n",["$","$L1e",null,{"as":"h2","id":"比较成本","children":"比较成本"}],"\n",["$","p",null,{"children":"快照历史会为每个条目支付一次状态复制成本，导航通常很便宜。补丁历史需要支付生成与应用补丁的成本，但对于局部更新，它只保留发生变化的操作。"}],"\n",["$","p",null,{"children":["在 Travels 中，不可变更新还会借助 Mutative 的结构共享。“基于补丁”并不意味着每个保留状态都被深拷贝，“更小的历史”也不代表 ",["$","code",null,{"children":"setState()"}]," 的延迟一定最低。"]}],"\n",["$","p",null,{"children":"请围绕四个维度测量你的真实工作负载："}],"\n",["$","ol",null,{"children":["\n",["$","li",null,{"children":"更新延迟与吞吐量。"}],"\n",["$","li",null,{"children":"撤销/重做与事务的延迟。"}],"\n",["$","li",null,{"children":"保留及序列化后的历史体积。"}],"\n",["$","li",null,{"children":"保存、恢复与语义校验的成本。"}],"\n"]}],"\n",["$","p",null,{"children":["仓库中的",["$","$L1f",null,{"href":"https://github.com/mutativejs/travels/tree/main/benchmarks","children":"基准测试套件"}],"把这些关注点分开测量，而不是给出一个放之四海皆准的赢家。"]}],"\n",["$","$L1e",null,{"as":"h2","id":"选择所有权模型","children":"选择所有权模型"}],"\n",["$","$L1e",null,{"as":"h3","id":"createtravels","children":["$","code",null,{"children":"createTravels()"}]}],"\n",["$","p",null,{"children":"当 Travels 应当接收并提交更新时使用它。这是原生状态、reducer 风格状态以及大多数新集成的默认选择。"}],"\n",["$","ul",null,{"children":["\n",["$","li",null,{"children":"不可变模式返回新的状态引用。"}],"\n",["$","li",null,{"children":"可变模式直接更新活动对象，适用于 MobX、Vue、Pinia 等响应式所有者。"}],"\n",["$","li",null,{"children":["可以使用 ",["$","code",null,{"children":"setState()"}],"、事务、跟踪控制与 ",["$","code",null,{"children":"getControls()"}],"。"]}],"\n"]}],"\n",["$","$L1e",null,{"as":"h3","id":"createtraveljournal","children":["$","code",null,{"children":"createTravelJournal()"}]}],"\n",["$","p",null,{"children":["当另一个运行时已经能生成 ",["$","code",null,{"children":"nextState"}],"、",["$","code",null,{"children":"patches"}]," 与 ",["$","code",null,{"children":"inversePatches"}]," 时使用它。外部所有者仍然是权威来源。"]}],"\n",["$","ul",null,{"children":["\n",["$","li",null,{"children":["用 ",["$","code",null,{"children":"recordPatches()"}]," 记录一次已有的提交。"]}],"\n",["$","li",null,{"children":["通过必需的同步 ",["$","code",null,{"children":"apply"}]," 回调执行撤销/重做。"]}],"\n",["$","li",null,{"children":"避免重复生成同一组补丁。"}],"\n",["$","li",null,{"children":["不要把委托的导航结果再次传回 ",["$","code",null,{"children":"recordPatches()"}],"。"]}],"\n"]}],"\n",["$","p",null,{"children":["提交与失败边界见",["$","$L1f",null,{"href":"/zh/docs/guides/controlled-journal","children":"Journal 指南"}],"。"]}],"\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26"]]}]]}],["$L27","$L28"],"$L29"]}],"p":"$@2a","v":null,"s":"$b"}}]]
+4:[["children",{"s":{"n":"slug","t":"oc","k":"getting-started/choosing-travels","s":[]},"h":64,"d":{"r":["$","$5","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@9","v":"$a","s":"$b"},"c":"$Qc"}]]
+3:[["children",{"s":"docs","h":32,"c":"$Q4"}]]
+2:[["children",{"s":"zh","h":64,"c":"$Q3"}]]
+1:[["children",{"s":"(zh)","h":48,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$5","h",{"children":[null,["$","$L2c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L2e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$2f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"选择合适的方案 — Travels"}],["$","meta","1",{"name":"description","content":"理解何时基于补丁的历史记录比快照、CRDT 或简单的撤销栈更合适。"}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"撤销重做,时间旅行,JSON Patch,状态历史,持久化,Mutative,TypeScript"}],["$","link","4",{"rel":"canonical","href":"https://mutativejs.github.io/travels/zh/docs/getting-started/choosing-travels/"}],["$","link","5",{"rel":"alternate","hrefLang":"en","href":"https://mutativejs.github.io/travels/docs/getting-started/choosing-travels/"}],["$","link","6",{"rel":"alternate","hrefLang":"zh-CN","href":"https://mutativejs.github.io/travels/zh/docs/getting-started/choosing-travels/"}],["$","meta","7",{"property":"og:title","content":"选择合适的方案"}],["$","meta","8",{"property":"og:description","content":"理解何时基于补丁的历史记录比快照、CRDT 或简单的撤销栈更合适。"}],["$","meta","9",{"property":"og:url","content":"https://mutativejs.github.io/travels/zh/docs/getting-started/choosing-travels/"}],["$","meta","10",{"property":"og:locale","content":"zh_CN"}],["$","meta","11",{"property":"og:image","content":"https://mutativejs.github.io/travels/zh/og/docs/getting-started/choosing-travels/image.png"}],["$","meta","12",{"property":"og:locale:alternate","content":"en_US"}],["$","meta","13",{"property":"og:type","content":"article"}],["$","meta","14",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","15",{"name":"twitter:title","content":"选择合适的方案"}],["$","meta","16",{"name":"twitter:description","content":"理解何时基于补丁的历史记录比快照、CRDT 或简单的撤销栈更合适。"}],["$","meta","17",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/zh/og/docs/getting-started/choosing-travels/image.png"}],["$","link","18",{"rel":"icon","href":"/travels/icon.png?icon.2fbb2ce0q9qn3.png","sizes":"128x128","type":"image/png"}],["$","link","19",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.1pg4g_sftlyas.png","sizes":"180x180","type":"image/png"}],["$","$L30","20",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@31","v":null,"s":"$b"}},"a":"$@32","u":"$@33","b":"WBjLkgiKTTc4ac3OYmP1F"}
+34:I[27135,["$6"],"OutletBoundary"]
+20:["$","$L1e",null,{"as":"h2","id":"选择归档模式","children":"选择归档模式"}]
+21:["$","ul",null,{"children":["\n",["$","li",null,{"children":[["$","strong",null,{"children":["自动（",["$","code",null,{"children":"autoArchive: true"}],"）"]}],"：每次有效的 ",["$","code",null,{"children":"setState()"}]," 调用都是一个撤销步骤。这是默认值，也是大多数应用的合适起点。"]}],"\n",["$","li",null,{"children":[["$","strong",null,{"children":["手动（",["$","code",null,{"children":"autoArchive: false"}],"）"]}],"：更新会立即影响当前状态，而 ",["$","code",null,{"children":"archive()"}]," 把待处理的工作合并为一个条目。适用于输入框失焦提交、拖拽手势或应用自定义的事务边界。"]}],"\n"]}]
+22:["$","p",null,{"children":["如果一次原子操作只需要向观察者发布一个最终事件，优先使用 ",["$","code",null,{"children":"transaction()"}],"，而不是手动协调归档。"]}]
+23:["$","$L1e",null,{"as":"h2","id":"实用决策清单","children":"实用决策清单"}]
+24:["$","p",null,{"children":"如果以下大多数问题的答案都是“是”，Travels 很可能适合你："}]
+25:["$","ul",null,{"children":["\n",["$","li",null,{"children":"撤销/重做是产品功能，而不只是调试便利？"}],"\n",["$","li",null,{"children":"更新通常小于完整状态？"}],"\n",["$","li",null,{"children":"历史需要元数据、持久化或重放？"}],"\n",["$","li",null,{"children":"带版本的快照能简化本地优先存储？"}],"\n",["$","li",null,{"children":"你同时需要不可变集成与引用稳定的响应式集成？"}],"\n"]}]
+26:["$","p",null,{"children":"如果你的唯一需求只是在一个组件里保留五步计数器历史，那么一个小的本地栈大概就够了。"}]
+27:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+28:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
+29:["$","$L34",null,{"children":["$","$2f",null,{"name":"Next.MetadataOutlet","children":"$@35"}]}]
+33:true
+b:300
+35:null
+b:C
+32:0
+9:"$undefined"
+31:"$undefined"
+2a:"$undefined"

@@ -1,0 +1,43 @@
+# 框架集成 (/zh/docs/integrations)
+
+Travels 的核心不依赖任何 UI 框架。合适的集成方式取决于状态由谁掌管，以及你的响应式系统需要的是新引用还是稳定的对象身份。
+
+## 选择集成方式 [#选择集成方式]
+
+| 框架或所有者 | 推荐起点 | 历史模式 |
+| --- | --- | --- |
+| React | `useSyncExternalStore` 或 `use-travel@3` | 不可变 |
+| Vue 组合式函数 | `shallowRef`/`ref` 订阅 | 不可变 |
+| Vue 响应式 Store / Pinia | 直接传入被观察的对象 | `mutable: true` |
+| Zustand | `zustand-travel@3` 或手动同步外部 Store | 不可变 / 由绑定掌管 |
+| MobX | 直接传入可观察状态 | `mutable: true` |
+| 表单管理器 | 表单值的分离副本配合手动归档，或使用外部 Journal | 取决于所有者 |
+| 状态机 / 现有补丁生成方 | `createTravelJournal()` | 由外部持有 |
+
+<Cards>
+  <Card title="React" href="/zh/docs/integrations/react" description="外部 Store 订阅、控制接口与组件所有权。" />
+  <Card title="Vue" href="/zh/docs/integrations/vue" description="不可变组合式函数与引用稳定的响应式状态。" />
+  <Card title="Zustand" href="/zh/docs/integrations/zustand" description="官方中间件与直接集成核心 API。" />
+  <Card title="MobX 与 Pinia" href="/zh/docs/integrations/mobx-pinia" description="可变时间线，适用于依赖对象身份的 Store。" />
+  <Card title="表单与外部 Store" href="/zh/docs/integrations/external-stores" description="单一所有者同步与委托导航。" />
+</Cards>
+
+## 官方 v3 绑定 [#官方-v3-绑定]
+
+- [`use-travel`](https://github.com/mutativejs/use-travel) 提供 React Hooks 与共享 Store 集成。
+- [`zustand-travel`](https://github.com/mutativejs/zustand-travel) 提供 Zustand 中间件。
+
+无论使用哪个 v3 绑定，都应搭配 `travels@^3.0.1`：`use-travel@3` 接受 `travels@^3.0.0`，`zustand-travel@3` 则要求 `travels@^3.0.1`。两个绑定都支持 `mutative@^2.0.0`。应使用相互匹配的主版本，使工厂函数重载、只读视图与快照恢复遵循同一份契约。
+
+## 集成不变式 [#集成不变式]
+
+无论使用哪种框架：
+
+1. 为每个逻辑文档或编辑会话创建一条时间线。
+2. 只要订阅者仍依赖它，就保持其实例身份稳定。
+3. 只通过一条权威的状态更新路径进行更新。
+4. 状态或时间线修订号发生变化时，都要重新渲染。
+5. 所有者被销毁时取消订阅。
+6. 在受控关闭点之前完成待处理的持久化写入。
+
+可运行的源码示例见[示例](/zh/docs/resources/examples)。

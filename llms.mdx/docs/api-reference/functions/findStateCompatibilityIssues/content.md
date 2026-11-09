@@ -2,7 +2,7 @@
 
 > **findStateCompatibilityIssues**(`value`, `options`): [`StateCompatibilityIssue`](../type-aliases/StateCompatibilityIssue.mdx)[]
 
-Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/compatibility.ts#L109)
+Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/compatibility.ts#L109)
 
 ## Parameters [#parameters]
 

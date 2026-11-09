@@ -2,6 +2,6 @@
 
 > **Travels**: `Readonly`\<\{ `deserialize`: [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>; \}\>
 
-Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/travels.ts#L100)
+Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/travels.ts#L100)
 
 Persistence namespace retained without exposing the internal constructor.

@@ -1,0 +1,78 @@
+# Journal (/zh/docs/guides/controlled-journal)
+
+`createTravelJournal()` 是面向已经拥有状态并负责提交的运行时提供的 Journal（受控日志）适配器 API。它让该运行时把现有的正向/反向补丁对交给 Travels，而无需重新执行更新逻辑，也不必让导航绕开状态所有者的校验与订阅流程。
+
+如果应由 Travels 自己拥有状态更新，请改用 `createTravels()`。使用 `restoreTravelJournal(snapshot, { apply })` 恢复序列化的 Journal 历史；快照状态与时间线会作为一个原子输入被接受。
+
+## 数据流 [#数据流]
+
+一次外部提交只有一条权威路径：
+
+1. 状态所有者针对一次状态转换生成 `nextState`、`patches` 和 `inversePatches`。
+2. 所有者通过其常规状态路径提交 `nextState`。
+3. 在同一个同步提交边界内，适配器调用 `journal.recordPatches(nextState, { patches, inversePatches, metadata })`。
+4. Travels 分离补丁对与元数据，更新游标和保留的历史记录，然后发布一个 `recordPatches` 事件。
+
+当传入的状态引用发生变化时，`recordPatches()` 要求补丁对非空。它会校验补丁结构和受支持的补丁值，但不会重放该补丁对来证明它能把前一状态转换为传入的状态。这一对应关系由适配器负责；在此处做重放校验会重复外部运行时的工作，也会破坏只生成一次补丁的集成路径。
+
+如果所有者无法回滚已发布的提交，可以在第 2 步之前调用 `assertTravelHistoryEntryRecordable({ patches, inversePatches })`。这项预检使用与 `recordPatches()` 相同的结构校验和分离值规则，但不会改变 Journal 状态。
+
+补丁组和元数据在 Travels 保留它们之前会被克隆。传入的状态仍作为外部所有者的状态引用，不会被克隆。
+
+## 导航与重置契约 [#导航与重置契约]
+
+`back()`、`forward()`、`go()` 和 `reset()` 会组合必要的补丁并调用所需的 `apply` 回调：
+
+```ts
+const journal = createTravelJournal(authoritativeState, {
+  apply(transition) {
+    authoritativeState = commitThroughOwner(transition.patches);
+    return authoritativeState;
+  },
+});
+```
+
+回调会收到：
+
+- `state`：导航前 Travels 所知的状态；
+- `patches`：组合后的、待提交的正向转换；
+- `inversePatches`：组合后的回滚转换；
+- `fromPosition` 与 `toPosition`：游标的移动。
+
+`reset()` 同样以补丁描述其返回基线的过程。当当前状态与基线同为普通对象或同为数组时，这些补丁会覆盖根的各个条目并保留根本身，因此所有者可以就地应用它们，例如使用 Mutative 的 `apply(state, patches, { mutable: true })`。当根类型不同、状态不是对象，或任一根含有自有 `__proto__` 键（任何补丁路径都无法指名该键）时，该转换会用单个 `{ op: 'replace', path: [] }` 补丁替换根。就地应用转换的所有者必须自行处理该补丁，正如处理通过 `recordPatches()` 记录的根替换一样：Mutative 2 对就地应用的根替换会抛出异常，Mutative 1 会跳过它，导致所有者的状态未变而 Journal 却已移动。
+
+传入的转换包含已分离的补丁操作与值，因此回调意外修改它们也无法改写保留的历史记录。回调仍应把它们视为只读，因为在所有者提交之前修改它们会改变所请求的导航。如果补丁值包含函数、访问器、`WeakMap`/`WeakSet`、自定义类实例、数组子类，或其他无法在不改变运行时类型的前提下克隆的值，都会以 `UNCLONEABLE_PATCH_VALUE` 拒绝；Journal 应保留原始类型、普通对象、普通数组或 `Date` 值。`apply` 必须同步完成，并返回所有者实际提交的状态。抛出错误、无法克隆的转换，或类 Promise 的返回值，都不会推进游标、替换保留的状态引用或改变历史记录。
+
+在开发构建中，Travels 还会扫描返回的状态中是否含有 `Map` 和 `Set`，不支持的状态会以同样的原子性被拒绝：游标、保留的状态引用和历史记录均保持不变。该扫描的耗时与整个状态成正比，因此生产构建会跳过它，每次导航都无需承担这部分开销。它只是一种诊断手段，让所有者尽早知道哪个转换引入了不支持的值，并不是保证持久化可靠性的机制：`serialize()`、`rebase()` 和 `getHistorySnapshot()` 在所有构建中都会校验状态，受控补丁值也始终会被校验，因此不支持的值绝不会进入保留的历史记录或持久化快照。请在开发构建下开发，以保留这一早期信号。对于外部所有者已经执行、随后操作才失败的修改或其他副作用，Travels 无法撤销。
+
+在执行委托给它的导航或重置时，所有者必须关闭常规的提交记录。若把这些变更再送回 `recordPatches()`，会创建新条目，而不是移动或清空现有时间线。对于在 `apply` 中同步尝试的每一次 Journal 变更，Travels 都会以 `REENTRANT_MUTATION` 拒绝；所有者回调仍可执行读取操作。
+
+当多次外部提交应合并为一个撤销步骤时，设置 `autoArchive: false`。每次 `recordPatches()` 调用都会更新待处理的当前状态；`archive(metadata?)` 组合待处理的补丁组，`canArchive()` 报告是否有待处理的工作。归档只改变 Journal 历史，不会调用 `apply`，因为外部所有者已经提交了状态。当导航隐式归档待处理的工作时，归档与游标移动会作为一个可观察的导航转换提交；若 `apply` 失败，待处理的归档、修订号和订阅都保持不变。
+
+## 公开接口 [#公开接口]
+
+返回的 `TravelJournal` 只暴露 Journal 可安全执行的操作：
+
+- 外部提交入口：`recordPatches()`；
+- 导航：`back()`、`forward()`、`go()`、`reset()`、`canBack()` 和 `canForward()`；
+- 读取：`getState()`、`getHistory()`、`getHistorySnapshot()`、`getPosition()`、`getPatches()`、`getMetadata()`、`getHistoryEntries()`、`assertPersistenceCompatible()` 和 `serialize()`；
+- 生命周期：`subscribe()` 和 `rebase()`；
+- 仅手动 Journal：`archive()` 和 `canArchive()`。
+
+在所有构建中，该接口对象都是冻结的只读能力视图；其方法无法在运行时被替换。
+
+拥有状态的操作（`setState()`、事务、`replaceStateWithoutHistory()`、跟踪控制以及 `getControls()`）在公开类型和运行时接口对象中都不存在。若要在保留当前外部状态作为新基线的同时清空保留的历史记录，`rebase()` 是安全的方式；`reset()` 则请求外部所有者恢复现有基线。
+
+## 失败边界 [#失败边界]
+
+Travels 保证每次 Journal 变更在内部都是原子的：格式错误、为空或只有单向的补丁对、不安全路径、不支持的补丁/状态值、元数据克隆失败以及受控导航失败，都不会部分改变 Journal 状态或历史记录。受控补丁入口采用与持久化历史相同的结构归一化，并同样保证访问器安全。
+
+外部所有者与 Travels 仍然是两个组件。如果所有者已经发布提交，而 `recordPatches()` 随后失败，Travels 无法自动回滚那次外部提交。应通过可信的生产者生成补丁，保持元数据可克隆，并在所有者支持该顺序时先调用 `recordPatches()` 再发布外部通知。无法回滚的适配器应显式恢复，例如在权威状态处对 Journal 进行变基，或切换到其文档化的兼容回退方案。
+
+观察者失败发生在 Journal 提交成功之后，遵循常规的 `onObserverError` 契约；它们不会回滚该转换。
+
+## 事件兼容性 [#事件兼容性]
+
+一次成功的外部提交会发出类型为 `recordPatches` 的 `TravelsEvent`。导航会发出 `go`，包括通过 `back()` 或 `forward()` 发起的调用。事件中的补丁组只描述该事件自身的转换。
+
+`TravelsEvent['type']` 有意保持开放，以接纳未来次要版本新增的事件名。使用方应处理已知操作，并保留 `default` 分支，而不是用 `never` 断言穷尽性。仅使用 `createTravels()` 的应用在运行时不会收到 `recordPatches`。

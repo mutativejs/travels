@@ -1,0 +1,85 @@
+# 实例方法 (/zh/docs/reference/instance-methods)
+
+本页按任务对公开方法分组。确切的泛型、重载、返回对象与带源码链接的签名，见生成的 [API 参考](/zh/docs/api-reference)。
+
+## 状态与修订号 [#状态与修订号]
+
+| 方法 | 返回值 | 说明 |
+| --- | --- | --- |
+| `getState()` | `S` | 当前实时状态；应视为只读。 |
+| `getRevision()` | `number` | 每次已提交事件递增的 O(1) 令牌。 |
+| `mutable` | `boolean` | 拥有状态的时间线是否使用可变模式。 |
+| `isTravels(value)` | 类型守卫 | 识别由当前这份 Travels 副本创建的拥有状态时间线。 |
+
+## 更新与分组 [#更新与分组]
+
+| 方法 | 可用范围 | 用途 |
+| --- | --- | --- |
+| `setState(updater, metadata?)` | 拥有状态的时间线 | 提交直接值、返回的状态或草稿函数。 |
+| `transaction(metadata?, fn)` | 拥有状态的时间线 | 以原子方式对同步操作分组；只产生一个根事件。 |
+| `batch(metadata?, fn)` | 拥有状态的时间线 | `transaction()` 的别名。 |
+| `recordPatches(state, entry)` | Journal | 记录外部所有者给出的精确正向/反向补丁对。 |
+| `archive(metadata?)` | 手动时间线/Journal | 把待处理的更新作为一个条目提交。 |
+| `canArchive()` | 手动时间线/Journal | 检查是否有待处理的工作。 |
+
+更新函数与事务回调必须是同步的。Journal 不暴露 `setState()`、事务、追踪控制或 `getControls()`。
+
+## 导航 [#导航]
+
+| 方法 | 用途 |
+| --- | --- |
+| `back(amount?)` | 撤销一个或多个保留的条目。 |
+| `forward(amount?)` | 重做一个或多个保留的条目。 |
+| `go(position)` | 跳转到保留的游标位置。 |
+| `canBack()` / `canForward()` | 检查是否可以导航。 |
+| `getPosition()` | 读取当前游标。 |
+| `reset()` | 通过所有者恢复实例的现有基线。 |
+
+导航会发布 `go` 事件。手动模式下待处理的工作会作为成功导航的一部分被归档。Journal 通过 `apply` 委托应用补丁，并且不得把该导航再次记录为新的外部编辑。
+
+## 基线与追踪 [#基线与追踪]
+
+| 方法 | 用途 |
+| --- | --- |
+| `rebase()` | 保留当前状态，并丢弃全部过去与未来的历史记录。 |
+| `replaceStateWithoutHistory(updater)` | 仅限拥有状态的时间线：更新状态、清空历史记录、建立新基线。 |
+| `pauseTracking()` / `resumeTracking()` | 仅限拥有状态的时间线：应用未被追踪的更新，并将其纳入新基线。 |
+
+应谨慎使用这些方法；它们会改变之后的撤销与重置操作所能触及的范围。
+
+## 历史记录读取 [#历史记录读取]
+
+| 方法 | 所有权与用途 |
+| --- | --- |
+| `getHistory()` | 共享的缓存只读状态时间线。 |
+| `getHistorySnapshot()` | 与缓存分离、归调用方所有的历史状态。 |
+| `getPatches()` | 与缓存分离的保留正向/反向补丁组。 |
+| `getMetadata()` | 与保留条目对齐的元数据；若存在待处理的手动工作，也包含该工作的元数据。 |
+| `getHistoryEntries()` | 正向/反向条目以及可选的元数据。 |
+| `getControls()` | 为拥有状态的时间线提供的、缓存且冻结的导航/只读接口对象。 |
+
+`getHistorySnapshot()` 会复制受支持的运行时值，但不强制满足完整的持久化 JSON 契约。严格的持久化校验由 `serialize({ strict: true })` 或 `assertPersistenceCompatible()` 负责。
+
+## 持久化 [#持久化]
+
+| API | 用途 |
+| --- | --- |
+| `serialize(options?)` | 返回一个分离的、带版本号的状态/历史记录快照。 |
+| `assertPersistenceCompatible()` | 针对不可持久化的状态、补丁、路径或元数据，抛出带具体路径的诊断。 |
+| `Travels.deserialize(input, options?)` | 在恢复之前解析、迁移并校验快照。 |
+| `restoreTravels(snapshot, options?)` | 以原子方式恢复拥有状态的时间线。 |
+| `restoreTravelJournal(snapshot, options)` | 以原子方式恢复由外部拥有的 Journal。 |
+
+导出的 `Travels` 值是持久化命名空间，而不是构造函数。
+
+## 校验辅助函数 [#校验辅助函数]
+
+- `findStateCompatibilityIssues(value, options?)` 检查可持久化数据中的隐患。
+- `validateTravelPatches(...)` 校验补丁结构与保留的值。
+- `validateTravelHistoryEntry(...)` 校验单个正向/反向历史记录条目。
+- `assertTravelHistoryEntryRecordable(...)` 在不改变 Journal 状态的情况下预检受控入口。
+- `createPatchableTravels(...)` 在静态层面约束初始状态，并在运行时立即校验。
+
+## 订阅 [#订阅]
+
+`subscribe(listener)` 返回一个取消订阅函数。事件在提交后发布；观察者失败会通过 `onObserverError` 隔离。不要在观察者中同步调用会修改状态的方法。参见[观察者与事件](/zh/docs/guides/observers-and-events)。

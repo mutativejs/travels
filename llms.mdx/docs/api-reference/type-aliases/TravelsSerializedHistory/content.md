@@ -2,7 +2,7 @@
 
 > **TravelsSerializedHistory**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:164](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L164)
+Defined in: [src/type.ts:164](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L164)
 
 ## Type Parameters [#type-parameters]
 
@@ -20,7 +20,7 @@ Defined in: [src/type.ts:164](https://github.com/mutativejs/travels/blob/9215f71
 
 > `optional` **metadata**: ([`TravelMetadata`](TravelMetadata.mdx) \| `undefined`)[]
 
-Defined in: [src/type.ts:172](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L172)
+Defined in: [src/type.ts:172](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L172)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/type.ts:172](https://github.com/mutativejs/travels/blob/9215f71
 
 > **patches**: [`TravelPatches`](TravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:170](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L170)
+Defined in: [src/type.ts:170](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L170)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/type.ts:170](https://github.com/mutativejs/travels/blob/9215f71
 
 > **position**: `number`
 
-Defined in: [src/type.ts:171](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L171)
+Defined in: [src/type.ts:171](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L171)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/type.ts:171](https://github.com/mutativejs/travels/blob/9215f71
 
 > **state**: `S`
 
-Defined in: [src/type.ts:169](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L169)
+Defined in: [src/type.ts:169](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L169)
 
 ***
 
@@ -52,4 +52,4 @@ Defined in: [src/type.ts:169](https://github.com/mutativejs/travels/blob/9215f71
 
 > **version**: `1`
 
-Defined in: [src/type.ts:168](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L168)
+Defined in: [src/type.ts:168](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L168)

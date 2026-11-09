@@ -1,0 +1,61 @@
+5:"$Sreact.fragment"
+6:"/travels/_next/static/chunks/1glgytvfkcfvx.js"
+7:I[91560,["$6"],"default"]
+8:I[79149,["$6"],"default"]
+d:"/travels/_next/static/chunks/1zd4kqxn7o3d8.js"
+e:"/travels/_next/static/chunks/0hep1axo47au2.js"
+f:"/travels/_next/static/chunks/2jiac805ho1up.js"
+10:"/travels/_next/static/chunks/3sp84899l0h61.js"
+11:"/travels/_next/static/chunks/1v5bt88t0tz3d.js"
+12:"/travels/_next/static/chunks/3zwcscwyhlkgz.js"
+13:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+14:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+15:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+16:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsPage"]
+17:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsTitle"]
+18:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsDescription"]
+19:"MarkdownCopyButton"
+1a:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$19"]
+1b:"ViewOptionsPopover"
+1c:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$1b"]
+1d:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsBody"]
+1e:I[84452,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"Heading"]
+1f:I[53632,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"default"]
+2f:"ViewportBoundary"
+30:I[27135,["$6"],"$2f"]
+31:"MetadataBoundary"
+32:I[27135,["$6"],"$31"]
+33:"$Sreact.suspense"
+34:I[73677,["$6"],"IconMark"]
+a:X
+a:C
+b:X
+c:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$5","c",{"children":[["$","$L16",null,{"toc":[{"depth":2,"url":"#选择集成方式","title":"选择集成方式"},{"depth":2,"url":"#官方-v3-绑定","title":"官方 v3 绑定"},{"depth":2,"url":"#集成不变式","title":"集成不变式"}],"children":[["$","$L17",null,{"children":"框架集成"}],["$","$L18",null,{"className":"mb-0","children":"为你的状态架构选择不可变、可变、官方绑定或外部持有的历史方案。"}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L1a",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/integrations/content.md"}],["$","$L1c",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/integrations/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/zh/integrations/index.mdx"}]]}],["$","$L1d",null,{"children":[false,[["$","p",null,{"children":"Travels 的核心不依赖任何 UI 框架。合适的集成方式取决于状态由谁掌管，以及你的响应式系统需要的是新引用还是稳定的对象身份。"}],"\n",["$","$L1e",null,{"as":"h2","id":"选择集成方式","children":"选择集成方式"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"框架或所有者"}],["$","th",null,{"children":"推荐起点"}],["$","th",null,{"children":"历史模式"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"React"}],["$","td",null,{"children":[["$","code",null,{"children":"useSyncExternalStore"}]," 或 ",["$","code",null,{"children":"use-travel@3"}]]}],["$","td",null,{"children":"不可变"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Vue 组合式函数"}],["$","td",null,{"children":[["$","code",null,{"children":"shallowRef"}],"/",["$","code",null,{"children":"ref"}]," 订阅"]}],["$","td",null,{"children":"不可变"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Vue 响应式 Store / Pinia"}],["$","td",null,{"children":"直接传入被观察的对象"}],["$","td",null,{"children":["$","code",null,{"children":"mutable: true"}]}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"Zustand"}],["$","td",null,{"children":[["$","code",null,{"children":"zustand-travel@3"}]," 或手动同步外部 Store"]}],["$","td",null,{"children":"不可变 / 由绑定掌管"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"MobX"}],["$","td",null,{"children":"直接传入可观察状态"}],["$","td",null,{"children":["$","code",null,{"children":"mutable: true"}]}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"表单管理器"}],["$","td",null,{"children":"表单值的分离副本配合手动归档，或使用外部 Journal"}],["$","td",null,{"children":"取决于所有者"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"状态机 / 现有补丁生成方"}],["$","td",null,{"children":["$","code",null,{"children":"createTravelJournal()"}]}],["$","td",null,{"children":"由外部持有"}]]}]]}]]}]}],"\n",["$","div",null,{"children":[["$","$L1f",null,{"href":"/zh/docs/integrations/react","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"React"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"外部 Store 订阅、控制接口与组件所有权。"}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1f",null,{"href":"/zh/docs/integrations/vue","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Vue"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"不可变组合式函数与引用稳定的响应式状态。"}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1f",null,{"href":"/zh/docs/integrations/zustand","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"Zustand"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"官方中间件与直接集成核心 API。"}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}],["$","$L1f",null,{"href":"/zh/docs/integrations/mobx-pinia","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,"$L20","$L21","$L22"]}],"$L23"],"className":"grid grid-cols-2 gap-3 @container"}],"\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a"]]}]]}],["$L2b","$L2c"],"$L2d"]}],"p":"$@2e","v":null,"s":"$b"}}]]
+4:[["children",{"s":{"n":"slug","t":"oc","k":"integrations","s":[]},"h":64,"d":{"r":["$","$5","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@9","v":"$a","s":"$b"},"c":"$Qc"}]]
+3:[["children",{"s":"docs","h":32,"c":"$Q4"}]]
+2:[["children",{"s":"zh","h":64,"c":"$Q3"}]]
+1:[["children",{"s":"(zh)","h":48,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$5","h",{"children":[null,["$","$L30",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L32",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$33",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"框架集成 — Travels"}],["$","meta","1",{"name":"description","content":"为你的状态架构选择不可变、可变、官方绑定或外部持有的历史方案。"}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"撤销重做,时间旅行,JSON Patch,状态历史,持久化,Mutative,TypeScript"}],["$","link","4",{"rel":"canonical","href":"https://mutativejs.github.io/travels/zh/docs/integrations/"}],["$","link","5",{"rel":"alternate","hrefLang":"en","href":"https://mutativejs.github.io/travels/docs/integrations/"}],["$","link","6",{"rel":"alternate","hrefLang":"zh-CN","href":"https://mutativejs.github.io/travels/zh/docs/integrations/"}],["$","meta","7",{"property":"og:title","content":"框架集成"}],["$","meta","8",{"property":"og:description","content":"为你的状态架构选择不可变、可变、官方绑定或外部持有的历史方案。"}],["$","meta","9",{"property":"og:url","content":"https://mutativejs.github.io/travels/zh/docs/integrations/"}],["$","meta","10",{"property":"og:locale","content":"zh_CN"}],["$","meta","11",{"property":"og:image","content":"https://mutativejs.github.io/travels/zh/og/docs/integrations/image.png"}],["$","meta","12",{"property":"og:locale:alternate","content":"en_US"}],["$","meta","13",{"property":"og:type","content":"article"}],["$","meta","14",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","15",{"name":"twitter:title","content":"框架集成"}],["$","meta","16",{"name":"twitter:description","content":"为你的状态架构选择不可变、可变、官方绑定或外部持有的历史方案。"}],["$","meta","17",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/zh/og/docs/integrations/image.png"}],["$","link","18",{"rel":"icon","href":"/travels/icon.png?icon.2fbb2ce0q9qn3.png","sizes":"128x128","type":"image/png"}],["$","link","19",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.1pg4g_sftlyas.png","sizes":"180x180","type":"image/png"}],["$","$L34","20",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@35","v":null,"s":"$b"}},"a":"$@36","u":"$@37","b":"WBjLkgiKTTc4ac3OYmP1F"}
+38:I[27135,["$6"],"OutletBoundary"]
+20:["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"MobX 与 Pinia"}]
+21:["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"可变时间线，适用于依赖对象身份的 Store。"}]
+22:["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]
+23:["$","$L1f",null,{"href":"/zh/docs/integrations/external-stores","data-card":true,"className":"block rounded-xl border bg-fd-card p-4 text-fd-card-foreground transition-colors @max-lg:col-span-full hover:bg-fd-accent/80","children":[null,["$","h3",null,{"className":"not-prose mb-1 text-sm font-medium","children":"表单与外部 Store"}],["$","p",null,{"className":"my-0! text-sm text-fd-muted-foreground","children":"单一所有者同步与委托导航。"}],["$","div",null,{"className":"text-sm text-fd-muted-foreground prose-no-margin empty:hidden"}]]}]
+24:["$","$L1e",null,{"as":"h2","id":"官方-v3-绑定","children":"官方 v3 绑定"}]
+25:["$","ul",null,{"children":["\n",["$","li",null,{"children":[["$","$L1f",null,{"href":"https://github.com/mutativejs/use-travel","children":["$","code",null,{"children":"use-travel"}]}]," 提供 React Hooks 与共享 Store 集成。"]}],"\n",["$","li",null,{"children":[["$","$L1f",null,{"href":"https://github.com/mutativejs/zustand-travel","children":["$","code",null,{"children":"zustand-travel"}]}]," 提供 Zustand 中间件。"]}],"\n"]}]
+26:["$","p",null,{"children":["无论使用哪个 v3 绑定，都应搭配 ",["$","code",null,{"children":"travels@^3.0.1"}],"：",["$","code",null,{"children":"use-travel@3"}]," 接受 ",["$","code",null,{"children":"travels@^3.0.0"}],"，",["$","code",null,{"children":"zustand-travel@3"}]," 则要求 ",["$","code",null,{"children":"travels@^3.0.1"}],"。两个绑定都支持 ",["$","code",null,{"children":"mutative@^2.0.0"}],"。应使用相互匹配的主版本，使工厂函数重载、只读视图与快照恢复遵循同一份契约。"]}]
+27:["$","$L1e",null,{"as":"h2","id":"集成不变式","children":"集成不变式"}]
+28:["$","p",null,{"children":"无论使用哪种框架："}]
+29:["$","ol",null,{"children":["\n",["$","li",null,{"children":"为每个逻辑文档或编辑会话创建一条时间线。"}],"\n",["$","li",null,{"children":"只要订阅者仍依赖它，就保持其实例身份稳定。"}],"\n",["$","li",null,{"children":"只通过一条权威的状态更新路径进行更新。"}],"\n",["$","li",null,{"children":"状态或时间线修订号发生变化时，都要重新渲染。"}],"\n",["$","li",null,{"children":"所有者被销毁时取消订阅。"}],"\n",["$","li",null,{"children":"在受控关闭点之前完成待处理的持久化写入。"}],"\n"]}]
+2a:["$","p",null,{"children":["可运行的源码示例见",["$","$L1f",null,{"href":"/zh/docs/resources/examples","children":"示例"}],"。"]}]
+2b:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+2c:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
+2d:["$","$L38",null,{"children":["$","$33",null,{"name":"Next.MetadataOutlet","children":"$@39"}]}]
+37:true
+b:300
+39:null
+b:C
+36:0
+9:"$undefined"
+35:"$undefined"
+2e:"$undefined"

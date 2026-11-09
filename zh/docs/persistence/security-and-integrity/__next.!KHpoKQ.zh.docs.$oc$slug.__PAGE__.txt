@@ -1,0 +1,62 @@
+5:"$Sreact.fragment"
+6:"/travels/_next/static/chunks/1glgytvfkcfvx.js"
+7:I[91560,["$6"],"default"]
+8:I[79149,["$6"],"default"]
+d:"/travels/_next/static/chunks/1zd4kqxn7o3d8.js"
+e:"/travels/_next/static/chunks/0hep1axo47au2.js"
+f:"/travels/_next/static/chunks/2jiac805ho1up.js"
+10:"/travels/_next/static/chunks/3sp84899l0h61.js"
+11:"/travels/_next/static/chunks/1v5bt88t0tz3d.js"
+12:"/travels/_next/static/chunks/3zwcscwyhlkgz.js"
+13:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+14:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+15:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+16:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsPage"]
+17:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsTitle"]
+18:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsDescription"]
+19:"MarkdownCopyButton"
+1a:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$19"]
+1b:"ViewOptionsPopover"
+1c:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$1b"]
+1d:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsBody"]
+1e:I[84452,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"Heading"]
+1f:I[53326,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"CodeBlock"]
+20:I[53326,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"Pre"]
+2f:"ViewportBoundary"
+30:I[27135,["$6"],"$2f"]
+31:"MetadataBoundary"
+32:I[27135,["$6"],"$31"]
+33:"$Sreact.suspense"
+34:I[73677,["$6"],"IconMark"]
+a:X
+a:C
+b:X
+c:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$5","c",{"children":[["$","$L16",null,{"toc":[{"depth":2,"url":"#先验证再反序列化","title":"先验证，再反序列化"},{"depth":2,"url":"#按信任模型选择控制措施","title":"按信任模型选择控制措施"},{"depth":2,"url":"#快照与原型安全","title":"快照与原型安全"},{"depth":2,"url":"#多设备与协作编辑","title":"多设备与协作编辑"},{"depth":2,"url":"#保护可用性","title":"保护可用性"},{"depth":2,"url":"#报告漏洞","title":"报告漏洞"}],"children":[["$","$L17",null,{"children":"安全与完整性"}],["$","$L18",null,{"className":"mb-0","children":"理解语义校验能证明什么，以及身份认证、修订号和冲突处理应放在哪里。"}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L1a",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md"}],["$","$L1c",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/zh/persistence/security-and-integrity.mdx"}]]}],["$","$L1d",null,{"children":[false,[["$","p",null,{"children":[["$","code",null,{"children":"Travels.deserialize({ validation: 'semantic' })"}]," 证明的是：存储的锚点和可达的补丁条目能够在隔离的图上一致地重放和反向应用。它",["$","strong",null,{"children":"不能"}],"证明快照由谁写入、是否为最新快照，也不能证明重建出的过去就是最初记录的那段历史。"]}],"\n",["$","$L1e",null,{"as":"h2","id":"先验证再反序列化","children":"先验证，再反序列化"}],"\n",["$","$L1f",null,{"className":"shiki shiki-themes github-light github-dark","style":{"--shiki-light":"#24292e","--shiki-dark":"#e1e4e8","--shiki-light-bg":"#fff","--shiki-dark-bg":"#24292e"},"tabIndex":"0","icon":"<svg viewBox=\"0 0 24 24\"><path d=\"M 6,1 C 4.354992,1 3,2.354992 3,4 v 16 c 0,1.645008 1.354992,3 3,3 h 12 c 1.645008,0 3,-1.354992 3,-3 V 8 7 A 1.0001,1.0001 0 0 0 20.707031,6.2929687 l -5,-5 A 1.0001,1.0001 0 0 0 15,1 h -1 z m 0,2 h 7 v 3 c 0,1.645008 1.354992,3 3,3 h 3 v 11 c 0,0.564129 -0.435871,1 -1,1 H 6 C 5.4358712,21 5,20.564129 5,20 V 4 C 5,3.4358712 5.4358712,3 6,3 Z M 15,3.4140625 18.585937,7 H 16 C 15.435871,7 15,6.5641288 15,6 Z\" fill=\"currentColor\" /></svg>","children":["$","$L20",null,{"children":["$","code",null,{"children":[["$","span",null,{"className":"line","children":["$","span",null,{"children":"stored bytes"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → verify application envelope"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → check document / tenant identity and revision"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → decode or decompress snapshot"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → Travels.deserialize(..., { validation: 'semantic' })"}]}],"\n",["$","span",null,{"className":"line","children":["$","span",null,{"children":"  → restoreTravels(...) or restoreTravelJournal(...)"}]}]]}]}]}],"\n",["$","p",null,{"children":["如果外部验证失败，丢弃未经验证的快照，并选择受信任的默认值或最近一次已知可用的快照。不要指望 ",["$","code",null,{"children":"fallback"}]," 能发现内部一致但未经授权的历史记录。"]}],"\n",["$","$L1e",null,{"as":"h2","id":"按信任模型选择控制措施","children":"按信任模型选择控制措施"}],"\n",["$","div",null,{"className":"relative overflow-auto prose-no-margin my-6","tabIndex":0,"children":["$","table",null,{"children":[["$","thead",null,{"children":["$","tr",null,{"children":[["$","th",null,{"children":"场景"}],["$","th",null,{"children":"宿主应用的职责"}]]}]}],["$","tbody",null,{"children":[["$","tr",null,{"children":[["$","td",null,{"children":"短暂的本地撤销/重做"}],["$","td",null,{"children":"重放校验和安全回退通常就够了"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"重要的离线草稿"}],["$","td",null,{"children":"对原始字节计算校验和，维护单调递增的修订号，保留上一份已验证的快照"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"多设备同步"}],["$","td",null,{"children":"将租户/用户/文档标识绑定到由服务端控制的修订号，并处理过期或冲突的快照"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"防篡改存储"}],["$","td",null,{"children":"验证由服务端持有的 HMAC、签名或认证加密标签"}]]}],["$","tr",null,{"children":[["$","td",null,{"children":"审计级历史记录"}],["$","td",null,{"children":"使用以服务端为权威的仅追加事件日志，以及可信的链头或等效的密码学承诺机制"}]]}]]}]]}]}],"\n",["$","p",null,{"children":"校验和能发现意外损坏，但不能认证写入者。与攻击者控制的浏览器数据放在一起的密钥，无法建立信任。位于同一个可变数据块内的哈希链和检查点，也可能连同该数据块一起被改写。"}],"\n",["$","$L1e",null,{"as":"h2","id":"快照与原型安全","children":"快照与原型安全"}],"\n",["$","p",null,{"children":"对象形式的快照字段和补丁容器字段必须是自有数据属性。访问器和继承字段会被直接拒绝，不会被求值。补丁组、数组路径和元数据列表必须是普通的稠密数组，不能带有自定义原型或自有属性；校验使用按索引的数据属性访问，而不是输入自行定义的数组方法。"}],"\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a"]]}]]}],["$L2b","$L2c"],"$L2d"]}],"p":"$@2e","v":null,"s":"$b"}}]]
+4:[["children",{"s":{"n":"slug","t":"oc","k":"persistence/security-and-integrity","s":[]},"h":64,"d":{"r":["$","$5","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@9","v":"$a","s":"$b"},"c":"$Qc"}]]
+3:[["children",{"s":"docs","h":32,"c":"$Q4"}]]
+2:[["children",{"s":"zh","h":64,"c":"$Q3"}]]
+1:[["children",{"s":"(zh)","h":48,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$5","h",{"children":[null,["$","$L30",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L32",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$33",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"安全与完整性 — Travels"}],["$","meta","1",{"name":"description","content":"理解语义校验能证明什么，以及身份认证、修订号和冲突处理应放在哪里。"}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"撤销重做,时间旅行,JSON Patch,状态历史,持久化,Mutative,TypeScript"}],["$","link","4",{"rel":"canonical","href":"https://mutativejs.github.io/travels/zh/docs/persistence/security-and-integrity/"}],["$","link","5",{"rel":"alternate","hrefLang":"en","href":"https://mutativejs.github.io/travels/docs/persistence/security-and-integrity/"}],["$","link","6",{"rel":"alternate","hrefLang":"zh-CN","href":"https://mutativejs.github.io/travels/zh/docs/persistence/security-and-integrity/"}],["$","meta","7",{"property":"og:title","content":"安全与完整性"}],["$","meta","8",{"property":"og:description","content":"理解语义校验能证明什么，以及身份认证、修订号和冲突处理应放在哪里。"}],["$","meta","9",{"property":"og:url","content":"https://mutativejs.github.io/travels/zh/docs/persistence/security-and-integrity/"}],["$","meta","10",{"property":"og:locale","content":"zh_CN"}],["$","meta","11",{"property":"og:image","content":"https://mutativejs.github.io/travels/zh/og/docs/persistence/security-and-integrity/image.png"}],["$","meta","12",{"property":"og:locale:alternate","content":"en_US"}],["$","meta","13",{"property":"og:type","content":"article"}],["$","meta","14",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","15",{"name":"twitter:title","content":"安全与完整性"}],["$","meta","16",{"name":"twitter:description","content":"理解语义校验能证明什么，以及身份认证、修订号和冲突处理应放在哪里。"}],["$","meta","17",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/zh/og/docs/persistence/security-and-integrity/image.png"}],["$","link","18",{"rel":"icon","href":"/travels/icon.png?icon.2fbb2ce0q9qn3.png","sizes":"128x128","type":"image/png"}],["$","link","19",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.1pg4g_sftlyas.png","sizes":"180x180","type":"image/png"}],["$","$L34","20",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@35","v":null,"s":"$b"}},"a":"$@36","u":"$@37","b":"WBjLkgiKTTc4ac3OYmP1F"}
+38:I[53632,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"default"]
+39:I[27135,["$6"],"OutletBoundary"]
+21:["$","p",null,{"children":"这些规则减少了解码过程中由输入决定的行为。仍应把导入的快照视为不可信的应用数据：在存储边界限制载荷大小和历史记录长度，并避免把敏感的文档内容写入日志。"}]
+22:["$","$L1e",null,{"as":"h2","id":"多设备与协作编辑","children":"多设备与协作编辑"}]
+23:["$","p",null,{"children":"Travels 不是 CRDT 或操作转换系统，不会合并并发历史记录，也不会解决冲突编辑。同步层必须明确以下事项："}]
+24:["$","ul",null,{"children":["\n",["$","li",null,{"children":"权威的文档标识与租户标识；"}],"\n",["$","li",null,{"children":"排序规则与单调递增的修订号；"}],"\n",["$","li",null,{"children":"过期快照的拒绝策略；"}],"\n",["$","li",null,{"children":"冲突检测与解决；"}],"\n",["$","li",null,{"children":"远程快照是替换、变基（rebase），还是开启一条新的本地时间线；"}],"\n",["$","li",null,{"children":"本地状态提交后远程保存失败时的重试行为。"}],"\n"]}]
+25:["$","p",null,{"children":["如果在接受权威远程状态时不保留本地历史记录，使用 ",["$","code",null,{"children":"replaceStateWithoutHistory()"}]," 或恢复一份经过校验的快照。如果确实要保留本地会话但清除旧历史记录，再使用 ",["$","code",null,{"children":"rebase()"}],"。"]}]
+26:["$","$L1e",null,{"as":"h2","id":"保护可用性","children":"保护可用性"}]
+27:["$","p",null,{"children":"语义重放的开销随状态结构和可达历史记录增长。在校验未经验证的上传内容或同步载荷之前，对编码字节数、条目数量、嵌套深度和可接受的文档类型实施应用层限制。只有在经过受信任的验证边界之后，或者明确认为仅需模式校验时，才使用结构校验。"}]
+28:["$","p",null,{"children":"可变导航可能保留重放失败之前已经发生的写入。因此，对未经验证的历史记录而言，恢复前执行语义校验既是正确性保障，也是可用性保障。"}]
+29:["$","$L1e",null,{"as":"h2","id":"报告漏洞","children":"报告漏洞"}]
+2a:["$","p",null,{"children":["如需报告 Travels 库的漏洞，遵循项目的",["$","$L38",null,{"href":"/zh/docs/resources/security","children":"安全策略"}],"。请勿在公开 issue 中包含真实的用户文档、机密信息或私有持久化载荷。"]}]
+2b:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+2c:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
+2d:["$","$L39",null,{"children":["$","$33",null,{"name":"Next.MetadataOutlet","children":"$@3a"}]}]
+37:true
+b:300
+3a:null
+b:C
+36:0
+9:"$undefined"
+35:"$undefined"
+2e:"$undefined"

@@ -1,9 +1,10 @@
-:HL["/travels/_next/static/chunks/37pq1w-3b7it2.css","style"]
-:HL["/travels/_next/static/chunks/2h2ccng_u7b1e.css","style"]
+:HL["/travels/_next/static/chunks/1zhn-bans-s2s.css","style"]
+:HL["/travels/_next/static/chunks/17ys4kyigrv5r.css","style"]
 :HL["/travels/_next/static/media/70bc3e132a0a741e-s.p.3t6q91iet4nsy.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/travels/_next/static/media/a343f882a40d2cc9-s.p.0p-wng2nn8o-p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/travels/travels-logo.webp","image"]
-3:[["children",{"s":"__PAGE__","h":160}]]
-2:[["children",{"s":{"n":"slug","t":"oc","k":"api-reference/classes/TravelsTypeError","s":[]},"h":64,"c":"$Q3"}]]
-1:[["children",{"s":"docs","c":"$Q2"}]]
-0:{"b":"CRzy42UdwvomzLfGv-s05","t":{"t":{"s":"","h":16,"c":"$Q1"}}}
+4:[["children",{"s":"__PAGE__","h":160}]]
+3:[["children",{"s":{"n":"slug","t":"oc","k":"api-reference/classes/TravelsTypeError","s":[]},"h":64,"c":"$Q4"}]]
+2:[["children",{"s":"docs","c":"$Q3"}]]
+1:[["children",{"s":"(en)","h":48,"c":"$Q2"}]]
+0:{"b":"WBjLkgiKTTc4ac3OYmP1F","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

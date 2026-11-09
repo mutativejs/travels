@@ -1,0 +1,66 @@
+# 跟踪与替换 (/zh/docs/guides/tracking-and-replacement)
+
+并非每次状态变更都应该成为撤销步骤。Travels 提供了独立的工具，分别用于暂停跟踪、替换文档，以及围绕当前状态清空历史记录。
+
+## 暂停与恢复跟踪 [#暂停与恢复跟踪]
+
+如果后续更新不应创建历史条目，使用 `pauseTracking()`；随后用 `resumeTracking()` 恢复正常记录：
+
+```ts
+travels.pauseTracking();
+try {
+  travels.setState((draft) => {
+    draft.remoteRevision = serverRevision;
+    draft.permissions = serverPermissions;
+  });
+} finally {
+  travels.resumeTracking();
+}
+```
+
+暂停期间发生的更新会成为新基线的一部分，因此后续的撤销/重做不会在不匹配的状态上重放保留的补丁。务必在 `finally` 中恢复跟踪；让跟踪一直处于暂停状态，会在无提示的情况下改变后续编辑的含义。
+
+请谨慎用于那些不应对历史记录可见的同步或水合操作。对于普通的用户编辑，直接使用 `setState()`，不要暂停跟踪。
+
+## 替换状态且不记录历史 [#替换状态且不记录历史]
+
+`replaceStateWithoutHistory(updater)` 会应用一个直接值或草稿函数，清空保留的历史记录，并让结果成为新的基线：
+
+```ts
+const document = await loadDocument(documentId);
+
+travels.replaceStateWithoutHistory(() => ({
+  id: document.id,
+  title: document.title,
+  blocks: document.blocks,
+}));
+```
+
+它很适合切换文档、接受来自服务器的权威快照，或重置外部 Store 的数据。它会有意丢弃旧时间线。
+
+如果更新抛出异常，替换和清空历史记录都不会提交。拦截 `setState()` 的包装器也会针对本次操作执行，因为替换会通过这条路径应用更新。静默返回的包装器可能留下一条历史记录已清空但状态未变的时间线；当被阻止的替换必须保留历史记录时，应抛出异常。
+
+## 以当前状态变基 [#以当前状态变基]
+
+与替换不同，`rebase()` 不会载入新状态。它会保留当前状态（包括尚未归档的临时补丁），并丢弃所有保留的过去和未来历史记录：
+
+```ts
+travels.rebase();
+```
+
+当当前状态成为干净的起点时使用它。Journal 将 `rebase()` 作为在保留外部持有的状态的同时清空历史记录的安全方式。
+
+## 重置到现有基线 [#重置到现有基线]
+
+`reset()` 回到基线，而不是创建新的基线。基线可能是最初创建时的状态、经过校验的恢复基线，也可能是之后某次变基、替换或暂停更新所产生的结果。
+
+| 操作 | 改变当前状态 | 清空历史记录 | 建立新基线 |
+| --- | --- | --- | --- |
+| `pauseTracking()` + 更新 | 是，通过更新函数 | 旧时间线会与新基线不兼容 | 是 |
+| `replaceStateWithoutHistory()` | 是，通过更新函数 | 是 | 是 |
+| `rebase()` | 否 | 是 | 是，以当前状态 |
+| `reset()` | 是，回到基线 | 是 | 否，沿用现有基线 |
+
+## 远程同步注意事项 [#远程同步注意事项]
+
+Travels 不会合并并发编辑，也不会消解冲突。在替换或变基本地状态之前，先确定文档标识、修订号顺序和冲突处理方式。当历史记录的来源很重要时，应在反序列化或替换之前，在 Travels 之外校验远程快照。参见[安全与完整性](/zh/docs/persistence/security-and-integrity)。

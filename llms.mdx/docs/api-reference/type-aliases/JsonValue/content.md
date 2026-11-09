@@ -2,4 +2,4 @@
 
 > **JsonValue** = [`JsonPrimitive`](JsonPrimitive.mdx) \| [`JsonObject`](JsonObject.mdx) \| [`JsonArray`](JsonArray.mdx)
 
-Defined in: [src/type.ts:89](https://github.com/mutativejs/travels/blob/9215f713f36bccbe6be26e2d4ddc452403bef994/src/type.ts#L89)
+Defined in: [src/type.ts:89](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L89)

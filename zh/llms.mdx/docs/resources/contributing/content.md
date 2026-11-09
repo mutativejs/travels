@@ -1,0 +1,47 @@
+# 参与贡献 (/zh/docs/resources/contributing)
+
+感谢你改进 Travels。本项目重视正确性、清晰的取舍，以及小而聚焦的改动。
+
+## 开发环境配置 [#开发环境配置]
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm run test
+```
+
+常用检查：
+
+```bash
+pnpm run test:types
+pnpm run test:browser
+pnpm run coverage
+pnpm run benchmark:ci
+```
+
+如果改动网站，请按网站锁文件安装依赖，并运行其针对性检查：
+
+```bash
+pnpm --dir website install --frozen-lockfile
+pnpm --dir website check:content
+pnpm --dir website types:check
+pnpm --dir website build
+```
+
+## Pull Request 要求 [#pull-request-要求]
+
+- 让改动限定在一个行为或一个文档领域内。
+- 为新的公共 API、历史记录不变量、持久化行为或缺陷修复添加测试。
+- 当行为、兼容性或持久化语义发生变化时，更新 README/文档。
+- 当性能声明发生变化时，一并更新基准测试。
+- 除非发布流程要求，否则不要改动生成产物。
+- 更改导出的 API 签名或文档注释后，重新生成网站 API 参考。
+
+## 兼容性 [#兼容性]
+
+受支持的运行时与依赖策略见[兼容性策略](/zh/docs/reference/compatibility)。
+
+## 发布流程 [#发布流程]
+
+见[发布清单](/zh/docs/resources/release-checklist)。发布在 `main` 分支上准备，手动使用包版本打标签，并由标签触发的 GitHub Actions 工作流发布。

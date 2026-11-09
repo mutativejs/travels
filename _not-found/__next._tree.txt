@@ -1,6 +1,4 @@
-:HL["/travels/_next/static/chunks/37pq1w-3b7it2.css","style"]
-:HL["/travels/_next/static/chunks/2h2ccng_u7b1e.css","style"]
-:HL["/travels/travels-logo.webp","image"]
+:HL["/travels/_next/static/chunks/17ys4kyigrv5r.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
-1:[["children",{"s":"/_not-found","h":64,"c":"$Q2"}]]
-0:{"b":"CRzy42UdwvomzLfGv-s05","t":{"t":{"s":"","h":16,"c":"$Q1"}}}
+1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
+0:{"b":"WBjLkgiKTTc4ac3OYmP1F","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

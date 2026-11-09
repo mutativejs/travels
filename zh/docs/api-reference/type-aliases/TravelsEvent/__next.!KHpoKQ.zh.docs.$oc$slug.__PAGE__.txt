@@ -1,0 +1,64 @@
+5:"$Sreact.fragment"
+6:"/travels/_next/static/chunks/1glgytvfkcfvx.js"
+7:I[91560,["$6"],"default"]
+8:I[79149,["$6"],"default"]
+d:"/travels/_next/static/chunks/1zd4kqxn7o3d8.js"
+e:"/travels/_next/static/chunks/0hep1axo47au2.js"
+f:"/travels/_next/static/chunks/2jiac805ho1up.js"
+10:"/travels/_next/static/chunks/3sp84899l0h61.js"
+11:"/travels/_next/static/chunks/1v5bt88t0tz3d.js"
+12:"/travels/_next/static/chunks/3zwcscwyhlkgz.js"
+13:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+14:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+15:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+16:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsPage"]
+17:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsTitle"]
+18:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsDescription"]
+19:"MarkdownCopyButton"
+1a:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$19"]
+1b:"ViewOptionsPopover"
+1c:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$1b"]
+1d:I[50027,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsBody"]
+1e:I[53632,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"default"]
+1f:I[84452,["$d","$e","$f","$10","$11","$12","$13","$14","$15"],"Heading"]
+32:"ViewportBoundary"
+33:I[27135,["$6"],"$32"]
+34:"MetadataBoundary"
+35:I[27135,["$6"],"$34"]
+36:"$Sreact.suspense"
+37:I[73677,["$6"],"IconMark"]
+a:X
+a:C
+b:X
+c:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$5","c",{"children":[["$","$L16",null,{"toc":[{"depth":2,"url":"#type-parameters","title":"Type Parameters"},{"depth":3,"url":"#s","title":"S"},{"depth":3,"url":"#p","title":"P"},{"depth":2,"url":"#properties","title":"Properties"},{"depth":3,"url":"#historylength","title":"historyLength"},{"depth":3,"url":"#metadata","title":"metadata?"},{"depth":3,"url":"#patches","title":"patches"},{"depth":3,"url":"#position","title":"position"},{"depth":3,"url":"#state","title":"state"},{"depth":3,"url":"#type","title":"type"}],"children":[["$","$L17",null,{"children":"TravelsEvent<S, P>"}],["$","$L18",null,{"className":"mb-0","children":"Travels 3 API reference for TravelsEvent."}],["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L1a",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md"}],["$","$L1c",null,{"markdownUrl":"/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/api-reference/type-aliases/TravelsEvent.mdx"}]]}],["$","$L1d",null,{"children":[["$","div",null,{"className":"docs-fallback-note","children":"此页尚未提供中文译文。以下内容由英文源码注释生成，API 名称与签名保持原样。"}],[["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"TravelsEvent"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],"> = ",["$","code",null,{"children":"object"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L297","children":"src/type.ts:297"}]]}],"\n",["$","$L1f",null,{"as":"h2","id":"type-parameters","children":"Type Parameters"}],"\n",["$","$L1f",null,{"as":"h3","id":"s","children":"S"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L1f",null,{"as":"h3","id":"p","children":"P"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","$L1e",null,{"href":"PatchesOption.mdx","children":["$","code",null,{"children":"PatchesOption"}]}]," = { }"]}],"\n",["$","$L1f",null,{"as":"h2","id":"properties","children":"Properties"}],"\n",["$","$L1f",null,{"as":"h3","id":"historylength","children":"historyLength"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"historyLength"}],": ",["$","code",null,{"children":"number"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L314","children":"src/type.ts:314"}]]}],"\n",["$","p",null,{"children":"Number of entries currently retained in history."}],"\n",["$","hr",null,{}],"\n",["$","$L1f",null,{"as":"h3","id":"metadata","children":"metadata?"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","code",null,{"children":"optional"}]," ",["$","strong",null,{"children":"metadata"}],": ",["$","code",null,{"children":"Readonly"}],"<",["$","$L1e",null,{"href":"TravelMetadata.mdx","children":["$","code",null,{"children":"TravelMetadata"}]}],">"]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L316","children":"src/type.ts:316"}]]}],"\n",["$","p",null,{"children":"Lazily cloned, shallow-frozen metadata shared by this event's observers."}],"\n",["$","hr",null,{}],"\n",["$","$L1f",null,{"as":"h3","id":"patches","children":"patches"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"patches"}],": ",["$","$L1e",null,{"href":"ReadonlyTravelPatches.mdx","children":["$","code",null,{"children":"ReadonlyTravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L312","children":"src/type.ts:312"}]]}],"\n",["$","p",null,{"children":"Lazily materialized event-local patches that transform the previously\npublished state. Treat the shared snapshot as read-only."}],"\n","$L20","\n","$L21","\n","$L22","\n","$L23","\n","$L24","\n","$L25","\n","$L26","\n","$L27","\n","$L28","\n","$L29","\n","$L2a","\n","$L2b","\n","$L2c","\n","$L2d"]]}]]}],["$L2e","$L2f"],"$L30"]}],"p":"$@31","v":null,"s":"$b"}}]]
+4:[["children",{"s":{"n":"slug","t":"oc","k":"api-reference/type-aliases/TravelsEvent","s":[]},"h":64,"d":{"r":["$","$5","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@9","v":"$a","s":"$b"},"c":"$Qc"}]]
+3:[["children",{"s":"docs","h":32,"c":"$Q4"}]]
+2:[["children",{"s":"zh","h":64,"c":"$Q3"}]]
+1:[["children",{"s":"(zh)","h":48,"c":"$Q2"}]]
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$5","h",{"children":[null,["$","$L33",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L35",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$36",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"TravelsEvent<S, P> — Travels"}],["$","meta","1",{"name":"description","content":"Travels 3 API reference for TravelsEvent."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"撤销重做,时间旅行,JSON Patch,状态历史,持久化,Mutative,TypeScript"}],["$","meta","4",{"name":"robots","content":"noindex, follow"}],["$","link","5",{"rel":"canonical","href":"https://mutativejs.github.io/travels/docs/api-reference/type-aliases/TravelsEvent/"}],["$","link","6",{"rel":"alternate","hrefLang":"en","href":"https://mutativejs.github.io/travels/docs/api-reference/type-aliases/TravelsEvent/"}],["$","link","7",{"rel":"alternate","hrefLang":"zh-CN","href":"https://mutativejs.github.io/travels/zh/docs/api-reference/type-aliases/TravelsEvent/"}],["$","meta","8",{"property":"og:title","content":"TravelsEvent<S, P>"}],["$","meta","9",{"property":"og:description","content":"Travels 3 API reference for TravelsEvent."}],["$","meta","10",{"property":"og:url","content":"https://mutativejs.github.io/travels/docs/api-reference/type-aliases/TravelsEvent/"}],["$","meta","11",{"property":"og:locale","content":"en_US"}],["$","meta","12",{"property":"og:image","content":"https://mutativejs.github.io/travels/zh/og/docs/api-reference/type-aliases/TravelsEvent/image.png"}],["$","meta","13",{"property":"og:locale:alternate","content":"zh_CN"}],["$","meta","14",{"property":"og:type","content":"article"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"TravelsEvent<S, P>"}],["$","meta","17",{"name":"twitter:description","content":"Travels 3 API reference for TravelsEvent."}],["$","meta","18",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/zh/og/docs/api-reference/type-aliases/TravelsEvent/image.png"}],["$","link","19",{"rel":"icon","href":"/travels/icon.png?icon.2fbb2ce0q9qn3.png","sizes":"128x128","type":"image/png"}],["$","link","20",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.1pg4g_sftlyas.png","sizes":"180x180","type":"image/png"}],["$","$L37","21",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@38","v":null,"s":"$b"}},"a":"$@39","u":"$@3a","b":"WBjLkgiKTTc4ac3OYmP1F"}
+3b:I[27135,["$6"],"OutletBoundary"]
+20:["$","hr",null,{}]
+21:["$","$L1f",null,{"as":"h3","id":"position","children":"position"}]
+22:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"position"}],": ",["$","code",null,{"children":"number"}]]}],"\n"]}]
+23:["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L307","children":"src/type.ts:307"}]]}]
+24:["$","hr",null,{}]
+25:["$","$L1f",null,{"as":"h3","id":"state","children":"state"}]
+26:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"state"}],": ",["$","$L1e",null,{"href":"ReadonlyState.mdx","children":["$","code",null,{"children":"ReadonlyState"}]}],"<",["$","code",null,{"children":"S"}],">"]}],"\n"]}]
+27:["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L306","children":"src/type.ts:306"}]]}]
+28:["$","p",null,{"children":"Borrowed live state view. Mutate state only through Travels operations."}]
+29:["$","hr",null,{}]
+2a:["$","$L1f",null,{"as":"h3","id":"type","children":"type"}]
+2b:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"type"}],": ",["$","$L1e",null,{"href":"TravelsEventType.mdx","children":["$","code",null,{"children":"TravelsEventType"}]}]]}],"\n"]}]
+2c:["$","p",null,{"children":["Defined in: ",["$","$L1e",null,{"href":"https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L304","children":"src/type.ts:304"}]]}]
+2d:["$","p",null,{"children":["The committed operation. Handle unrecognized values in a ",["$","code",null,{"children":"default"}]," branch."]}]
+2e:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+2f:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
+30:["$","$L3b",null,{"children":["$","$36",null,{"name":"Next.MetadataOutlet","children":"$@3c"}]}]
+3a:true
+b:300
+3c:null
+b:C
+39:0
+9:"$undefined"
+38:"$undefined"
+31:"$undefined"
