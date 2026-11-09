@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { posix } from 'node:path';
 
 const docs = new URL('../../docs/', import.meta.url);
 const pages = new URL('../content/docs/', import.meta.url);
@@ -13,10 +14,16 @@ const guides = new Map([
   ['testing.md', 'resources/testing'],
 ]);
 
-function websiteLink(link, path, anchor = '') {
-  if (path === '../README.md') return `](/docs${anchor})`;
-  if (guides.has(path)) return `](/docs/${guides.get(path).replace(/\/index$/, '')}${anchor})`;
-  if (path.startsWith('../')) return `](https://github.com/mutativejs/travels/blob/main/${path.slice(3)}${anchor})`;
+function websiteLink(filename, link, href, suffix = '') {
+  if (href.startsWith('/')) return link;
+  const path = posix.join('docs', posix.dirname(filename), href);
+  if (path === 'README.md') return `](/docs${suffix})`;
+  if (path.startsWith('docs/')) {
+    const slug = guides.get(path.slice('docs/'.length));
+    if (slug) return `](/docs/${slug.replace(/\/index$/, '')}${suffix})`;
+  } else if (path !== '..' && !path.startsWith('../')) {
+    return `](https://github.com/mutativejs/travels/blob/main/${path}${suffix})`;
+  }
   return link;
 }
 
@@ -31,7 +38,10 @@ for (const [filename, slug] of guides) {
     .replace(/^# [^\n]+\n+/, '');
   // Keep code samples literal when translating repository links to site routes.
   const body = markdown.split(/(^[ \t]*```[^\n]*\n[\s\S]*?^[ \t]*```[ \t]*$)/m)
-    .map((part, i) => i % 2 ? part : part.replace(/\]\(([^#():\s]+)(#[^()\s]*)?\)/g, websiteLink))
+    .map((part, i) => i % 2 ? part : part.replace(
+      /\]\(([^?#():\s]+)([?#][^()\s]*)?\)/g,
+      (link, href, suffix) => websiteLink(filename, link, href, suffix)
+    ))
     .join('');
   const expected = `${header[0]}\n${body}`;
   if (expected === current) continue;
