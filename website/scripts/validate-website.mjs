@@ -216,6 +216,61 @@ try {
   await checkRoute(page.request, '/llms-full.txt', 'Quick Start');
   await checkRoute(page.request, '/llms.mdx/docs/getting-started/quick-start/content.md', 'createTravels');
   await checkRoute(page.request, '/api/search?query=transaction', 'Transactions');
+
+  response = await page.goto(`${baseUrl}/zh/`, { waitUntil: 'networkidle' });
+  assert.equal(response.status(), 200);
+  assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
+  await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
+  await page.getByRole('link', { name: 'Switch to English', exact: true }).first().waitFor({ state: 'visible' });
+  await checkNoOverflow(page, 'Desktop Chinese home');
+  await page.screenshot({ path: resolve(artifactsDir, 'home-zh-desktop.png'), fullPage: true });
+  checks.push('Chinese home, locale switching, and typography');
+
+  response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
+    waitUntil: 'networkidle',
+  });
+  assert.equal(response.status(), 200);
+  assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
+  await page.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
+  assert.ok((await page.locator('pre').count()) > 0, 'Chinese Quick Start should contain code examples.');
+  await page.getByRole('link', { name: '安装', exact: true }).first().waitFor({ state: 'visible' });
+  await checkNoOverflow(page, 'Desktop Chinese documentation');
+  await page.screenshot({ path: resolve(artifactsDir, 'quick-start-zh-desktop.png') });
+  checks.push('Chinese Quick Start content, navigation, and code');
+
+  response = await page.goto(`${baseUrl}/zh/docs/api-reference/`, { waitUntil: 'networkidle' });
+  assert.equal(response.status(), 200);
+  await page.getByRole('heading', { name: 'API 参考', level: 1 }).waitFor({ state: 'visible' });
+  checks.push('Chinese API Reference');
+
+  response = await page.goto(`${baseUrl}/zh/docs/api-reference/functions/createTravels/`, {
+    waitUntil: 'networkidle',
+  });
+  assert.equal(response.status(), 200);
+  await page.getByText('此页尚未提供中文译文').waitFor({ state: 'visible' });
+  checks.push('Chinese API fallback notice');
+
+  await checkRoute(page.request, '/zh/llms.txt', '快速开始');
+  await checkRoute(page.request, '/zh/llms-full.txt', '快速开始');
+  await checkRoute(
+    page.request,
+    '/zh/llms.mdx/docs/getting-started/quick-start/content.md',
+    '快速开始',
+  );
+  await checkRoute(page.request, `/api/search?query=${encodeURIComponent('事务')}&locale=zh`, 'transactions');
+
+  response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
+    waitUntil: 'networkidle',
+  });
+  await page.getByRole('link', { name: 'Switch to English', exact: true }).first().click();
+  await page.waitForURL(`${baseUrl}/docs/getting-started/quick-start/`);
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  checks.push('Chinese to English docs switch preserves the page');
+
+  const missing = await page.request.get(`${baseUrl}/zh/docs/this-page-is-missing/`);
+  assert.equal(missing.status(), 404, 'Unknown Chinese documentation should return 404');
+  checks.push('Chinese 404 status');
+
   await desktop.close();
 
   const mobile = await browser.newContext({
@@ -250,6 +305,28 @@ try {
   await docsMenu.click();
   await mobilePage.getByRole('link', { name: 'Quick Start', exact: true }).last().waitFor({ state: 'visible' });
   checks.push('Mobile documentation and navigation');
+
+  response = await mobilePage.goto(`${baseUrl}/zh/`, { waitUntil: 'networkidle' });
+  assert.equal(response.status(), 200);
+  await mobilePage.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
+  await checkNoOverflow(mobilePage, 'Mobile Chinese home');
+  const mobileMenuZh = mobilePage
+    .locator('button[aria-label*="菜单" i], button[aria-label*="menu" i], button[aria-label*="navigation" i]')
+    .first();
+  await mobileMenuZh.waitFor({ state: 'visible' });
+  await mobileMenuZh.click();
+  await mobilePage.getByRole('link', { name: '文档', exact: true }).last().waitFor({ state: 'visible' });
+  await mobilePage.keyboard.press('Escape');
+  checks.push('Mobile Chinese home and navigation');
+
+  response = await mobilePage.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
+    waitUntil: 'networkidle',
+  });
+  assert.equal(response.status(), 200);
+  await mobilePage.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
+  await checkNoOverflow(mobilePage, 'Mobile Chinese documentation');
+  await mobilePage.screenshot({ path: resolve(artifactsDir, 'quick-start-zh-mobile.png') });
+  checks.push('Mobile Chinese documentation');
   await mobile.close();
 
   assert.deepEqual(browserErrors, [], `Browser errors:\n${browserErrors.join('\n')}`);

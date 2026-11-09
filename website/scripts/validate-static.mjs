@@ -151,6 +151,40 @@ try {
   await checkRoute(page.request, '/llms.mdx/docs/getting-started/quick-start/content.md', 'createTravels');
   await checkRoute(page.request, '/api/search', 'Transactions');
 
+  response = await page.goto(`${baseUrl}/zh/`, { waitUntil: 'networkidle' });
+  assert.equal(response.status(), 200);
+  assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
+  await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
+  const chineseSwitchHref = await page
+    .getByRole('link', { name: 'Switch to English', exact: true })
+    .first()
+    .getAttribute('href');
+  assert.equal(chineseSwitchHref, `${basePath}/`);
+  await page.screenshot({ path: resolve(artifactsDir, 'production-home-zh.png') });
+  checks.push('Production Chinese home, language attributes, and prefixed switch');
+
+  response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
+    waitUntil: 'networkidle',
+  });
+  assert.equal(response.status(), 200);
+  await page.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
+  assert.ok((await page.locator('pre').count()) > 0);
+  checks.push('Production Chinese documentation route');
+
+  await checkRoute(page.request, '/zh/llms.txt', '快速开始');
+  await checkRoute(page.request, '/zh/llms-full.txt', '快速开始');
+  await checkRoute(
+    page.request,
+    '/zh/llms.mdx/docs/getting-started/quick-start/content.md',
+    '快速开始',
+  );
+  await checkRoute(page.request, '/zh/docs/api-reference/', 'API 参考');
+
+  const missing = await page.request.get(`${baseUrl}/zh/docs/does-not-exist/`);
+  assert.equal(missing.status(), 404);
+  await checkRoute(page.request, '/404.html', 'Travels');
+  checks.push('Production Chinese 404 and LLM routes');
+
   await page.waitForTimeout(500);
   assert.deepEqual(errors, [], `Browser errors:\n${errors.join('\n')}`);
   assert.deepEqual(failedRequests, [], `Failed requests:\n${failedRequests.join('\n')}`);
