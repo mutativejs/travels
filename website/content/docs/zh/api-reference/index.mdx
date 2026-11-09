@@ -1,0 +1,45 @@
+---
+title: API 参考
+description: Travels 3 全部公开导出的完整源码生成参考。
+---
+
+本参考在网站构建期间由仓库当前的 `src/index.ts` 生成，因此签名、重载、返回能力与源码链接始终与包保持一致。
+
+<Callout type="info" title="需要按任务查阅的说明？">
+如果希望获得面向任务的解释，请先阅读[配置选项](/zh/docs/reference/options)或[实例方法](/zh/docs/reference/instance-methods)。当你需要精确的类型或重载时，再使用本节。
+</Callout>
+
+## 按导出类型浏览
+
+<Cards>
+  <Card title="函数" href="/zh/docs/api-reference/functions/createTravels" description="工厂函数、恢复函数、类型守卫与校验辅助函数。" />
+  <Card title="类" href="/zh/docs/api-reference/classes/TravelsError" description="操作、类型与持久化错误类。" />
+  <Card title="接口" href="/zh/docs/api-reference/interfaces/TravelsControls" description="只读控制接口与手动控制接口。" />
+  <Card title="类型别名" href="/zh/docs/api-reference/type-aliases/TravelsOptions" description="时间线能力、事件、快照、选项、补丁与 JSON 类型。" />
+  <Card title="变量" href="/zh/docs/api-reference/variables/Travels" description="持久化命名空间与历史模式版本。" />
+</Cards>
+
+## 最常用的导出
+
+| 导出 | 类型 | 用途 |
+| --- | --- | --- |
+| [`createTravels()`](/zh/docs/api-reference/functions/createTravels) | 函数 | 创建一条拥有状态的时间线。 |
+| [`createPatchableTravels()`](/zh/docs/api-reference/functions/createPatchableTravels) | 函数 | 创建受持久化输入约束的时间线。 |
+| [`createTravelJournal()`](/zh/docs/api-reference/functions/createTravelJournal) | 函数 | 创建由外部拥有的受控日志。 |
+| [`restoreTravels()`](/zh/docs/api-reference/functions/restoreTravels) | 函数 | 恢复一个完整的、拥有状态的快照。 |
+| [`restoreTravelJournal()`](/zh/docs/api-reference/functions/restoreTravelJournal) | 函数 | 恢复一个完整的受控日志快照。 |
+| [`Travels`](/zh/docs/api-reference/variables/Travels) | 命名空间值 | 使用 `Travels.deserialize()` 解码持久化输入。 |
+| [`TravelsOptions`](/zh/docs/api-reference/type-aliases/TravelsOptions) | 类型 | 配置历史、所有权、Mutative 行为与钩子。 |
+| [`TravelsEvent`](/zh/docs/api-reference/type-aliases/TravelsEvent) | 类型 | 消费已提交的订阅者与 devtools 事件。 |
+| [`TravelsSerializedHistory`](/zh/docs/api-reference/type-aliases/TravelsSerializedHistory) | 类型 | 存储与迁移带版本的快照。 |
+| [`TravelsControls`](/zh/docs/api-reference/interfaces/TravelsControls) | 接口 | 暴露只读的导航与历史控制能力。 |
+| [`TravelsPersistenceError`](/zh/docs/api-reference/classes/TravelsPersistenceError) | 类 | 处理稳定的持久化失败错误码。 |
+| [`TRAVELS_HISTORY_SCHEMA_VERSION`](/zh/docs/api-reference/variables/TRAVELS_HISTORY_SCHEMA_VERSION) | 变量 | 构造并迁移当前模式的快照。 |
+
+## 阅读约定
+
+- “Defined in”链接指向生成该页面时使用的确切源码修订。
+- 只读返回对象是能力接口，而不是基于构造函数的类实例。
+- 导出的 `Travels` 值是一个持久化命名空间；`Travels<...>` 类型描述的是拥有状态的时间线。
+- 事件名称可能在未来的次版本中扩展；请在应用的分支判断中保留 `default` 分支。
+- 标注为只读的补丁与状态视图不得强制转换后修改。请使用对应的脱离快照 API。

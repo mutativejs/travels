@@ -1,0 +1,15 @@
+{
+  "title": "函数",
+  "pages": [
+    "assertTravelHistoryEntryRecordable",
+    "createPatchableTravels",
+    "createTravelJournal",
+    "createTravels",
+    "findStateCompatibilityIssues",
+    "isTravels",
+    "restoreTravelJournal",
+    "restoreTravels",
+    "validateTravelHistoryEntry",
+    "validateTravelPatches"
+  ]
+}
