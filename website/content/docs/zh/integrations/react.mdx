@@ -5,6 +5,8 @@ description: 使用 useSyncExternalStore 与基于修订号的失效机制，将
 
 React 与 Travels 默认的不可变模式天然契合。用 `useSyncExternalStore` 订阅，以 `getRevision()` 作为触发失效的快照，并在渲染期间读取当前状态或控制接口。
 
+在渲染中调用 `getHistory().length` 获取数量，每次历史变更后的首次读取都要重放补丁并重建所有保留状态。要显示步数，可以读取 `controls.patches.patches.length` 或订阅事件的 `historyLength`。组件要展示各个历史状态的内容时，再调用 `getHistory()`。
+
 ## 可复用的外部 Store Hook
 
 ```tsx

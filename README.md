@@ -293,7 +293,7 @@ Remove all past and future history and make the current state as the new initial
 
 #### `getHistory(): readonly ReadonlyState<S>[]`
 
-Returns the complete history of states as an array. Use it to read the timeline: render it, map it, measure it, index into it.
+The first read after a history change reconstructs every retained state by replaying patches. Later reads reuse the cached array. Use this method when the UI displays historical states. Calling `getHistory().length` on each render pays for the entire timeline just to count it. Undo/redo buttons can call `canBack()` and `canForward()`; subscribers receive the retained step count as `event.historyLength`.
 
 > **IMPORTANT**: Treat the returned array and every state entry as read-only. They are cached internally. The array container is frozen in every build; the state entries are shared cached snapshots and are not deep-frozen. Casting away the read-only type and modifying an entry can corrupt the cache.
 

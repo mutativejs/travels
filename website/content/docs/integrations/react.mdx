@@ -5,6 +5,8 @@ description: Bind a Travels timeline to React with useSyncExternalStore and revi
 
 React works naturally with Travels’ default immutable mode. Subscribe with `useSyncExternalStore`, use `getRevision()` as the invalidation snapshot, and read current state or controls during render.
 
+Calling `getHistory().length` during render reconstructs all retained states on the first read after each history change. For a step count, read `controls.patches.patches.length` or the subscription event’s `historyLength`. Use `getHistory()` when the component displays historical state values.
+
 ## A reusable external-store hook
 
 ```tsx
