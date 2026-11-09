@@ -428,7 +428,7 @@ Replace or mutate state without creating a history entry, then clear history and
 
 Returns a cached, frozen controls object containing navigation methods and current timeline views, including `rebase()`. Its properties and methods are read-only, making it suitable for UI components that should not receive the entire Travels instance.
 
-`controls.patches` is a shared, frozen `ReadonlyTravelPatches` view that keeps its reference until history changes, so it is cheap to read while rendering and works as a memo dependency. Call `travels.getPatches()` for a detached copy you can keep or change.
+`controls.patches` is a frozen `ReadonlyTravelPatches` view suitable for memo dependencies. Its first read after a history change copies the patches and their values. Subsequent reads reuse that reference. For the step count alone, use `event.historyLength` in a subscriber. Call `travels.getPatches()` for a detached copy you can keep or change.
 
 ```typescript
 const travels = createTravels({ count: 0 });
