@@ -156,7 +156,7 @@ try {
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
   await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
   const chineseSwitchHref = await page
-    .getByRole('link', { name: 'Switch to English', exact: true })
+    .getByRole('link', { name: '切换到英文', exact: true })
     .first()
     .getAttribute('href');
   assert.equal(chineseSwitchHref, `${basePath}/`);

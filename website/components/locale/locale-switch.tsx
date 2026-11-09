@@ -9,7 +9,7 @@ export function LocaleSwitch({ locale }: { locale: Locale }) {
   const pathname = usePathname() || '/';
   const target = otherLocale(locale);
   const label = target === 'zh' ? '中文' : 'English';
-  const ariaLabel = target === 'zh' ? '切换到中文' : 'Switch to English';
+  const ariaLabel = locale === 'zh' ? '切换到英文' : 'Switch to Chinese';
 
   return (
     <Link href={localizePath(pathname, target)} className="locale-switch" aria-label={ariaLabel}>

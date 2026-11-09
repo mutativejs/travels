@@ -221,7 +221,7 @@ try {
   assert.equal(response.status(), 200);
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
   await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
-  await page.getByRole('link', { name: 'Switch to English', exact: true }).first().waitFor({ state: 'visible' });
+  await page.getByRole('link', { name: '切换到英文', exact: true }).first().waitFor({ state: 'visible' });
   await checkNoOverflow(page, 'Desktop Chinese home');
   await page.screenshot({ path: resolve(artifactsDir, 'home-zh-desktop.png'), fullPage: true });
   checks.push('Chinese home, locale switching, and typography');
@@ -262,7 +262,7 @@ try {
   response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
     waitUntil: 'networkidle',
   });
-  await page.getByRole('link', { name: 'Switch to English', exact: true }).first().click();
+  await page.getByRole('link', { name: '切换到英文', exact: true }).first().click();
   await page.waitForURL(`${baseUrl}/docs/getting-started/quick-start/`);
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   checks.push('Chinese to English docs switch preserves the page');
