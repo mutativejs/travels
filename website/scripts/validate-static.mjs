@@ -226,6 +226,22 @@ try {
   }
   checks.push('GitHub actions link to release sources or tracked guide files in both languages');
 
+  for (const prefix of ['', '/zh']) {
+    const markdownRoot = `${basePath}${prefix}/llms.mdx/docs`;
+    const index = await (await page.request.get(baseUrl + prefix + '/llms.txt')).text();
+    const destinations = Array.from(index.matchAll(/\]\(([^)]+)\)/g), match => match[1]);
+    assert.ok(destinations.includes(markdownRoot + '/getting-started/quick-start/content.md'));
+    assert.ok(destinations.every(url => url.startsWith(markdownRoot + '/')), 'Index links must stay in this locale and deployment');
+    const corpus = await (await page.request.get(baseUrl + prefix + '/llms-full.txt')).text();
+    assert.doesNotMatch(corpus, /\]\(\/(?:zh\/)?docs(?:\/|\))/, 'Links inside callouts must also resolve');
+    const headings = Array.from(corpus.matchAll(/^# .* \((\/[^)]+)\)$/gm), match => match[1]);
+    assert.deepEqual(new Set(headings), new Set(destinations));
+    const persistence = await (await page.request.get(baseUrl + prefix + '/llms.mdx/docs/persistence/content.md')).text();
+    assert.ok(persistence.includes('](' + markdownRoot + '/concepts/state-requirements/content.md)'));
+    assert.ok(persistence.includes('href="' + markdownRoot + '/persistence/storage-adapters/content.md"'));
+  }
+  checks.push('LLM indexes, corpora and Markdown links resolve under the deployment prefix in each locale');
+
   const missing = await page.request.get(`${baseUrl}/zh/docs/does-not-exist/`);
   assert.equal(missing.status(), 404);
   await checkRoute(page.request, '/404.html', 'Travels');

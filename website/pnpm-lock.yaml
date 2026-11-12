@@ -11,6 +11,9 @@ importers:
       '@fumadocs/language':
         specifier: 0.2.19
         version: 0.2.19(@fumadocs/base-ui@16.17.8(@types/mdx@2.0.14)(@types/react@19.3.0)(fumadocs-core@16.17.8(@mdx-js/mdx@3.1.1)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(lucide-react@1.61.0(@types/react@19.3.0)(react@19.3.1))(next@16.4.2(@playwright/test@1.60.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7))(next@16.4.2(@playwright/test@1.60.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3))(fumadocs-core@16.17.8(@mdx-js/mdx@3.1.1)(@types/estree-jsx@1.0.5)(@types/hast@3.0.5)(@types/mdast@4.0.4)(@types/react@19.3.0)(lucide-react@1.61.0(@types/react@19.3.0)(react@19.3.1))(next@16.4.2(@playwright/test@1.60.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7))
+      '@mdx-js/mdx':
+        specifier: 3.1.1
+        version: 3.1.1
       cn:
         specifier: ^0.5.0
         version: 0.5.0
@@ -41,6 +44,9 @@ importers:
       travels:
         specifier: ^3.0.1
         version: 3.0.1(mutative@2.0.2)
+      unist-util-visit:
+        specifier: 5.1.0
+        version: 5.1.0
       zod:
         specifier: 4.6.7
         version: 4.6.7

@@ -13,6 +13,8 @@ The official Travels documentation and marketing site, built with Next.js, Fumad
 | Full-document LLM corpus | `/llms-full.txt` | `/zh/llms-full.txt` |
 | Page Markdown | `/llms.mdx/docs/...` | `/zh/llms.mdx/docs/...` |
 
+The LLM index for each language links to its page Markdown under the configured deployment base path. Each full corpus contains the pages for that locale, including its configured fallbacks.
+
 English keeps the existing unprefixed paths. Chinese uses the `/zh` prefix and sets `<html lang="zh-CN">`. Every localized page advertises both languages through `hreflang`/Open Graph alternates.
 
 The generated TypeDoc API pages are canonical English. A page without a Chinese translation still renders under `/zh/docs` as a fallback with a Chinese notice, `noindex`, and an English canonical URL. Hand-written guides are required to have a Chinese translation; the content check enforces that.
