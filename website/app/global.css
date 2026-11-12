@@ -1108,31 +1108,49 @@ a:hover > .brand .brand-logo {
 /* Locale switch */
 
 .locale-switch {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 10px;
-  color: var(--home-muted, var(--color-fd-muted-foreground));
+  color: var(--color-fd-muted-foreground);
+}
+
+.locale-switch select {
+  width: 100%;
+  min-height: 36px;
+  appearance: none;
+  cursor: pointer;
+  padding: 6px 26px 6px 31px;
+  color: inherit;
   background: transparent;
-  border: 1px solid var(--home-line, var(--color-fd-border));
+  border: 1px solid var(--color-fd-border);
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 650;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
-.locale-switch:hover {
-  color: var(--home-ink, var(--color-fd-foreground));
-  background: var(--home-soft, var(--color-fd-accent));
-  border-color: color-mix(in srgb, var(--home-line, var(--color-fd-border)) 70%, currentColor);
+.locale-switch svg {
+  position: absolute;
+  pointer-events: none;
 }
 
-.locale-switch:focus-visible {
-  outline: 3px solid rgb(64 126 250 / 32%);
+.locale-switch svg:first-child { inset-inline-start: 10px; }
+.locale-switch svg:last-child { inset-inline-end: 8px; }
+
+.locale-switch select:hover {
+  color: var(--color-fd-foreground);
+  background: var(--color-fd-accent);
+}
+
+.locale-switch select:focus-visible {
+  outline: 2px solid var(--color-fd-ring);
   outline-offset: 3px;
+}
+
+#nd-sidebar .locale-switch { margin-top: 8px; }
+
+@media (max-width: 47.999rem) {
+  #nd-nav .locale-switch svg:first-child { display: none; }
+  #nd-nav .locale-switch select { padding-inline: 8px 22px; }
 }
 
 /* Chinese typography */

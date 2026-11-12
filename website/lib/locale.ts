@@ -52,7 +52,3 @@ export function localePath(locale: Locale, path: string) {
   if (locale === defaultLocale) return clean;
   return clean === '/' ? '/zh' : `/zh${clean}`;
 }
-
-export function otherLocale(locale: Locale): Locale {
-  return locale === 'en' ? 'zh' : 'en';
-}

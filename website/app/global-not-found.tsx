@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { BookOpen, House } from 'lucide-react';
 import { Brand } from '@/components/brand';
+import { LocaleSwitch } from '@/components/locale/locale-switch';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { UndoPatch } from '@/components/not-found/undo-patch';
-import type { Locale } from '@/lib/locale';
+import { localeFromPathname, type Locale } from '@/lib/locale';
 import './global.css';
 
 const DEPTH = 9;
@@ -34,7 +35,7 @@ export default function GlobalNotFound() {
   const [locale, setLocale] = useState<Locale>('en');
 
   useEffect(() => {
-    const next: Locale = window.location.pathname.startsWith('/zh') ? 'zh' : 'en';
+    const next = localeFromPathname(window.location.pathname);
     setLocale(next);
     document.documentElement.lang = next === 'zh' ? 'zh-CN' : 'en';
     document.title = next === 'zh' ? '页面未找到 — Travels' : '404 — Travels';
@@ -55,9 +56,7 @@ export default function GlobalNotFound() {
           <Link href={homeHref} className="nf-global-brand">
             <Brand compact />
           </Link>
-          <Link href={locale === 'zh' ? '/' : '/zh'} className="locale-switch">
-            {locale === 'zh' ? 'English' : '中文'}
-          </Link>
+          <LocaleSwitch locale={locale} path="/" />
         </div>
         <div className="home-page nf-page">
           <section className="nf-hero">

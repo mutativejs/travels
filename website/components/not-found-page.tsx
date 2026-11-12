@@ -4,7 +4,7 @@ import { BookOpen, House } from 'lucide-react';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { UndoPatch } from '@/components/not-found/undo-patch';
-import { baseOptions } from '@/lib/layout.shared';
+import { homeOptions } from '@/lib/layout.shared';
 import { localePath, type Locale } from '@/lib/locale';
 
 const DEPTH = 9;
@@ -29,13 +29,12 @@ const copy = {
 } as const;
 
 export function NotFoundPage({ locale }: { locale: Locale }) {
-  const options = baseOptions(locale);
   const text = copy[locale];
   const homeHref = localePath(locale, '/');
   const docsHref = localePath(locale, '/docs');
 
   return (
-    <HomeLayout {...options} nav={{ ...options.nav, transparentMode: 'top' }}>
+    <HomeLayout {...homeOptions(locale)}>
       <div className="home-page nf-page">
         <section className="nf-hero">
           <HeroBackdrop />

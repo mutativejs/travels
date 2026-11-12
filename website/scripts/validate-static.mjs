@@ -155,12 +155,10 @@ try {
   assert.equal(response.status(), 200);
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
   await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
-  const chineseSwitchHref = await page
-    .getByRole('link', { name: '切换到英文', exact: true })
-    .first()
-    .getAttribute('href');
-  assert.equal(chineseSwitchHref, `${basePath}/`);
   await page.screenshot({ path: resolve(artifactsDir, 'production-home-zh.png') });
+  await page.locator('header').getByRole('combobox', { name: '选择语言' }).selectOption('en');
+  await page.waitForURL(`${baseUrl}/`);
+  await page.getByRole('heading', { name: /Every change/ }).waitFor({ state: 'visible' });
   checks.push('Production Chinese home, language attributes, and prefixed switch');
 
   response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
@@ -169,7 +167,10 @@ try {
   assert.equal(response.status(), 200);
   await page.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
   assert.ok((await page.locator('pre').count()) > 0);
-  checks.push('Production Chinese documentation route');
+  await page.locator('#nd-sidebar').getByRole('combobox', { name: '选择语言' }).selectOption('en');
+  await page.waitForURL(`${baseUrl}/docs/getting-started/quick-start/`);
+  await page.getByRole('heading', { name: 'Quick Start', level: 1 }).waitFor({ state: 'visible' });
+  checks.push('Production Chinese documentation and prefixed language switch');
 
   await checkRoute(page.request, '/zh/llms.txt', '快速开始');
   await checkRoute(page.request, '/zh/llms-full.txt', '快速开始');

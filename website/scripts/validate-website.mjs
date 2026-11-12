@@ -221,9 +221,12 @@ try {
   assert.equal(response.status(), 200);
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
   await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
-  await page.getByRole('link', { name: '切换到英文', exact: true }).first().waitFor({ state: 'visible' });
+  const homeLanguage = page.locator('header').getByRole('combobox', { name: '选择语言' });
+  assert.equal(await homeLanguage.inputValue(), 'zh');
   await checkNoOverflow(page, 'Desktop Chinese home');
   await page.screenshot({ path: resolve(artifactsDir, 'home-zh-desktop.png'), fullPage: true });
+  await homeLanguage.selectOption({ label: 'English' });
+  await page.waitForURL(`${baseUrl}/`);
   checks.push('Chinese home, locale switching, and typography');
 
   response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
@@ -262,7 +265,7 @@ try {
   response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
     waitUntil: 'networkidle',
   });
-  await page.getByRole('link', { name: '切换到英文', exact: true }).first().click();
+  await page.locator('#nd-sidebar').getByRole('combobox', { name: '选择语言' }).selectOption('en');
   await page.waitForURL(`${baseUrl}/docs/getting-started/quick-start/`);
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   checks.push('Chinese to English docs switch preserves the page');
@@ -287,6 +290,12 @@ try {
   await mobilePage.getByRole('heading', { level: 1 }).waitFor({ state: 'visible' });
   await checkNoOverflow(mobilePage, 'Mobile home');
   await mobilePage.screenshot({ path: resolve(artifactsDir, 'home-mobile.png'), fullPage: true });
+  const mobileLanguage = mobilePage.locator('header').getByRole('combobox', { name: 'Choose a language' });
+  for (const width of [320, 640, 390]) {
+    await mobilePage.setViewportSize({ width, height: 844 });
+    const bounds = await mobileLanguage.boundingBox();
+    assert.ok(bounds && bounds.x > width / 2 && bounds.x + bounds.width <= width, `Language dropdown at ${width}px`);
+  }
 
   const mobileMenu = mobilePage.locator('button[aria-label*="menu" i], button[aria-label*="navigation" i]').first();
   await mobileMenu.waitFor({ state: 'visible' });
@@ -304,7 +313,10 @@ try {
   await docsMenu.waitFor({ state: 'visible' });
   await docsMenu.click();
   await mobilePage.getByRole('link', { name: 'Quick Start', exact: true }).last().waitFor({ state: 'visible' });
-  checks.push('Mobile documentation and navigation');
+  await mobilePage.locator('#nd-sidebar-mobile').getByRole('combobox', { name: 'Choose a language' }).selectOption('zh');
+  await mobilePage.waitForURL(`${baseUrl}/zh/docs/getting-started/quick-start/`);
+  await mobilePage.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
+  checks.push('Mobile documentation, navigation, and language switch');
 
   response = await mobilePage.goto(`${baseUrl}/zh/`, { waitUntil: 'networkidle' });
   assert.equal(response.status(), 200);
