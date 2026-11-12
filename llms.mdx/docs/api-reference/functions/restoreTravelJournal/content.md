@@ -2,7 +2,7 @@
 
 > **restoreTravelJournal**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/createTravelJournal.ts#L164)
+Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravelJournal.ts#L164)
 
 Restore an externally owned journal from one complete persisted snapshot.
 

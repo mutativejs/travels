@@ -3,278 +3,279 @@
 6:I[91560,["$5"],"default"]
 7:I[79149,["$5"],"default"]
 c:"/travels/_next/static/chunks/1zd4kqxn7o3d8.js"
-d:"/travels/_next/static/chunks/0ypqhfin1cp19.js"
+d:"/travels/_next/static/chunks/454a0e7wiehm3.js"
 e:"/travels/_next/static/chunks/2jiac805ho1up.js"
-f:"/travels/_next/static/chunks/3sp84899l0h61.js"
-10:"/travels/_next/static/chunks/2qwful58apv4x.js"
-11:"/travels/_next/static/chunks/44yn732amd2p1.js"
-12:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
-13:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
-14:"/travels/_next/static/chunks/1u0egwags7w6_.js"
-15:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"DocsPage"]
-3f:"ViewportBoundary"
-40:I[27135,["$5"],"$3f"]
-41:"MetadataBoundary"
-42:I[27135,["$5"],"$41"]
-43:"$Sreact.suspense"
-44:I[73677,["$5"],"IconMark"]
+f:"/travels/_next/static/chunks/3szpiesr3v8y9.js"
+10:"/travels/_next/static/chunks/2fxm4jkqe3asj.js"
+11:"/travels/_next/static/chunks/1kortb0bpmo__.js"
+12:"/travels/_next/static/chunks/2zmh4sap8_26x.js"
+13:"/travels/_next/static/chunks/0uzu5e3shyzqo.js"
+14:"/travels/_next/static/chunks/1jnau1ef3fmla.js"
+15:"/travels/_next/static/chunks/1u0egwags7w6_.js"
+16:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsPage"]
+40:"ViewportBoundary"
+41:I[27135,["$5"],"$40"]
+42:"MetadataBoundary"
+43:I[27135,["$5"],"$42"]
+44:"$Sreact.suspense"
+45:I[73677,["$5"],"IconMark"]
 9:X
 9:C
 a:X
-b:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$4","c",{"children":[["$","$L15",null,{"toc":[{"depth":2,"url":"#call-signature","title":"Call Signature"},{"depth":3,"url":"#type-parameters","title":"Type Parameters"},{"depth":4,"url":"#s","title":"S"},{"depth":4,"url":"#f","title":"F"},{"depth":4,"url":"#p","title":"P"},{"depth":3,"url":"#parameters","title":"Parameters"},{"depth":4,"url":"#initialstate","title":"initialState"},{"depth":4,"url":"#options","title":"options?"},{"depth":3,"url":"#returns","title":"Returns"},{"depth":4,"url":"#getrevision","title":"getRevision()"},{"depth":5,"url":"#returns-1","title":"Returns"},{"depth":4,"url":"#getstate","title":"getState()"},{"depth":5,"url":"#returns-2","title":"Returns"},{"depth":5,"url":"#remarks","title":"Remarks"},{"depth":4,"url":"#mutable","title":"mutable"},{"depth":4,"url":"#subscribe","title":"subscribe()"},{"depth":5,"url":"#parameters-1","title":"Parameters"},{"depth":6,"url":"#listener","title":"listener"},{"depth":5,"url":"#returns-3","title":"Returns"},{"depth":6,"url":"#returns-4","title":"Returns"},{"depth":4,"url":"#assertpersistencecompatible","title":"assertPersistenceCompatible()"},{"depth":5,"url":"#returns-5","title":"Returns"},{"depth":4,"url":"#back","title":"back()"},{"depth":5,"url":"#parameters-2","title":"Parameters"},{"depth":6,"url":"#amount","title":"amount?"},{"depth":5,"url":"#returns-6","title":"Returns"},{"depth":4,"url":"#batch","title":"batch()"},{"depth":5,"url":"#call-signature-1","title":"Call Signature"},{"depth":6,"url":"#type-parameters-1","title":"Type Parameters"},{"depth":6,"url":"#fn","title":"FN"},{"depth":6,"url":"#parameters-3","title":"Parameters"},{"depth":6,"url":"#metadata","title":"metadata"},{"depth":6,"url":"#fn-1","title":"fn"},{"depth":6,"url":"#returns-7","title":"Returns"},{"depth":5,"url":"#call-signature-2","title":"Call Signature"},{"depth":6,"url":"#type-parameters-2","title":"Type Parameters"},{"depth":6,"url":"#fn-2","title":"FN"},{"depth":6,"url":"#parameters-4","title":"Parameters"},{"depth":6,"url":"#fn-3","title":"fn"},{"depth":6,"url":"#returns-8","title":"Returns"},{"depth":4,"url":"#canback","title":"canBack()"},{"depth":5,"url":"#returns-9","title":"Returns"},{"depth":4,"url":"#canforward","title":"canForward()"},{"depth":5,"url":"#returns-10","title":"Returns"},{"depth":4,"url":"#forward","title":"forward()"},{"depth":5,"url":"#parameters-5","title":"Parameters"},{"depth":6,"url":"#amount-1","title":"amount?"},{"depth":5,"url":"#returns-11","title":"Returns"},{"depth":4,"url":"#getcontrols","title":"getControls()"},{"depth":5,"url":"#returns-12","title":"Returns"},{"depth":4,"url":"#gethistory","title":"getHistory()"},{"depth":5,"url":"#returns-13","title":"Returns"},{"depth":4,"url":"#gethistoryentries","title":"getHistoryEntries()"},{"depth":5,"url":"#returns-14","title":"Returns"},{"depth":4,"url":"#gethistorysnapshot","title":"getHistorySnapshot()"},{"depth":5,"url":"#returns-15","title":"Returns"},{"depth":4,"url":"#getmetadata","title":"getMetadata()"},{"depth":5,"url":"#returns-16","title":"Returns"},{"depth":4,"url":"#getpatches","title":"getPatches()"},{"depth":5,"url":"#returns-17","title":"Returns"},{"depth":4,"url":"#getposition","title":"getPosition()"},{"depth":5,"url":"#returns-18","title":"Returns"},{"depth":4,"url":"#go","title":"go()"},{"depth":5,"url":"#parameters-6","title":"Parameters"},{"depth":6,"url":"#nextposition","title":"nextPosition"},{"depth":5,"url":"#returns-19","title":"Returns"},{"depth":4,"url":"#pausetracking","title":"pauseTracking()"},{"depth":5,"url":"#returns-20","title":"Returns"},{"depth":4,"url":"#rebase","title":"rebase()"},{"depth":5,"url":"#returns-21","title":"Returns"},{"depth":4,"url":"#replacestatewithouthistory","title":"replaceStateWithoutHistory()"},{"depth":5,"url":"#type-parameters-3","title":"Type Parameters"},{"depth":6,"url":"#u","title":"U"},{"depth":5,"url":"#parameters-7","title":"Parameters"},{"depth":6,"url":"#updater","title":"updater"},{"depth":5,"url":"#returns-22","title":"Returns"},{"depth":4,"url":"#reset","title":"reset()"},{"depth":5,"url":"#returns-23","title":"Returns"},{"depth":4,"url":"#resumetracking","title":"resumeTracking()"},{"depth":5,"url":"#returns-24","title":"Returns"},{"depth":4,"url":"#serialize","title":"serialize()"},{"depth":5,"url":"#parameters-8","title":"Parameters"},{"depth":6,"url":"#options-1","title":"options?"},{"depth":5,"url":"#returns-25","title":"Returns"},{"depth":4,"url":"#setstate","title":"setState()"},{"depth":5,"url":"#type-parameters-4","title":"Type Parameters"},{"depth":6,"url":"#u-1","title":"U"},{"depth":5,"url":"#parameters-9","title":"Parameters"},{"depth":6,"url":"#updater-1","title":"updater"},{"depth":6,"url":"#metadata-1","title":"metadata?"},{"depth":5,"url":"#returns-26","title":"Returns"},{"depth":4,"url":"#transaction","title":"$L16"},{"depth":5,"url":"#call-signature-3","title":"$L17"},{"depth":6,"url":"#type-parameters-5","title":"$L18"},{"depth":6,"url":"#fn-4","title":"$L19"},{"depth":6,"url":"#parameters-10","title":"$L1a"},{"depth":6,"url":"#metadata-2","title":"$L1b"},{"depth":6,"url":"#fn-5","title":"$L1c"},{"depth":6,"url":"#returns-27","title":"$L1d"},{"depth":5,"url":"#call-signature-4","title":"$L1e"},{"depth":6,"url":"#type-parameters-6","title":"$L1f"},{"depth":6,"url":"#fn-6","title":"$L20"},{"depth":6,"url":"#parameters-11","title":"$L21"},{"depth":6,"url":"#fn-7","title":"$L22"},{"depth":6,"url":"#returns-28","title":"$L23"},{"depth":2,"url":"#call-signature-5","title":"$L24"},{"depth":3,"url":"#type-parameters-7","title":"$L25"},{"depth":4,"url":"#s-1","title":"$L26"},{"depth":4,"url":"#f-1","title":"$L27"},{"depth":4,"url":"#p-1","title":"$L28"},{"depth":3,"url":"#parameters-12","title":"$L29"},{"depth":4,"url":"#initialstate-1","title":"$L2a"},{"depth":4,"url":"#options-2","title":"$L2b"},{"depth":3,"url":"#returns-29","title":"$L2c"},{"depth":2,"url":"#call-signature-6","title":"$L2d"},{"depth":3,"url":"#type-parameters-8","title":"$L2e"},{"depth":4,"url":"#s-2","title":"$L2f"},{"depth":4,"url":"#f-2","title":"$L30"},{"depth":4,"url":"#a","title":"$L31"},{"depth":4,"url":"#p-2","title":"$L32"},{"depth":3,"url":"#parameters-13","title":"$L33"},{"depth":4,"url":"#initialstate-2","title":"$L34"},{"depth":4,"url":"#options-3","title":"$L35"},{"depth":3,"url":"#returns-30","title":"$L36"}],"children":["$L37","$L38","$L39","$L3a"]}],["$L3b","$L3c"],"$L3d"]}],"p":"$@3e","v":null,"s":"$a"}}]]
+b:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$4","c",{"children":[["$","$L16",null,{"toc":[{"depth":2,"url":"#call-signature","title":"Call Signature"},{"depth":3,"url":"#type-parameters","title":"Type Parameters"},{"depth":4,"url":"#s","title":"S"},{"depth":4,"url":"#f","title":"F"},{"depth":4,"url":"#p","title":"P"},{"depth":3,"url":"#parameters","title":"Parameters"},{"depth":4,"url":"#initialstate","title":"initialState"},{"depth":4,"url":"#options","title":"options?"},{"depth":3,"url":"#returns","title":"Returns"},{"depth":4,"url":"#getrevision","title":"getRevision()"},{"depth":5,"url":"#returns-1","title":"Returns"},{"depth":4,"url":"#getstate","title":"getState()"},{"depth":5,"url":"#returns-2","title":"Returns"},{"depth":5,"url":"#remarks","title":"Remarks"},{"depth":4,"url":"#mutable","title":"mutable"},{"depth":4,"url":"#subscribe","title":"subscribe()"},{"depth":5,"url":"#parameters-1","title":"Parameters"},{"depth":6,"url":"#listener","title":"listener"},{"depth":5,"url":"#returns-3","title":"Returns"},{"depth":6,"url":"#returns-4","title":"Returns"},{"depth":4,"url":"#assertpersistencecompatible","title":"assertPersistenceCompatible()"},{"depth":5,"url":"#returns-5","title":"Returns"},{"depth":4,"url":"#back","title":"back()"},{"depth":5,"url":"#parameters-2","title":"Parameters"},{"depth":6,"url":"#amount","title":"amount?"},{"depth":5,"url":"#returns-6","title":"Returns"},{"depth":4,"url":"#batch","title":"batch()"},{"depth":5,"url":"#call-signature-1","title":"Call Signature"},{"depth":6,"url":"#type-parameters-1","title":"Type Parameters"},{"depth":6,"url":"#fn","title":"FN"},{"depth":6,"url":"#parameters-3","title":"Parameters"},{"depth":6,"url":"#metadata","title":"metadata"},{"depth":6,"url":"#fn-1","title":"fn"},{"depth":6,"url":"#returns-7","title":"Returns"},{"depth":5,"url":"#call-signature-2","title":"Call Signature"},{"depth":6,"url":"#type-parameters-2","title":"Type Parameters"},{"depth":6,"url":"#fn-2","title":"FN"},{"depth":6,"url":"#parameters-4","title":"Parameters"},{"depth":6,"url":"#fn-3","title":"fn"},{"depth":6,"url":"#returns-8","title":"Returns"},{"depth":4,"url":"#canback","title":"canBack()"},{"depth":5,"url":"#returns-9","title":"Returns"},{"depth":4,"url":"#canforward","title":"canForward()"},{"depth":5,"url":"#returns-10","title":"Returns"},{"depth":4,"url":"#forward","title":"forward()"},{"depth":5,"url":"#parameters-5","title":"Parameters"},{"depth":6,"url":"#amount-1","title":"amount?"},{"depth":5,"url":"#returns-11","title":"Returns"},{"depth":4,"url":"#getcontrols","title":"getControls()"},{"depth":5,"url":"#returns-12","title":"Returns"},{"depth":4,"url":"#gethistory","title":"getHistory()"},{"depth":5,"url":"#returns-13","title":"Returns"},{"depth":4,"url":"#gethistoryentries","title":"getHistoryEntries()"},{"depth":5,"url":"#returns-14","title":"Returns"},{"depth":4,"url":"#gethistorysnapshot","title":"getHistorySnapshot()"},{"depth":5,"url":"#returns-15","title":"Returns"},{"depth":4,"url":"#getmetadata","title":"getMetadata()"},{"depth":5,"url":"#returns-16","title":"Returns"},{"depth":4,"url":"#getpatches","title":"getPatches()"},{"depth":5,"url":"#returns-17","title":"Returns"},{"depth":4,"url":"#getposition","title":"getPosition()"},{"depth":5,"url":"#returns-18","title":"Returns"},{"depth":4,"url":"#go","title":"go()"},{"depth":5,"url":"#parameters-6","title":"Parameters"},{"depth":6,"url":"#nextposition","title":"nextPosition"},{"depth":5,"url":"#returns-19","title":"Returns"},{"depth":4,"url":"#pausetracking","title":"pauseTracking()"},{"depth":5,"url":"#returns-20","title":"Returns"},{"depth":4,"url":"#rebase","title":"rebase()"},{"depth":5,"url":"#returns-21","title":"Returns"},{"depth":4,"url":"#replacestatewithouthistory","title":"replaceStateWithoutHistory()"},{"depth":5,"url":"#type-parameters-3","title":"Type Parameters"},{"depth":6,"url":"#u","title":"U"},{"depth":5,"url":"#parameters-7","title":"Parameters"},{"depth":6,"url":"#updater","title":"updater"},{"depth":5,"url":"#returns-22","title":"Returns"},{"depth":4,"url":"#reset","title":"reset()"},{"depth":5,"url":"#returns-23","title":"Returns"},{"depth":4,"url":"#resumetracking","title":"resumeTracking()"},{"depth":5,"url":"#returns-24","title":"Returns"},{"depth":4,"url":"#serialize","title":"serialize()"},{"depth":5,"url":"#parameters-8","title":"Parameters"},{"depth":6,"url":"#options-1","title":"options?"},{"depth":5,"url":"#returns-25","title":"Returns"},{"depth":4,"url":"#setstate","title":"setState()"},{"depth":5,"url":"#type-parameters-4","title":"Type Parameters"},{"depth":6,"url":"#u-1","title":"U"},{"depth":5,"url":"#parameters-9","title":"Parameters"},{"depth":6,"url":"#updater-1","title":"updater"},{"depth":6,"url":"#metadata-1","title":"metadata?"},{"depth":5,"url":"#returns-26","title":"Returns"},{"depth":4,"url":"#transaction","title":"$L17"},{"depth":5,"url":"#call-signature-3","title":"$L18"},{"depth":6,"url":"#type-parameters-5","title":"$L19"},{"depth":6,"url":"#fn-4","title":"$L1a"},{"depth":6,"url":"#parameters-10","title":"$L1b"},{"depth":6,"url":"#metadata-2","title":"$L1c"},{"depth":6,"url":"#fn-5","title":"$L1d"},{"depth":6,"url":"#returns-27","title":"$L1e"},{"depth":5,"url":"#call-signature-4","title":"$L1f"},{"depth":6,"url":"#type-parameters-6","title":"$L20"},{"depth":6,"url":"#fn-6","title":"$L21"},{"depth":6,"url":"#parameters-11","title":"$L22"},{"depth":6,"url":"#fn-7","title":"$L23"},{"depth":6,"url":"#returns-28","title":"$L24"},{"depth":2,"url":"#call-signature-5","title":"$L25"},{"depth":3,"url":"#type-parameters-7","title":"$L26"},{"depth":4,"url":"#s-1","title":"$L27"},{"depth":4,"url":"#f-1","title":"$L28"},{"depth":4,"url":"#p-1","title":"$L29"},{"depth":3,"url":"#parameters-12","title":"$L2a"},{"depth":4,"url":"#initialstate-1","title":"$L2b"},{"depth":4,"url":"#options-2","title":"$L2c"},{"depth":3,"url":"#returns-29","title":"$L2d"},{"depth":2,"url":"#call-signature-6","title":"$L2e"},{"depth":3,"url":"#type-parameters-8","title":"$L2f"},{"depth":4,"url":"#s-2","title":"$L30"},{"depth":4,"url":"#f-2","title":"$L31"},{"depth":4,"url":"#a","title":"$L32"},{"depth":4,"url":"#p-2","title":"$L33"},{"depth":3,"url":"#parameters-13","title":"$L34"},{"depth":4,"url":"#initialstate-2","title":"$L35"},{"depth":4,"url":"#options-3","title":"$L36"},{"depth":3,"url":"#returns-30","title":"$L37"}],"children":["$L38","$L39","$L3a","$L3b"]}],["$L3c","$L3d"],"$L3e"]}],"p":"$@3f","v":null,"s":"$a"}}]]
 3:[["children",{"s":{"n":"slug","t":"oc","k":"api-reference/functions/createPatchableTravels","s":[]},"h":64,"d":{"r":["$","$4","c",{"children":[null,["$","$L6",null,{"parallelRouterKey":"children","template":["$","$L7",null,{}]}]]}],"p":"$@8","v":"$9","s":"$a"},"c":"$Qb"}]]
 2:[["children",{"s":"docs","c":"$Q3"}]]
 1:[["children",{"s":"(en)","h":48,"c":"$Q2"}]]
-0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$4","h",{"children":[null,["$","$L40",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L42",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$43",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"createPatchableTravels() — Travels"}],["$","meta","1",{"name":"description","content":"Create a timeline constrained to the durable JSON-shaped state contract."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"name":"robots","content":"noindex, follow"}],["$","link","5",{"rel":"canonical","href":"https://mutativejs.github.io/travels/docs/api-reference/functions/createPatchableTravels/"}],["$","link","6",{"rel":"alternate","hrefLang":"en","href":"https://mutativejs.github.io/travels/docs/api-reference/functions/createPatchableTravels/"}],["$","link","7",{"rel":"alternate","hrefLang":"zh-CN","href":"https://mutativejs.github.io/travels/zh/docs/api-reference/functions/createPatchableTravels/"}],["$","meta","8",{"property":"og:title","content":"createPatchableTravels()"}],["$","meta","9",{"property":"og:description","content":"Create a timeline constrained to the durable JSON-shaped state contract."}],["$","meta","10",{"property":"og:url","content":"https://mutativejs.github.io/travels/docs/api-reference/functions/createPatchableTravels/"}],["$","meta","11",{"property":"og:locale","content":"en_US"}],["$","meta","12",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/api-reference/functions/createPatchableTravels/image.png"}],["$","meta","13",{"property":"og:locale:alternate","content":"zh_CN"}],["$","meta","14",{"property":"og:type","content":"article"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"createPatchableTravels()"}],["$","meta","17",{"name":"twitter:description","content":"Create a timeline constrained to the durable JSON-shaped state contract."}],["$","meta","18",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og/docs/api-reference/functions/createPatchableTravels/image.png"}],["$","link","19",{"rel":"icon","href":"/travels/icon.png?icon.2fbb2ce0q9qn3.png","sizes":"128x128","type":"image/png"}],["$","link","20",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.1pg4g_sftlyas.png","sizes":"180x180","type":"image/png"}],["$","$L44","21",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@45","v":null,"s":"$a"}},"a":"$@46","u":"$@47","b":"Q_Pi7m9mQBfJFdL-MO1Np"}
-48:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"DocsTitle"]
-49:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"DocsDescription"]
-4a:"MarkdownCopyButton"
-4b:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"$4a"]
-4c:"ViewOptionsPopover"
-4d:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"$4c"]
-4e:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"DocsBody"]
-4f:I[84452,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"Heading"]
-50:I[53632,["$c","$d","$e","$f","$10","$11","$12","$13","$14"],"default"]
-113:I[27135,["$5"],"OutletBoundary"]
-16:"transaction()"
-17:"Call Signature"
-18:"Type Parameters"
-19:"FN"
-1a:"Parameters"
-1b:"metadata"
-1c:"fn"
-1d:"Returns"
-1e:"Call Signature"
-1f:"Type Parameters"
-20:"FN"
-21:"Parameters"
-22:"fn"
-23:"Returns"
-24:"Call Signature"
-25:"Type Parameters"
-26:"S"
-27:"F"
-28:"P"
-29:"Parameters"
-2a:"initialState"
-2b:"options"
-2c:"Returns"
-2d:"Call Signature"
-2e:"Type Parameters"
-2f:"S"
-30:"F"
-31:"A"
-32:"P"
-33:"Parameters"
-34:"initialState"
-35:"options"
-36:"Returns"
-37:["$","$L48",null,{"children":"createPatchableTravels()"}]
-38:["$","$L49",null,{"className":"mb-0","children":"Create a timeline constrained to the durable JSON-shaped state contract."}]
-39:["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L4b",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md"}],["$","$L4d",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/api-reference/functions/createPatchableTravels.mdx"}]]}]
-3a:["$","$L4e",null,{"children":[false,[["$","$L4f",null,{"as":"h2","id":"call-signature","children":"Call Signature"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"createPatchableTravels"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"P"}],">(",["$","code",null,{"children":"initialState"}],", ",["$","code",null,{"children":"options?"}],"): ",["$","code",null,{"children":"object"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L50",null,{"href":"https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/createPatchableTravels.ts#L11","children":"src/createPatchableTravels.ts:11"}]]}],"\n",["$","p",null,{"children":"Create a Travels instance whose state is statically constrained to the\ndurable JSON-shaped subset supported by patches and persistence."}],"\n",["$","$L4f",null,{"as":"h3","id":"type-parameters","children":"Type Parameters"}],"\n",["$","$L4f",null,{"as":"h4","id":"s","children":"S"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L4f",null,{"as":"h4","id":"f","children":"F"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"F"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"false"}]]}],"\n",["$","$L4f",null,{"as":"h4","id":"p","children":"P"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"object"}]," = { }"]}],"\n",["$","$L4f",null,{"as":"h3","id":"parameters","children":"Parameters"}],"\n",["$","$L4f",null,{"as":"h4","id":"initialstate","children":"initialState"}],"\n",["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/PatchableInput","children":["$","code",null,{"children":"PatchableInput"}]}],"<",["$","code",null,{"children":"S"}],">"]}],"\n",["$","$L4f",null,{"as":"h4","id":"options","children":"options?"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"Omit"}],"<",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelsOptions","children":["$","code",null,{"children":"TravelsOptions"}]}],"<",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"true"}],", ",["$","code",null,{"children":"P"}],", ",["$","code",null,{"children":"S"}],">, ",["$","code",null,{"children":"\"autoArchive\""}],"> & ",["$","code",null,{"children":"object"}]]}],"\n",["$","$L4f",null,{"as":"h3","id":"returns","children":"Returns"}],"\n",["$","$L4f",null,{"as":"h4","id":"getrevision","children":"getRevision()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"getRevision"}],": () => ",["$","code",null,{"children":"number"}]]}],"\n"]}],"\n",["$","p",null,{"children":"Monotonic token for committed observable timeline transitions."}],"\n",["$","$L4f",null,{"as":"h5","id":"returns-1","children":"Returns"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"number"}]}],"\n",["$","$L4f",null,{"as":"h4","id":"getstate","children":"getState()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"getState"}],": () => ",["$","code",null,{"children":"S"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Borrowed live state, the same value observers receive as ",["$","code",null,{"children":"event.state"}],"."]}],"\n",["$","$L4f",null,{"as":"h5","id":"returns-2","children":"Returns"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L4f",null,{"as":"h5","id":"remarks","children":"Remarks"}],"\n",["$","p",null,{"children":["Typed as ",["$","code",null,{"children":"S"}]," so it can flow into stores and APIs that expect the state\ntype, but it must be treated as read-only: history patches apply to this\nvalue, so mutating it outside Travels operations desynchronizes undo/redo.\nIn immutable mode its objects are also the values of retained patches, so\nsuch a mutation rewrites the history that redo replays.\n",["$","code",null,{"children":"enableAutoFreeze"}]," freezes every state Travels produces after creation."]}],"\n",["$","$L4f",null,{"as":"h4","id":"mutable","children":"mutable"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"mutable"}],": ",["$","code",null,{"children":"boolean"}]]}],"\n"]}],"\n",["$","$L4f",null,{"as":"h4","id":"subscribe","children":"subscribe()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"subscribe"}],": (",["$","code",null,{"children":"listener"}],") => () => ",["$","code",null,{"children":"void"}]]}],"\n"]}],"\n",["$","$L4f",null,{"as":"h5","id":"parameters-1","children":"Parameters"}],"\n","$L51","\n","$L52","\n","$L53","\n","$L54","\n","$L55","\n","$L56","\n","$L57","\n","$L58","\n","$L59","\n","$L5a","\n","$L5b","\n","$L5c","\n","$L5d","\n","$L5e","\n","$L5f","\n","$L60","\n","$L61","\n","$L62","\n","$L63","\n","$L64","\n","$L65","\n","$L66","\n","$L67","\n","$L68","\n","$L69","\n","$L6a","\n","$L6b","\n","$L6c","\n","$L6d","\n","$L6e","\n","$L6f","\n","$L70","\n","$L71","\n","$L72","\n","$L73","\n","$L74","\n","$L75","\n","$L76","\n","$L77","\n","$L78","\n","$L79","\n","$L7a","\n","$L7b","\n","$L7c","\n","$L7d","\n","$L7e","\n","$L7f","\n","$L80","\n","$L81","\n","$L82","\n","$L83","\n","$L84","\n","$L85","\n","$L86","\n","$L87","\n","$L88","\n","$L89","\n","$L8a","\n","$L8b","\n","$L8c","\n","$L8d","\n","$L8e","\n","$L8f","\n","$L90","\n","$L91","\n","$L92","\n","$L93","\n","$L94","\n","$L95","\n","$L96","\n","$L97","\n","$L98","\n","$L99","\n","$L9a","\n","$L9b","\n","$L9c","\n","$L9d","\n","$L9e","\n","$L9f","\n","$La0","\n","$La1","\n","$La2","\n","$La3","\n","$La4","\n","$La5","\n","$La6","\n","$La7","\n","$La8","\n","$La9","\n","$Laa","\n","$Lab","\n","$Lac","\n","$Lad","\n","$Lae","\n","$Laf","\n","$Lb0","\n","$Lb1","\n","$Lb2","\n","$Lb3","\n","$Lb4","\n","$Lb5","\n","$Lb6","\n","$Lb7","\n","$Lb8","\n","$Lb9","\n","$Lba","\n","$Lbb","\n","$Lbc","\n","$Lbd","\n","$Lbe","\n","$Lbf","\n","$Lc0","\n","$Lc1","\n","$Lc2","\n","$Lc3","\n","$Lc4","\n","$Lc5","\n","$Lc6","\n","$Lc7","\n","$Lc8","\n","$Lc9","\n","$Lca","\n","$Lcb","\n","$Lcc","\n","$Lcd","\n","$Lce","\n","$Lcf","\n","$Ld0","\n","$Ld1","\n","$Ld2","\n","$Ld3","\n","$Ld4","\n","$Ld5","\n","$Ld6","\n","$Ld7","\n","$Ld8","\n","$Ld9","\n","$Lda","\n","$Ldb","\n","$Ldc","\n","$Ldd","\n","$Lde","\n","$Ldf","\n","$Le0","\n","$Le1","\n","$Le2","\n","$Le3","\n","$Le4","\n","$Le5","\n","$Le6","\n","$Le7","\n","$Le8","\n","$Le9","\n","$Lea","\n","$Leb","\n","$Lec","\n","$Led","\n","$Lee","\n","$Lef","\n","$Lf0","\n","$Lf1","\n","$Lf2","\n","$Lf3","\n","$Lf4","\n","$Lf5","\n","$Lf6","\n","$Lf7","\n","$Lf8","\n","$Lf9","\n","$Lfa","\n","$Lfb","\n","$Lfc","\n","$Lfd","\n","$Lfe","\n","$Lff","\n","$L100","\n","$L101","\n","$L102","\n","$L103","\n","$L104","\n","$L105","\n","$L106","\n","$L107","\n","$L108","\n","$L109","\n","$L10a","\n","$L10b","\n","$L10c","\n","$L10d","\n","$L10e","\n","$L10f","\n","$L110","\n","$L111","\n","$L112"]]}]
-3b:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
-3c:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
-3d:["$","$L113",null,{"children":["$","$43",null,{"name":"Next.MetadataOutlet","children":"$@114"}]}]
-47:true
+0:{"t":{"t":{"s":"","h":80,"c":"$Q1"},"h":{"r":["$","$4","h",{"children":[null,["$","$L41",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L43",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$44",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"createPatchableTravels() — Travels"}],["$","meta","1",{"name":"description","content":"Create a timeline constrained to the durable JSON-shaped state contract."}],["$","meta","2",{"name":"application-name","content":"Travels"}],["$","meta","3",{"name":"keywords","content":"undo redo,time travel,JSON Patch,state history,persistence,Mutative,TypeScript"}],["$","meta","4",{"name":"robots","content":"noindex, follow"}],["$","link","5",{"rel":"canonical","href":"https://mutativejs.github.io/travels/docs/api-reference/functions/createPatchableTravels/"}],["$","link","6",{"rel":"alternate","hrefLang":"en","href":"https://mutativejs.github.io/travels/docs/api-reference/functions/createPatchableTravels/"}],["$","link","7",{"rel":"alternate","hrefLang":"zh-CN","href":"https://mutativejs.github.io/travels/zh/docs/api-reference/functions/createPatchableTravels/"}],["$","meta","8",{"property":"og:title","content":"createPatchableTravels()"}],["$","meta","9",{"property":"og:description","content":"Create a timeline constrained to the durable JSON-shaped state contract."}],["$","meta","10",{"property":"og:url","content":"https://mutativejs.github.io/travels/docs/api-reference/functions/createPatchableTravels/"}],["$","meta","11",{"property":"og:locale","content":"en_US"}],["$","meta","12",{"property":"og:image","content":"https://mutativejs.github.io/travels/og/docs/api-reference/functions/createPatchableTravels/image.png"}],["$","meta","13",{"property":"og:locale:alternate","content":"zh_CN"}],["$","meta","14",{"property":"og:type","content":"article"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"createPatchableTravels()"}],["$","meta","17",{"name":"twitter:description","content":"Create a timeline constrained to the durable JSON-shaped state contract."}],["$","meta","18",{"name":"twitter:image","content":"https://mutativejs.github.io/travels/og/docs/api-reference/functions/createPatchableTravels/image.png"}],["$","link","19",{"rel":"icon","href":"/travels/icon.png?icon.2fbb2ce0q9qn3.png","sizes":"128x128","type":"image/png"}],["$","link","20",{"rel":"apple-touch-icon","href":"/travels/apple-icon.png?apple-icon.1pg4g_sftlyas.png","sizes":"180x180","type":"image/png"}],["$","$L45","21",{}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@46","v":null,"s":"$a"}},"a":"$@47","u":"$@48","b":"awaMrllsALV0wX8zefXmn"}
+49:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsTitle"]
+4a:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsDescription"]
+4b:"MarkdownCopyButton"
+4c:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$4b"]
+4d:"ViewOptionsPopover"
+4e:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"$4d"]
+4f:I[50027,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"DocsBody"]
+50:I[84452,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"Heading"]
+51:I[53632,["$c","$d","$e","$f","$10","$11","$12","$13","$14","$15"],"default"]
+114:I[27135,["$5"],"OutletBoundary"]
+17:"transaction()"
+18:"Call Signature"
+19:"Type Parameters"
+1a:"FN"
+1b:"Parameters"
+1c:"metadata"
+1d:"fn"
+1e:"Returns"
+1f:"Call Signature"
+20:"Type Parameters"
+21:"FN"
+22:"Parameters"
+23:"fn"
+24:"Returns"
+25:"Call Signature"
+26:"Type Parameters"
+27:"S"
+28:"F"
+29:"P"
+2a:"Parameters"
+2b:"initialState"
+2c:"options"
+2d:"Returns"
+2e:"Call Signature"
+2f:"Type Parameters"
+30:"S"
+31:"F"
+32:"A"
+33:"P"
+34:"Parameters"
+35:"initialState"
+36:"options"
+37:"Returns"
+38:["$","$L49",null,{"children":"createPatchableTravels()"}]
+39:["$","$L4a",null,{"className":"mb-0","children":"Create a timeline constrained to the durable JSON-shaped state contract."}]
+3a:["$","div",null,{"className":"flex flex-row gap-2 items-center border-b pb-6","children":[["$","$L4c",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md"}],["$","$L4e",null,{"markdownUrl":"/travels/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md","githubUrl":"https://github.com/mutativejs/travels/blob/main/website/content/docs/api-reference/functions/createPatchableTravels.mdx"}]]}]
+3b:["$","$L4f",null,{"children":[false,[["$","$L50",null,{"as":"h2","id":"call-signature","children":"Call Signature"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"createPatchableTravels"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"P"}],">(",["$","code",null,{"children":"initialState"}],", ",["$","code",null,{"children":"options?"}],"): ",["$","code",null,{"children":"object"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Defined in: ",["$","$L51",null,{"href":"https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createPatchableTravels.ts#L11","children":"src/createPatchableTravels.ts:11"}]]}],"\n",["$","p",null,{"children":"Create a Travels instance whose state is statically constrained to the\ndurable JSON-shaped subset supported by patches and persistence."}],"\n",["$","$L50",null,{"as":"h3","id":"type-parameters","children":"Type Parameters"}],"\n",["$","$L50",null,{"as":"h4","id":"s","children":"S"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L50",null,{"as":"h4","id":"f","children":"F"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"F"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"false"}]]}],"\n",["$","$L50",null,{"as":"h4","id":"p","children":"P"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"object"}]," = { }"]}],"\n",["$","$L50",null,{"as":"h3","id":"parameters","children":"Parameters"}],"\n",["$","$L50",null,{"as":"h4","id":"initialstate","children":"initialState"}],"\n",["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/PatchableInput","children":["$","code",null,{"children":"PatchableInput"}]}],"<",["$","code",null,{"children":"S"}],">"]}],"\n",["$","$L50",null,{"as":"h4","id":"options","children":"options?"}],"\n",["$","p",null,{"children":[["$","code",null,{"children":"Omit"}],"<",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelsOptions","children":["$","code",null,{"children":"TravelsOptions"}]}],"<",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"true"}],", ",["$","code",null,{"children":"P"}],", ",["$","code",null,{"children":"S"}],">, ",["$","code",null,{"children":"\"autoArchive\""}],"> & ",["$","code",null,{"children":"object"}]]}],"\n",["$","$L50",null,{"as":"h3","id":"returns","children":"Returns"}],"\n",["$","$L50",null,{"as":"h4","id":"getrevision","children":"getRevision()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"getRevision"}],": () => ",["$","code",null,{"children":"number"}]]}],"\n"]}],"\n",["$","p",null,{"children":"Monotonic token for committed observable timeline transitions."}],"\n",["$","$L50",null,{"as":"h5","id":"returns-1","children":"Returns"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"number"}]}],"\n",["$","$L50",null,{"as":"h4","id":"getstate","children":"getState()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"getState"}],": () => ",["$","code",null,{"children":"S"}]]}],"\n"]}],"\n",["$","p",null,{"children":["Borrowed live state, the same value observers receive as ",["$","code",null,{"children":"event.state"}],"."]}],"\n",["$","$L50",null,{"as":"h5","id":"returns-2","children":"Returns"}],"\n",["$","p",null,{"children":["$","code",null,{"children":"S"}]}],"\n",["$","$L50",null,{"as":"h5","id":"remarks","children":"Remarks"}],"\n",["$","p",null,{"children":["Typed as ",["$","code",null,{"children":"S"}]," so it can flow into stores and APIs that expect the state\ntype, but it must be treated as read-only: history patches apply to this\nvalue, so mutating it outside Travels operations desynchronizes undo/redo.\nIn immutable mode its objects are also the values of retained patches, so\nsuch a mutation rewrites the history that redo replays.\n",["$","code",null,{"children":"enableAutoFreeze"}]," freezes every state Travels produces after creation."]}],"\n",["$","$L50",null,{"as":"h4","id":"mutable","children":"mutable"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"mutable"}],": ",["$","code",null,{"children":"boolean"}]]}],"\n"]}],"\n",["$","$L50",null,{"as":"h4","id":"subscribe","children":"subscribe()"}],"\n",["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","code",null,{"children":"readonly"}]," ",["$","strong",null,{"children":"subscribe"}],": (",["$","code",null,{"children":"listener"}],") => () => ",["$","code",null,{"children":"void"}]]}],"\n"]}],"\n",["$","$L50",null,{"as":"h5","id":"parameters-1","children":"Parameters"}],"\n","$L52","\n","$L53","\n","$L54","\n","$L55","\n","$L56","\n","$L57","\n","$L58","\n","$L59","\n","$L5a","\n","$L5b","\n","$L5c","\n","$L5d","\n","$L5e","\n","$L5f","\n","$L60","\n","$L61","\n","$L62","\n","$L63","\n","$L64","\n","$L65","\n","$L66","\n","$L67","\n","$L68","\n","$L69","\n","$L6a","\n","$L6b","\n","$L6c","\n","$L6d","\n","$L6e","\n","$L6f","\n","$L70","\n","$L71","\n","$L72","\n","$L73","\n","$L74","\n","$L75","\n","$L76","\n","$L77","\n","$L78","\n","$L79","\n","$L7a","\n","$L7b","\n","$L7c","\n","$L7d","\n","$L7e","\n","$L7f","\n","$L80","\n","$L81","\n","$L82","\n","$L83","\n","$L84","\n","$L85","\n","$L86","\n","$L87","\n","$L88","\n","$L89","\n","$L8a","\n","$L8b","\n","$L8c","\n","$L8d","\n","$L8e","\n","$L8f","\n","$L90","\n","$L91","\n","$L92","\n","$L93","\n","$L94","\n","$L95","\n","$L96","\n","$L97","\n","$L98","\n","$L99","\n","$L9a","\n","$L9b","\n","$L9c","\n","$L9d","\n","$L9e","\n","$L9f","\n","$La0","\n","$La1","\n","$La2","\n","$La3","\n","$La4","\n","$La5","\n","$La6","\n","$La7","\n","$La8","\n","$La9","\n","$Laa","\n","$Lab","\n","$Lac","\n","$Lad","\n","$Lae","\n","$Laf","\n","$Lb0","\n","$Lb1","\n","$Lb2","\n","$Lb3","\n","$Lb4","\n","$Lb5","\n","$Lb6","\n","$Lb7","\n","$Lb8","\n","$Lb9","\n","$Lba","\n","$Lbb","\n","$Lbc","\n","$Lbd","\n","$Lbe","\n","$Lbf","\n","$Lc0","\n","$Lc1","\n","$Lc2","\n","$Lc3","\n","$Lc4","\n","$Lc5","\n","$Lc6","\n","$Lc7","\n","$Lc8","\n","$Lc9","\n","$Lca","\n","$Lcb","\n","$Lcc","\n","$Lcd","\n","$Lce","\n","$Lcf","\n","$Ld0","\n","$Ld1","\n","$Ld2","\n","$Ld3","\n","$Ld4","\n","$Ld5","\n","$Ld6","\n","$Ld7","\n","$Ld8","\n","$Ld9","\n","$Lda","\n","$Ldb","\n","$Ldc","\n","$Ldd","\n","$Lde","\n","$Ldf","\n","$Le0","\n","$Le1","\n","$Le2","\n","$Le3","\n","$Le4","\n","$Le5","\n","$Le6","\n","$Le7","\n","$Le8","\n","$Le9","\n","$Lea","\n","$Leb","\n","$Lec","\n","$Led","\n","$Lee","\n","$Lef","\n","$Lf0","\n","$Lf1","\n","$Lf2","\n","$Lf3","\n","$Lf4","\n","$Lf5","\n","$Lf6","\n","$Lf7","\n","$Lf8","\n","$Lf9","\n","$Lfa","\n","$Lfb","\n","$Lfc","\n","$Lfd","\n","$Lfe","\n","$Lff","\n","$L100","\n","$L101","\n","$L102","\n","$L103","\n","$L104","\n","$L105","\n","$L106","\n","$L107","\n","$L108","\n","$L109","\n","$L10a","\n","$L10b","\n","$L10c","\n","$L10d","\n","$L10e","\n","$L10f","\n","$L110","\n","$L111","\n","$L112","\n","$L113"]]}]
+3c:["$","script","script-0",{"src":"/travels/_next/static/chunks/1jnau1ef3fmla.js","async":true}]
+3d:["$","script","script-1",{"src":"/travels/_next/static/chunks/1u0egwags7w6_.js","async":true}]
+3e:["$","$L114",null,{"children":["$","$44",null,{"name":"Next.MetadataOutlet","children":"$@115"}]}]
+48:true
 a:300
-51:["$","$L4f",null,{"as":"h6","id":"listener","children":"listener"}]
-52:["$","p",null,{"children":["(",["$","code",null,{"children":"event"}],") => ",["$","code",null,{"children":"void"}]]}]
-53:["$","$L4f",null,{"as":"h5","id":"returns-3","children":"Returns"}]
-54:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":["(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-55:["$","$L4f",null,{"as":"h6","id":"returns-4","children":"Returns"}]
-56:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-57:["$","$L4f",null,{"as":"h4","id":"assertpersistencecompatible","children":"assertPersistenceCompatible()"}]
-58:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"assertPersistenceCompatible"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-59:["$","$L4f",null,{"as":"h5","id":"returns-5","children":"Returns"}]
-5a:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-5b:["$","$L4f",null,{"as":"h4","id":"back","children":"back()"}]
-5c:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"back"}],"(",["$","code",null,{"children":"amount?"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-5d:["$","$L4f",null,{"as":"h5","id":"parameters-2","children":"Parameters"}]
-5e:["$","$L4f",null,{"as":"h6","id":"amount","children":"amount?"}]
-5f:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
-60:["$","$L4f",null,{"as":"h5","id":"returns-6","children":"Returns"}]
-61:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-62:["$","$L4f",null,{"as":"h4","id":"batch","children":"batch()"}]
-63:["$","$L4f",null,{"as":"h5","id":"call-signature-1","children":"Call Signature"}]
-64:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"batch"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"metadata"}],", ",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-65:["$","$L4f",null,{"as":"h6","id":"type-parameters-1","children":"Type Parameters"}]
-66:["$","$L4f",null,{"as":"h6","id":"fn","children":"FN"}]
-67:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
-68:["$","$L4f",null,{"as":"h6","id":"parameters-3","children":"Parameters"}]
-69:["$","$L4f",null,{"as":"h6","id":"metadata","children":"metadata"}]
-6a:["$","p",null,{"children":["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}]}]
-6b:["$","$L4f",null,{"as":"h6","id":"fn-1","children":"fn"}]
-6c:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
-6d:["$","$L4f",null,{"as":"h6","id":"returns-7","children":"Returns"}]
-6e:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-6f:["$","$L4f",null,{"as":"h5","id":"call-signature-2","children":"Call Signature"}]
-70:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"batch"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-71:["$","$L4f",null,{"as":"h6","id":"type-parameters-2","children":"Type Parameters"}]
-72:["$","$L4f",null,{"as":"h6","id":"fn-2","children":"FN"}]
-73:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
-74:["$","$L4f",null,{"as":"h6","id":"parameters-4","children":"Parameters"}]
-75:["$","$L4f",null,{"as":"h6","id":"fn-3","children":"fn"}]
-76:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
-77:["$","$L4f",null,{"as":"h6","id":"returns-8","children":"Returns"}]
-78:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-79:["$","$L4f",null,{"as":"h4","id":"canback","children":"canBack()"}]
-7a:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"canBack"}],"(): ",["$","code",null,{"children":"boolean"}]]}],"\n"]}]
-7b:["$","$L4f",null,{"as":"h5","id":"returns-9","children":"Returns"}]
-7c:["$","p",null,{"children":["$","code",null,{"children":"boolean"}]}]
-7d:["$","$L4f",null,{"as":"h4","id":"canforward","children":"canForward()"}]
-7e:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"canForward"}],"(): ",["$","code",null,{"children":"boolean"}]]}],"\n"]}]
-7f:["$","$L4f",null,{"as":"h5","id":"returns-10","children":"Returns"}]
-80:["$","p",null,{"children":["$","code",null,{"children":"boolean"}]}]
-81:["$","$L4f",null,{"as":"h4","id":"forward","children":"forward()"}]
-82:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"forward"}],"(",["$","code",null,{"children":"amount?"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-83:["$","$L4f",null,{"as":"h5","id":"parameters-5","children":"Parameters"}]
-84:["$","$L4f",null,{"as":"h6","id":"amount-1","children":"amount?"}]
-85:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
-86:["$","$L4f",null,{"as":"h5","id":"returns-11","children":"Returns"}]
-87:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-88:["$","$L4f",null,{"as":"h4","id":"getcontrols","children":"getControls()"}]
-89:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getControls"}],"(): ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/RebasableTravelsControls","children":["$","code",null,{"children":"RebasableTravelsControls"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
-8a:["$","$L4f",null,{"as":"h5","id":"returns-12","children":"Returns"}]
-8b:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/RebasableTravelsControls","children":["$","code",null,{"children":"RebasableTravelsControls"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}]
-8c:["$","$L4f",null,{"as":"h4","id":"gethistory","children":"getHistory()"}]
-8d:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getHistory"}],"(): readonly ",["$","code",null,{"children":"Immutable"}],"<",["$","code",null,{"children":"S"}],">[]"]}],"\n"]}]
-8e:["$","$L4f",null,{"as":"h5","id":"returns-13","children":"Returns"}]
-8f:["$","p",null,{"children":["readonly ",["$","code",null,{"children":"Immutable"}],"<",["$","code",null,{"children":"S"}],">[]"]}]
-90:["$","$L4f",null,{"as":"h4","id":"gethistoryentries","children":"getHistoryEntries()"}]
-91:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getHistoryEntries"}],"(): ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelHistoryEntry","children":["$","code",null,{"children":"TravelHistoryEntry"}]}],"<",["$","code",null,{"children":"P"}],">[]"]}],"\n"]}]
-92:["$","$L4f",null,{"as":"h5","id":"returns-14","children":"Returns"}]
-93:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelHistoryEntry","children":["$","code",null,{"children":"TravelHistoryEntry"}]}],"<",["$","code",null,{"children":"P"}],">[]"]}]
-94:["$","$L4f",null,{"as":"h4","id":"gethistorysnapshot","children":"getHistorySnapshot()"}]
-95:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getHistorySnapshot"}],"(): ",["$","code",null,{"children":"S"}],"[]"]}],"\n"]}]
-96:["$","$L4f",null,{"as":"h5","id":"returns-15","children":"Returns"}]
-97:["$","p",null,{"children":[["$","code",null,{"children":"S"}],"[]"]}]
-98:["$","$L4f",null,{"as":"h4","id":"getmetadata","children":"getMetadata()"}]
-99:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getMetadata"}],"(): (",["$","code",null,{"children":"undefined"}]," | ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}],")[]"]}],"\n"]}]
-9a:["$","$L4f",null,{"as":"h5","id":"returns-16","children":"Returns"}]
-9b:["$","p",null,{"children":["(",["$","code",null,{"children":"undefined"}]," | ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}],")[]"]}]
-9c:["$","$L4f",null,{"as":"h4","id":"getpatches","children":"getPatches()"}]
-9d:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getPatches"}],"(): ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelPatches","children":["$","code",null,{"children":"TravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
-9e:["$","$L4f",null,{"as":"h5","id":"returns-17","children":"Returns"}]
-9f:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelPatches","children":["$","code",null,{"children":"TravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}]
-a0:["$","$L4f",null,{"as":"h4","id":"getposition","children":"getPosition()"}]
-a1:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getPosition"}],"(): ",["$","code",null,{"children":"number"}]]}],"\n"]}]
-a2:["$","$L4f",null,{"as":"h5","id":"returns-18","children":"Returns"}]
-a3:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
-a4:["$","$L4f",null,{"as":"h4","id":"go","children":"go()"}]
-a5:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"go"}],"(",["$","code",null,{"children":"nextPosition"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-a6:["$","$L4f",null,{"as":"h5","id":"parameters-6","children":"Parameters"}]
-a7:["$","$L4f",null,{"as":"h6","id":"nextposition","children":"nextPosition"}]
-a8:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
-a9:["$","$L4f",null,{"as":"h5","id":"returns-19","children":"Returns"}]
-aa:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-ab:["$","$L4f",null,{"as":"h4","id":"pausetracking","children":"pauseTracking()"}]
-ac:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"pauseTracking"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-ad:["$","$L4f",null,{"as":"h5","id":"returns-20","children":"Returns"}]
-ae:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-af:["$","$L4f",null,{"as":"h4","id":"rebase","children":"rebase()"}]
-b0:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"rebase"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-b1:["$","$L4f",null,{"as":"h5","id":"returns-21","children":"Returns"}]
-b2:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-b3:["$","$L4f",null,{"as":"h4","id":"replacestatewithouthistory","children":"replaceStateWithoutHistory()"}]
-b4:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"replaceStateWithoutHistory"}],"<",["$","code",null,{"children":"U"}],">(",["$","code",null,{"children":"updater"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-b5:["$","$L4f",null,{"as":"h5","id":"type-parameters-3","children":"Type Parameters"}]
-b6:["$","$L4f",null,{"as":"h6","id":"u","children":"U"}]
-b7:["$","p",null,{"children":["$","code",null,{"children":"U"}]}]
-b8:["$","$L4f",null,{"as":"h5","id":"parameters-7","children":"Parameters"}]
-b9:["$","$L4f",null,{"as":"h6","id":"updater","children":"updater"}]
-ba:["$","$L4f",null,{"as":"h5","id":"returns-22","children":"Returns"}]
-bb:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-bc:["$","$L4f",null,{"as":"h4","id":"reset","children":"reset()"}]
-bd:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"reset"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-be:["$","$L4f",null,{"as":"h5","id":"returns-23","children":"Returns"}]
-bf:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-c0:["$","$L4f",null,{"as":"h4","id":"resumetracking","children":"resumeTracking()"}]
-c1:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"resumeTracking"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-c2:["$","$L4f",null,{"as":"h5","id":"returns-24","children":"Returns"}]
-c3:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-c4:["$","$L4f",null,{"as":"h4","id":"serialize","children":"serialize()"}]
-c5:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"serialize"}],"(",["$","code",null,{"children":"options?"}],"): ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelsSerializedHistory","children":["$","code",null,{"children":"TravelsSerializedHistory"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
-c6:["$","$L4f",null,{"as":"h5","id":"parameters-8","children":"Parameters"}]
-c7:["$","$L4f",null,{"as":"h6","id":"options-1","children":"options?"}]
-c8:["$","p",null,{"children":["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelsSerializeOptions","children":["$","code",null,{"children":"TravelsSerializeOptions"}]}]}]
-c9:["$","$L4f",null,{"as":"h5","id":"returns-25","children":"Returns"}]
-ca:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelsSerializedHistory","children":["$","code",null,{"children":"TravelsSerializedHistory"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}]
-cb:["$","$L4f",null,{"as":"h4","id":"setstate","children":"setState()"}]
-cc:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"setState"}],"<",["$","code",null,{"children":"U"}],">(",["$","code",null,{"children":"updater"}],", ",["$","code",null,{"children":"metadata?"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-cd:["$","$L4f",null,{"as":"h5","id":"type-parameters-4","children":"Type Parameters"}]
-ce:["$","$L4f",null,{"as":"h6","id":"u-1","children":"U"}]
-cf:["$","p",null,{"children":["$","code",null,{"children":"U"}]}]
-d0:["$","$L4f",null,{"as":"h5","id":"parameters-9","children":"Parameters"}]
-d1:["$","$L4f",null,{"as":"h6","id":"updater-1","children":"updater"}]
-d2:["$","$L4f",null,{"as":"h6","id":"metadata-1","children":"metadata?"}]
-d3:["$","p",null,{"children":["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}]}]
-d4:["$","$L4f",null,{"as":"h5","id":"returns-26","children":"Returns"}]
-d5:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-d6:["$","$L4f",null,{"as":"h4","id":"transaction","children":"transaction()"}]
-d7:["$","$L4f",null,{"as":"h5","id":"call-signature-3","children":"Call Signature"}]
-d8:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"transaction"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"metadata"}],", ",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-d9:["$","$L4f",null,{"as":"h6","id":"type-parameters-5","children":"Type Parameters"}]
-da:["$","$L4f",null,{"as":"h6","id":"fn-4","children":"FN"}]
-db:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
-dc:["$","$L4f",null,{"as":"h6","id":"parameters-10","children":"Parameters"}]
-dd:["$","$L4f",null,{"as":"h6","id":"metadata-2","children":"metadata"}]
-de:["$","p",null,{"children":["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}]}]
-df:["$","$L4f",null,{"as":"h6","id":"fn-5","children":"fn"}]
-e0:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
-e1:["$","$L4f",null,{"as":"h6","id":"returns-27","children":"Returns"}]
-e2:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-e3:["$","$L4f",null,{"as":"h5","id":"call-signature-4","children":"Call Signature"}]
-e4:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"transaction"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
-e5:["$","$L4f",null,{"as":"h6","id":"type-parameters-6","children":"Type Parameters"}]
-e6:["$","$L4f",null,{"as":"h6","id":"fn-6","children":"FN"}]
-e7:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
-e8:["$","$L4f",null,{"as":"h6","id":"parameters-11","children":"Parameters"}]
-e9:["$","$L4f",null,{"as":"h6","id":"fn-7","children":"fn"}]
-ea:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
-eb:["$","$L4f",null,{"as":"h6","id":"returns-28","children":"Returns"}]
-ec:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
-ed:["$","$L4f",null,{"as":"h2","id":"call-signature-5","children":"Call Signature"}]
-ee:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"createPatchableTravels"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"P"}],">(",["$","code",null,{"children":"initialState"}],", ",["$","code",null,{"children":"options"}],"): ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"false"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
-ef:["$","p",null,{"children":["Defined in: ",["$","$L50",null,{"href":"https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/createPatchableTravels.ts#L22","children":"src/createPatchableTravels.ts:22"}]]}]
-f0:["$","p",null,{"children":"Create a Travels instance whose state is statically constrained to the\ndurable JSON-shaped subset supported by patches and persistence."}]
-f1:["$","$L4f",null,{"as":"h3","id":"type-parameters-7","children":"Type Parameters"}]
-f2:["$","$L4f",null,{"as":"h4","id":"s-1","children":"S"}]
-f3:["$","p",null,{"children":["$","code",null,{"children":"S"}]}]
-f4:["$","$L4f",null,{"as":"h4","id":"f-1","children":"F"}]
-f5:["$","p",null,{"children":[["$","code",null,{"children":"F"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"false"}]]}]
-f6:["$","$L4f",null,{"as":"h4","id":"p-1","children":"P"}]
-f7:["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"object"}]," = { }"]}]
-f8:["$","$L4f",null,{"as":"h3","id":"parameters-12","children":"Parameters"}]
-f9:["$","$L4f",null,{"as":"h4","id":"initialstate-1","children":"initialState"}]
-fa:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/PatchableInput","children":["$","code",null,{"children":"PatchableInput"}]}],"<",["$","code",null,{"children":"S"}],">"]}]
-fb:["$","$L4f",null,{"as":"h4","id":"options-2","children":"options"}]
-fc:["$","p",null,{"children":[["$","code",null,{"children":"Omit"}],"<",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelsOptions","children":["$","code",null,{"children":"TravelsOptions"}]}],"<",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"false"}],", ",["$","code",null,{"children":"P"}],", ",["$","code",null,{"children":"S"}],">, ",["$","code",null,{"children":"\"autoArchive\""}],"> & ",["$","code",null,{"children":"object"}]]}]
-fd:["$","$L4f",null,{"as":"h3","id":"returns-29","children":"Returns"}]
-fe:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"false"}],", ",["$","code",null,{"children":"P"}],">"]}]
-ff:["$","$L4f",null,{"as":"h2","id":"call-signature-6","children":"Call Signature"}]
-100:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"createPatchableTravels"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],">(",["$","code",null,{"children":"initialState"}],", ",["$","code",null,{"children":"options"}],"): ",["$","$L50",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
-101:["$","p",null,{"children":["Defined in: ",["$","$L50",null,{"href":"https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/createPatchableTravels.ts#L33","children":"src/createPatchableTravels.ts:33"}]]}]
-102:["$","p",null,{"children":"Create a Travels instance whose state is statically constrained to the\ndurable JSON-shaped subset supported by patches and persistence."}]
-103:["$","$L4f",null,{"as":"h3","id":"type-parameters-8","children":"Type Parameters"}]
-104:["$","$L4f",null,{"as":"h4","id":"s-2","children":"S"}]
-105:["$","p",null,{"children":["$","code",null,{"children":"S"}]}]
-106:["$","$L4f",null,{"as":"h4","id":"f-2","children":"F"}]
-107:["$","p",null,{"children":[["$","code",null,{"children":"F"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"false"}]]}]
-108:["$","$L4f",null,{"as":"h4","id":"a","children":"A"}]
-109:["$","p",null,{"children":[["$","code",null,{"children":"A"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"true"}]]}]
-10a:["$","$L4f",null,{"as":"h4","id":"p-2","children":"P"}]
-10b:["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"object"}]," = { }"]}]
-10c:["$","$L4f",null,{"as":"h3","id":"parameters-13","children":"Parameters"}]
-10d:["$","$L4f",null,{"as":"h4","id":"initialstate-2","children":"initialState"}]
-10e:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/PatchableInput","children":["$","code",null,{"children":"PatchableInput"}]}],"<",["$","code",null,{"children":"S"}],">"]}]
-10f:["$","$L4f",null,{"as":"h4","id":"options-3","children":"options"}]
-110:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/TravelsOptions","children":["$","code",null,{"children":"TravelsOptions"}]}],"<",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],", ",["$","code",null,{"children":"S"}],">"]}]
-111:["$","$L4f",null,{"as":"h3","id":"returns-30","children":"Returns"}]
-112:["$","p",null,{"children":[["$","$L50",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],">"]}]
-114:null
+52:["$","$L50",null,{"as":"h6","id":"listener","children":"listener"}]
+53:["$","p",null,{"children":["(",["$","code",null,{"children":"event"}],") => ",["$","code",null,{"children":"void"}]]}]
+54:["$","$L50",null,{"as":"h5","id":"returns-3","children":"Returns"}]
+55:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":["(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+56:["$","$L50",null,{"as":"h6","id":"returns-4","children":"Returns"}]
+57:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+58:["$","$L50",null,{"as":"h4","id":"assertpersistencecompatible","children":"assertPersistenceCompatible()"}]
+59:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"assertPersistenceCompatible"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+5a:["$","$L50",null,{"as":"h5","id":"returns-5","children":"Returns"}]
+5b:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+5c:["$","$L50",null,{"as":"h4","id":"back","children":"back()"}]
+5d:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"back"}],"(",["$","code",null,{"children":"amount?"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+5e:["$","$L50",null,{"as":"h5","id":"parameters-2","children":"Parameters"}]
+5f:["$","$L50",null,{"as":"h6","id":"amount","children":"amount?"}]
+60:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
+61:["$","$L50",null,{"as":"h5","id":"returns-6","children":"Returns"}]
+62:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+63:["$","$L50",null,{"as":"h4","id":"batch","children":"batch()"}]
+64:["$","$L50",null,{"as":"h5","id":"call-signature-1","children":"Call Signature"}]
+65:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"batch"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"metadata"}],", ",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+66:["$","$L50",null,{"as":"h6","id":"type-parameters-1","children":"Type Parameters"}]
+67:["$","$L50",null,{"as":"h6","id":"fn","children":"FN"}]
+68:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
+69:["$","$L50",null,{"as":"h6","id":"parameters-3","children":"Parameters"}]
+6a:["$","$L50",null,{"as":"h6","id":"metadata","children":"metadata"}]
+6b:["$","p",null,{"children":["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}]}]
+6c:["$","$L50",null,{"as":"h6","id":"fn-1","children":"fn"}]
+6d:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
+6e:["$","$L50",null,{"as":"h6","id":"returns-7","children":"Returns"}]
+6f:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+70:["$","$L50",null,{"as":"h5","id":"call-signature-2","children":"Call Signature"}]
+71:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"batch"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+72:["$","$L50",null,{"as":"h6","id":"type-parameters-2","children":"Type Parameters"}]
+73:["$","$L50",null,{"as":"h6","id":"fn-2","children":"FN"}]
+74:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
+75:["$","$L50",null,{"as":"h6","id":"parameters-4","children":"Parameters"}]
+76:["$","$L50",null,{"as":"h6","id":"fn-3","children":"fn"}]
+77:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
+78:["$","$L50",null,{"as":"h6","id":"returns-8","children":"Returns"}]
+79:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+7a:["$","$L50",null,{"as":"h4","id":"canback","children":"canBack()"}]
+7b:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"canBack"}],"(): ",["$","code",null,{"children":"boolean"}]]}],"\n"]}]
+7c:["$","$L50",null,{"as":"h5","id":"returns-9","children":"Returns"}]
+7d:["$","p",null,{"children":["$","code",null,{"children":"boolean"}]}]
+7e:["$","$L50",null,{"as":"h4","id":"canforward","children":"canForward()"}]
+7f:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"canForward"}],"(): ",["$","code",null,{"children":"boolean"}]]}],"\n"]}]
+80:["$","$L50",null,{"as":"h5","id":"returns-10","children":"Returns"}]
+81:["$","p",null,{"children":["$","code",null,{"children":"boolean"}]}]
+82:["$","$L50",null,{"as":"h4","id":"forward","children":"forward()"}]
+83:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"forward"}],"(",["$","code",null,{"children":"amount?"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+84:["$","$L50",null,{"as":"h5","id":"parameters-5","children":"Parameters"}]
+85:["$","$L50",null,{"as":"h6","id":"amount-1","children":"amount?"}]
+86:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
+87:["$","$L50",null,{"as":"h5","id":"returns-11","children":"Returns"}]
+88:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+89:["$","$L50",null,{"as":"h4","id":"getcontrols","children":"getControls()"}]
+8a:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getControls"}],"(): ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/RebasableTravelsControls","children":["$","code",null,{"children":"RebasableTravelsControls"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
+8b:["$","$L50",null,{"as":"h5","id":"returns-12","children":"Returns"}]
+8c:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/RebasableTravelsControls","children":["$","code",null,{"children":"RebasableTravelsControls"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}]
+8d:["$","$L50",null,{"as":"h4","id":"gethistory","children":"getHistory()"}]
+8e:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getHistory"}],"(): readonly ",["$","code",null,{"children":"Immutable"}],"<",["$","code",null,{"children":"S"}],">[]"]}],"\n"]}]
+8f:["$","$L50",null,{"as":"h5","id":"returns-13","children":"Returns"}]
+90:["$","p",null,{"children":["readonly ",["$","code",null,{"children":"Immutable"}],"<",["$","code",null,{"children":"S"}],">[]"]}]
+91:["$","$L50",null,{"as":"h4","id":"gethistoryentries","children":"getHistoryEntries()"}]
+92:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getHistoryEntries"}],"(): ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelHistoryEntry","children":["$","code",null,{"children":"TravelHistoryEntry"}]}],"<",["$","code",null,{"children":"P"}],">[]"]}],"\n"]}]
+93:["$","$L50",null,{"as":"h5","id":"returns-14","children":"Returns"}]
+94:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelHistoryEntry","children":["$","code",null,{"children":"TravelHistoryEntry"}]}],"<",["$","code",null,{"children":"P"}],">[]"]}]
+95:["$","$L50",null,{"as":"h4","id":"gethistorysnapshot","children":"getHistorySnapshot()"}]
+96:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getHistorySnapshot"}],"(): ",["$","code",null,{"children":"S"}],"[]"]}],"\n"]}]
+97:["$","$L50",null,{"as":"h5","id":"returns-15","children":"Returns"}]
+98:["$","p",null,{"children":[["$","code",null,{"children":"S"}],"[]"]}]
+99:["$","$L50",null,{"as":"h4","id":"getmetadata","children":"getMetadata()"}]
+9a:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getMetadata"}],"(): (",["$","code",null,{"children":"undefined"}]," | ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}],")[]"]}],"\n"]}]
+9b:["$","$L50",null,{"as":"h5","id":"returns-16","children":"Returns"}]
+9c:["$","p",null,{"children":["(",["$","code",null,{"children":"undefined"}]," | ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}],")[]"]}]
+9d:["$","$L50",null,{"as":"h4","id":"getpatches","children":"getPatches()"}]
+9e:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getPatches"}],"(): ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelPatches","children":["$","code",null,{"children":"TravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
+9f:["$","$L50",null,{"as":"h5","id":"returns-17","children":"Returns"}]
+a0:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelPatches","children":["$","code",null,{"children":"TravelPatches"}]}],"<",["$","code",null,{"children":"P"}],">"]}]
+a1:["$","$L50",null,{"as":"h4","id":"getposition","children":"getPosition()"}]
+a2:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"getPosition"}],"(): ",["$","code",null,{"children":"number"}]]}],"\n"]}]
+a3:["$","$L50",null,{"as":"h5","id":"returns-18","children":"Returns"}]
+a4:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
+a5:["$","$L50",null,{"as":"h4","id":"go","children":"go()"}]
+a6:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"go"}],"(",["$","code",null,{"children":"nextPosition"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+a7:["$","$L50",null,{"as":"h5","id":"parameters-6","children":"Parameters"}]
+a8:["$","$L50",null,{"as":"h6","id":"nextposition","children":"nextPosition"}]
+a9:["$","p",null,{"children":["$","code",null,{"children":"number"}]}]
+aa:["$","$L50",null,{"as":"h5","id":"returns-19","children":"Returns"}]
+ab:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+ac:["$","$L50",null,{"as":"h4","id":"pausetracking","children":"pauseTracking()"}]
+ad:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"pauseTracking"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+ae:["$","$L50",null,{"as":"h5","id":"returns-20","children":"Returns"}]
+af:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+b0:["$","$L50",null,{"as":"h4","id":"rebase","children":"rebase()"}]
+b1:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"rebase"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+b2:["$","$L50",null,{"as":"h5","id":"returns-21","children":"Returns"}]
+b3:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+b4:["$","$L50",null,{"as":"h4","id":"replacestatewithouthistory","children":"replaceStateWithoutHistory()"}]
+b5:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"replaceStateWithoutHistory"}],"<",["$","code",null,{"children":"U"}],">(",["$","code",null,{"children":"updater"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+b6:["$","$L50",null,{"as":"h5","id":"type-parameters-3","children":"Type Parameters"}]
+b7:["$","$L50",null,{"as":"h6","id":"u","children":"U"}]
+b8:["$","p",null,{"children":["$","code",null,{"children":"U"}]}]
+b9:["$","$L50",null,{"as":"h5","id":"parameters-7","children":"Parameters"}]
+ba:["$","$L50",null,{"as":"h6","id":"updater","children":"updater"}]
+bb:["$","$L50",null,{"as":"h5","id":"returns-22","children":"Returns"}]
+bc:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+bd:["$","$L50",null,{"as":"h4","id":"reset","children":"reset()"}]
+be:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"reset"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+bf:["$","$L50",null,{"as":"h5","id":"returns-23","children":"Returns"}]
+c0:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+c1:["$","$L50",null,{"as":"h4","id":"resumetracking","children":"resumeTracking()"}]
+c2:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"resumeTracking"}],"(): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+c3:["$","$L50",null,{"as":"h5","id":"returns-24","children":"Returns"}]
+c4:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+c5:["$","$L50",null,{"as":"h4","id":"serialize","children":"serialize()"}]
+c6:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"serialize"}],"(",["$","code",null,{"children":"options?"}],"): ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelsSerializedHistory","children":["$","code",null,{"children":"TravelsSerializedHistory"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
+c7:["$","$L50",null,{"as":"h5","id":"parameters-8","children":"Parameters"}]
+c8:["$","$L50",null,{"as":"h6","id":"options-1","children":"options?"}]
+c9:["$","p",null,{"children":["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelsSerializeOptions","children":["$","code",null,{"children":"TravelsSerializeOptions"}]}]}]
+ca:["$","$L50",null,{"as":"h5","id":"returns-25","children":"Returns"}]
+cb:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelsSerializedHistory","children":["$","code",null,{"children":"TravelsSerializedHistory"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"P"}],">"]}]
+cc:["$","$L50",null,{"as":"h4","id":"setstate","children":"setState()"}]
+cd:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"setState"}],"<",["$","code",null,{"children":"U"}],">(",["$","code",null,{"children":"updater"}],", ",["$","code",null,{"children":"metadata?"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+ce:["$","$L50",null,{"as":"h5","id":"type-parameters-4","children":"Type Parameters"}]
+cf:["$","$L50",null,{"as":"h6","id":"u-1","children":"U"}]
+d0:["$","p",null,{"children":["$","code",null,{"children":"U"}]}]
+d1:["$","$L50",null,{"as":"h5","id":"parameters-9","children":"Parameters"}]
+d2:["$","$L50",null,{"as":"h6","id":"updater-1","children":"updater"}]
+d3:["$","$L50",null,{"as":"h6","id":"metadata-1","children":"metadata?"}]
+d4:["$","p",null,{"children":["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}]}]
+d5:["$","$L50",null,{"as":"h5","id":"returns-26","children":"Returns"}]
+d6:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+d7:["$","$L50",null,{"as":"h4","id":"transaction","children":"transaction()"}]
+d8:["$","$L50",null,{"as":"h5","id":"call-signature-3","children":"Call Signature"}]
+d9:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"transaction"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"metadata"}],", ",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+da:["$","$L50",null,{"as":"h6","id":"type-parameters-5","children":"Type Parameters"}]
+db:["$","$L50",null,{"as":"h6","id":"fn-4","children":"FN"}]
+dc:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
+dd:["$","$L50",null,{"as":"h6","id":"parameters-10","children":"Parameters"}]
+de:["$","$L50",null,{"as":"h6","id":"metadata-2","children":"metadata"}]
+df:["$","p",null,{"children":["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelMetadata","children":["$","code",null,{"children":"TravelMetadata"}]}]}]
+e0:["$","$L50",null,{"as":"h6","id":"fn-5","children":"fn"}]
+e1:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
+e2:["$","$L50",null,{"as":"h6","id":"returns-27","children":"Returns"}]
+e3:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+e4:["$","$L50",null,{"as":"h5","id":"call-signature-4","children":"Call Signature"}]
+e5:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"transaction"}],"<",["$","code",null,{"children":"FN"}],">(",["$","code",null,{"children":"fn"}],"): ",["$","code",null,{"children":"void"}]]}],"\n"]}]
+e6:["$","$L50",null,{"as":"h6","id":"type-parameters-6","children":"Type Parameters"}]
+e7:["$","$L50",null,{"as":"h6","id":"fn-6","children":"FN"}]
+e8:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," ",["$","em",null,{"children":"extends"}]," () => ",["$","code",null,{"children":"unknown"}]]}]
+e9:["$","$L50",null,{"as":"h6","id":"parameters-11","children":"Parameters"}]
+ea:["$","$L50",null,{"as":"h6","id":"fn-7","children":"fn"}]
+eb:["$","p",null,{"children":[["$","code",null,{"children":"FN"}]," & () => ",["$","code",null,{"children":"unknown"}]]}]
+ec:["$","$L50",null,{"as":"h6","id":"returns-28","children":"Returns"}]
+ed:["$","p",null,{"children":["$","code",null,{"children":"void"}]}]
+ee:["$","$L50",null,{"as":"h2","id":"call-signature-5","children":"Call Signature"}]
+ef:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"createPatchableTravels"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"P"}],">(",["$","code",null,{"children":"initialState"}],", ",["$","code",null,{"children":"options"}],"): ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"false"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
+f0:["$","p",null,{"children":["Defined in: ",["$","$L51",null,{"href":"https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createPatchableTravels.ts#L22","children":"src/createPatchableTravels.ts:22"}]]}]
+f1:["$","p",null,{"children":"Create a Travels instance whose state is statically constrained to the\ndurable JSON-shaped subset supported by patches and persistence."}]
+f2:["$","$L50",null,{"as":"h3","id":"type-parameters-7","children":"Type Parameters"}]
+f3:["$","$L50",null,{"as":"h4","id":"s-1","children":"S"}]
+f4:["$","p",null,{"children":["$","code",null,{"children":"S"}]}]
+f5:["$","$L50",null,{"as":"h4","id":"f-1","children":"F"}]
+f6:["$","p",null,{"children":[["$","code",null,{"children":"F"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"false"}]]}]
+f7:["$","$L50",null,{"as":"h4","id":"p-1","children":"P"}]
+f8:["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"object"}]," = { }"]}]
+f9:["$","$L50",null,{"as":"h3","id":"parameters-12","children":"Parameters"}]
+fa:["$","$L50",null,{"as":"h4","id":"initialstate-1","children":"initialState"}]
+fb:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/PatchableInput","children":["$","code",null,{"children":"PatchableInput"}]}],"<",["$","code",null,{"children":"S"}],">"]}]
+fc:["$","$L50",null,{"as":"h4","id":"options-2","children":"options"}]
+fd:["$","p",null,{"children":[["$","code",null,{"children":"Omit"}],"<",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelsOptions","children":["$","code",null,{"children":"TravelsOptions"}]}],"<",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"false"}],", ",["$","code",null,{"children":"P"}],", ",["$","code",null,{"children":"S"}],">, ",["$","code",null,{"children":"\"autoArchive\""}],"> & ",["$","code",null,{"children":"object"}]]}]
+fe:["$","$L50",null,{"as":"h3","id":"returns-29","children":"Returns"}]
+ff:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"false"}],", ",["$","code",null,{"children":"P"}],">"]}]
+100:["$","$L50",null,{"as":"h2","id":"call-signature-6","children":"Call Signature"}]
+101:["$","blockquote",null,{"children":["\n",["$","p",null,{"children":[["$","strong",null,{"children":"createPatchableTravels"}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],">(",["$","code",null,{"children":"initialState"}],", ",["$","code",null,{"children":"options"}],"): ",["$","$L51",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],">"]}],"\n"]}]
+102:["$","p",null,{"children":["Defined in: ",["$","$L51",null,{"href":"https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createPatchableTravels.ts#L33","children":"src/createPatchableTravels.ts:33"}]]}]
+103:["$","p",null,{"children":"Create a Travels instance whose state is statically constrained to the\ndurable JSON-shaped subset supported by patches and persistence."}]
+104:["$","$L50",null,{"as":"h3","id":"type-parameters-8","children":"Type Parameters"}]
+105:["$","$L50",null,{"as":"h4","id":"s-2","children":"S"}]
+106:["$","p",null,{"children":["$","code",null,{"children":"S"}]}]
+107:["$","$L50",null,{"as":"h4","id":"f-2","children":"F"}]
+108:["$","p",null,{"children":[["$","code",null,{"children":"F"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"false"}]]}]
+109:["$","$L50",null,{"as":"h4","id":"a","children":"A"}]
+10a:["$","p",null,{"children":[["$","code",null,{"children":"A"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"boolean"}]," = ",["$","code",null,{"children":"true"}]]}]
+10b:["$","$L50",null,{"as":"h4","id":"p-2","children":"P"}]
+10c:["$","p",null,{"children":[["$","code",null,{"children":"P"}]," ",["$","em",null,{"children":"extends"}]," ",["$","code",null,{"children":"object"}]," = { }"]}]
+10d:["$","$L50",null,{"as":"h3","id":"parameters-13","children":"Parameters"}]
+10e:["$","$L50",null,{"as":"h4","id":"initialstate-2","children":"initialState"}]
+10f:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/PatchableInput","children":["$","code",null,{"children":"PatchableInput"}]}],"<",["$","code",null,{"children":"S"}],">"]}]
+110:["$","$L50",null,{"as":"h4","id":"options-3","children":"options"}]
+111:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/TravelsOptions","children":["$","code",null,{"children":"TravelsOptions"}]}],"<",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],", ",["$","code",null,{"children":"S"}],">"]}]
+112:["$","$L50",null,{"as":"h3","id":"returns-30","children":"Returns"}]
+113:["$","p",null,{"children":[["$","$L51",null,{"href":"/docs/api-reference/type-aliases/Travels","children":["$","code",null,{"children":"Travels"}]}],"<",["$","code",null,{"children":"S"}],", ",["$","code",null,{"children":"F"}],", ",["$","code",null,{"children":"A"}],", ",["$","code",null,{"children":"P"}],">"]}]
+115:null
 a:C
-46:0
+47:0
 8:"$undefined"
-45:"$undefined"
-3e:"$undefined"
+46:"$undefined"
+3f:"$undefined"

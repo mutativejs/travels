@@ -2,7 +2,7 @@
 
 > **TravelJournal**\<`S`, `F`, `A`, `P`\> = `Readonly`\<`Pick`\<[`Travels`](Travels.mdx)\<`S`, `F`, `A`, `P`\>, `"subscribe"` \| `"getState"` \| `"getRevision"` \| `"getHistory"` \| `"getHistorySnapshot"` \| `"go"` \| `"back"` \| `"forward"` \| `"reset"` \| `"rebase"` \| `"canBack"` \| `"canForward"` \| `"getPosition"` \| `"getPatches"` \| `"serialize"` \| `"assertPersistenceCompatible"` \| `"getMetadata"` \| `"getHistoryEntries"`\> & `object` & `A` *extends* `false` ? `object` : `object`\>
 
-Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/createTravelJournal.ts#L27)
+Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravelJournal.ts#L27)
 
 Public surface for a timeline whose state is owned by another runtime.
 

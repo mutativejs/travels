@@ -1,4 +1,4 @@
-:HL["/travels/_next/static/chunks/2-x2z0v2qbf8d.css","style"]
+:HL["/travels/_next/static/chunks/04rink-wx5e19.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
-0:{"b":"Q_Pi7m9mQBfJFdL-MO1Np","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"awaMrllsALV0wX8zefXmn","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

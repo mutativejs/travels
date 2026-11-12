@@ -2,7 +2,7 @@
 
 > **TravelsEvent**\<`S`, `P`\> = `object`
 
-Defined in: [src/type.ts:297](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L297)
+Defined in: [src/type.ts:297](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L297)
 
 ## Type Parameters [#type-parameters]
 
@@ -20,7 +20,7 @@ Defined in: [src/type.ts:297](https://github.com/mutativejs/travels/blob/8685589
 
 > `readonly` **historyLength**: `number`
 
-Defined in: [src/type.ts:314](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L314)
+Defined in: [src/type.ts:314](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L314)
 
 Number of entries currently retained in history.
 
@@ -30,7 +30,7 @@ Number of entries currently retained in history.
 
 > `readonly` `optional` **metadata**: `Readonly`\<[`TravelMetadata`](TravelMetadata.mdx)\>
 
-Defined in: [src/type.ts:316](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L316)
+Defined in: [src/type.ts:316](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L316)
 
 Lazily cloned, shallow-frozen metadata shared by this event's observers.
 
@@ -40,7 +40,7 @@ Lazily cloned, shallow-frozen metadata shared by this event's observers.
 
 > `readonly` **patches**: [`ReadonlyTravelPatches`](ReadonlyTravelPatches.mdx)\<`P`\>
 
-Defined in: [src/type.ts:312](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L312)
+Defined in: [src/type.ts:312](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L312)
 
 Lazily materialized event-local patches that transform the previously
 published state. Treat the shared snapshot as read-only.
@@ -51,7 +51,7 @@ published state. Treat the shared snapshot as read-only.
 
 > `readonly` **position**: `number`
 
-Defined in: [src/type.ts:307](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L307)
+Defined in: [src/type.ts:307](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L307)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: [src/type.ts:307](https://github.com/mutativejs/travels/blob/8685589
 
 > `readonly` **state**: [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>
 
-Defined in: [src/type.ts:306](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L306)
+Defined in: [src/type.ts:306](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L306)
 
 Borrowed live state view. Mutate state only through Travels operations.
 
@@ -69,6 +69,6 @@ Borrowed live state view. Mutate state only through Travels operations.
 
 > `readonly` **type**: [`TravelsEventType`](TravelsEventType.mdx)
 
-Defined in: [src/type.ts:304](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L304)
+Defined in: [src/type.ts:304](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L304)
 
 The committed operation. Handle unrecognized values in a `default` branch.

@@ -1,6 +1,6 @@
 # TravelsTypeError (/docs/api-reference/classes/TravelsTypeError)
 
-Defined in: [src/errors.ts:20](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/errors.ts#L20)
+Defined in: [src/errors.ts:20](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/errors.ts#L20)
 
 ## Extends [#extends]
 
@@ -12,7 +12,7 @@ Defined in: [src/errors.ts:20](https://github.com/mutativejs/travels/blob/868558
 
 > **new TravelsTypeError**(`code`, `message`, `options`): `TravelsTypeError`
 
-Defined in: [src/errors.ts:24](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/errors.ts#L24)
+Defined in: [src/errors.ts:24](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/errors.ts#L24)
 
 #### Parameters [#parameters]
 
@@ -44,7 +44,7 @@ Defined in: [src/errors.ts:24](https://github.com/mutativejs/travels/blob/868558
 
 > `readonly` `optional` **cause**: `unknown`
 
-Defined in: [src/errors.ts:22](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/errors.ts#L22)
+Defined in: [src/errors.ts:22](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/errors.ts#L22)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [src/errors.ts:22](https://github.com/mutativejs/travels/blob/868558
 
 > `readonly` **code**: [`TravelsErrorCode`](../type-aliases/TravelsErrorCode.mdx)
 
-Defined in: [src/errors.ts:21](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/errors.ts#L21)
+Defined in: [src/errors.ts:21](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/errors.ts#L21)
 
 ***
 

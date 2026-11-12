@@ -2,7 +2,7 @@
 
 > **TravelPatches**\<`P`\> = `object`
 
-Defined in: [src/type.ts:15](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L15)
+Defined in: [src/type.ts:15](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L15)
 
 Forward/inverse JSON Patch groups. Retained-history APIs use one group per
 entry; observer events use event-local transition groups. Persisted paths use
@@ -20,7 +20,7 @@ JSON Pointer strings or dense arrays of strings/non-negative integers.
 
 > **inversePatches**: `Patches`\<`P`\>[]
 
-Defined in: [src/type.ts:17](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L17)
+Defined in: [src/type.ts:17](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L17)
 
 ***
 
@@ -28,4 +28,4 @@ Defined in: [src/type.ts:17](https://github.com/mutativejs/travels/blob/8685589f
 
 > **patches**: `Patches`\<`P`\>[]
 
-Defined in: [src/type.ts:16](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L16)
+Defined in: [src/type.ts:16](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L16)
