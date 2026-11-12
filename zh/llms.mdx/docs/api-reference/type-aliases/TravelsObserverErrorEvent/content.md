@@ -2,7 +2,7 @@
 
 > **TravelsObserverErrorEvent** = `object`
 
-Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L266)
+Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L266)
 
 ## Properties [#properties]
 
@@ -10,7 +10,7 @@ Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/0795541
 
 > **error**: `unknown`
 
-Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L268)
+Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L268)
 
 ***
 
@@ -18,4 +18,4 @@ Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/0795541
 
 > **source**: [`TravelsObserverErrorSource`](TravelsObserverErrorSource.mdx)
 
-Defined in: [src/type.ts:267](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L267)
+Defined in: [src/type.ts:267](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L267)

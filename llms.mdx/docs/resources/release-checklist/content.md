@@ -11,7 +11,7 @@
    corepack enable
    pnpm install --frozen-lockfile
    pnpm --dir website install --frozen-lockfile
-   pnpm exec playwright install chromium
+   pnpm exec playwright install chromium firefox webkit
    pnpm run lint
    pnpm run size:ci
    pnpm run build:doc:site
@@ -59,6 +59,8 @@ Local sibling links are useful candidate evidence, but they do not replace the p
 
    - `Release`
    - `API Docs`, dispatched by `Release` with the release tag
+
+   The documentation workflow publishes the release-tag build to `gh-pages`. Keep GitHub Pages configured to deploy from that branch at `/` (root). For an intentional website update outside a release, run `pnpm run deploy:doc:site` from the repository root instead of dispatching an older release tag.
 
 9. Smoke test the published package:
 

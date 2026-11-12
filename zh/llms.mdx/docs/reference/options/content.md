@@ -33,6 +33,10 @@
 
 `restoreTravels(snapshot, options?)` 接受适用的创建选项，但有意不接受单独的 `initialState` 或 `history`；完整快照才是原子的状态/历史记录输入。
 
+在 **3.0.1** 中，恢复工厂接受快照对象，直接传入的 `validation` 选项会被忽略。要校验对象或 JSON 字符串，可使用 `restoreTravels(Travels.deserialize<State>(stored, { validation: 'semantic' }))`。
+
+下一个 3.x 次版本（尚未发布）将支持直接传入 JSON 字符串和 `validation: 'semantic'` 恢复选项。启用该选项后，Travels 会按照恢复选项中的 `strict` 与 `mark` 校验完整历史，然后才会写入目标对象或裁剪历史。
+
 对于可变模式集成，它还接受：
 
 ```ts

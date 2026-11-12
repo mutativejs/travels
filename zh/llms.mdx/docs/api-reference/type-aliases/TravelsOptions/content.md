@@ -2,7 +2,7 @@
 
 > **TravelsOptions**\<`F`, `A`, `P`, `S`\> = `object` & `Omit`\<`MutativeOptions`\<`true`, `F`\>, `"enablePatches"`\> & `object`
 
-Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L334)
+Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L334)
 
 ## Type Declaration [#type-declaration]
 

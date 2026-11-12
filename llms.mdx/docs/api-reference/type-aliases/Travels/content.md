@@ -2,7 +2,7 @@
 
 > **Travels**\<`S`, `_F`, `A`, `P`\> = `object` & `A` *extends* `false` ? `object` : `object`
 
-Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/travels.ts#L100)
+Defined in: [src/travels.ts:102](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/travels.ts#L102)
 
 Public state-owning Travels capability surface.
 

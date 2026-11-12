@@ -2,7 +2,7 @@
 
 > **TravelsMigration**\<`S`, `P`\> = (`snapshot`) => [`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
 
-Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L199)
+Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L199)
 
 ## Type Parameters [#type-parameters]
 

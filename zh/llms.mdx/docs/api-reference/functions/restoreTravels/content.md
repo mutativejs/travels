@@ -4,7 +4,7 @@
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options?`): `object`
 
-Defined in: [src/restoreTravels.ts:35](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/restoreTravels.ts#L35)
+Defined in: [src/restoreTravels.ts:38](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/restoreTravels.ts#L38)
 
 Restore an auto-archiving timeline from one complete persisted snapshot.
 
@@ -26,7 +26,7 @@ Restore an auto-archiving timeline from one complete persisted snapshot.
 
 #### snapshot [#snapshot]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+`string` | [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
 
 #### options? [#options]
 
@@ -389,7 +389,7 @@ readonly `Immutable`\<`S`\>[]
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/restoreTravels.ts:47](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/restoreTravels.ts#L47)
+Defined in: [src/restoreTravels.ts:50](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/restoreTravels.ts#L50)
 
 Restore a manually archived timeline from one complete persisted snapshot.
 
@@ -411,7 +411,7 @@ Restore a manually archived timeline from one complete persisted snapshot.
 
 #### snapshot [#snapshot-1]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+`string` | [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
 
 #### options [#options-2]
 
@@ -425,7 +425,7 @@ Restore a manually archived timeline from one complete persisted snapshot.
 
 > **restoreTravels**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/restoreTravels.ts:59](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/restoreTravels.ts#L59)
+Defined in: [src/restoreTravels.ts:62](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/restoreTravels.ts#L62)
 
 Restore a timeline whose archive mode is selected dynamically.
 
@@ -451,7 +451,7 @@ Restore a timeline whose archive mode is selected dynamically.
 
 #### snapshot [#snapshot-2]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+`string` | [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
 
 #### options [#options-3]
 

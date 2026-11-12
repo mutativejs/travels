@@ -36,6 +36,8 @@ Common codes include:
 | `CONTROLLED_JOURNAL_REQUIRED` | An operation requires a controlled journal. |
 | `CONTROLLED_OPERATION_UNAVAILABLE` | A state-owning capability was requested from a journal. |
 
+For asynchronous transaction callbacks, catch `TravelsError` with code `TRANSACTION_FAILED`. Its `cause` is a `TravelsTypeError` with code `ASYNC_CALLBACK` for both native async functions and callbacks that return a promise.
+
 Use `onError` for wrapped core operation failures, especially when coordinating nested transactions. Keep local `try/catch` around actions whose errors the UI must handle synchronously; do not assume a hook replaces the thrown error.
 
 ## Persistence errors [#persistence-errors]
@@ -72,7 +74,7 @@ Without the hook, warnings are written to the console only in development. Disab
 
 ## Observer failures [#observer-failures]
 
-Errors thrown by listeners, devtools, branch-discard hooks, error/warning hooks, or compatibility checks after commit are routed to `onObserverError` when configured. They do not interrupt other observers or roll back an already committed transition.
+Errors thrown by listeners, devtools, branch-discard hooks, error/warning hooks, or compatibility checks after commit are routed to `onObserverError` when configured. They do not interrupt other observers or roll back an already committed transition. Without the hook, development builds log the observer source and the original error to `console.error`.
 
 ```ts
 const travels = createTravels(initialState, {

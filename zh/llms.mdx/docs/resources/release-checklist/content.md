@@ -11,7 +11,7 @@
    corepack enable
    pnpm install --frozen-lockfile
    pnpm --dir website install --frozen-lockfile
-   pnpm exec playwright install chromium
+   pnpm exec playwright install chromium firefox webkit
    pnpm run lint
    pnpm run size:ci
    pnpm run build:doc:site
@@ -59,6 +59,8 @@
 
    - `Release`
    - `API Docs`，由 `Release` 使用发布标签触发
+
+   文档工作流会将发布标签对应的网站构建发布到 `gh-pages`。GitHub Pages 的发布源应设为该分支的根目录。需要独立于软件包发布更新站点时，请从仓库根目录运行 `pnpm run deploy:doc:site`。
 
 9. 对已发布包做冒烟测试：
 

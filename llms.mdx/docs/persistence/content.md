@@ -1,6 +1,8 @@
 # Persistence (/docs/persistence)
 
-Travels persistence is storage-agnostic. `serialize()` returns one versioned snapshot; your application chooses how to encode and store it. Restore always follows one path: decode with `Travels.deserialize()`, then pass the complete result to `restoreTravels()` or `restoreTravelJournal()`.
+`serialize()` returns a versioned snapshot. Your application chooses how to encode and store it. On **3.0.1**, verify a stored object or JSON string with `Travels.deserialize(stored, { validation: 'semantic' })`, then pass the result to `restoreTravels()`. See the example below.
+
+The next 3.x minor (unreleased) also accepts `restoreTravels<State>(stored, { validation: 'semantic' })`. On 3.0.1, passing `validation` directly to the restore factory skips semantic validation.
 
 ## Snapshot contract [#snapshot-contract]
 

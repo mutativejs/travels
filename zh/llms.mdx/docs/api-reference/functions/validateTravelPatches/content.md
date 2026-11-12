@@ -2,7 +2,7 @@
 
 > **validateTravelPatches**\<`P`\>(`patches`): \{ `error`: `string`; \} \| \{ `error`: `null`; `patches`: [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>; \}
 
-Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/persistence.ts#L247)
+Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/persistence.ts#L247)
 
 ## Type Parameters [#type-parameters]
 

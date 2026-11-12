@@ -2,7 +2,7 @@
 
 > **TravelJournalOptions**\<`S`, `F`, `A`, `P`\> = `Omit`\<[`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>, `"mutable"`\> & `object`
 
-Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/createTravelJournal.ts#L63)
+Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/createTravelJournal.ts#L63)
 
 ## Type Declaration [#type-declaration]
 

@@ -2,6 +2,8 @@
 
 React works naturally with Travels’ default immutable mode. Subscribe with `useSyncExternalStore`, use `getRevision()` as the invalidation snapshot, and read current state or controls during render.
 
+For a retained step count, read `event.historyLength` in the subscription. Calling `getHistory().length` after a change reconstructs historical states. Reading `controls.patches` for the first time after a change copies the forward and inverse patches, including their values. Use `controls.patches.patches.length` when the component already reads those patches.
+
 ## A reusable external-store hook [#a-reusable-external-store-hook]
 
 ```tsx

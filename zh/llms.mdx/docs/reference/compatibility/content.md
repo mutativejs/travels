@@ -7,6 +7,7 @@ Travels 在以下环境经过测试：
 - Node.js 22.x
 - Node.js 24.x
 - 通过 Vitest 运行、类似浏览器的 jsdom 环境
+- 通过 Playwright 集成测试覆盖 Chromium、Firefox 和 WebKit
 
 Node.js 22 是最低支持的运行时版本。该包以 ESM、CJS、UMD 与 TypeScript 声明文件的形式分发。
 

@@ -2,7 +2,7 @@
 
 > **TravelsBranchDiscardEvent**\<`P`\> = `object`
 
-Defined in: [src/type.ts:238](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L238)
+Defined in: [src/type.ts:238](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L238)
 
 ## Type Parameters [#type-parameters]
 
@@ -16,7 +16,7 @@ Defined in: [src/type.ts:238](https://github.com/mutativejs/travels/blob/0795541
 
 > **discarded**: [`TravelHistoryEntry`](TravelHistoryEntry.mdx)\<`P`\>[]
 
-Defined in: [src/type.ts:240](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L240)
+Defined in: [src/type.ts:240](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L240)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/type.ts:240](https://github.com/mutativejs/travels/blob/0795541
 
 > **position**: `number`
 
-Defined in: [src/type.ts:239](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L239)
+Defined in: [src/type.ts:239](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L239)

@@ -10,7 +10,7 @@ travels.forward(2);   // Two entries
 travels.go(0);        // Retained window start
 ```
 
-用 `canBack()` 和 `canForward()` 来禁用控件，而不是等用户点击后才发现已经到达边界。`getPosition()` 返回当前游标，`getHistory().length - 1` 表示保留窗口的末端。
+用 `canBack()` 和 `canForward()` 判断按钮是否可用。`getPosition()` 返回当前游标，订阅事件中的 `historyLength` 给出保留的步数。
 
 `back()` 和 `forward()` 会把导航作为 `go` 事件发布。手动模式下待处理的变更会在导航成功时被隐式归档；Travels 3 只发布一个稳定后的 `go` 事件，而不会分别发布 `archive` 和 `go` 事件。
 

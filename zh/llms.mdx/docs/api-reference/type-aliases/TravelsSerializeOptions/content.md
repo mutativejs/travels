@@ -2,7 +2,7 @@
 
 > **TravelsSerializeOptions** = `object`
 
-Defined in: [src/type.ts:193](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L193)
+Defined in: [src/type.ts:193](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L193)
 
 ## Properties [#properties]
 
@@ -10,6 +10,6 @@ Defined in: [src/type.ts:193](https://github.com/mutativejs/travels/blob/0795541
 
 > `optional` **strict**: `boolean`
 
-Defined in: [src/type.ts:195](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/type.ts#L195)
+Defined in: [src/type.ts:195](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/type.ts#L195)
 
 Throw when state, retained patches, or metadata are not durable JSON data.

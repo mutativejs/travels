@@ -2,7 +2,7 @@
 
 > **validateTravelHistoryEntry**\<`P`\>(`entry`): \{ `error`: `string`; \} \| \{ `entry`: [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>; `error`: `null`; \}
 
-Defined in: [src/persistence.ts:232](https://github.com/mutativejs/travels/blob/079554196672e49bffabc127e94f31a9218204d2/src/persistence.ts#L232)
+Defined in: [src/persistence.ts:232](https://github.com/mutativejs/travels/blob/8685589f9ab027dd99e9f9a006978c653fc08692/src/persistence.ts#L232)
 
 Validate and normalize one externally supplied forward/inverse patch pair.
 Accessor-backed or inherited fields are rejected without being evaluated.

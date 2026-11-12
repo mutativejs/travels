@@ -10,7 +10,7 @@ travels.forward(2);   // Two entries
 travels.go(0);        // Retained window start
 ```
 
-Use `canBack()` and `canForward()` to disable controls rather than relying on a click to discover the boundary. `getPosition()` returns the current cursor, and `getHistory().length - 1` describes the end of the retained window.
+Use `canBack()` and `canForward()` for button availability. `getPosition()` gives the cursor and each subscriber event carries the retained step count in `historyLength`.
 
 `back()` and `forward()` publish navigation as `go` events. Manual pending changes are implicitly archived as part of a successful navigation; Travels 3 publishes one settled `go` event rather than separate `archive` and `go` events.
 

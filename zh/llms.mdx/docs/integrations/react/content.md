@@ -2,6 +2,8 @@
 
 React 与 Travels 默认的不可变模式天然契合。用 `useSyncExternalStore` 订阅，以 `getRevision()` 作为触发失效的快照，并在渲染期间读取当前状态或控制接口。
 
+只需显示保留的步数时，在订阅回调中读取 `event.historyLength`。历史变更后，首次调用 `getHistory().length` 会重建历史状态，首次读取 `controls.patches` 会复制正反向补丁及其值。组件本来就要读取这些补丁时，可以顺便用 `controls.patches.patches.length` 取步数。
+
 ## 可复用的外部 Store Hook [#可复用的外部-store-hook]
 
 ```tsx

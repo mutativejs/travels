@@ -1,6 +1,8 @@
 # 持久化 (/zh/docs/persistence)
 
-Travels 的持久化不依赖具体存储。`serialize()` 返回一个带版本号的快照；如何编码和存储，由你的应用决定。恢复始终只走一条路径：先用 `Travels.deserialize()` 解码，再把完整结果传给 `restoreTravels()` 或 `restoreTravelJournal()`。
+`serialize()` 返回带版本号的快照，应用负责选择编码与存储方式。使用 **3.0.1** 时，先用 `Travels.deserialize(stored, { validation: 'semantic' })` 校验快照对象或 JSON 字符串，再把结果交给 `restoreTravels()`。下文给出了完整示例。
+
+下一个 3.x 次版本（尚未发布）将支持 `restoreTravels<State>(stored, { validation: 'semantic' })`。在 3.0.1 中，把 `validation` 直接传给恢复工厂会跳过语义校验。
 
 ## 快照契约 [#快照契约]
 

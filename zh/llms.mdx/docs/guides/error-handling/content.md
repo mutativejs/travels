@@ -36,6 +36,8 @@ try {
 | `CONTROLLED_JOURNAL_REQUIRED` | 该操作需要 Journal。 |
 | `CONTROLLED_OPERATION_UNAVAILABLE` | 从 Journal 请求了拥有状态的能力。 |
 
+异步事务会抛出错误码为 `TRANSACTION_FAILED` 的 `TravelsError`。无论传入原生 async 函数，还是在普通函数中返回 Promise，均可通过 `cause` 上的 `TravelsTypeError` 和 `ASYNC_CALLBACK` 识别原因。
+
 核心操作失败会被包装，可通过 `onError` 处理，尤其是在协调嵌套事务时。如果 UI 必须同步处理某些操作的错误，请在操作周围保留本地 `try/catch`；不要以为钩子会取代抛出的错误。
 
 ## 持久化错误 [#持久化错误]
@@ -72,7 +74,7 @@ const travels = createTravels(initialState, {
 
 ## 观察者失败 [#观察者失败]
 
-提交之后，由监听器、devtools、分支丢弃钩子、错误/警告钩子或兼容性检查抛出的错误，会在配置了 `onObserverError` 时路由到该钩子。这些错误不会中断其他观察者，也不会回滚已经提交的转换。
+提交之后，由监听器、devtools、分支丢弃钩子、错误/警告钩子或兼容性检查抛出的错误，会在配置了 `onObserverError` 时路由到该钩子。这些错误不会中断其他观察者，也不会回滚已经提交的转换。未配置该钩子时，开发构建会通过 `console.error` 输出观察者来源和原始错误。
 
 ```ts
 const travels = createTravels(initialState, {

@@ -4,6 +4,10 @@ Not every state change should become an undo step. Travels provides separate too
 
 ## Pause and resume tracking [#pause-and-resume-tracking]
 
+<Callout type="warn" title="A paused edit clears undo and redo">
+Each state-changing update while paused discards past, future, and pending entries. The updated state becomes position 0 and the new target for `reset()`. Outside a transaction, subscribers receive `replaceStateWithoutHistory`. Pausing and resuming without a change preserves history.
+</Callout>
+
 Use `pauseTracking()` when subsequent updates should not create history entries, then `resumeTracking()` to return to normal recording:
 
 ```ts
@@ -56,7 +60,7 @@ Use it when current state becomes the clean starting point. Controlled journals 
 
 | Operation | Changes current state | Clears history | Establishes a new baseline |
 | --- | --- | --- | --- |
-| `pauseTracking()` + update | Yes, through updater | Old timeline is made incompatible with new baseline | Yes |
+| `pauseTracking()` + update | Yes, through updater | Yes, on a state change | Yes |
 | `replaceStateWithoutHistory()` | Yes, through updater | Yes | Yes |
 | `rebase()` | No | Yes | Yes, current state |
 | `reset()` | Yes, to baseline | Yes | No, uses existing baseline |
