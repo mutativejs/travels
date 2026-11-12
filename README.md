@@ -209,7 +209,7 @@ Use this factory instead of `new Travels(...)`. The exported `Travels` value is 
 
 In **3.0.1**, pass a complete snapshot object to `restoreTravels()`. To verify patch reversibility, pass the stored object or JSON string through `Travels.deserialize()` first. The `validation` option on `restoreTravels()` itself has no effect in 3.0.1.
 
-The next 3.x minor (unreleased) adds `restoreTravels<State>(stored, { validation: 'semantic' })` for objects and JSON strings. Structural validation remains the default. Use `deserialize()` for migration or fallback.
+The next 3.x minor (unreleased) adds `restoreTravels<State>(stored, { validation: 'semantic' })` for objects and JSON strings. Restored and newly recorded patch paths follow the restore call’s `patchesOptions.pathAsArray` setting (arrays by default). Structural validation remains the default. Use `deserialize()` for migration or fallback.
 
 Restore options include `maxHistory`, `autoArchive`, and observer hooks. The timeline owns a detached copy of the snapshot state. To restore into an existing reactive store on either version, validate the snapshot before passing the live store as the mutable target:
 

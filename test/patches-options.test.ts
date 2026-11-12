@@ -161,6 +161,38 @@ describe('PatchesOptions Configuration', () => {
       }
     );
 
+    test.each([true, false])('restores JSON and object paths into the requested format (arrays: %s)', (arrays) => {
+      const original = { 'a/b~c': [{ '': 0 }] };
+      const saved = createTravels(original, { patchesOptions: { pathAsArray: !arrays } });
+      saved.setState(draft => { draft['a/b~c'][0][''] = 1; });
+      const snapshot = saved.serialize();
+      const json = JSON.stringify(snapshot);
+      for (const input of [snapshot, json]) {
+        const restored = arrays
+          ? restoreTravels<typeof original>(input)
+          : restoreTravels<typeof original, false, { pathAsArray: false }>(input, {
+              patchesOptions: { pathAsArray: false },
+            });
+        restored.setState(draft => { draft['a/b~c'][0][''] = 2; });
+        const { patches, inversePatches } = restored.getPatches();
+        for (const groups of [patches, inversePatches]) {
+          for (const [op] of groups) {
+            if (arrays) {
+              expect(Array.isArray(op.path)).toBe(true);
+              expect(Array.isArray(op.path) && op.path.map(String)).toEqual(['a/b~c', '0', '']);
+            } else {
+              expect(op.path).toBe('/a~1b~0c/0/');
+            }
+          }
+        }
+        restored.back(2);
+        expect(restored.getState()).toEqual(original);
+        restored.forward(2);
+        expect(restored.getState()['a/b~c'][0]['']).toBe(2);
+      }
+      expect(JSON.stringify(snapshot)).toBe(json);
+    });
+
     test('normalizes legacy array root paths when restoring string patches', () => {
       const legacySnapshot = {
         version: 1,

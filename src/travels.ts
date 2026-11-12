@@ -170,11 +170,11 @@ export type Travels<
       }
     : {});
 
-type TravelsCoreSource<S, P extends PatchesOption> =
+type TravelsCoreSource<S> =
   | { type: 'initial'; state: S }
   | {
       type: 'snapshot';
-      snapshot: TravelsSerializedHistory<S, P> | string;
+      snapshot: unknown;
       validation?: TravelsHistoryValidationMode;
       /** Live mutable root that receives the restored state in place. */
       target?: object;
@@ -587,7 +587,7 @@ export class TravelsCore<
   }
 
   constructor(
-    source: TravelsCoreSource<S, P>,
+    source: TravelsCoreSource<S>,
     options: TravelsOptions<F, A, P, S> = {},
     controlledApply?: TravelsControlledApply<S, P>
   ) {
@@ -926,13 +926,21 @@ export class TravelsCore<
     metadata: Array<TravelMetadata | undefined>;
   } {
     const cloned = cloneTravelPatches(restoredPatches);
-    if (this.patchPathAsArray === false) {
-      cloned.patches = cloned.patches.map((patches) =>
-        normalizeEmptyPatchPaths(patches, false)
-      );
-      cloned.inversePatches = cloned.inversePatches.map((patches) =>
-        normalizeEmptyPatchPaths(patches, false)
-      );
+    // The operations belong to this clone. Normalize retained paths to match
+    // the format used by subsequent edits, including both directions of replay.
+    for (const groups of [cloned.patches, cloned.inversePatches]) {
+      for (const group of groups) {
+        for (const patch of group) {
+          const path = patch.path;
+          if (this.patchPathAsArray === false && Array.isArray(path)) {
+            patch.path = path.map((key) =>
+              '/' + String(key).replace(/~/g, '~0').replace(/\//g, '~1')
+            ).join('');
+          } else if (this.patchPathAsArray !== false && typeof path === 'string') {
+            patch.path = getPatchPathSegments(path)!;
+          }
+        }
+      }
     }
     const total = cloned.patches.length;
     const alignedMetadata = alignMetadataToPatchCount(metadata, total);
@@ -2755,7 +2763,7 @@ export const createTravelsCore = <
   A extends boolean,
   P extends PatchesOption,
 >(
-  source: TravelsCoreSource<S, P>,
+  source: TravelsCoreSource<S>,
   options: TravelsOptions<F, A, P, S>,
   controlledApply?: TravelsControlledApply<S, P>
 ): TravelsCore<S, F, A, P> => {
@@ -2776,7 +2784,7 @@ export const createStateOwningTravels = <
   A extends boolean,
   P extends PatchesOption,
 >(
-  source: TravelsCoreSource<S, P>,
+  source: TravelsCoreSource<S>,
   options: TravelsOptions<F, A, P, S>
 ): Travels<S, F, A, P> => {
   const core = createTravelsCore<S, F, A, P>(source, options);

@@ -34,13 +34,18 @@ export type RestoreTravelsOptions<
   validation?: TravelsHistoryValidationMode;
 };
 
+// Stored paths may use either representation. Output paths follow patchesOptions.
+type SnapshotInput<S> =
+  | TravelsSerializedHistory<S, { pathAsArray: true } | { pathAsArray: false }>
+  | string;
+
 /** Restore an auto-archiving timeline from one complete persisted snapshot. */
 export function restoreTravels<
   S,
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P> | string,
+  snapshot: SnapshotInput<S>,
   options?: Omit<RestoreTravelsOptions<S, F, true, P>, 'autoArchive'> & {
     autoArchive?: true;
   }
@@ -52,7 +57,7 @@ export function restoreTravels<
   F extends boolean = false,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P> | string,
+  snapshot: SnapshotInput<S>,
   options: Omit<RestoreTravelsOptions<S, F, false, P>, 'autoArchive'> & {
     autoArchive: false;
   }
@@ -65,7 +70,7 @@ export function restoreTravels<
   A extends boolean = true,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P> | string,
+  snapshot: SnapshotInput<S>,
   options: RestoreTravelsOptions<S, F, A, P>
 ): Travels<S, F, A, P>;
 
@@ -75,7 +80,7 @@ export function restoreTravels<
   A extends boolean,
   P extends PatchesOption = {},
 >(
-  snapshot: TravelsSerializedHistory<S, P> | string,
+  snapshot: SnapshotInput<S>,
   options: RestoreTravelsOptions<S, F, A, P> = {}
 ): Travels<S, F, A, P> {
   assertPublicFactoryOptions(options, {

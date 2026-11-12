@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Normalize restored forward and inverse patch paths to the selected output format, including escaped keys and root replacements. The conversion and declarations raise raw bundle limits by 0.25 KiB, source map limits by up to 0.75 KiB, and package limits to 547 KiB packed and 2118 KiB unpacked.
+
 - Support semantic validation of object and JSON string snapshots directly in `restoreTravels()`. The restore implementation, declarations and examples bring the map limits to 269.5 KiB (production) and 285 KiB (development), and the npm package limits to 545 KiB packed and 2112 KiB unpacked.
 - Report observer failures to the development console when no error hook is configured. Allow another 0.25 KiB for source maps.
 - Include plain string messages in wrapped transaction failures without invoking error message getters during rollback. A rejected asynchronous callback exposes `ASYNC_CALLBACK` on its typed cause. The diagnostic adds up to 0.25 KiB to the raw bundle limits and 0.5 KiB to the map limits.
