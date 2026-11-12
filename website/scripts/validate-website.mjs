@@ -180,6 +180,30 @@ try {
   await checkNoOverflow(page, 'Desktop home after playground use');
   checks.push('Playground block placement, patch inspector, reload restore, and undo');
 
+  const limitedStorage = await desktop.newPage();
+  await limitedStorage.addInitScript(() => {
+    const setItem = window.Storage.prototype.setItem;
+    window.Storage.prototype.setItem = function (key, value) {
+      if (key === 'travels:playground:history' && !window.sessionStorage.getItem('quota-restored')) {
+        throw new window.DOMException('Storage is full', 'QuotaExceededError');
+      }
+      setItem.call(this, key, value);
+    };
+  });
+  await limitedStorage.goto(baseUrl + '/', { waitUntil: 'networkidle' });
+  const limitedGame = limitedStorage.getByRole('group', { name: 'Travels playground' });
+  const limitedStatus = limitedGame.locator('.pg-persist-status');
+  await limitedGame.getByRole('application', { name: /Block builder/ }).press('Enter');
+  assert.equal(await limitedGame.getByRole('slider').inputValue(), '1');
+  assert.match(await limitedStatus.innerText(), /Browser storage could not be updated/);
+  await limitedStorage.evaluate(() => window.sessionStorage.setItem('quota-restored', '1'));
+  await limitedGame.getByRole('application', { name: /Block builder/ }).press('Enter');
+  await limitedGame.getByText(/saved in this browser/).waitFor();
+  await limitedStorage.reload({ waitUntil: 'networkidle' });
+  assert.equal(await limitedGame.getByRole('slider').inputValue(), '2');
+  await limitedStorage.close();
+  checks.push('Storage quota failure keeps editing available and a successful retry survives reload');
+
   const walkthrough = page.getByRole('group', { name: 'Quick start walkthrough' });
   await walkthrough.getByRole('button', { name: 'Run to step 3: back()' }).click();
   assert.match(await walkthrough.locator('.cw-result').innerText(), /getPosition\(\)\s+0/);

@@ -162,6 +162,8 @@ const pgCopy = {
     meterNote: 'Snapshots can win while a scene is tiny; small edits to larger state widen the gap.',
     keepHistory: 'Keep history after reload',
     keptMemory: 'Kept in memory only',
+    pendingSave: 'Waiting to save',
+    saveFailed: 'Browser storage could not be updated. Keep this tab open to retain your changes.',
     saved: (bytes: string) => `${bytes} saved in this browser`,
     restored: (steps: number) => `Restored ${steps} ${steps === 1 ? 'step' : 'steps'} from your last visit`,
     invalidSaved: 'Saved history failed validation and was cleared',
@@ -220,6 +222,8 @@ const pgCopy = {
     meterNote: '场景很小时，快照可能更小；状态越大、编辑越局部，差距就越明显。',
     keepHistory: '刷新后保留历史',
     keptMemory: '仅保存在内存中',
+    pendingSave: '等待保存',
+    saveFailed: '浏览器存储更新失败。请保持此页打开，以保留当前修改。',
     saved: (bytes: string) => `已在此浏览器中保存 ${bytes}`,
     restored: (steps: number) => `已从上次访问恢复 ${steps} 步`,
     invalidSaved: '保存的历史未通过校验，已清理',
@@ -356,8 +360,9 @@ function writeStorage(key: string, value: string | null) {
   try {
     if (value === null) window.localStorage.removeItem(key);
     else window.localStorage.setItem(key, value);
+    return true;
   } catch {
-    // Storage can be full or blocked; the in-memory timeline still works.
+    return false;
   }
 }
 
@@ -403,6 +408,7 @@ export function PatchPlayground({ locale = 'en' }: { locale?: Locale }) {
   const [travels, setTravels] = useState(createWorldTimeline);
   const [persist, setPersist] = useState(true);
   const [storageReady, setStorageReady] = useState(false);
+  const [lastWrite, setLastWrite] = useState<{ snapshot: string | null; ok: boolean } | null>(null);
   const [notice, setNotice] = useState<{ text: string; revision: number } | null>(null);
   const subscribe = useCallback(
     (notify: () => void) => travels.subscribe(() => notify()),
@@ -593,12 +599,18 @@ export function PatchPlayground({ locale = 'en' }: { locale?: Locale }) {
   // Save each committed timeline; a pending stroke is saved once archived.
   useEffect(() => {
     if (!storageReady || stroke.current) return;
-    writeStorage(STORAGE_KEY, persist ? serialized : null);
+    const snapshot = persist ? serialized : null;
+    const historyWritten = writeStorage(STORAGE_KEY, snapshot);
+    const preferenceWritten = writeStorage(PREFERENCE_KEY, persist ? null : 'off');
+    setLastWrite({ snapshot, ok: historyWritten && preferenceWritten });
   }, [persist, serialized, storageReady]);
 
-  useEffect(() => {
-    if (storageReady) writeStorage(PREFERENCE_KEY, persist ? null : 'off');
-  }, [persist, storageReady]);
+  function storageMessage() {
+    if (lastWrite?.snapshot !== (persist ? serialized : null)) return text.pendingSave;
+    if (!lastWrite.ok) return text.saveFailed;
+    if (!persist) return text.keptMemory;
+    return notice?.revision === revision ? notice.text : text.saved(formatBytes(persistedBytes));
+  }
 
   useEffect(() => {
     const root = rootRef.current;
@@ -1067,11 +1079,7 @@ export function PatchPlayground({ locale = 'en' }: { locale?: Locale }) {
           </button>
           <span className="pg-persist-status">
             <Database size={14} aria-hidden="true" />
-            {!persist
-              ? text.keptMemory
-              : notice && notice.revision === revision
-                ? notice.text
-                : text.saved(formatBytes(persistedBytes))}
+            {storageMessage()}
           </span>
         </div>
       </div>
