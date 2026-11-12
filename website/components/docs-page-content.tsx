@@ -45,7 +45,7 @@ export async function DocsPageContent({
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover
           markdownUrl={markdownUrl}
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/website/content/docs/${editPath}`}
+          githubUrl={page.data.sourceUrl ?? `https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/website/content/docs/${editPath}`}
         />
       </div>
       <DocsBody>

@@ -206,6 +206,26 @@ try {
   if (version === '3.0.1') assert.doesNotMatch(referenceText, /### validation/);
   checks.push('Restore API reference matches the published package and release tag');
 
+  for (const prefix of ['', '/zh']) {
+    for (const [slug, filename] of [
+      ['api-reference/type-aliases/RestoreTravelsOptions', 'src/restoreTravels.ts'],
+      ['getting-started/quick-start', `website/content/docs${prefix}/getting-started/quick-start.mdx`],
+    ]) {
+      await page.goto(`${baseUrl}${prefix}/docs/${slug}/`);
+      await page.getByRole('button', { name: prefix ? '打开' : 'Open', exact: true }).click();
+      const href = await page.getByRole('dialog').getByRole('link', { name: /GitHub/i }).getAttribute('href');
+      const generated = slug.startsWith('api-reference/');
+      const expectedRef = generated ? 'v' + version : 'main';
+      assert.equal(new URL(href).pathname, `/mutativejs/travels/blob/${expectedRef}/${filename}`);
+      if (generated) {
+        assert.match(new URL(href).hash, /^#L\d+$/);
+        const peer = page.locator('#nd-page .prose a').filter({ hasText: 'TravelsOptions' }).first();
+        assert.equal(await peer.getAttribute('href'), `${basePath}${prefix}/docs/api-reference/type-aliases/TravelsOptions/`);
+      }
+    }
+  }
+  checks.push('GitHub actions link to release sources or tracked guide files in both languages');
+
   const missing = await page.request.get(`${baseUrl}/zh/docs/does-not-exist/`);
   assert.equal(missing.status(), 404);
   await checkRoute(page.request, '/404.html', 'Travels');

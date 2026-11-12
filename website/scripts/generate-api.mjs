@@ -75,14 +75,19 @@ function generatePages(temporaryOutput) {
         .join('\n')
         .replace(/^(?:\s|\*\*\*)+/, '')
         .replace(/\.md(?=[)#])/g, '.mdx')
+        // Fumadocs resolves source-file links only when they are explicitly relative.
+        .replace(/\]\(([\w.-]+\.mdx)(?=[)#])/g, '](./$1')
         .replace(/\]\([^)]*globals\.mdx[^)]*\)/g, '](/docs/api-reference)')
         .replace(/\]\([^)]*README\.mdx[^)]*\)/g, '](/docs)');
+
+      const sourceUrl = body.match(/^Defined in: \[[^\n]+?\]\((https:\/\/[^\s)]+)\)/m)?.[1];
+      if (!sourceUrl) throw new Error(`Missing TypeDoc source link in ${file}`);
 
       const relativePath = relative(sourceDirectory, file).replace(/\.md$/, '.mdx');
       const outputPath = join(targetDirectory, relativePath);
       output.set(
         outputPath,
-        `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(`Travels ${version}. ${description}`)}\n---\n\n${body.trim()}\n`
+        `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(`Travels ${version}. ${description}`)}\nsourceUrl: ${JSON.stringify(sourceUrl)}\n---\n\n${body.trim()}\n`
       );
       pages.push(relativePath.replace(/\.mdx$/, '').replaceAll('\\', '/'));
       pageCount += 1;
