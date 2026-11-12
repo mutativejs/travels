@@ -221,11 +221,12 @@ try {
   assert.equal(response.status(), 200);
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
   await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
-  const homeLanguage = page.locator('header').getByRole('combobox', { name: '选择语言' });
-  assert.equal(await homeLanguage.inputValue(), 'zh');
   await checkNoOverflow(page, 'Desktop Chinese home');
   await page.screenshot({ path: resolve(artifactsDir, 'home-zh-desktop.png'), fullPage: true });
-  await homeLanguage.selectOption({ label: 'English' });
+  await page.locator('header').getByRole('button', { name: '选择语言' }).click();
+  const languages = page.getByRole('dialog');
+  await languages.getByRole('button', { name: '简体中文', exact: true }).waitFor({ state: 'visible' });
+  await languages.getByRole('button', { name: 'English', exact: true }).click();
   await page.waitForURL(`${baseUrl}/`);
   checks.push('Chinese home, locale switching, and typography');
 
@@ -265,7 +266,10 @@ try {
   response = await page.goto(`${baseUrl}/zh/docs/getting-started/quick-start/`, {
     waitUntil: 'networkidle',
   });
-  await page.locator('#nd-sidebar').getByRole('combobox', { name: '选择语言' }).selectOption('en');
+  const sidebarLanguage = page.locator('#nd-sidebar').getByRole('button', { name: '选择语言' });
+  assert.equal(await sidebarLanguage.innerText(), '简体中文');
+  await sidebarLanguage.click();
+  await languages.getByRole('button', { name: 'English', exact: true }).click();
   await page.waitForURL(`${baseUrl}/docs/getting-started/quick-start/`);
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   checks.push('Chinese to English docs switch preserves the page');
@@ -290,19 +294,22 @@ try {
   await mobilePage.getByRole('heading', { level: 1 }).waitFor({ state: 'visible' });
   await checkNoOverflow(mobilePage, 'Mobile home');
   await mobilePage.screenshot({ path: resolve(artifactsDir, 'home-mobile.png'), fullPage: true });
-  const mobileLanguage = mobilePage.locator('header').getByRole('combobox', { name: 'Choose a language' });
-  for (const width of [320, 640, 390]) {
-    await mobilePage.setViewportSize({ width, height: 844 });
-    const bounds = await mobileLanguage.boundingBox();
-    assert.ok(bounds && bounds.x > width / 2 && bounds.x + bounds.width <= width, `Language dropdown at ${width}px`);
-  }
-
   const mobileMenu = mobilePage.locator('button[aria-label*="menu" i], button[aria-label*="navigation" i]').first();
   await mobileMenu.waitFor({ state: 'visible' });
   await mobileMenu.click();
   await mobilePage.getByRole('link', { name: 'Documentation', exact: true }).last().waitFor({ state: 'visible' });
-  await mobilePage.keyboard.press('Escape');
-  checks.push('Mobile home and navigation');
+  const mobileLanguage = mobilePage.locator('header').getByRole('button', { name: 'Choose a language' });
+  for (const width of [320, 640, 390]) {
+    await mobilePage.setViewportSize({ width, height: 844 });
+    await mobileLanguage.waitFor({ state: 'visible' });
+    await checkNoOverflow(mobilePage, `Mobile navigation at ${width}px`);
+  }
+  await mobileLanguage.click();
+  const mobileLanguages = mobilePage.getByRole('dialog');
+  await mobileLanguages.getByRole('button', { name: '简体中文', exact: true }).click();
+  await mobilePage.waitForURL(`${baseUrl}/zh/`);
+  await mobilePage.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
+  checks.push('Mobile home navigation and language switch');
 
   response = await mobilePage.goto(`${baseUrl}/docs/getting-started/quick-start/`, { waitUntil: 'networkidle' });
   assert.equal(response.status(), 200);
@@ -313,7 +320,8 @@ try {
   await docsMenu.waitFor({ state: 'visible' });
   await docsMenu.click();
   await mobilePage.getByRole('link', { name: 'Quick Start', exact: true }).last().waitFor({ state: 'visible' });
-  await mobilePage.locator('#nd-sidebar-mobile').getByRole('combobox', { name: 'Choose a language' }).selectOption('zh');
+  await mobilePage.locator('#nd-sidebar-mobile').getByRole('button', { name: 'Choose a language' }).click();
+  await mobileLanguages.getByRole('button', { name: '简体中文', exact: true }).click();
   await mobilePage.waitForURL(`${baseUrl}/zh/docs/getting-started/quick-start/`);
   await mobilePage.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
   checks.push('Mobile documentation, navigation, and language switch');

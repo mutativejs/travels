@@ -31,7 +31,7 @@ export function RootDocument({ locale, children }: { locale: Locale; children: R
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col antialiased">
-        <Provider locale={locale} i18n={getI18nUI(locale)}>
+        <Provider i18n={getI18nUI(locale)}>
           {children}
         </Provider>
       </body>

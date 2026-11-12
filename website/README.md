@@ -43,7 +43,7 @@ Open the local URL printed by Next.js. The English site starts at `/`; the Chine
 - `app/global-not-found.tsx`: locale-aware branded 404 for statically exported unknown URLs.
 - `app/(en)/(home)/page.tsx`: custom product homepage content lives in `lib/home-content.ts` and `components/home/home-page.tsx`.
 - `app/global.css`: brand theme, responsive homepage, documentation polish, and the CJK font stack.
-- `components/`: brand, homepage, search, locale switch, and MDX components. The interactive homepage demos run on the published `travels` and `mutative` packages.
+- `components/`: brand, homepage, search, and MDX components. The interactive homepage demos run on the published `travels` and `mutative` packages.
 - `content/docs/`: hand-written English guides, generated API pages, and navigation metadata.
 - `content/docs/zh/`: Simplified Chinese translations with the same relative paths and their own `meta.json` files.
 - `lib/i18n.ts`: Fumadocs i18n config and UI translations, including the official `@fumadocs/language/zh-cn` pack.

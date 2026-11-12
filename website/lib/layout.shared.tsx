@@ -1,7 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import type { DocsLayoutProps } from 'fumadocs-ui/layouts/docs';
 import { Brand } from '@/components/brand';
-import { LocaleSwitch } from '@/components/locale/locale-switch';
 import type { Locale } from './locale';
 import { repositoryUrl } from './shared';
 
@@ -41,7 +40,6 @@ function baseOptions(locale: Locale): BaseLayoutProps {
       },
     ],
     githubUrl: repositoryUrl,
-    i18n: false,
   };
 }
 
@@ -52,11 +50,6 @@ export function homeOptions(locale: Locale): BaseLayoutProps {
     nav: {
       ...options.nav,
       transparentMode: 'top',
-      children: (
-        <div className="order-last ms-2 shrink-0">
-          <LocaleSwitch locale={locale} />
-        </div>
-      ),
     },
   };
 }
@@ -67,7 +60,6 @@ export function docsOptions(locale: Locale): Omit<DocsLayoutProps, 'tree'> {
     sidebar: {
       defaultOpenLevel: 1,
       collapsible: true,
-      footer: <LocaleSwitch locale={locale} />,
     },
   };
 }

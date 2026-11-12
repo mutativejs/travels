@@ -1105,54 +1105,6 @@ a:hover > .brand .brand-logo {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
-/* Locale switch */
-
-.locale-switch {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-fd-muted-foreground);
-}
-
-.locale-switch select {
-  width: 100%;
-  min-height: 36px;
-  appearance: none;
-  cursor: pointer;
-  padding: 6px 26px 6px 31px;
-  color: inherit;
-  background: transparent;
-  border: 1px solid var(--color-fd-border);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 650;
-}
-
-.locale-switch svg {
-  position: absolute;
-  pointer-events: none;
-}
-
-.locale-switch svg:first-child { inset-inline-start: 10px; }
-.locale-switch svg:last-child { inset-inline-end: 8px; }
-
-.locale-switch select:hover {
-  color: var(--color-fd-foreground);
-  background: var(--color-fd-accent);
-}
-
-.locale-switch select:focus-visible {
-  outline: 2px solid var(--color-fd-ring);
-  outline-offset: 3px;
-}
-
-#nd-sidebar .locale-switch { margin-top: 8px; }
-
-@media (max-width: 47.999rem) {
-  #nd-nav .locale-switch svg:first-child { display: none; }
-  #nd-nav .locale-switch select { padding-inline: 8px 22px; }
-}
-
 /* Chinese typography */
 
 html:lang(zh) {

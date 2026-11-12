@@ -1,13 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState, type CSSProperties } from 'react';
-import { BookOpen, House } from 'lucide-react';
+import { LanguageSelect } from 'fumadocs-ui/layouts/shared/slots/language-select';
+import { RootProvider } from 'fumadocs-ui/provider/next';
+import { BookOpen, House, Languages } from 'lucide-react';
 import { Brand } from '@/components/brand';
-import { LocaleSwitch } from '@/components/locale/locale-switch';
 import { HeroBackdrop } from '@/components/home/hero-backdrop';
 import { UndoPatch } from '@/components/not-found/undo-patch';
-import { localeFromPathname, type Locale } from '@/lib/locale';
+import { getI18nUI } from '@/lib/i18n-ui';
+import { isLocale, localeFromPathname, localePath, type Locale } from '@/lib/locale';
 import './global.css';
 
 const DEPTH = 9;
@@ -33,6 +36,7 @@ const copy = {
 
 export default function GlobalNotFound() {
   const [locale, setLocale] = useState<Locale>('en');
+  const router = useRouter();
 
   useEffect(() => {
     const next = localeFromPathname(window.location.pathname);
@@ -56,7 +60,20 @@ export default function GlobalNotFound() {
           <Link href={homeHref} className="nf-global-brand">
             <Brand compact />
           </Link>
-          <LocaleSwitch locale={locale} path="/" />
+          <RootProvider
+            i18n={{
+              ...getI18nUI(locale),
+              onLocaleChange(next) {
+                if (isLocale(next)) router.push(localePath(next, '/'));
+              },
+            }}
+            search={{ enabled: false }}
+            theme={{ enabled: false }}
+          >
+            <LanguageSelect>
+              <Languages className="size-5" aria-hidden="true" />
+            </LanguageSelect>
+          </RootProvider>
         </div>
         <div className="home-page nf-page">
           <section className="nf-hero">

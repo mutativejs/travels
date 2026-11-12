@@ -156,7 +156,9 @@ try {
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
   await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
   await page.screenshot({ path: resolve(artifactsDir, 'production-home-zh.png') });
-  await page.locator('header').getByRole('combobox', { name: '选择语言' }).selectOption('en');
+  await page.locator('header').getByRole('button', { name: '选择语言' }).click();
+  const languages = page.getByRole('dialog');
+  await languages.getByRole('button', { name: 'English', exact: true }).click();
   await page.waitForURL(`${baseUrl}/`);
   await page.getByRole('heading', { name: /Every change/ }).waitFor({ state: 'visible' });
   checks.push('Production Chinese home, language attributes, and prefixed switch');
@@ -167,7 +169,8 @@ try {
   assert.equal(response.status(), 200);
   await page.getByRole('heading', { name: '快速开始', level: 1 }).waitFor({ state: 'visible' });
   assert.ok((await page.locator('pre').count()) > 0);
-  await page.locator('#nd-sidebar').getByRole('combobox', { name: '选择语言' }).selectOption('en');
+  await page.locator('#nd-sidebar').getByRole('button', { name: '选择语言' }).click();
+  await languages.getByRole('button', { name: 'English', exact: true }).click();
   await page.waitForURL(`${baseUrl}/docs/getting-started/quick-start/`);
   await page.getByRole('heading', { name: 'Quick Start', level: 1 }).waitFor({ state: 'visible' });
   checks.push('Production Chinese documentation and prefixed language switch');
@@ -185,6 +188,13 @@ try {
   assert.equal(missing.status(), 404);
   await checkRoute(page.request, '/404.html', 'Travels');
   checks.push('Production Chinese 404 and LLM routes');
+
+  await page.goto(`${baseUrl}/404.html`, { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: 'Choose a language' }).click();
+  await languages.getByRole('button', { name: '简体中文', exact: true }).click();
+  await page.waitForURL(`${baseUrl}/zh/`);
+  await page.getByRole('heading', { name: /每一次改动/ }).waitFor({ state: 'visible' });
+  checks.push('Production 404 language switch opens the localized home');
 
   await page.waitForTimeout(500);
   assert.deepEqual(errors, [], `Browser errors:\n${errors.join('\n')}`);
