@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
 import { mkdir, rm, symlink, writeFile } from 'node:fs/promises';
@@ -196,6 +197,14 @@ try {
       'https://mutativejs.github.io/travels' + canonical);
   }
   checks.push('Only Chinese fallback pages request noindex and canonicalize to English');
+
+  const { version } = createRequire(import.meta.url)('travels/package.json');
+  const restoreReference = await page.request.get(baseUrl + '/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md');
+  assert.equal(restoreReference.status(), 200);
+  const referenceText = await restoreReference.text();
+  assert.ok(referenceText.includes(`/blob/v${version}/src/restoreTravels.ts#L`));
+  if (version === '3.0.1') assert.doesNotMatch(referenceText, /### validation/);
+  checks.push('Restore API reference matches the published package and release tag');
 
   const missing = await page.request.get(`${baseUrl}/zh/docs/does-not-exist/`);
   assert.equal(missing.status(), 404);

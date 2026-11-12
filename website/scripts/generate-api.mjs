@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, rmSync, mkdirSync, mkdtempSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -5,6 +6,11 @@ import { fileURLToPath } from 'node:url';
 
 const websiteRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(websiteRoot, '..');
+const require = createRequire(import.meta.url);
+const packageManifest = require.resolve('travels/package.json');
+const packageRoot = dirname(packageManifest);
+const { version } = require(packageManifest);
+const entryPoint = join(packageRoot, 'src/index.ts');
 const scratchRoot = join(websiteRoot, '.generated-api');
 const targetRoot = join(websiteRoot, 'content/docs/api-reference');
 const groups = ['functions', 'classes', 'interfaces', 'type-aliases', 'variables'];
@@ -76,7 +82,7 @@ function generatePages(temporaryOutput) {
       const outputPath = join(targetDirectory, relativePath);
       output.set(
         outputPath,
-        `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\n---\n\n${body.trim()}\n`
+        `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(`Travels ${version}. ${description}`)}\n---\n\n${body.trim()}\n`
       );
       pages.push(relativePath.replace(/\.mdx$/, '').replaceAll('\\', '/'));
       pageCount += 1;
@@ -128,11 +134,20 @@ mkdirSync(scratchRoot, { recursive: true });
 const workDir = mkdtempSync(join(scratchRoot, 'run-'));
 try {
   const temporaryOutput = join(workDir, 'typedoc');
+  const tsconfig = join(workDir, 'tsconfig.json');
+  writeFileSync(tsconfig, JSON.stringify({
+    extends: join(repositoryRoot, 'tsconfig.json'),
+    compilerOptions: { types: ['node'] },
+    files: [entryPoint],
+    include: [],
+  }));
   const result = spawnSync(
     process.execPath,
     [join(repositoryRoot, 'node_modules/typedoc/bin/typedoc'),
       '--plugin', 'typedoc-plugin-markdown', '--out', temporaryOutput,
-      '--readme', 'none', 'src/index.ts'],
+      '--readme', 'none', '--tsconfig', tsconfig, '--basePath', packageRoot,
+      '--disableGit', '--sourceLinkTemplate',
+      `https://github.com/mutativejs/travels/blob/v${version}/{path}#L{line}`, entryPoint],
     { cwd: repositoryRoot, stdio: 'inherit' }
   );
   if (result.error) throw result.error;
@@ -141,7 +156,7 @@ try {
   } else {
     const { output, pageCount } = generatePages(temporaryOutput);
     publishPages(output, workDir);
-    console.log(`Generated ${pageCount} Fumadocs API reference pages.`);
+    console.log(`Generated ${pageCount} API reference pages for travels@${version}.`);
   }
 } finally {
   rmSync(workDir, { recursive: true, force: true });

@@ -58,7 +58,7 @@ Edit the eight packaged English guides in the repository’s `docs/` directory, 
 pnpm --dir website docs:api
 ```
 
-Development, build, type checks, and content checks generate the API pages from `src/index.ts`. Install root development dependencies before running these commands. Git tracks the hand-written API landing page and translations. Generated pages and their navigation stay local so their source links can point at the commit being built.
+Development, build, type checks, and content checks generate the API pages from the published Travels package installed by the website lockfile. Install root development dependencies before running these commands. Git tracks the hand-written API landing page and translations. Generated pages and their navigation stay local so their source links point to the matching release tag. To change the documented release, update the website’s Travels dependency and lockfile together.
 
 ## Translate a page
 
