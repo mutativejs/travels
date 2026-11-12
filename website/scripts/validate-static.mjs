@@ -184,6 +184,19 @@ try {
   );
   await checkRoute(page.request, '/zh/docs/api-reference/', 'API 参考');
 
+  for (const [path, canonical, fallback] of [
+    ['/docs/getting-started/quick-start/', '/docs/getting-started/quick-start/', false],
+    ['/zh/docs/getting-started/quick-start/', '/zh/docs/getting-started/quick-start/', false],
+    ['/docs/api-reference/functions/createTravels/', '/docs/api-reference/functions/createTravels/', false],
+    ['/zh/docs/api-reference/functions/createTravels/', '/docs/api-reference/functions/createTravels/', true],
+  ]) {
+    await page.goto(baseUrl + path);
+    assert.equal(await page.locator('meta[name="robots"][content*="noindex" i]').count(), Number(fallback), path);
+    assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),
+      'https://mutativejs.github.io/travels' + canonical);
+  }
+  checks.push('Only Chinese fallback pages request noindex and canonicalize to English');
+
   const missing = await page.request.get(`${baseUrl}/zh/docs/does-not-exist/`);
   assert.equal(missing.status(), 404);
   await checkRoute(page.request, '/404.html', 'Travels');

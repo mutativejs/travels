@@ -15,6 +15,14 @@ import { createDocsMetadata } from '@/lib/metadata';
 import type { Locale } from '@/lib/locale';
 import { getPageImageUrl, getPageMarkdownUrl, gitConfig } from '@/lib/shared';
 
+function getDocumentFile(page: { absolutePath?: string; path: string }) {
+  return page.absolutePath?.replace(/^content\/docs\//, '') ?? page.path;
+}
+
+function isEnglishFallback(locale: Locale, file: string) {
+  return locale === 'zh' && !file.startsWith('zh/');
+}
+
 export async function DocsPageContent({
   locale,
   slug,
@@ -27,8 +35,7 @@ export async function DocsPageContent({
 
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
-  const editPath = page.absolutePath?.replace(/^content\/docs\//, '') ?? page.path;
-  const translated = editPath.startsWith('zh/');
+  const editPath = getDocumentFile(page);
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
@@ -42,7 +49,7 @@ export async function DocsPageContent({
         />
       </div>
       <DocsBody>
-        {locale === 'zh' && !translated && (
+        {isEnglishFallback(locale, editPath) && (
           <div className="docs-fallback-note">
             此页尚未提供中文译文。以下内容由英文源码注释生成，API 名称与签名保持原样。
           </div>
@@ -65,6 +72,6 @@ export async function generateDocsMetadata(
   const page = source.getPage(slug, locale);
   if (!page) notFound();
 
-  const translated = page.absolutePath?.startsWith('content/docs/zh/') ?? false;
-  return createDocsMetadata(locale, page, getPageImageUrl(page).url, translated);
+  const fallback = isEnglishFallback(locale, getDocumentFile(page));
+  return createDocsMetadata(locale, page, getPageImageUrl(page).url, fallback);
 }

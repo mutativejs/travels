@@ -88,13 +88,13 @@ export function createDocsMetadata(
     data: { title: string; description?: string };
   },
   imageUrl: string,
-  translated = true,
+  fallback: boolean,
 ): Metadata {
   const slug = page.slugs.join('/');
   const enPath = assetPath(`/docs${slug ? `/${slug}` : ''}`);
   const zhPath = assetPath(`/zh/docs${slug ? `/${slug}` : ''}`);
-  const canonical = locale === 'zh' && translated ? zhPath : enPath;
-  const text = copy[translated ? locale : 'en'];
+  const canonical = locale === 'zh' && !fallback ? zhPath : enPath;
+  const text = copy[fallback ? 'en' : locale];
 
   return {
     title: page.data.title,
@@ -106,7 +106,7 @@ export function createDocsMetadata(
         'zh-CN': zhPath,
       },
     },
-    robots: translated ? undefined : { index: false, follow: true },
+    robots: fallback ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'article',
       locale: text.openGraphLocale,
