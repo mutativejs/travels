@@ -1,8 +1,8 @@
-# RebasableManualTravelsControls<S, P> (/zh/docs/api-reference/type-aliases/RebasableManualTravelsControls)
+# RebasableManualTravelsControls<S, P> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableManualTravelsControls/content.md)
 
-> **RebasableManualTravelsControls**\<`S`, `P`\> = [`ManualTravelsControls`](../interfaces/ManualTravelsControls.mdx)\<`S`, `P`\> & `object`
+> **RebasableManualTravelsControls**\<`S`, `P`\> = [`ManualTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/interfaces/ManualTravelsControls/content.md)\<`S`, `P`\> & `object`
 
-Defined in: [src/type.ts:484](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L484)
+Defined in: [src/type.ts:484](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L484)
 
 ## Type Declaration [#type-declaration]
 
@@ -30,4 +30,4 @@ calls will return to this new baseline, not the original initial state.
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}

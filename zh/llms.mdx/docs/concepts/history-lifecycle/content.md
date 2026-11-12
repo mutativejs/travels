@@ -1,4 +1,4 @@
-# 历史生命周期 (/zh/docs/concepts/history-lifecycle)
+# 历史生命周期 (/travels/zh/llms.mdx/docs/concepts/history-lifecycle/content.md)
 
 Travels 时间线中有两个相关但不同的概念：导航使用的**保留历史窗口**，以及 `reset()` 使用的**实例基线**。理解它们的生命周期，可以避免许多微妙的撤销/重做缺陷。
 
@@ -76,7 +76,7 @@ travels.canForward(); // false
 
 `replaceStateWithoutHistory(updater)` 会应用一次更新、清空历史，并把结果设为新基线。它适合接受权威的远程快照，或替换文档而不让用户撤销回之前的文档。
 
-`pauseTracking()` 与 `resumeTracking()` 则定义一个作用域：其中的更新会成为新基线，而普通时间线操作在此之后继续。参见[跟踪与替换](/zh/docs/guides/tracking-and-replacement)。
+`pauseTracking()` 与 `resumeTracking()` 则定义一个作用域：其中的更新会成为新基线，而普通时间线操作在此之后继续。参见[跟踪与替换](/travels/zh/llms.mdx/docs/guides/tracking-and-replacement/content.md)。
 
 ## 安全地读取历史 [#安全地读取历史]
 

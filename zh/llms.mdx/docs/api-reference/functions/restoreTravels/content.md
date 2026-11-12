@@ -1,10 +1,10 @@
-# restoreTravels() (/zh/docs/api-reference/functions/restoreTravels)
+# restoreTravels() (/travels/zh/llms.mdx/docs/api-reference/functions/restoreTravels/content.md)
 
 ## Call Signature [#call-signature]
 
 > **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options?`): `object`
 
-Defined in: [src/restoreTravels.ts:38](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/restoreTravels.ts#L38)
+Defined in: [src/restoreTravels.ts:35](https://github.com/mutativejs/travels/blob/v3.0.1/src/restoreTravels.ts#L35)
 
 Restore an auto-archiving timeline from one complete persisted snapshot.
 
@@ -26,11 +26,11 @@ Restore an auto-archiving timeline from one complete persisted snapshot.
 
 #### snapshot [#snapshot]
 
-`string` | [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### options? [#options]
 
-`Omit`\<[`RestoreTravelsOptions`](../type-aliases/RestoreTravelsOptions.mdx)\<`S`, `F`, `true`, `P`\>, `"autoArchive"`\> & `object`
+`Omit`\<[`RestoreTravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md)\<`S`, `F`, `true`, `P`\>, `"autoArchive"`\> & `object`
 
 ### Returns [#returns]
 
@@ -123,7 +123,7 @@ such a mutation rewrites the history that redo replays.
 
 ###### metadata [#metadata]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-1]
 
@@ -185,11 +185,11 @@ such a mutation rewrites the history that redo replays.
 
 #### getControls() [#getcontrols]
 
-> **getControls**(): [`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+> **getControls**(): [`RebasableTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\>
 
 ##### Returns [#returns-12]
 
-[`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+[`RebasableTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\>
 
 #### getHistory() [#gethistory]
 
@@ -201,11 +201,11 @@ readonly `Immutable`\<`S`\>[]
 
 #### getHistoryEntries() [#gethistoryentries]
 
-> **getHistoryEntries**(): [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+> **getHistoryEntries**(): [`TravelHistoryEntry`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 ##### Returns [#returns-14]
 
-[`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+[`TravelHistoryEntry`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 #### getHistorySnapshot() [#gethistorysnapshot]
 
@@ -217,19 +217,19 @@ readonly `Immutable`\<`S`\>[]
 
 #### getMetadata() [#getmetadata]
 
-> **getMetadata**(): (`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+> **getMetadata**(): (`undefined` \| [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 ##### Returns [#returns-16]
 
-(`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+(`undefined` \| [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 #### getPatches() [#getpatches]
 
-> **getPatches**(): [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+> **getPatches**(): [`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 ##### Returns [#returns-17]
 
-[`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+[`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 #### getPosition() [#getposition]
 
@@ -305,17 +305,17 @@ readonly `Immutable`\<`S`\>[]
 
 #### serialize() [#serialize]
 
-> **serialize**(`options?`): [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+> **serialize**(`options?`): [`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 ##### Parameters [#parameters-8]
 
 ###### options? [#options-1]
 
-[`TravelsSerializeOptions`](../type-aliases/TravelsSerializeOptions.mdx)
+[`TravelsSerializeOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializeOptions/content.md)
 
 ##### Returns [#returns-25]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### setState() [#setstate]
 
@@ -333,7 +333,7 @@ readonly `Immutable`\<`S`\>[]
 
 ###### metadata? [#metadata-1]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ##### Returns [#returns-26]
 
@@ -355,7 +355,7 @@ readonly `Immutable`\<`S`\>[]
 
 ###### metadata [#metadata-2]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-5]
 
@@ -387,9 +387,9 @@ readonly `Immutable`\<`S`\>[]
 
 ## Call Signature [#call-signature-5]
 
-> **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+> **restoreTravels**\<`S`, `F`, `P`\>(`snapshot`, `options`): [`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/restoreTravels.ts:50](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/restoreTravels.ts#L50)
+Defined in: [src/restoreTravels.ts:47](https://github.com/mutativejs/travels/blob/v3.0.1/src/restoreTravels.ts#L47)
 
 Restore a manually archived timeline from one complete persisted snapshot.
 
@@ -411,21 +411,21 @@ Restore a manually archived timeline from one complete persisted snapshot.
 
 #### snapshot [#snapshot-1]
 
-`string` | [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### options [#options-2]
 
-`Omit`\<[`RestoreTravelsOptions`](../type-aliases/RestoreTravelsOptions.mdx)\<`S`, `F`, `false`, `P`\>, `"autoArchive"`\> & `object`
+`Omit`\<[`RestoreTravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md)\<`S`, `F`, `false`, `P`\>, `"autoArchive"`\> & `object`
 
 ### Returns [#returns-29]
 
-[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `false`, `P`\>
 
 ## Call Signature [#call-signature-6]
 
-> **restoreTravels**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+> **restoreTravels**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/restoreTravels.ts:62](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/restoreTravels.ts#L62)
+Defined in: [src/restoreTravels.ts:59](https://github.com/mutativejs/travels/blob/v3.0.1/src/restoreTravels.ts#L59)
 
 Restore a timeline whose archive mode is selected dynamically.
 
@@ -451,12 +451,12 @@ Restore a timeline whose archive mode is selected dynamically.
 
 #### snapshot [#snapshot-2]
 
-`string` | [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### options [#options-3]
 
-[`RestoreTravelsOptions`](../type-aliases/RestoreTravelsOptions.mdx)\<`S`, `F`, `A`, `P`\>
+[`RestoreTravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md)\<`S`, `F`, `A`, `P`\>
 
 ### Returns [#returns-30]
 
-[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>

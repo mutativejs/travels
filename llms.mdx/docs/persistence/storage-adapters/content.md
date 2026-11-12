@@ -1,4 +1,4 @@
-# Storage Adapters (/docs/persistence/storage-adapters)
+# Storage Adapters (/travels/llms.mdx/docs/persistence/storage-adapters/content.md)
 
 Travels persistence is storage-agnostic. The only value that needs to be stored is the versioned snapshot returned by `travels.serialize()`. Restore it with `Travels.deserialize(...)`, then pass the validated snapshot to `restoreTravels(...)`.
 

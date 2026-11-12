@@ -1,8 +1,8 @@
-# TravelsControlledApply()<S, P> (/zh/docs/api-reference/type-aliases/TravelsControlledApply)
+# TravelsControlledApply()<S, P> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsControlledApply/content.md)
 
 > **TravelsControlledApply**\<`S`, `P`\> = (`transition`) => `S`
 
-Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L76)
+Defined in: [src/type.ts:76](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L76)
 
 Synchronous executor used when another runtime owns the authoritative state.
 Return that runtime's committed state after applying `transition.patches`.
@@ -15,13 +15,13 @@ Return that runtime's committed state after applying `transition.patches`.
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}
 
 ## Parameters [#parameters]
 
 ### transition [#transition]
 
-[`TravelsControlledTransition`](TravelsControlledTransition.mdx)\<`S`, `P`\>
+[`TravelsControlledTransition`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsControlledTransition/content.md)\<`S`, `P`\>
 
 ## Returns [#returns]
 

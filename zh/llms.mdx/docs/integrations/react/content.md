@@ -1,4 +1,4 @@
-# React 集成 (/zh/docs/integrations/react)
+# React 集成 (/travels/zh/llms.mdx/docs/integrations/react/content.md)
 
 React 与 Travels 默认的不可变模式天然契合。用 `useSyncExternalStore` 订阅，以 `getRevision()` 作为触发失效的快照，并在渲染期间读取当前状态或控制接口。
 

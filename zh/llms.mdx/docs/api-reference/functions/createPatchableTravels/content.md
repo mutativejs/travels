@@ -1,10 +1,10 @@
-# createPatchableTravels() (/zh/docs/api-reference/functions/createPatchableTravels)
+# createPatchableTravels() (/travels/zh/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md)
 
 ## Call Signature [#call-signature]
 
 > **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
 
-Defined in: [src/createPatchableTravels.ts:11](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createPatchableTravels.ts#L11)
+Defined in: [src/createPatchableTravels.ts:11](https://github.com/mutativejs/travels/blob/v3.0.1/src/createPatchableTravels.ts#L11)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -27,11 +27,11 @@ durable JSON-shaped subset supported by patches and persistence.
 
 #### initialState [#initialstate]
 
-[`PatchableInput`](../type-aliases/PatchableInput.mdx)\<`S`\>
+[`PatchableInput`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchableInput/content.md)\<`S`\>
 
 #### options? [#options]
 
-`Omit`\<[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `true`, `P`, `S`\>, `"autoArchive"`\> & `object`
+`Omit`\<[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `true`, `P`, `S`\>, `"autoArchive"`\> & `object`
 
 ### Returns [#returns]
 
@@ -124,7 +124,7 @@ such a mutation rewrites the history that redo replays.
 
 ###### metadata [#metadata]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-1]
 
@@ -186,11 +186,11 @@ such a mutation rewrites the history that redo replays.
 
 #### getControls() [#getcontrols]
 
-> **getControls**(): [`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+> **getControls**(): [`RebasableTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\>
 
 ##### Returns [#returns-12]
 
-[`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+[`RebasableTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\>
 
 #### getHistory() [#gethistory]
 
@@ -202,11 +202,11 @@ readonly `Immutable`\<`S`\>[]
 
 #### getHistoryEntries() [#gethistoryentries]
 
-> **getHistoryEntries**(): [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+> **getHistoryEntries**(): [`TravelHistoryEntry`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 ##### Returns [#returns-14]
 
-[`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+[`TravelHistoryEntry`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 #### getHistorySnapshot() [#gethistorysnapshot]
 
@@ -218,19 +218,19 @@ readonly `Immutable`\<`S`\>[]
 
 #### getMetadata() [#getmetadata]
 
-> **getMetadata**(): (`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+> **getMetadata**(): (`undefined` \| [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 ##### Returns [#returns-16]
 
-(`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+(`undefined` \| [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 #### getPatches() [#getpatches]
 
-> **getPatches**(): [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+> **getPatches**(): [`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 ##### Returns [#returns-17]
 
-[`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+[`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 #### getPosition() [#getposition]
 
@@ -306,17 +306,17 @@ readonly `Immutable`\<`S`\>[]
 
 #### serialize() [#serialize]
 
-> **serialize**(`options?`): [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+> **serialize**(`options?`): [`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 ##### Parameters [#parameters-8]
 
 ###### options? [#options-1]
 
-[`TravelsSerializeOptions`](../type-aliases/TravelsSerializeOptions.mdx)
+[`TravelsSerializeOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializeOptions/content.md)
 
 ##### Returns [#returns-25]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### setState() [#setstate]
 
@@ -334,7 +334,7 @@ readonly `Immutable`\<`S`\>[]
 
 ###### metadata? [#metadata-1]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ##### Returns [#returns-26]
 
@@ -356,7 +356,7 @@ readonly `Immutable`\<`S`\>[]
 
 ###### metadata [#metadata-2]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-5]
 
@@ -388,9 +388,9 @@ readonly `Immutable`\<`S`\>[]
 
 ## Call Signature [#call-signature-5]
 
-> **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+> **createPatchableTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/createPatchableTravels.ts:22](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createPatchableTravels.ts#L22)
+Defined in: [src/createPatchableTravels.ts:22](https://github.com/mutativejs/travels/blob/v3.0.1/src/createPatchableTravels.ts#L22)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -413,21 +413,21 @@ durable JSON-shaped subset supported by patches and persistence.
 
 #### initialState [#initialstate-1]
 
-[`PatchableInput`](../type-aliases/PatchableInput.mdx)\<`S`\>
+[`PatchableInput`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchableInput/content.md)\<`S`\>
 
 #### options [#options-2]
 
-`Omit`\<[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `false`, `P`, `S`\>, `"autoArchive"`\> & `object`
+`Omit`\<[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `false`, `P`, `S`\>, `"autoArchive"`\> & `object`
 
 ### Returns [#returns-29]
 
-[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `false`, `P`\>
 
 ## Call Signature [#call-signature-6]
 
-> **createPatchableTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+> **createPatchableTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createPatchableTravels.ts:33](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createPatchableTravels.ts#L33)
+Defined in: [src/createPatchableTravels.ts:33](https://github.com/mutativejs/travels/blob/v3.0.1/src/createPatchableTravels.ts#L33)
 
 Create a Travels instance whose state is statically constrained to the
 durable JSON-shaped subset supported by patches and persistence.
@@ -454,12 +454,12 @@ durable JSON-shaped subset supported by patches and persistence.
 
 #### initialState [#initialstate-2]
 
-[`PatchableInput`](../type-aliases/PatchableInput.mdx)\<`S`\>
+[`PatchableInput`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchableInput/content.md)\<`S`\>
 
 #### options [#options-3]
 
-[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>
+[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `A`, `P`, `S`\>
 
 ### Returns [#returns-30]
 
-[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>

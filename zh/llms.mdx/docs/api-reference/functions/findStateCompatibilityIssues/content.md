@@ -1,8 +1,8 @@
-# findStateCompatibilityIssues() (/zh/docs/api-reference/functions/findStateCompatibilityIssues)
+# findStateCompatibilityIssues() (/travels/zh/llms.mdx/docs/api-reference/functions/findStateCompatibilityIssues/content.md)
 
-> **findStateCompatibilityIssues**(`value`, `options`): [`StateCompatibilityIssue`](../type-aliases/StateCompatibilityIssue.mdx)[]
+> **findStateCompatibilityIssues**(`value`, `options`): [`StateCompatibilityIssue`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/StateCompatibilityIssue/content.md)[]
 
-Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/compatibility.ts#L109)
+Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blob/v3.0.1/src/compatibility.ts#L109)
 
 ## Parameters [#parameters]
 
@@ -22,4 +22,4 @@ Defined in: [src/compatibility.ts:109](https://github.com/mutativejs/travels/blo
 
 ## Returns [#returns]
 
-[`StateCompatibilityIssue`](../type-aliases/StateCompatibilityIssue.mdx)[]
+[`StateCompatibilityIssue`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/StateCompatibilityIssue/content.md)[]

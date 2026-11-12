@@ -1,8 +1,8 @@
-# RestoreTravelsOptions<S, F, A, P> (/docs/api-reference/type-aliases/RestoreTravelsOptions)
+# RestoreTravelsOptions<S, F, A, P> (/travels/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md)
 
-> **RestoreTravelsOptions**\<`S`, `F`, `A`, `P`\> = [`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\> & `object`
+> **RestoreTravelsOptions**\<`S`, `F`, `A`, `P`\> = [`TravelsOptions`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `A`, `P`, `S`\> & `object`
 
-Defined in: [src/restoreTravels.ts:21](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/restoreTravels.ts#L21)
+Defined in: [src/restoreTravels.ts:20](https://github.com/mutativejs/travels/blob/v3.0.1/src/restoreTravels.ts#L20)
 
 Options accepted by `restoreTravels()`.
 
@@ -21,12 +21,6 @@ Live mutable root that receives the restored state in place. Requires
 `mutable: true` and the same plain object or array root kind as the
 snapshot state.
 
-### validation? [#validation]
-
-> `optional` **validation**: [`TravelsHistoryValidationMode`](TravelsHistoryValidationMode.mdx)
-
-Select semantic replay to verify the complete snapshot before restoring.
-
 ## Type Parameters [#type-parameters]
 
 ### S [#s]
@@ -43,4 +37,4 @@ Select semantic replay to verify the complete snapshot before restoring.
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}

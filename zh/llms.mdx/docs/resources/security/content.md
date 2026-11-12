@@ -1,4 +1,4 @@
-# 安全策略 (/zh/docs/resources/security)
+# 安全策略 (/travels/zh/llms.mdx/docs/resources/security/content.md)
 
 ## 受支持的版本 [#受支持的版本]
 

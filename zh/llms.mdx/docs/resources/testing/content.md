@@ -1,4 +1,4 @@
-# 测试策略 (/zh/docs/resources/testing)
+# 测试策略 (/travels/zh/llms.mdx/docs/resources/testing/content.md)
 
 Travels 结合了基于示例的测试、基于属性的测试、浏览器测试、包使用方测试、覆盖率测试与变异冒烟测试。
 

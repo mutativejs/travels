@@ -1,4 +1,4 @@
-# 迁移指南 (/zh/docs/migration)
+# 迁移指南 (/travels/zh/llms.mdx/docs/migration/content.md)
 
 ## 从 2.x 升级到 3.0 [#从-2x-升级到-30]
 
@@ -26,7 +26,7 @@ if (value instanceof Travels) value.back();
 if (isTravels(value)) value.back();
 ```
 
-时间线仍然是可扩展的普通对象，因此[进阶模式指南](/zh/docs/guides/advanced-patterns)中的方法包装写法依旧有效，`back()` 这类内部调用也仍会经过被包装的 `go()`。时间线的构造函数不是公开入口：调用 `new travels.constructor(...)` 会抛出 `INVALID_OPERATION`，而不会绕过工厂函数的校验。
+时间线仍然是可扩展的普通对象，因此[进阶模式指南](/travels/zh/llms.mdx/docs/guides/advanced-patterns/content.md)中的方法包装写法依旧有效，`back()` 这类内部调用也仍会经过被包装的 `go()`。时间线的构造函数不是公开入口：调用 `new travels.constructor(...)` 会抛出 `INVALID_OPERATION`，而不会绕过工厂函数的校验。
 
 如果希望初始状态在编译期就受持久的 JSON 形态状态契约约束、并在运行时立即校验，请使用 `createPatchableTravels()`。
 

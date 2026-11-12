@@ -1,4 +1,4 @@
-# 可变模式 (/zh/docs/guides/mutable-mode)
+# 可变模式 (/travels/zh/llms.mdx/docs/guides/mutable-mode/content.md)
 
 可变模式让 Travels 能与依赖**稳定对象引用**来通知订阅者的可观察状态库（MobX、Vue 的 `reactive`、Pinia Store 等）配合使用。每次更新时，Travels 不再替换整个状态对象，而是就地修改原对象，同时仍然记录用于撤销/重做的 JSON Patch。
 

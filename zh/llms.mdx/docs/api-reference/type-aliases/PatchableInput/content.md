@@ -1,8 +1,8 @@
-# PatchableInput<T> (/zh/docs/api-reference/type-aliases/PatchableInput)
+# PatchableInput<T> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchableInput/content.md)
 
 > **PatchableInput**\<`T`\> = \[`NonPatchableValue`\<`T`\>\] *extends* \[`never`\] ? `T` : `never`
 
-Defined in: [src/type.ts:160](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L160)
+Defined in: [src/type.ts:160](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L160)
 
 Preserve an inferred state type when its reachable properties are
 statically compatible with the durable patch/persistence contract.

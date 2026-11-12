@@ -1,114 +1,114 @@
 # Travels
 
-- [Travels 文档](/zh/docs): 学习、集成并运维 Travels 3 的基于补丁的撤销/重做。
+- [Travels 文档](/travels/zh/llms.mdx/docs/content.md): 学习、集成并运维 Travels 3 的基于补丁的撤销/重做。
 - 开始使用
-  - [安装](/zh/docs/getting-started/installation): 在 TypeScript 或 JavaScript 应用中安装 Travels 3 与 Mutative 2。
-  - [快速开始](/zh/docs/getting-started/quick-start): 创建时间线、记录编辑、浏览历史，并恢复快照。
-  - [选择合适的方案](/zh/docs/getting-started/choosing-travels): 理解何时基于补丁的历史记录比快照、CRDT 或简单的撤销栈更合适。
+  - [安装](/travels/zh/llms.mdx/docs/getting-started/installation/content.md): 在 TypeScript 或 JavaScript 应用中安装 Travels 3 与 Mutative 2。
+  - [快速开始](/travels/zh/llms.mdx/docs/getting-started/quick-start/content.md): 创建时间线、记录编辑、浏览历史，并恢复快照。
+  - [选择合适的方案](/travels/zh/llms.mdx/docs/getting-started/choosing-travels/content.md): 理解何时基于补丁的历史记录比快照、CRDT 或简单的撤销栈更合适。
 - 核心概念
-  - [Travels 如何工作](/zh/docs/concepts/how-it-works): 沿着一条时间线，理解状态、正向补丁、反向补丁、位置与分支。
-  - [状态要求](/zh/docs/concepts/state-requirements): 使用能够在重放与 JSON 持久化之后仍然正确的状态、补丁值、路径与元数据。
-  - [历史生命周期](/zh/docs/concepts/history-lifecycle): 管理保留窗口、基线、reset、rebase、裁剪与分支替换。
+  - [Travels 如何工作](/travels/zh/llms.mdx/docs/concepts/how-it-works/content.md): 沿着一条时间线，理解状态、正向补丁、反向补丁、位置与分支。
+  - [状态要求](/travels/zh/llms.mdx/docs/concepts/state-requirements/content.md): 使用能够在重放与 JSON 持久化之后仍然正确的状态、补丁值、路径与元数据。
+  - [历史生命周期](/travels/zh/llms.mdx/docs/concepts/history-lifecycle/content.md): 管理保留窗口、基线、reset、rebase、裁剪与分支替换。
 - 指南
-  - [历史记录指南](/zh/docs/guides): 关于更新、导航、分组、观察者、所有权与失败处理的实用指南。
-  - [更新状态](/zh/docs/guides/updating-state): 正确使用草稿修改、替换值、元数据与同步更新。
-  - [导航与控件](/zh/docs/guides/navigation-and-controls): 在历史记录中移动，并向 UI 组件暴露恰当的只读能力。
-  - [归档模式](/zh/docs/guides/archive-mode): 选择自动生成的条目，或通过手动归档显式分组待处理更新。
-  - [事务](/zh/docs/guides/transactions): 把多次同步更新归入一个原子历史条目，并只产生一个稳定后的观察者事件。
-  - [跟踪与替换](/zh/docs/guides/tracking-and-replacement): 在历史记录之外应用更新、替换权威状态，并在需要时重置历史基线。
-  - [可变模式](/zh/docs/guides/mutable-mode): 在记录可逆补丁的同时，保持响应式对象引用不变。
-  - [Journal](/zh/docs/guides/controlled-journal): 通过 Journal 将 Travels 历史记录接入已经拥有状态并负责提交的运行时。
-  - [观察者与事件](/zh/docs/guides/observers-and-events): 订阅已提交的状态转换，并安全使用共享的只读事件数据。
-  - [错误处理](/zh/docs/guides/error-handling): 在不损坏历史记录的前提下处理带类型的操作错误、持久化失败、警告和观察者错误。
-  - [进阶模式](/zh/docs/guides/advanced-patterns): 通过校验、权限、元数据、日志和可组合包装器扩展 Travels。
+  - [历史记录指南](/travels/zh/llms.mdx/docs/guides/content.md): 关于更新、导航、分组、观察者、所有权与失败处理的实用指南。
+  - [更新状态](/travels/zh/llms.mdx/docs/guides/updating-state/content.md): 正确使用草稿修改、替换值、元数据与同步更新。
+  - [导航与控件](/travels/zh/llms.mdx/docs/guides/navigation-and-controls/content.md): 在历史记录中移动，并向 UI 组件暴露恰当的只读能力。
+  - [归档模式](/travels/zh/llms.mdx/docs/guides/archive-mode/content.md): 选择自动生成的条目，或通过手动归档显式分组待处理更新。
+  - [事务](/travels/zh/llms.mdx/docs/guides/transactions/content.md): 把多次同步更新归入一个原子历史条目，并只产生一个稳定后的观察者事件。
+  - [跟踪与替换](/travels/zh/llms.mdx/docs/guides/tracking-and-replacement/content.md): 在历史记录之外应用更新、替换权威状态，并在需要时重置历史基线。
+  - [可变模式](/travels/zh/llms.mdx/docs/guides/mutable-mode/content.md): 在记录可逆补丁的同时，保持响应式对象引用不变。
+  - [Journal](/travels/zh/llms.mdx/docs/guides/controlled-journal/content.md): 通过 Journal 将 Travels 历史记录接入已经拥有状态并负责提交的运行时。
+  - [观察者与事件](/travels/zh/llms.mdx/docs/guides/observers-and-events/content.md): 订阅已提交的状态转换，并安全使用共享的只读事件数据。
+  - [错误处理](/travels/zh/llms.mdx/docs/guides/error-handling/content.md): 在不损坏历史记录的前提下处理带类型的操作错误、持久化失败、警告和观察者错误。
+  - [进阶模式](/travels/zh/llms.mdx/docs/guides/advanced-patterns/content.md): 通过校验、权限、元数据、日志和可组合包装器扩展 Travels。
 - 框架集成
-  - [框架集成](/zh/docs/integrations): 为你的状态架构选择不可变、可变、官方绑定或外部持有的历史方案。
-  - [React 集成](/zh/docs/integrations/react): 使用 useSyncExternalStore 与基于修订号的失效机制，将 Travels 时间线绑定到 React。
-  - [Vue 集成](/zh/docs/integrations/vue): 使用不可变 ref，或通过可变模式保留响应式 Store 的引用。
-  - [Zustand 集成](/zh/docs/integrations/zustand): 使用 zustand-travel v3，或将核心的不可变时间线与 Zustand Store 同步。
-  - [MobX 与 Pinia](/zh/docs/integrations/mobx-pinia): 通过可变时间线与显式的可撤销写入，保留可观察 Store 的对象身份。
-  - [表单与外部 Store](/zh/docs/integrations/external-stores): 让表单管理器或状态运行时保持权威，同时加入可靠的撤销/重做历史。
+  - [框架集成](/travels/zh/llms.mdx/docs/integrations/content.md): 为你的状态架构选择不可变、可变、官方绑定或外部持有的历史方案。
+  - [React 集成](/travels/zh/llms.mdx/docs/integrations/react/content.md): 使用 useSyncExternalStore 与基于修订号的失效机制，将 Travels 时间线绑定到 React。
+  - [Vue 集成](/travels/zh/llms.mdx/docs/integrations/vue/content.md): 使用不可变 ref，或通过可变模式保留响应式 Store 的引用。
+  - [Zustand 集成](/travels/zh/llms.mdx/docs/integrations/zustand/content.md): 使用 zustand-travel v3，或将核心的不可变时间线与 Zustand Store 同步。
+  - [MobX 与 Pinia](/travels/zh/llms.mdx/docs/integrations/mobx-pinia/content.md): 通过可变时间线与显式的可撤销写入，保留可观察 Store 的对象身份。
+  - [表单与外部 Store](/travels/zh/llms.mdx/docs/integrations/external-stores/content.md): 让表单管理器或状态运行时保持权威，同时加入可靠的撤销/重做历史。
 - 持久化
-  - [持久化](/zh/docs/persistence): 序列化、校验、存储、恢复并迁移完整的 Travels 时间线。
-  - [存储适配器](/zh/docs/persistence/storage-adapters): 面向生产环境的 Dexie、idb、localForage 与 localspace 持久化适配器。
-  - [迁移与恢复](/zh/docs/persistence/migration-and-recovery): 迁移旧版快照、选择校验深度，并在历史记录无效时按预案恢复。
-  - [安全与完整性](/zh/docs/persistence/security-and-integrity): 理解语义校验能证明什么，以及身份认证、修订号和冲突处理应放在哪里。
+  - [持久化](/travels/zh/llms.mdx/docs/persistence/content.md): 序列化、校验、存储、恢复并迁移完整的 Travels 时间线。
+  - [存储适配器](/travels/zh/llms.mdx/docs/persistence/storage-adapters/content.md): 面向生产环境的 Dexie、idb、localForage 与 localspace 持久化适配器。
+  - [迁移与恢复](/travels/zh/llms.mdx/docs/persistence/migration-and-recovery/content.md): 迁移旧版快照、选择校验深度，并在历史记录无效时按预案恢复。
+  - [安全与完整性](/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md): 理解语义校验能证明什么，以及身份认证、修订号和冲突处理应放在哪里。
 - 迁移
-  - [迁移指南](/zh/docs/migration): 升级到 Travels 3，或从基于快照的历史库迁移。
+  - [迁移指南](/travels/zh/llms.mdx/docs/migration/content.md): 升级到 Travels 3，或从基于快照的历史库迁移。
 - 参考
-  - [配置选项](/zh/docs/reference/options): 时间线创建、恢复、持久化、补丁、钩子与 Mutative 选项参考。
-  - [实例方法](/zh/docs/reference/instance-methods): 按任务组织的索引，涵盖时间线、Journal、导航、历史记录与持久化方法。
-  - [TypeScript 指南](/zh/docs/reference/typescript): 推断时间线类型、约束持久状态，并安全使用只读视图与开放事件类型。
-  - [兼容性策略](/zh/docs/reference/compatibility): 受支持的运行时、浏览器、状态形状、官方绑定与版本管理。
+  - [配置选项](/travels/zh/llms.mdx/docs/reference/options/content.md): 时间线创建、恢复、持久化、补丁、钩子与 Mutative 选项参考。
+  - [实例方法](/travels/zh/llms.mdx/docs/reference/instance-methods/content.md): 按任务组织的索引，涵盖时间线、Journal、导航、历史记录与持久化方法。
+  - [TypeScript 指南](/travels/zh/llms.mdx/docs/reference/typescript/content.md): 推断时间线类型、约束持久状态，并安全使用只读视图与开放事件类型。
+  - [兼容性策略](/travels/zh/llms.mdx/docs/reference/compatibility/content.md): 受支持的运行时、浏览器、状态形状、官方绑定与版本管理。
 - 资源
-  - [示例](/zh/docs/resources/examples): 可直接运行和复制的 Travels 示例，涵盖核心历史记录、框架集成、持久化与编辑类应用。
-  - [故障排查](/zh/docs/resources/troubleshooting): 诊断常见的更新、导航、持久化、可变模式与集成问题。
-  - [测试策略](/zh/docs/resources/testing): 正确性测试、基于属性的测试、浏览器测试、变异测试与热路径性能测试。
-  - [参与贡献](/zh/docs/resources/contributing): 配置仓库、进行聚焦的改动并验证贡献。
-  - [安全策略](/zh/docs/resources/security): 受支持的版本与负责任的漏洞报告流程。
-  - [发布清单](/zh/docs/resources/release-checklist): 用于验证并发布 Travels 版本的项目清单。
+  - [示例](/travels/zh/llms.mdx/docs/resources/examples/content.md): 可直接运行和复制的 Travels 示例，涵盖核心历史记录、框架集成、持久化与编辑类应用。
+  - [故障排查](/travels/zh/llms.mdx/docs/resources/troubleshooting/content.md): 诊断常见的更新、导航、持久化、可变模式与集成问题。
+  - [测试策略](/travels/zh/llms.mdx/docs/resources/testing/content.md): 正确性测试、基于属性的测试、浏览器测试、变异测试与热路径性能测试。
+  - [参与贡献](/travels/zh/llms.mdx/docs/resources/contributing/content.md): 配置仓库、进行聚焦的改动并验证贡献。
+  - [安全策略](/travels/zh/llms.mdx/docs/resources/security/content.md): 受支持的版本与负责任的漏洞报告流程。
+  - [发布清单](/travels/zh/llms.mdx/docs/resources/release-checklist/content.md): 用于验证并发布 Travels 版本的项目清单。
 - API 参考
-  - [API 参考](/zh/docs/api-reference): Travels 3 全部公开导出的完整源码生成参考。
+  - [API 参考](/travels/zh/llms.mdx/docs/api-reference/content.md): Travels 3 全部公开导出的完整源码生成参考。
   - 函数
-    - [assertTravelHistoryEntryRecordable()](/zh/docs/api-reference/functions/assertTravelHistoryEntryRecordable): Preflight a controlled patch pair before an external commit.
-    - [createPatchableTravels()](/zh/docs/api-reference/functions/createPatchableTravels): Create a timeline constrained to the durable JSON-shaped state contract.
-    - [createTravelJournal()](/zh/docs/api-reference/functions/createTravelJournal): Record history for a runtime that already owns state and patches.
-    - [createTravels()](/zh/docs/api-reference/functions/createTravels): Create a state-owning timeline with automatic or manual archiving.
-    - [findStateCompatibilityIssues()](/zh/docs/api-reference/functions/findStateCompatibilityIssues): Inspect state, patches, and metadata for persistence hazards.
-    - [isTravels()](/zh/docs/api-reference/functions/isTravels): Detect a state-owning timeline created by this copy of Travels.
-    - [restoreTravelJournal()](/zh/docs/api-reference/functions/restoreTravelJournal): Restore a controlled journal from a complete history snapshot.
-    - [restoreTravels()](/zh/docs/api-reference/functions/restoreTravels): Restore a complete validated Travels history snapshot.
-    - [validateTravelHistoryEntry()](/zh/docs/api-reference/functions/validateTravelHistoryEntry): Validate a forward and inverse history entry.
-    - [validateTravelPatches()](/zh/docs/api-reference/functions/validateTravelPatches): Validate JSON Patch structure and retained patch values.
+    - [assertTravelHistoryEntryRecordable()](/travels/zh/llms.mdx/docs/api-reference/functions/assertTravelHistoryEntryRecordable/content.md): Travels 3.0.1. Preflight a controlled patch pair before an external commit.
+    - [createPatchableTravels()](/travels/zh/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md): Travels 3.0.1. Create a timeline constrained to the durable JSON-shaped state contract.
+    - [createTravelJournal()](/travels/zh/llms.mdx/docs/api-reference/functions/createTravelJournal/content.md): Travels 3.0.1. Record history for a runtime that already owns state and patches.
+    - [createTravels()](/travels/zh/llms.mdx/docs/api-reference/functions/createTravels/content.md): Travels 3.0.1. Create a state-owning timeline with automatic or manual archiving.
+    - [findStateCompatibilityIssues()](/travels/zh/llms.mdx/docs/api-reference/functions/findStateCompatibilityIssues/content.md): Travels 3.0.1. Inspect state, patches, and metadata for persistence hazards.
+    - [isTravels()](/travels/zh/llms.mdx/docs/api-reference/functions/isTravels/content.md): Travels 3.0.1. Detect a state-owning timeline created by this copy of Travels.
+    - [restoreTravelJournal()](/travels/zh/llms.mdx/docs/api-reference/functions/restoreTravelJournal/content.md): Travels 3.0.1. Restore a controlled journal from a complete history snapshot.
+    - [restoreTravels()](/travels/zh/llms.mdx/docs/api-reference/functions/restoreTravels/content.md): Travels 3.0.1. Restore a complete validated Travels history snapshot.
+    - [validateTravelHistoryEntry()](/travels/zh/llms.mdx/docs/api-reference/functions/validateTravelHistoryEntry/content.md): Travels 3.0.1. Validate a forward and inverse history entry.
+    - [validateTravelPatches()](/travels/zh/llms.mdx/docs/api-reference/functions/validateTravelPatches/content.md): Travels 3.0.1. Validate JSON Patch structure and retained patch values.
   - 类
-    - [TravelsError](/zh/docs/api-reference/classes/TravelsError): Travels 3 API reference for TravelsError.
-    - [TravelsPersistenceError](/zh/docs/api-reference/classes/TravelsPersistenceError): Travels 3 API reference for TravelsPersistenceError.
-    - [TravelsTypeError](/zh/docs/api-reference/classes/TravelsTypeError): Travels 3 API reference for TravelsTypeError.
+    - [TravelsError](/travels/zh/llms.mdx/docs/api-reference/classes/TravelsError/content.md): Travels 3.0.1. Travels 3 API reference for TravelsError.
+    - [TravelsPersistenceError](/travels/zh/llms.mdx/docs/api-reference/classes/TravelsPersistenceError/content.md): Travels 3.0.1. Travels 3 API reference for TravelsPersistenceError.
+    - [TravelsTypeError](/travels/zh/llms.mdx/docs/api-reference/classes/TravelsTypeError/content.md): Travels 3.0.1. Travels 3 API reference for TravelsTypeError.
   - 接口
-    - [ManualTravelsControls<S, P>](/zh/docs/api-reference/interfaces/ManualTravelsControls): Travels 3 API reference for ManualTravelsControls.
-    - [TravelsControls<S, P>](/zh/docs/api-reference/interfaces/TravelsControls): Travels 3 API reference for TravelsControls.
+    - [ManualTravelsControls<S, P>](/travels/zh/llms.mdx/docs/api-reference/interfaces/ManualTravelsControls/content.md): Travels 3.0.1. Travels 3 API reference for ManualTravelsControls.
+    - [TravelsControls<S, P>](/travels/zh/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md): Travels 3.0.1. Travels 3 API reference for TravelsControls.
   - 类型别名
-    - [JsonArray](/zh/docs/api-reference/type-aliases/JsonArray): Travels 3 API reference for JsonArray.
-    - [JsonObject](/zh/docs/api-reference/type-aliases/JsonObject): Travels 3 API reference for JsonObject.
-    - [JsonPrimitive](/zh/docs/api-reference/type-aliases/JsonPrimitive): Travels 3 API reference for JsonPrimitive.
-    - [JsonValue](/zh/docs/api-reference/type-aliases/JsonValue): Travels 3 API reference for JsonValue.
-    - [PatchableInput<T>](/zh/docs/api-reference/type-aliases/PatchableInput): Travels 3 API reference for PatchableInput.
-    - [PatchableState](/zh/docs/api-reference/type-aliases/PatchableState): Travels 3 API reference for PatchableState.
-    - [PatchesOption](/zh/docs/api-reference/type-aliases/PatchesOption): Travels 3 API reference for PatchesOption.
-    - [ReadonlyState<S>](/zh/docs/api-reference/type-aliases/ReadonlyState): Travels 3 API reference for ReadonlyState.
-    - [ReadonlyTravelPatch<P>](/zh/docs/api-reference/type-aliases/ReadonlyTravelPatch): Travels 3 API reference for ReadonlyTravelPatch.
-    - [ReadonlyTravelPatches<P>](/zh/docs/api-reference/type-aliases/ReadonlyTravelPatches): Travels 3 API reference for ReadonlyTravelPatches.
-    - [RebasableManualTravelsControls<S, P>](/zh/docs/api-reference/type-aliases/RebasableManualTravelsControls): Travels 3 API reference for RebasableManualTravelsControls.
-    - [RebasableTravelsControls<S, P>](/zh/docs/api-reference/type-aliases/RebasableTravelsControls): Travels 3 API reference for RebasableTravelsControls.
-    - [RestoreTravelsOptions<S, F, A, P>](/zh/docs/api-reference/type-aliases/RestoreTravelsOptions): Travels 3 API reference for RestoreTravelsOptions.
-    - [StateCompatibilityIssue](/zh/docs/api-reference/type-aliases/StateCompatibilityIssue): Travels 3 API reference for StateCompatibilityIssue.
-    - [StateCompatibilityIssueCode](/zh/docs/api-reference/type-aliases/StateCompatibilityIssueCode): Travels 3 API reference for StateCompatibilityIssueCode.
-    - [TravelHistoryEntry<P>](/zh/docs/api-reference/type-aliases/TravelHistoryEntry): Travels 3 API reference for TravelHistoryEntry.
-    - [TravelJournal<S, F, A, P>](/zh/docs/api-reference/type-aliases/TravelJournal): Travels 3 API reference for TravelJournal.
-    - [TravelJournalOptions<S, F, A, P>](/zh/docs/api-reference/type-aliases/TravelJournalOptions): Travels 3 API reference for TravelJournalOptions.
-    - [TravelMetadata](/zh/docs/api-reference/type-aliases/TravelMetadata): Travels 3 API reference for TravelMetadata.
-    - [TravelPatches<P>](/zh/docs/api-reference/type-aliases/TravelPatches): Travels 3 API reference for TravelPatches.
-    - [Travels<S, _F, A, P>](/zh/docs/api-reference/type-aliases/Travels): Persistence namespace, serialized history, and core timeline types.
-    - [TravelsBranchDiscardEvent<P>](/zh/docs/api-reference/type-aliases/TravelsBranchDiscardEvent): Travels 3 API reference for TravelsBranchDiscardEvent.
-    - [TravelsControlledApply()<S, P>](/zh/docs/api-reference/type-aliases/TravelsControlledApply): Travels 3 API reference for TravelsControlledApply.
-    - [TravelsControlledTransition<S, P>](/zh/docs/api-reference/type-aliases/TravelsControlledTransition): Travels 3 API reference for TravelsControlledTransition.
-    - [TravelsDeserializeOptions<S, P>](/zh/docs/api-reference/type-aliases/TravelsDeserializeOptions): Travels 3 API reference for TravelsDeserializeOptions.
-    - [TravelsErrorCode](/zh/docs/api-reference/type-aliases/TravelsErrorCode): Travels 3 API reference for TravelsErrorCode.
-    - [TravelsEvent<S, P>](/zh/docs/api-reference/type-aliases/TravelsEvent): Travels 3 API reference for TravelsEvent.
-    - [TravelsEventType](/zh/docs/api-reference/type-aliases/TravelsEventType): Travels 3 API reference for TravelsEventType.
-    - [TravelsHistoryValidationMode](/zh/docs/api-reference/type-aliases/TravelsHistoryValidationMode): Travels 3 API reference for TravelsHistoryValidationMode.
-    - [TravelsKnownEventType](/zh/docs/api-reference/type-aliases/TravelsKnownEventType): Travels 3 API reference for TravelsKnownEventType.
-    - [TravelsMigration()<S, P>](/zh/docs/api-reference/type-aliases/TravelsMigration): Travels 3 API reference for TravelsMigration.
-    - [TravelsObserverErrorEvent](/zh/docs/api-reference/type-aliases/TravelsObserverErrorEvent): Travels 3 API reference for TravelsObserverErrorEvent.
-    - [TravelsObserverErrorSource](/zh/docs/api-reference/type-aliases/TravelsObserverErrorSource): Travels 3 API reference for TravelsObserverErrorSource.
-    - [TravelsOptions<F, A, P, S>](/zh/docs/api-reference/type-aliases/TravelsOptions): Travels 3 API reference for TravelsOptions.
-    - [TravelsPersistenceErrorCode](/zh/docs/api-reference/type-aliases/TravelsPersistenceErrorCode): Travels 3 API reference for TravelsPersistenceErrorCode.
-    - [TravelsReplayOptions](/zh/docs/api-reference/type-aliases/TravelsReplayOptions): Travels 3 API reference for TravelsReplayOptions.
-    - [TravelsSerializedHistory<S, P>](/zh/docs/api-reference/type-aliases/TravelsSerializedHistory): Travels 3 API reference for TravelsSerializedHistory.
-    - [TravelsSerializeOptions](/zh/docs/api-reference/type-aliases/TravelsSerializeOptions): Travels 3 API reference for TravelsSerializeOptions.
-    - [TravelsWarning](/zh/docs/api-reference/type-aliases/TravelsWarning): Travels 3 API reference for TravelsWarning.
-    - [TravelsWarningCode](/zh/docs/api-reference/type-aliases/TravelsWarningCode): Travels 3 API reference for TravelsWarningCode.
-    - [Updater<S>](/zh/docs/api-reference/type-aliases/Updater): Travels 3 API reference for Updater.
+    - [JsonArray](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonArray/content.md): Travels 3.0.1. Travels 3 API reference for JsonArray.
+    - [JsonObject](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonObject/content.md): Travels 3.0.1. Travels 3 API reference for JsonObject.
+    - [JsonPrimitive](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonPrimitive/content.md): Travels 3.0.1. Travels 3 API reference for JsonPrimitive.
+    - [JsonValue](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonValue/content.md): Travels 3.0.1. Travels 3 API reference for JsonValue.
+    - [PatchableInput<T>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchableInput/content.md): Travels 3.0.1. Travels 3 API reference for PatchableInput.
+    - [PatchableState](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchableState/content.md): Travels 3.0.1. Travels 3 API reference for PatchableState.
+    - [PatchesOption](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md): Travels 3.0.1. Travels 3 API reference for PatchesOption.
+    - [ReadonlyState<S>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/ReadonlyState/content.md): Travels 3.0.1. Travels 3 API reference for ReadonlyState.
+    - [ReadonlyTravelPatch<P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/ReadonlyTravelPatch/content.md): Travels 3.0.1. Travels 3 API reference for ReadonlyTravelPatch.
+    - [ReadonlyTravelPatches<P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/ReadonlyTravelPatches/content.md): Travels 3.0.1. Travels 3 API reference for ReadonlyTravelPatches.
+    - [RebasableManualTravelsControls<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableManualTravelsControls/content.md): Travels 3.0.1. Travels 3 API reference for RebasableManualTravelsControls.
+    - [RebasableTravelsControls<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md): Travels 3.0.1. Travels 3 API reference for RebasableTravelsControls.
+    - [RestoreTravelsOptions<S, F, A, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md): Travels 3.0.1. Travels 3 API reference for RestoreTravelsOptions.
+    - [StateCompatibilityIssue](/travels/zh/llms.mdx/docs/api-reference/type-aliases/StateCompatibilityIssue/content.md): Travels 3.0.1. Travels 3 API reference for StateCompatibilityIssue.
+    - [StateCompatibilityIssueCode](/travels/zh/llms.mdx/docs/api-reference/type-aliases/StateCompatibilityIssueCode/content.md): Travels 3.0.1. Travels 3 API reference for StateCompatibilityIssueCode.
+    - [TravelHistoryEntry<P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md): Travels 3.0.1. Travels 3 API reference for TravelHistoryEntry.
+    - [TravelJournal<S, F, A, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournal/content.md): Travels 3.0.1. Travels 3 API reference for TravelJournal.
+    - [TravelJournalOptions<S, F, A, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournalOptions/content.md): Travels 3.0.1. Travels 3 API reference for TravelJournalOptions.
+    - [TravelMetadata](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md): Travels 3.0.1. Travels 3 API reference for TravelMetadata.
+    - [TravelPatches<P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md): Travels 3.0.1. Travels 3 API reference for TravelPatches.
+    - [Travels<S, _F, A, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md): Travels 3.0.1. Persistence namespace, serialized history, and core timeline types.
+    - [TravelsBranchDiscardEvent<P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsBranchDiscardEvent/content.md): Travels 3.0.1. Travels 3 API reference for TravelsBranchDiscardEvent.
+    - [TravelsControlledApply()<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsControlledApply/content.md): Travels 3.0.1. Travels 3 API reference for TravelsControlledApply.
+    - [TravelsControlledTransition<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsControlledTransition/content.md): Travels 3.0.1. Travels 3 API reference for TravelsControlledTransition.
+    - [TravelsDeserializeOptions<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsDeserializeOptions/content.md): Travels 3.0.1. Travels 3 API reference for TravelsDeserializeOptions.
+    - [TravelsErrorCode](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsErrorCode/content.md): Travels 3.0.1. Travels 3 API reference for TravelsErrorCode.
+    - [TravelsEvent<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md): Travels 3.0.1. Travels 3 API reference for TravelsEvent.
+    - [TravelsEventType](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsEventType/content.md): Travels 3.0.1. Travels 3 API reference for TravelsEventType.
+    - [TravelsHistoryValidationMode](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsHistoryValidationMode/content.md): Travels 3.0.1. Travels 3 API reference for TravelsHistoryValidationMode.
+    - [TravelsKnownEventType](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsKnownEventType/content.md): Travels 3.0.1. Travels 3 API reference for TravelsKnownEventType.
+    - [TravelsMigration()<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsMigration/content.md): Travels 3.0.1. Travels 3 API reference for TravelsMigration.
+    - [TravelsObserverErrorEvent](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsObserverErrorEvent/content.md): Travels 3.0.1. Travels 3 API reference for TravelsObserverErrorEvent.
+    - [TravelsObserverErrorSource](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsObserverErrorSource/content.md): Travels 3.0.1. Travels 3 API reference for TravelsObserverErrorSource.
+    - [TravelsOptions<F, A, P, S>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md): Travels 3.0.1. Travels 3 API reference for TravelsOptions.
+    - [TravelsPersistenceErrorCode](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsPersistenceErrorCode/content.md): Travels 3.0.1. Travels 3 API reference for TravelsPersistenceErrorCode.
+    - [TravelsReplayOptions](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsReplayOptions/content.md): Travels 3.0.1. Travels 3 API reference for TravelsReplayOptions.
+    - [TravelsSerializedHistory<S, P>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md): Travels 3.0.1. Travels 3 API reference for TravelsSerializedHistory.
+    - [TravelsSerializeOptions](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializeOptions/content.md): Travels 3.0.1. Travels 3 API reference for TravelsSerializeOptions.
+    - [TravelsWarning](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsWarning/content.md): Travels 3.0.1. Travels 3 API reference for TravelsWarning.
+    - [TravelsWarningCode](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsWarningCode/content.md): Travels 3.0.1. Travels 3 API reference for TravelsWarningCode.
+    - [Updater<S>](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Updater/content.md): Travels 3.0.1. Travels 3 API reference for Updater.
   - 变量
-    - [TRAVELS\_HISTORY\_SCHEMA\_VERSION](/zh/docs/api-reference/variables/TRAVELS_HISTORY_SCHEMA_VERSION): Travels 3 API reference for TRAVELS\_HISTORY\_SCHEMA\_VERSION.
-    - [Travels](/zh/docs/api-reference/variables/Travels): Persistence namespace, serialized history, and core timeline types.
+    - [TRAVELS\_HISTORY\_SCHEMA\_VERSION](/travels/zh/llms.mdx/docs/api-reference/variables/TRAVELS_HISTORY_SCHEMA_VERSION/content.md): Travels 3.0.1. Travels 3 API reference for TRAVELS\_HISTORY\_SCHEMA\_VERSION.
+    - [Travels](/travels/zh/llms.mdx/docs/api-reference/variables/Travels/content.md): Travels 3.0.1. Persistence namespace, serialized history, and core timeline types.

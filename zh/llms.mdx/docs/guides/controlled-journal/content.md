@@ -1,4 +1,4 @@
-# Journal (/zh/docs/guides/controlled-journal)
+# Journal (/travels/zh/llms.mdx/docs/guides/controlled-journal/content.md)
 
 `createTravelJournal()` 是面向已经拥有状态并负责提交的运行时提供的 Journal（受控日志）适配器 API。它让该运行时把现有的正向/反向补丁对交给 Travels，而无需重新执行更新逻辑，也不必让导航绕开状态所有者的校验与订阅流程。
 

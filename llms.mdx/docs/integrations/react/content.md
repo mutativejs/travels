@@ -1,4 +1,4 @@
-# React Integration (/docs/integrations/react)
+# React Integration (/travels/llms.mdx/docs/integrations/react/content.md)
 
 React works naturally with Travels’ default immutable mode. Subscribe with `useSyncExternalStore`, use `getRevision()` as the invalidation snapshot, and read current state or controls during render.
 

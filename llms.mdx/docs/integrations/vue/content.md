@@ -1,4 +1,4 @@
-# Vue Integration (/docs/integrations/vue)
+# Vue Integration (/travels/llms.mdx/docs/integrations/vue/content.md)
 
 Vue supports both Travels ownership styles. Use immutable mode with a ref when replacing state is acceptable, or mutable mode when the timeline must update the same `reactive()` object observed by components.
 
@@ -82,4 +82,4 @@ console.log(travels.getState() === state); // true
 
 Vue watchers attached directly to mutable state can observe provisional writes during a transaction, while Travels subscribers see only the settled root transaction. Direct assignments to `state` bypass Travels and are not rolled back. Route all undoable writes through `travels.setState()`.
 
-For a complete store example, continue to [MobX and Pinia](/docs/integrations/mobx-pinia) or browse the [Vue source example](https://github.com/mutativejs/travels/blob/main/examples/vue.ts).
+For a complete store example, continue to [MobX and Pinia](/travels/llms.mdx/docs/integrations/mobx-pinia/content.md) or browse the [Vue source example](https://github.com/mutativejs/travels/blob/main/examples/vue.ts).

@@ -1,4 +1,4 @@
-# Archive Mode (/docs/guides/archive-mode)
+# Archive Mode (/travels/llms.mdx/docs/guides/archive-mode/content.md)
 
 The archive mode defines when effective state changes become undoable history entries. It does not change when current state updates: pending manual edits are already visible in current state.
 
@@ -66,7 +66,7 @@ In Travels 3 this publishes one `go` event and advances `getRevision()` once. Pe
 
 A root `transaction()` archives when it commits. Changes already pending before the transaction join its entry, so undo reverts them together. Transaction metadata takes precedence; without it, the latest pending update metadata is used.
 
-A transaction whose own updates cancel out can leave earlier pending work pending. For the full matrix, see [Transactions](/docs/guides/transactions).
+A transaction whose own updates cancel out can leave earlier pending work pending. For the full matrix, see [Transactions](/travels/llms.mdx/docs/guides/transactions/content.md).
 
 ## Cancelled pending changes [#cancelled-pending-changes]
 

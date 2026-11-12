@@ -1,4 +1,4 @@
-# Observers and Events (/docs/guides/observers-and-events)
+# Observers and Events (/travels/llms.mdx/docs/guides/observers-and-events/content.md)
 
 `subscribe()` and the `devtools` option receive the same `TravelsEvent` envelope for a committed notification. Observers run after state, cursor, and history have settled.
 

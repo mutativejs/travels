@@ -1,4 +1,4 @@
-# Migration and Recovery (/docs/persistence/migration-and-recovery)
+# Migration and Recovery (/travels/llms.mdx/docs/persistence/migration-and-recovery/content.md)
 
 Persisted history is application data with its own schema and trust boundary. Version the application’s storage envelope, migrate synchronously before validation, and decide what safe recovery means for each document.
 

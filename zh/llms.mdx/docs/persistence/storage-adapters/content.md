@@ -1,4 +1,4 @@
-# 存储适配器 (/zh/docs/persistence/storage-adapters)
+# 存储适配器 (/travels/zh/llms.mdx/docs/persistence/storage-adapters/content.md)
 
 Travels 的持久化不依赖具体存储。唯一需要存储的值，就是 `travels.serialize()` 返回的带版本号快照。用 `Travels.deserialize(...)` 恢复它，再把校验后的快照传给 `restoreTravels(...)`。
 

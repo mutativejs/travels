@@ -1,5 +1,5 @@
-# JsonArray (/zh/docs/api-reference/type-aliases/JsonArray)
+# JsonArray (/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonArray/content.md)
 
-> **JsonArray** = [`JsonValue`](JsonValue.mdx)[]
+> **JsonArray** = [`JsonValue`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonValue/content.md)[]
 
-Defined in: [src/type.ts:88](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L88)
+Defined in: [src/type.ts:88](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L88)

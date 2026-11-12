@@ -1,4 +1,4 @@
-# 持久化 (/zh/docs/persistence)
+# 持久化 (/travels/zh/llms.mdx/docs/persistence/content.md)
 
 `serialize()` 返回带版本号的快照，应用负责选择编码与存储方式。使用 **3.0.1** 时，先用 `Travels.deserialize(stored, { validation: 'semantic' })` 校验快照对象或 JSON 字符串，再把结果交给 `restoreTravels()`。下文给出了完整示例。
 
@@ -21,7 +21,7 @@ const snapshot: TravelsSerializedHistory<DocumentState> = {
 };
 ```
 
-状态、保留的补丁值、补丁路径和元数据都必须满足[持久化状态契约](/zh/docs/concepts/state-requirements)。`serialize()` 会克隆返回的状态、补丁和元数据，因此后续编辑不会改写该快照。
+状态、保留的补丁值、补丁路径和元数据都必须满足[持久化状态契约](/travels/zh/llms.mdx/docs/concepts/state-requirements/content.md)。`serialize()` 会克隆返回的状态、补丁和元数据，因此后续编辑不会改写该快照。
 
 ## 保存快照 [#保存快照]
 
@@ -40,7 +40,7 @@ const unsubscribe = travels.subscribe(saveToLocalStorage);
 
 `strict: true` 会拒绝无法按照文档定义的 JSON 契约往返的值。普通的 `serialize()` 不会调用 `JSON.stringify()`、压缩数据，也不会规范化仅存在于运行时的值。当持久化的正确性很重要时，建议显式采用 `strict` 路径。
 
-为清晰起见，上面的示例在每次事件触发时都会写入。生产应用通常会对写入做防抖、在保存时才序列化、将异步写入排队，并在路由切换或所有者销毁前立即写入。[存储适配器](/zh/docs/persistence/storage-adapters)指南提供了一个可复用的自动保存模式。
+为清晰起见，上面的示例在每次事件触发时都会写入。生产应用通常会对写入做防抖、在保存时才序列化、将异步写入排队，并在路由切换或所有者销毁前立即写入。[存储适配器](/travels/zh/llms.mdx/docs/persistence/storage-adapters/content.md)指南提供了一个可复用的自动保存模式。
 
 ## 恢复快照 [#恢复快照]
 
@@ -127,7 +127,7 @@ Travels 会把快照状态和时间线当作一个原子输入整体接收。后
 | `structural`（默认） | 模式、版本、补丁形状、路径、值、位置 | 可信输入，或已经过其他验证边界且对延迟敏感的恢复 |
 | `semantic` | 结构校验，加上正向/反向重放与图隔离 | 未经验证的浏览器存储、导入的文件、可能已损坏的快照 |
 
-语义校验的开销随状态结构和可达历史记录增长。它证明的是重放一致性，而不是真实性或来源。参见[安全与完整性](/zh/docs/persistence/security-and-integrity)。
+语义校验的开销随状态结构和可达历史记录增长。它证明的是重放一致性，而不是真实性或来源。参见[安全与完整性](/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md)。
 
 ## 谨慎选择存储 [#谨慎选择存储]
 
@@ -139,7 +139,7 @@ Travels 会把快照状态和时间线当作一个原子输入整体接收。后
 - 对重要草稿，保留最近一次已知可用的快照。
 
 <Cards>
-  <Card title="存储适配器" href="/zh/docs/persistence/storage-adapters" description="Dexie、idb、localForage、localspace、事务与自动保存。" />
-  <Card title="迁移与恢复" href="/zh/docs/persistence/migration-and-recovery" description="模式迁移、回退、校验模式与类型化错误。" />
-  <Card title="安全与完整性" href="/zh/docs/persistence/security-and-integrity" description="信任边界、来源、修订号与多设备相关问题。" />
+  <Card title="存储适配器" href="/travels/zh/llms.mdx/docs/persistence/storage-adapters/content.md" description="Dexie、idb、localForage、localspace、事务与自动保存。" />
+  <Card title="迁移与恢复" href="/travels/zh/llms.mdx/docs/persistence/migration-and-recovery/content.md" description="模式迁移、回退、校验模式与类型化错误。" />
+  <Card title="安全与完整性" href="/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md" description="信任边界、来源、修订号与多设备相关问题。" />
 </Cards>

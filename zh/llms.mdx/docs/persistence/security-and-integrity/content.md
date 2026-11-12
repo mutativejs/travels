@@ -1,4 +1,4 @@
-# 安全与完整性 (/zh/docs/persistence/security-and-integrity)
+# 安全与完整性 (/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md)
 
 `Travels.deserialize({ validation: 'semantic' })` 证明的是：存储的锚点和可达的补丁条目能够在隔离的图上一致地重放和反向应用。它**不能**证明快照由谁写入、是否为最新快照，也不能证明重建出的过去就是最初记录的那段历史。
 
@@ -54,4 +54,4 @@ Travels 不是 CRDT 或操作转换系统，不会合并并发历史记录，也
 
 ## 报告漏洞 [#报告漏洞]
 
-如需报告 Travels 库的漏洞，遵循项目的[安全策略](/zh/docs/resources/security)。请勿在公开 issue 中包含真实的用户文档、机密信息或私有持久化载荷。
+如需报告 Travels 库的漏洞，遵循项目的[安全策略](/travels/zh/llms.mdx/docs/resources/security/content.md)。请勿在公开 issue 中包含真实的用户文档、机密信息或私有持久化载荷。

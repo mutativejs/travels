@@ -1,8 +1,8 @@
-# TravelsOptions<F, A, P, S> (/docs/api-reference/type-aliases/TravelsOptions)
+# TravelsOptions<F, A, P, S> (/travels/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)
 
 > **TravelsOptions**\<`F`, `A`, `P`, `S`\> = `object` & `Omit`\<`MutativeOptions`\<`true`, `F`\>, `"enablePatches"`\> & `object`
 
-Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L334)
+Defined in: [src/type.ts:334](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L334)
 
 ## Type Declaration [#type-declaration]
 
@@ -23,7 +23,7 @@ type its event with the timeline state.
 
 ##### event [#event]
 
-[`TravelsEvent`](TravelsEvent.mdx)\<`S`, `P`\>
+[`TravelsEvent`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md)\<`S`, `P`\>
 
 #### Returns [#returns]
 
@@ -64,7 +64,7 @@ Root transactions report only entries that were visible before they began.
 
 ##### event [#event-1]
 
-[`TravelsBranchDiscardEvent`](TravelsBranchDiscardEvent.mdx)\<`P`\>
+[`TravelsBranchDiscardEvent`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsBranchDiscardEvent/content.md)\<`P`\>
 
 #### Returns [#returns-1]
 
@@ -98,7 +98,7 @@ back or interrupt an already committed state transition.
 
 ##### event [#event-2]
 
-[`TravelsObserverErrorEvent`](TravelsObserverErrorEvent.mdx)
+[`TravelsObserverErrorEvent`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsObserverErrorEvent/content.md)
 
 #### Returns [#returns-3]
 
@@ -115,7 +115,7 @@ Without this hook warnings are written to the console only in development.
 
 ##### warning [#warning]
 
-[`TravelsWarning`](TravelsWarning.mdx)
+[`TravelsWarning`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsWarning/content.md)
 
 #### Returns [#returns-4]
 
@@ -149,7 +149,7 @@ uses them to implement history, navigation, and persistence.
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}
 
 ### S [#s]
 

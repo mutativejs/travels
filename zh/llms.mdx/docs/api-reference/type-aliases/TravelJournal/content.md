@@ -1,8 +1,8 @@
-# TravelJournal<S, F, A, P> (/zh/docs/api-reference/type-aliases/TravelJournal)
+# TravelJournal<S, F, A, P> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournal/content.md)
 
-> **TravelJournal**\<`S`, `F`, `A`, `P`\> = `Readonly`\<`Pick`\<[`Travels`](Travels.mdx)\<`S`, `F`, `A`, `P`\>, `"subscribe"` \| `"getState"` \| `"getRevision"` \| `"getHistory"` \| `"getHistorySnapshot"` \| `"go"` \| `"back"` \| `"forward"` \| `"reset"` \| `"rebase"` \| `"canBack"` \| `"canForward"` \| `"getPosition"` \| `"getPatches"` \| `"serialize"` \| `"assertPersistenceCompatible"` \| `"getMetadata"` \| `"getHistoryEntries"`\> & `object` & `A` *extends* `false` ? `object` : `object`\>
+> **TravelJournal**\<`S`, `F`, `A`, `P`\> = `Readonly`\<`Pick`\<[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>, `"subscribe"` \| `"getState"` \| `"getRevision"` \| `"getHistory"` \| `"getHistorySnapshot"` \| `"go"` \| `"back"` \| `"forward"` \| `"reset"` \| `"rebase"` \| `"canBack"` \| `"canForward"` \| `"getPosition"` \| `"getPatches"` \| `"serialize"` \| `"assertPersistenceCompatible"` \| `"getMetadata"` \| `"getHistoryEntries"`\> & `object` & `A` *extends* `false` ? `object` : `object`\>
 
-Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravelJournal.ts#L27)
+Defined in: [src/createTravelJournal.ts:27](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravelJournal.ts#L27)
 
 Public surface for a timeline whose state is owned by another runtime.
 
@@ -26,4 +26,4 @@ through `recordPatches()`; navigation and reset leave through `apply`.
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}

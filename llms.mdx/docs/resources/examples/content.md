@@ -1,4 +1,4 @@
-# Examples (/docs/resources/examples)
+# Examples (/travels/llms.mdx/docs/resources/examples/content.md)
 
 The repository contains small examples that exercise the public API without hiding the integration boundary behind a demo framework. Use them alongside the focused guides in this documentation.
 
@@ -47,8 +47,8 @@ The examples are included in the TypeScript example checks. When adapting one, k
 ## Related documentation [#related-documentation]
 
 <Cards>
-  <Card title="Quick Start" href="/docs/getting-started/quick-start" />
-  <Card title="Framework Integrations" href="/docs/integrations" />
-  <Card title="Storage Adapters" href="/docs/persistence/storage-adapters" />
-  <Card title="Contributing" href="/docs/resources/contributing" />
+  <Card title="Quick Start" href="/travels/llms.mdx/docs/getting-started/quick-start/content.md" />
+  <Card title="Framework Integrations" href="/travels/llms.mdx/docs/integrations/content.md" />
+  <Card title="Storage Adapters" href="/travels/llms.mdx/docs/persistence/storage-adapters/content.md" />
+  <Card title="Contributing" href="/travels/llms.mdx/docs/resources/contributing/content.md" />
 </Cards>

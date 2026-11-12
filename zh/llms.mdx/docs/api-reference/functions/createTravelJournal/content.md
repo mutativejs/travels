@@ -1,8 +1,8 @@
-# createTravelJournal() (/zh/docs/api-reference/functions/createTravelJournal)
+# createTravelJournal() (/travels/zh/llms.mdx/docs/api-reference/functions/createTravelJournal/content.md)
 
-> **createTravelJournal**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
+> **createTravelJournal**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`TravelJournal`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournal/content.md)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravelJournal.ts:151](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravelJournal.ts#L151)
+Defined in: [src/createTravelJournal.ts:151](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravelJournal.ts#L151)
 
 ## Type Parameters [#type-parameters]
 
@@ -30,8 +30,8 @@ Defined in: [src/createTravelJournal.ts:151](https://github.com/mutativejs/trave
 
 ### options [#options]
 
-[`TravelJournalOptions`](../type-aliases/TravelJournalOptions.mdx)\<`S`, `F`, `A`, `P`\>
+[`TravelJournalOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournalOptions/content.md)\<`S`, `F`, `A`, `P`\>
 
 ## Returns [#returns]
 
-[`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
+[`TravelJournal`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournal/content.md)\<`S`, `F`, `A`, `P`\>

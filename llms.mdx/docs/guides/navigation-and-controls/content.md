@@ -1,4 +1,4 @@
-# Navigation and Controls (/docs/guides/navigation-and-controls)
+# Navigation and Controls (/travels/llms.mdx/docs/guides/navigation-and-controls/content.md)
 
 ## Undo, redo, and jumps [#undo-redo-and-jumps]
 
@@ -19,7 +19,7 @@ Use `canBack()` and `canForward()` for button availability. `getPosition()` give
 - `reset()` returns to the current instance baseline.
 - `rebase()` discards all history and makes current state the new baseline.
 
-Both are timeline mutations and notify observers. Neither means “go to the oldest retained patch” in every situation; read [History Lifecycle](/docs/concepts/history-lifecycle) before exposing them as product actions.
+Both are timeline mutations and notify observers. Neither means “go to the oldest retained patch” in every situation; read [History Lifecycle](/travels/llms.mdx/docs/concepts/history-lifecycle/content.md) before exposing them as product actions.
 
 ## Narrow controls for components [#narrow-controls-for-components]
 

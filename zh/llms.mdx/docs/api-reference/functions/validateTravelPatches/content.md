@@ -1,8 +1,8 @@
-# validateTravelPatches() (/zh/docs/api-reference/functions/validateTravelPatches)
+# validateTravelPatches() (/travels/zh/llms.mdx/docs/api-reference/functions/validateTravelPatches/content.md)
 
-> **validateTravelPatches**\<`P`\>(`patches`): \{ `error`: `string`; \} \| \{ `error`: `null`; `patches`: [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>; \}
+> **validateTravelPatches**\<`P`\>(`patches`): \{ `error`: `string`; \} \| \{ `error`: `null`; `patches`: [`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>; \}
 
-Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/persistence.ts#L247)
+Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/v3.0.1/src/persistence.ts#L247)
 
 ## Type Parameters [#type-parameters]
 
@@ -18,4 +18,4 @@ Defined in: [src/persistence.ts:247](https://github.com/mutativejs/travels/blob/
 
 ## Returns [#returns]
 
-\{ `error`: `string`; \} \| \{ `error`: `null`; `patches`: [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>; \}
+\{ `error`: `string`; \} \| \{ `error`: `null`; `patches`: [`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>; \}

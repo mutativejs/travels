@@ -1,4 +1,4 @@
-# 选择合适的方案 (/zh/docs/getting-started/choosing-travels)
+# 选择合适的方案 (/travels/zh/llms.mdx/docs/getting-started/choosing-travels/content.md)
 
 Travels 围绕一个明确的取舍而设计：把一部分计算花在生成与应用补丁上，以缩小保留历史、让完整时间线的持久化变得可行。它并不打算在每一项更新延迟基准上都胜出。
 
@@ -47,7 +47,7 @@ Travels 围绕一个明确的取舍而设计：把一部分计算花在生成与
 - 避免重复生成同一组补丁。
 - 不要把委托的导航结果再次传回 `recordPatches()`。
 
-提交与失败边界见[Journal 指南](/zh/docs/guides/controlled-journal)。
+提交与失败边界见[Journal 指南](/travels/zh/llms.mdx/docs/guides/controlled-journal/content.md)。
 
 ## 选择归档模式 [#选择归档模式]
 

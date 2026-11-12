@@ -1,4 +1,4 @@
-# 归档模式 (/zh/docs/guides/archive-mode)
+# 归档模式 (/travels/zh/llms.mdx/docs/guides/archive-mode/content.md)
 
 归档模式决定生效的状态变更何时成为可撤销的历史条目。它不改变当前状态更新的时机：手动模式下，待处理的编辑已经体现在当前状态中。
 
@@ -66,7 +66,7 @@ travels.back(); // Pending work is archived, then navigation occurs
 
 根 `transaction()` 会在提交时归档。事务开始前已经待处理的变更会并入其条目，因此撤销时它们会一起回退。事务元数据优先；如果未提供，则使用最近一次待处理更新的元数据。
 
-如果事务自身的更新相互抵消，更早的待处理内容可能继续保持待处理。完整的行为对照见[事务](/zh/docs/guides/transactions)。
+如果事务自身的更新相互抵消，更早的待处理内容可能继续保持待处理。完整的行为对照见[事务](/travels/zh/llms.mdx/docs/guides/transactions/content.md)。
 
 ## 相互抵消的待处理变更 [#相互抵消的待处理变更]
 

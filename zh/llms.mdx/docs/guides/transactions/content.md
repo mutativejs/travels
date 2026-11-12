@@ -1,4 +1,4 @@
-# 事务 (/zh/docs/guides/transactions)
+# 事务 (/travels/zh/llms.mdx/docs/guides/transactions/content.md)
 
 当多个 Travels 操作构成一次逻辑编辑时，使用 `transaction()`。`batch()` 是它的别名，重载和行为完全相同。
 

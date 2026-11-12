@@ -1,4 +1,4 @@
-# Choosing Travels (/docs/getting-started/choosing-travels)
+# Choosing Travels (/travels/llms.mdx/docs/getting-started/choosing-travels/content.md)
 
 Travels is designed around a specific trade-off: spend work generating and applying patches to reduce retained history size and make complete timelines practical to persist. It is not intended to win every update-latency benchmark.
 
@@ -47,7 +47,7 @@ Use this when another runtime already produces `nextState`, `patches`, and `inve
 - Avoid generating the same patches twice.
 - Do not feed delegated navigation back into `recordPatches()`.
 
-See the [Controlled Journal Guide](/docs/guides/controlled-journal) for the commit and failure boundaries.
+See the [Controlled Journal Guide](/travels/llms.mdx/docs/guides/controlled-journal/content.md) for the commit and failure boundaries.
 
 ## Choose an archive mode [#choose-an-archive-mode]
 

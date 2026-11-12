@@ -1,4 +1,4 @@
-# MobX and Pinia (/docs/integrations/mobx-pinia)
+# MobX and Pinia (/travels/llms.mdx/docs/integrations/mobx-pinia/content.md)
 
 MobX and Pinia commonly observe a stable object rather than expecting immutable root replacement. Create Travels with `mutable: true` and pass the same object your components observe.
 
@@ -91,7 +91,7 @@ The restore target is overwritten in place with detached snapshot state. The sna
 
 ## Identity and root replacement [#identity-and-root-replacement]
 
-Prefer localized draft mutations. Primitive roots, explicit root replacements, and some reset/navigation cases can require immutable fallback. Review the [Mutable Mode operation table](/docs/guides/mutable-mode#behavior-by-operation) if your integration depends on strict reference equality.
+Prefer localized draft mutations. Primitive roots, explicit root replacements, and some reset/navigation cases can require immutable fallback. Review the [Mutable Mode operation table](/travels/llms.mdx/docs/guides/mutable-mode/content.md#behavior-by-operation) if your integration depends on strict reference equality.
 
 Do not enable `enableAutoFreeze` with mutable mode. Map and Set remain unsupported even when MobX or Vue can observe them; normalize collections before passing them to Travels.
 

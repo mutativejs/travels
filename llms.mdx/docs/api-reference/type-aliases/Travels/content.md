@@ -1,8 +1,8 @@
-# Travels<S, _F, A, P> (/docs/api-reference/type-aliases/Travels)
+# Travels<S, _F, A, P> (/travels/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)
 
 > **Travels**\<`S`, `_F`, `A`, `P`\> = `object` & `A` *extends* `false` ? `object` : `object`
 
-Defined in: [src/travels.ts:102](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/travels.ts#L102)
+Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/v3.0.1/src/travels.ts#L100)
 
 Public state-owning Travels capability surface.
 
@@ -105,7 +105,7 @@ such a mutation rewrites the history that redo replays.
 
 ###### metadata [#metadata]
 
-[`TravelMetadata`](TravelMetadata.mdx)
+[`TravelMetadata`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-1]
 
@@ -167,27 +167,27 @@ such a mutation rewrites the history that redo replays.
 
 ### getControls() [#getcontrols]
 
-> **getControls**(): `A` *extends* `true` ? [`RebasableTravelsControls`](RebasableTravelsControls.mdx)\<`S`, `P`\> : [`RebasableManualTravelsControls`](RebasableManualTravelsControls.mdx)\<`S`, `P`\>
+> **getControls**(): `A` *extends* `true` ? [`RebasableTravelsControls`](/travels/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\> : [`RebasableManualTravelsControls`](/travels/llms.mdx/docs/api-reference/type-aliases/RebasableManualTravelsControls/content.md)\<`S`, `P`\>
 
 #### Returns [#returns-11]
 
-`A` *extends* `true` ? [`RebasableTravelsControls`](RebasableTravelsControls.mdx)\<`S`, `P`\> : [`RebasableManualTravelsControls`](RebasableManualTravelsControls.mdx)\<`S`, `P`\>
+`A` *extends* `true` ? [`RebasableTravelsControls`](/travels/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\> : [`RebasableManualTravelsControls`](/travels/llms.mdx/docs/api-reference/type-aliases/RebasableManualTravelsControls/content.md)\<`S`, `P`\>
 
 ### getHistory() [#gethistory]
 
-> **getHistory**(): readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
+> **getHistory**(): readonly [`ReadonlyState`](/travels/llms.mdx/docs/api-reference/type-aliases/ReadonlyState/content.md)\<`S`\>[]
 
 #### Returns [#returns-12]
 
-readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
+readonly [`ReadonlyState`](/travels/llms.mdx/docs/api-reference/type-aliases/ReadonlyState/content.md)\<`S`\>[]
 
 ### getHistoryEntries() [#gethistoryentries]
 
-> **getHistoryEntries**(): [`TravelHistoryEntry`](TravelHistoryEntry.mdx)\<`P`\>[]
+> **getHistoryEntries**(): [`TravelHistoryEntry`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 #### Returns [#returns-13]
 
-[`TravelHistoryEntry`](TravelHistoryEntry.mdx)\<`P`\>[]
+[`TravelHistoryEntry`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 ### getHistorySnapshot() [#gethistorysnapshot]
 
@@ -199,19 +199,19 @@ readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
 
 ### getMetadata() [#getmetadata]
 
-> **getMetadata**(): (`undefined` \| [`TravelMetadata`](TravelMetadata.mdx))[]
+> **getMetadata**(): (`undefined` \| [`TravelMetadata`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 #### Returns [#returns-15]
 
-(`undefined` \| [`TravelMetadata`](TravelMetadata.mdx))[]
+(`undefined` \| [`TravelMetadata`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 ### getPatches() [#getpatches]
 
-> **getPatches**(): [`TravelPatches`](TravelPatches.mdx)\<`P`\>
+> **getPatches**(): [`TravelPatches`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 #### Returns [#returns-16]
 
-[`TravelPatches`](TravelPatches.mdx)\<`P`\>
+[`TravelPatches`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 ### getPosition() [#getposition]
 
@@ -287,17 +287,17 @@ readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
 
 ### serialize() [#serialize]
 
-> **serialize**(`options?`): [`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
+> **serialize**(`options?`): [`TravelsSerializedHistory`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### Parameters [#parameters-7]
 
 ##### options? [#options]
 
-[`TravelsSerializeOptions`](TravelsSerializeOptions.mdx)
+[`TravelsSerializeOptions`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializeOptions/content.md)
 
 #### Returns [#returns-24]
 
-[`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 ### setState() [#setstate]
 
@@ -315,7 +315,7 @@ readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
 
 ##### metadata? [#metadata-1]
 
-[`TravelMetadata`](TravelMetadata.mdx)
+[`TravelMetadata`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 #### Returns [#returns-25]
 
@@ -337,7 +337,7 @@ readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
 
 ###### metadata [#metadata-2]
 
-[`TravelMetadata`](TravelMetadata.mdx)
+[`TravelMetadata`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-5]
 
@@ -383,4 +383,4 @@ readonly [`ReadonlyState`](ReadonlyState.mdx)\<`S`\>[]
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}

@@ -1,5 +1,5 @@
-# PatchesOption (/docs/api-reference/type-aliases/PatchesOption)
+# PatchesOption (/travels/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md)
 
 > **PatchesOption** = `Exclude`\<`PatchesOptions`, `boolean`\>
 
-Defined in: [src/type.ts:80](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L80)
+Defined in: [src/type.ts:80](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L80)

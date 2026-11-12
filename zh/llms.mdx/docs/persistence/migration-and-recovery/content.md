@@ -1,4 +1,4 @@
-# 迁移与恢复 (/zh/docs/persistence/migration-and-recovery)
+# 迁移与恢复 (/travels/zh/llms.mdx/docs/persistence/migration-and-recovery/content.md)
 
 持久化的历史记录属于应用数据，有自己的模式和信任边界。为应用的存储封装加上版本号，在校验前同步完成迁移，并针对每个文档明确“安全恢复”意味着什么。
 

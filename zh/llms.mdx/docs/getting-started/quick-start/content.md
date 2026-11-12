@@ -1,4 +1,4 @@
-# 快速开始 (/zh/docs/getting-started/quick-start)
+# 快速开始 (/travels/zh/llms.mdx/docs/getting-started/quick-start/content.md)
 
 本指南会为一个文档编辑器构建一套小型历史记录。这套 API 同样适用于原生 JavaScript、TypeScript 以及各类框架集成。
 
@@ -107,7 +107,7 @@ travels.transaction({ label: 'Revise document' }, () => {
 });
 ```
 
-`batch()` 是 `transaction()` 的别名。事务回调必须是同步的；如果执行失败，通过 Travels API 所做的更改会回滚。更多内容见[事务](/zh/docs/guides/transactions)。
+`batch()` 是 `transaction()` 的别名。事务回调必须是同步的；如果执行失败，通过 Travels API 所做的更改会回滚。更多内容见[事务](/travels/zh/llms.mdx/docs/guides/transactions/content.md)。
 
 ## 6. 保存并恢复时间线 [#6-保存并恢复时间线]
 
@@ -137,8 +137,8 @@ if (stored) {
 ## 7. 继续探索 [#7-继续探索]
 
 <Cards>
-  <Card title="接入 React 或其他框架" href="/zh/docs/integrations" />
-  <Card title="选择自动或手动归档" href="/zh/docs/guides/archive-mode" />
-  <Card title="构建生产级持久化适配器" href="/zh/docs/persistence/storage-adapters" />
-  <Card title="查阅全部实例方法" href="/zh/docs/reference/instance-methods" />
+  <Card title="接入 React 或其他框架" href="/travels/zh/llms.mdx/docs/integrations/content.md" />
+  <Card title="选择自动或手动归档" href="/travels/zh/llms.mdx/docs/guides/archive-mode/content.md" />
+  <Card title="构建生产级持久化适配器" href="/travels/zh/llms.mdx/docs/persistence/storage-adapters/content.md" />
+  <Card title="查阅全部实例方法" href="/travels/zh/llms.mdx/docs/reference/instance-methods/content.md" />
 </Cards>

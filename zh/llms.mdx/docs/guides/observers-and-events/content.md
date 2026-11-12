@@ -1,4 +1,4 @@
-# 观察者与事件 (/zh/docs/guides/observers-and-events)
+# 观察者与事件 (/travels/zh/llms.mdx/docs/guides/observers-and-events/content.md)
 
 对于一次已提交的通知，`subscribe()` 与 `devtools` 选项会收到同一个 `TravelsEvent` 对象。观察者在状态、游标和历史记录稳定之后运行。
 

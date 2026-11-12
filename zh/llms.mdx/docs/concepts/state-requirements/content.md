@@ -1,4 +1,4 @@
-# 状态要求 (/zh/docs/concepts/state-requirements)
+# 状态要求 (/travels/zh/llms.mdx/docs/concepts/state-requirements/content.md)
 
 Travels 的持久化契约有意比 JavaScript 的对象模型更小。它不仅适用于当前状态，也适用于旧补丁中保留的值、补丁路径以及自定义历史元数据，而不只是传给 `createTravels()` 的那个对象。
 

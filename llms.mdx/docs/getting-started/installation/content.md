@@ -1,4 +1,4 @@
-# Installation (/docs/getting-started/installation)
+# Installation (/travels/llms.mdx/docs/getting-started/installation/content.md)
 
 ## Requirements [#requirements]
 
@@ -7,7 +7,7 @@
 - **Mutative 2** as Travels’ peer dependency.
 - A bundler that defines `process.env.NODE_ENV`, or an explicit production Mutative browser build when loading ES modules without a bundler.
 
-Travels ships ESM, CommonJS, UMD, and TypeScript declarations. The runtime support policy is documented under [Compatibility](/docs/reference/compatibility).
+Travels ships ESM, CommonJS, UMD, and TypeScript declarations. The runtime support policy is documented under [Compatibility](/travels/llms.mdx/docs/reference/compatibility/content.md).
 
 ## Install the packages [#install-the-packages]
 
@@ -82,9 +82,9 @@ Load the UMD scripts in this order to use Travels directly in a browser page.
 With these 3.0.1 scripts, validate a stored snapshot before restoring it with `Travels.restoreTravels(Travels.Travels.deserialize(stored, { validation: 'semantic' }))`.
 
 <Callout type="warn" title="Normalize durable state">
-Plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null` form the durable state contract. Map and Set are rejected. Normalize dates, class instances, non-JSON numbers, functions, refs, and other runtime-only values before persistence. See [State Requirements](/docs/concepts/state-requirements).
+Plain objects, dense arrays, strings, finite numbers other than `-0`, booleans, and `null` form the durable state contract. Map and Set are rejected. Normalize dates, class instances, non-JSON numbers, functions, refs, and other runtime-only values before persistence. See [State Requirements](/travels/llms.mdx/docs/concepts/state-requirements/content.md).
 </Callout>
 
 ## Next step [#next-step]
 
-Follow the [Quick Start](/docs/getting-started/quick-start) to add subscriptions, metadata, undo/redo controls, and persistence.
+Follow the [Quick Start](/travels/llms.mdx/docs/getting-started/quick-start/content.md) to add subscriptions, metadata, undo/redo controls, and persistence.

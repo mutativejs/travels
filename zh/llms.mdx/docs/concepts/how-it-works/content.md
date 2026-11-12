@@ -1,4 +1,4 @@
-# Travels 如何工作 (/zh/docs/concepts/how-it-works)
+# Travels 如何工作 (/travels/zh/llms.mdx/docs/concepts/how-it-works/content.md)
 
 Travels 把每次有效更新转换为一次不可变状态转换，外加两组补丁：一组向前推进，另一组恢复之前的状态。这些转换按顺序保留下来，就构成了历史。
 
@@ -55,7 +55,7 @@ Baseline ── edit A ── edit B ── edit C
 
 设置 `mutable: true` 后，Travels 会把补丁直接应用回原对象，因此 MobX、Vue、Pinia 或自定义代理可以继续观察同一个引用。它仍然会为导航与持久化生成正向和反向补丁。
 
-根替换与原始类型根可能需要回退到不可变方式。`enableAutoFreeze` 不能与可变模式同时使用。[可变模式指南](/zh/docs/guides/mutable-mode)解释了每种操作在对象身份上的行为。
+根替换与原始类型根可能需要回退到不可变方式。`enableAutoFreeze` 不能与可变模式同时使用。[可变模式指南](/travels/zh/llms.mdx/docs/guides/mutable-mode/content.md)解释了每种操作在对象身份上的行为。
 
 ## 自动归档与手动归档 [#自动归档与手动归档]
 
@@ -87,7 +87,7 @@ Initial ── A ── B ── C
 
 随着时间线向前推进，`maxHistory` 会丢弃旧补丁。游标相对于保留窗口，因此它的上限就是该限制。即使更早的条目已经被裁剪，`reset()` 仍然可以恢复实例的真实基线。
 
-`rebase()` 不一样：它会主动丢弃全部过去与未来的历史，并把当前状态设为新基线。参见[历史生命周期](/zh/docs/concepts/history-lifecycle)。
+`rebase()` 不一样：它会主动丢弃全部过去与未来的历史，并把当前状态设为新基线。参见[历史生命周期](/travels/zh/llms.mdx/docs/concepts/history-lifecycle/content.md)。
 
 ## 持久化保存了什么 [#持久化保存了什么]
 

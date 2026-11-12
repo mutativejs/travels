@@ -1,6 +1,6 @@
-# 故障排查 (/zh/docs/resources/troubleshooting)
+# 故障排查 (/travels/zh/llms.mdx/docs/resources/troubleshooting/content.md)
 
-用以下各节判断问题究竟属于状态所有权、历史记录写入、重放、持久化，还是 UI 绑定。稳定的错误码与警告码见[错误处理](/zh/docs/guides/error-handling)。
+用以下各节判断问题究竟属于状态所有权、历史记录写入、重放、持久化，还是 UI 绑定。稳定的错误码与警告码见[错误处理](/travels/zh/llms.mdx/docs/guides/error-handling/content.md)。
 
 ## 更新没有出现在历史记录中 [#更新没有出现在历史记录中]
 
@@ -24,7 +24,7 @@
 - 确认订阅没有被提前销毁。
 - 不要在每次组件渲染时新建时间线。
 
-参见[导航与控件](/zh/docs/guides/navigation-and-controls)。
+参见[导航与控件](/travels/zh/llms.mdx/docs/guides/navigation-and-controls/content.md)。
 
 ## `instanceof Travels` 失败或抛出异常 [#instanceof-travels-失败或抛出异常]
 
@@ -52,7 +52,7 @@ travels.assertPersistenceCompatible();
 const snapshot = travels.serialize({ strict: true });
 ```
 
-然后检查报告中给出的路径，并按照[状态要求](/zh/docs/concepts/state-requirements)规范化该值。注意，不兼容的值在离开当前状态后仍可能保留在旧补丁中。
+然后检查报告中给出的路径，并按照[状态要求](/travels/zh/llms.mdx/docs/concepts/state-requirements/content.md)规范化该值。注意，不兼容的值在离开当前状态后仍可能保留在旧补丁中。
 
 ## 可变 Store 丢失根引用或根引用意外变化 [#可变-store-丢失根引用或根引用意外变化]
 
@@ -62,7 +62,7 @@ const snapshot = travels.serialize({ strict: true });
 restoreTravels(snapshot, { mutable: true, target: store });
 ```
 
-不要把可变模式与 `enableAutoFreeze` 一起使用。完整的操作行为见[各操作的行为表](/zh/docs/guides/mutable-mode#behavior-by-operation)。
+不要把可变模式与 `enableAutoFreeze` 一起使用。完整的操作行为见[各操作的行为表](/travels/zh/llms.mdx/docs/guides/mutable-mode/content.md#behavior-by-operation)。
 
 ## 事务没有回滚全部内容 [#事务没有回滚全部内容]
 
@@ -91,4 +91,4 @@ Travels 会校验补丁结构，但有意不重新生成补丁来证明所有者
 
 ## 仍未解决 [#仍未解决]
 
-对照一个可运行的[示例](/zh/docs/resources/examples)，然后提交 [GitHub issue](https://github.com/mutativejs/travels/issues)，附上最小复现、Travels 与 Mutative 版本、运行时/浏览器信息、稳定的错误码，以及能展示该问题的最小状态/补丁载荷。提交前请移除密钥与私密用户数据。
+对照一个可运行的[示例](/travels/zh/llms.mdx/docs/resources/examples/content.md)，然后提交 [GitHub issue](https://github.com/mutativejs/travels/issues)，附上最小复现、Travels 与 Mutative 版本、运行时/浏览器信息、稳定的错误码，以及能展示该问题的最小状态/补丁载荷。提交前请移除密钥与私密用户数据。

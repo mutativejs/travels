@@ -1,4 +1,4 @@
-# TypeScript Guide (/docs/reference/typescript)
+# TypeScript Guide (/travels/llms.mdx/docs/reference/typescript/content.md)
 
 Travels is written in TypeScript and ships declarations for both ESM and CommonJS consumers. Most applications can rely on factory inference rather than spelling every generic.
 
@@ -110,4 +110,4 @@ function logEvent(event: TravelsEvent<EditorState>) {
 
 The package exposes development and default ESM builds, CommonJS defaults and declarations, UMD, and types through its export map. Use a current TypeScript module-resolution mode that understands package exports, such as `bundler`, `node16`, or `nodenext`, according to your application.
 
-The source-generated [Type Alias Reference](/docs/api-reference/type-aliases/Travels) contains the exact generic constraints and return shapes for this release.
+The source-generated [Type Alias Reference](/travels/llms.mdx/docs/api-reference/type-aliases/Travels/content.md) contains the exact generic constraints and return shapes for this release.

@@ -1,16 +1,16 @@
-# TravelsWarning (/zh/docs/api-reference/type-aliases/TravelsWarning)
+# TravelsWarning (/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsWarning/content.md)
 
 > **TravelsWarning** = `object`
 
-Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L261)
+Defined in: [src/type.ts:261](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L261)
 
 ## Properties [#properties]
 
 ### code [#code]
 
-> `readonly` **code**: [`TravelsWarningCode`](TravelsWarningCode.mdx)
+> `readonly` **code**: [`TravelsWarningCode`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsWarningCode/content.md)
 
-Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L262)
+Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L262)
 
 ***
 
@@ -18,4 +18,4 @@ Defined in: [src/type.ts:262](https://github.com/mutativejs/travels/blob/b5543aa
 
 > `readonly` **message**: `string`
 
-Defined in: [src/type.ts:263](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L263)
+Defined in: [src/type.ts:263](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L263)

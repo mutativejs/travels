@@ -1,4 +1,4 @@
-# 错误处理 (/zh/docs/guides/error-handling)
+# 错误处理 (/travels/zh/llms.mdx/docs/guides/error-handling/content.md)
 
 Travels 将操作错误、持久化解码错误、非致命警告和观察者失败区分开来。应匹配稳定的 `code` 值，而不是生产环境中的错误消息文本。
 
@@ -54,7 +54,7 @@ try {
 | `MIGRATION_FAILED` | 迁移回调失败，或返回了无效/异步的结果。 |
 | `FALLBACK_FAILED` | 恢复失败，或产生了无效/异步的结果。 |
 
-针对具体条目的语义失败还可能暴露 `entryIndex` 和 `direction`。参见[迁移与恢复](/zh/docs/persistence/migration-and-recovery)。
+针对具体条目的语义失败还可能暴露 `entryIndex` 和 `direction`。参见[迁移与恢复](/travels/zh/llms.mdx/docs/persistence/migration-and-recovery/content.md)。
 
 ## 警告 [#警告]
 

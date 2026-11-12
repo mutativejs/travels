@@ -1,4 +1,4 @@
-# State Requirements (/docs/concepts/state-requirements)
+# State Requirements (/travels/llms.mdx/docs/concepts/state-requirements/content.md)
 
 Travels’ durable contract is deliberately smaller than JavaScript’s object model. It applies to current state, values retained in old patches, patch paths, and custom history metadata—not just the object passed to `createTravels()`.
 

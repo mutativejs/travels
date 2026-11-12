@@ -1,4 +1,4 @@
-# 框架集成 (/zh/docs/integrations)
+# 框架集成 (/travels/zh/llms.mdx/docs/integrations/content.md)
 
 Travels 的核心不依赖任何 UI 框架。合适的集成方式取决于状态由谁掌管，以及你的响应式系统需要的是新引用还是稳定的对象身份。
 
@@ -15,11 +15,11 @@ Travels 的核心不依赖任何 UI 框架。合适的集成方式取决于状�
 | 状态机 / 现有补丁生成方 | `createTravelJournal()` | 由外部持有 |
 
 <Cards>
-  <Card title="React" href="/zh/docs/integrations/react" description="外部 Store 订阅、控制接口与组件所有权。" />
-  <Card title="Vue" href="/zh/docs/integrations/vue" description="不可变组合式函数与引用稳定的响应式状态。" />
-  <Card title="Zustand" href="/zh/docs/integrations/zustand" description="官方中间件与直接集成核心 API。" />
-  <Card title="MobX 与 Pinia" href="/zh/docs/integrations/mobx-pinia" description="可变时间线，适用于依赖对象身份的 Store。" />
-  <Card title="表单与外部 Store" href="/zh/docs/integrations/external-stores" description="单一所有者同步与委托导航。" />
+  <Card title="React" href="/travels/zh/llms.mdx/docs/integrations/react/content.md" description="外部 Store 订阅、控制接口与组件所有权。" />
+  <Card title="Vue" href="/travels/zh/llms.mdx/docs/integrations/vue/content.md" description="不可变组合式函数与引用稳定的响应式状态。" />
+  <Card title="Zustand" href="/travels/zh/llms.mdx/docs/integrations/zustand/content.md" description="官方中间件与直接集成核心 API。" />
+  <Card title="MobX 与 Pinia" href="/travels/zh/llms.mdx/docs/integrations/mobx-pinia/content.md" description="可变时间线，适用于依赖对象身份的 Store。" />
+  <Card title="表单与外部 Store" href="/travels/zh/llms.mdx/docs/integrations/external-stores/content.md" description="单一所有者同步与委托导航。" />
 </Cards>
 
 ## 官方 v3 绑定 [#官方-v3-绑定]
@@ -40,4 +40,4 @@ Travels 的核心不依赖任何 UI 框架。合适的集成方式取决于状�
 5. 所有者被销毁时取消订阅。
 6. 在受控关闭点之前完成待处理的持久化写入。
 
-可运行的源码示例见[示例](/zh/docs/resources/examples)。
+可运行的源码示例见[示例](/travels/zh/llms.mdx/docs/resources/examples/content.md)。

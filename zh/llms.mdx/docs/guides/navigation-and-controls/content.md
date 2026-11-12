@@ -1,4 +1,4 @@
-# 导航与控件 (/zh/docs/guides/navigation-and-controls)
+# 导航与控件 (/travels/zh/llms.mdx/docs/guides/navigation-and-controls/content.md)
 
 ## 撤销、重做与跳转 [#撤销重做与跳转]
 
@@ -19,7 +19,7 @@ travels.go(0);        // Retained window start
 - `reset()` 回到当前实例的基线。
 - `rebase()` 丢弃全部历史记录，并把当前状态设为新的基线。
 
-两者都会修改时间线并通知观察者。它们的含义并非总是“回到最早保留的补丁”；在把它们作为产品操作暴露之前，请先阅读[历史记录生命周期](/zh/docs/concepts/history-lifecycle)。
+两者都会修改时间线并通知观察者。它们的含义并非总是“回到最早保留的补丁”；在把它们作为产品操作暴露之前，请先阅读[历史记录生命周期](/travels/zh/llms.mdx/docs/concepts/history-lifecycle/content.md)。
 
 ## 面向组件的精简控件 [#面向组件的精简控件]
 

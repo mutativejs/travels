@@ -1,4 +1,4 @@
-# Quick Start (/docs/getting-started/quick-start)
+# Quick Start (/travels/llms.mdx/docs/getting-started/quick-start/content.md)
 
 This guide builds a small document editor history. The same API works in vanilla JavaScript, TypeScript, and framework integrations.
 
@@ -107,7 +107,7 @@ travels.transaction({ label: 'Revise document' }, () => {
 });
 ```
 
-`batch()` is an alias for `transaction()`. Transaction callbacks must be synchronous; failures roll back changes made through Travels APIs. Learn more in [Transactions](/docs/guides/transactions).
+`batch()` is an alias for `transaction()`. Transaction callbacks must be synchronous; failures roll back changes made through Travels APIs. Learn more in [Transactions](/travels/llms.mdx/docs/guides/transactions/content.md).
 
 ## 6. Save and restore the timeline [#6-save-and-restore-the-timeline]
 
@@ -137,8 +137,8 @@ Structural validation is the fast default and checks schema and patch shape. Sem
 ## 7. Keep exploring [#7-keep-exploring]
 
 <Cards>
-  <Card title="Connect React or another framework" href="/docs/integrations" />
-  <Card title="Choose automatic or manual archives" href="/docs/guides/archive-mode" />
-  <Card title="Build a production persistence adapter" href="/docs/persistence/storage-adapters" />
-  <Card title="Review every instance method" href="/docs/reference/instance-methods" />
+  <Card title="Connect React or another framework" href="/travels/llms.mdx/docs/integrations/content.md" />
+  <Card title="Choose automatic or manual archives" href="/travels/llms.mdx/docs/guides/archive-mode/content.md" />
+  <Card title="Build a production persistence adapter" href="/travels/llms.mdx/docs/persistence/storage-adapters/content.md" />
+  <Card title="Review every instance method" href="/travels/llms.mdx/docs/reference/instance-methods/content.md" />
 </Cards>

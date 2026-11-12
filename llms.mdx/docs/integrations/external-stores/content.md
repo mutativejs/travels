@@ -1,4 +1,4 @@
-# Forms and External Stores (/docs/integrations/external-stores)
+# Forms and External Stores (/travels/llms.mdx/docs/integrations/external-stores/content.md)
 
 When another library owns state, avoid creating two independent reactive sources of truth. Choose either detached synchronization into a state-owning timeline or a controlled journal fed by the owner’s real patch commits.
 
@@ -95,7 +95,7 @@ const journal = createTravelJournal(authoritativeState, {
 journal.recordPatches(nextState, { patches, inversePatches });
 ```
 
-The owner must not record delegated navigation again as a new edit. `apply` is synchronous, and Travels cannot roll back external side effects if the owner fails after partially committing. Read the full [Controlled Journal contract](/docs/guides/controlled-journal) before choosing this path.
+The owner must not record delegated navigation again as a new edit. `apply` is synchronous, and Travels cannot roll back external side effects if the owner fails after partially committing. Read the full [Controlled Journal contract](/travels/llms.mdx/docs/guides/controlled-journal/content.md) before choosing this path.
 
 ## Decision guide [#decision-guide]
 

@@ -1,4 +1,4 @@
-# Migration Guide (/docs/migration)
+# Migration Guide (/travels/llms.mdx/docs/migration/content.md)
 
 ## From 2.x to 3.0 [#from-2x-to-30]
 
@@ -26,7 +26,7 @@ if (value instanceof Travels) value.back();
 if (isTravels(value)) value.back();
 ```
 
-Timelines remain ordinary extensible objects, so the method-wrapping patterns in the [Advanced Patterns Guide](/docs/guides/advanced-patterns) keep working, and internal calls such as `back()` still go through a wrapped `go()`. Their constructor is not a public entry point: calling `new travels.constructor(...)` throws `INVALID_OPERATION` instead of bypassing factory validation.
+Timelines remain ordinary extensible objects, so the method-wrapping patterns in the [Advanced Patterns Guide](/travels/llms.mdx/docs/guides/advanced-patterns/content.md) keep working, and internal calls such as `back()` still go through a wrapped `go()`. Their constructor is not a public entry point: calling `new travels.constructor(...)` throws `INVALID_OPERATION` instead of bypassing factory validation.
 
 Use `createPatchableTravels()` when the initial state should be constrained to the durable JSON-shaped state contract at compile time and checked immediately at runtime.
 

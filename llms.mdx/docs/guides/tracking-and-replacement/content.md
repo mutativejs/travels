@@ -1,4 +1,4 @@
-# Tracking and Replacement (/docs/guides/tracking-and-replacement)
+# Tracking and Replacement (/travels/llms.mdx/docs/guides/tracking-and-replacement/content.md)
 
 Not every state change should become an undo step. Travels provides separate tools for suspending tracking, replacing a document, and clearing history around current state.
 
@@ -67,4 +67,4 @@ Use it when current state becomes the clean starting point. Controlled journals 
 
 ## Remote synchronization caution [#remote-synchronization-caution]
 
-Travels does not merge concurrent edits or resolve conflicts. Decide document identity, revision ordering, and conflict handling before replacing or rebasing local state. When history provenance matters, verify the remote snapshot outside Travels before deserialization or replacement. See [Security and Integrity](/docs/persistence/security-and-integrity).
+Travels does not merge concurrent edits or resolve conflicts. Decide document identity, revision ordering, and conflict handling before replacing or rebasing local state. When history provenance matters, verify the remote snapshot outside Travels before deserialization or replacement. See [Security and Integrity](/travels/llms.mdx/docs/persistence/security-and-integrity/content.md).

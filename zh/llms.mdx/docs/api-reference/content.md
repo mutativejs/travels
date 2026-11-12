@@ -1,41 +1,41 @@
-# API 参考 (/zh/docs/api-reference)
+# API 参考 (/travels/zh/llms.mdx/docs/api-reference/content.md)
 
-本参考在网站构建期间由仓库当前的 `src/index.ts` 生成，因此签名、重载、返回能力与源码链接始终与包保持一致。
+本参考从官网示例使用的已发布 Travels 包生成。签名、重载、返回类型和源码链接均对应同一个发布版本。
 
 <Callout type="info" title="关于语言">
 本页与任务导向的中文指南使用中文。具体 API 条目由 TypeDoc 从英文源码注释生成；为避免签名、注释与源码不同步，条目正文保留英文原文，并在页面顶部显示说明。
 </Callout>
 
 <Callout type="info" title="需要按任务查阅的说明？">
-如果希望获得面向任务的解释，请先阅读[配置选项](/zh/docs/reference/options)或[实例方法](/zh/docs/reference/instance-methods)。当你需要精确的类型或重载时，再使用本节。
+如果希望获得面向任务的解释，请先阅读[配置选项](/travels/zh/llms.mdx/docs/reference/options/content.md)或[实例方法](/travels/zh/llms.mdx/docs/reference/instance-methods/content.md)。当你需要精确的类型或重载时，再使用本节。
 </Callout>
 
 ## 按导出类型浏览 [#按导出类型浏览]
 
 <Cards>
-  <Card title="函数" href="/zh/docs/api-reference/functions/createTravels" description="工厂函数、恢复函数、类型守卫与校验辅助函数。" />
-  <Card title="类" href="/zh/docs/api-reference/classes/TravelsError" description="操作、类型与持久化错误类。" />
-  <Card title="接口" href="/zh/docs/api-reference/interfaces/TravelsControls" description="只读控制接口与手动控制接口。" />
-  <Card title="类型别名" href="/zh/docs/api-reference/type-aliases/TravelsOptions" description="时间线能力、事件、快照、选项、补丁与 JSON 类型。" />
-  <Card title="变量" href="/zh/docs/api-reference/variables/Travels" description="持久化命名空间与历史模式版本。" />
+  <Card title="函数" href="/travels/zh/llms.mdx/docs/api-reference/functions/createTravels/content.md" description="工厂函数、恢复函数、类型守卫与校验辅助函数。" />
+  <Card title="类" href="/travels/zh/llms.mdx/docs/api-reference/classes/TravelsError/content.md" description="操作、类型与持久化错误类。" />
+  <Card title="接口" href="/travels/zh/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md" description="只读控制接口与手动控制接口。" />
+  <Card title="类型别名" href="/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md" description="时间线能力、事件、快照、选项、补丁与 JSON 类型。" />
+  <Card title="变量" href="/travels/zh/llms.mdx/docs/api-reference/variables/Travels/content.md" description="持久化命名空间与历史模式版本。" />
 </Cards>
 
 ## 最常用的导出 [#最常用的导出]
 
 | 导出 | 类型 | 用途 |
 | --- | --- | --- |
-| [`createTravels()`](/zh/docs/api-reference/functions/createTravels) | 函数 | 创建一条拥有状态的时间线。 |
-| [`createPatchableTravels()`](/zh/docs/api-reference/functions/createPatchableTravels) | 函数 | 创建受持久化输入约束的时间线。 |
-| [`createTravelJournal()`](/zh/docs/api-reference/functions/createTravelJournal) | 函数 | 创建由外部拥有的 Journal。 |
-| [`restoreTravels()`](/zh/docs/api-reference/functions/restoreTravels) | 函数 | 恢复一个完整的、拥有状态的快照。 |
-| [`restoreTravelJournal()`](/zh/docs/api-reference/functions/restoreTravelJournal) | 函数 | 恢复一个完整的 Journal 快照。 |
-| [`Travels`](/zh/docs/api-reference/variables/Travels) | 命名空间值 | 使用 `Travels.deserialize()` 解码持久化输入。 |
-| [`TravelsOptions`](/zh/docs/api-reference/type-aliases/TravelsOptions) | 类型 | 配置历史、所有权、Mutative 行为与钩子。 |
-| [`TravelsEvent`](/zh/docs/api-reference/type-aliases/TravelsEvent) | 类型 | 消费已提交的订阅者与 devtools 事件。 |
-| [`TravelsSerializedHistory`](/zh/docs/api-reference/type-aliases/TravelsSerializedHistory) | 类型 | 存储与迁移带版本的快照。 |
-| [`TravelsControls`](/zh/docs/api-reference/interfaces/TravelsControls) | 接口 | 暴露只读的导航与历史控制能力。 |
-| [`TravelsPersistenceError`](/zh/docs/api-reference/classes/TravelsPersistenceError) | 类 | 处理稳定的持久化失败错误码。 |
-| [`TRAVELS_HISTORY_SCHEMA_VERSION`](/zh/docs/api-reference/variables/TRAVELS_HISTORY_SCHEMA_VERSION) | 变量 | 构造并迁移当前模式的快照。 |
+| [`createTravels()`](/travels/zh/llms.mdx/docs/api-reference/functions/createTravels/content.md) | 函数 | 创建一条拥有状态的时间线。 |
+| [`createPatchableTravels()`](/travels/zh/llms.mdx/docs/api-reference/functions/createPatchableTravels/content.md) | 函数 | 创建受持久化输入约束的时间线。 |
+| [`createTravelJournal()`](/travels/zh/llms.mdx/docs/api-reference/functions/createTravelJournal/content.md) | 函数 | 创建由外部拥有的 Journal。 |
+| [`restoreTravels()`](/travels/zh/llms.mdx/docs/api-reference/functions/restoreTravels/content.md) | 函数 | 恢复一个完整的、拥有状态的快照。 |
+| [`restoreTravelJournal()`](/travels/zh/llms.mdx/docs/api-reference/functions/restoreTravelJournal/content.md) | 函数 | 恢复一个完整的 Journal 快照。 |
+| [`Travels`](/travels/zh/llms.mdx/docs/api-reference/variables/Travels/content.md) | 命名空间值 | 使用 `Travels.deserialize()` 解码持久化输入。 |
+| [`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md) | 类型 | 配置历史、所有权、Mutative 行为与钩子。 |
+| [`TravelsEvent`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsEvent/content.md) | 类型 | 消费已提交的订阅者与 devtools 事件。 |
+| [`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md) | 类型 | 存储与迁移带版本的快照。 |
+| [`TravelsControls`](/travels/zh/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md) | 接口 | 暴露只读的导航与历史控制能力。 |
+| [`TravelsPersistenceError`](/travels/zh/llms.mdx/docs/api-reference/classes/TravelsPersistenceError/content.md) | 类 | 处理稳定的持久化失败错误码。 |
+| [`TRAVELS_HISTORY_SCHEMA_VERSION`](/travels/zh/llms.mdx/docs/api-reference/variables/TRAVELS_HISTORY_SCHEMA_VERSION/content.md) | 变量 | 构造并迁移当前模式的快照。 |
 
 ## 阅读约定 [#阅读约定]
 

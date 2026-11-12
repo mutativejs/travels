@@ -1,22 +1,22 @@
-# Travels 文档 (/zh/docs)
+# Travels 文档 (/travels/zh/llms.mdx/docs/content.md)
 
 Travels 是一个与框架无关的状态历史引擎，为应用提供可靠的撤销/重做能力。它记录正向与反向 JSON Patch，因此状态庞大、编辑频繁而细微的应用也能保留紧凑的时间线，将其持久化，并在之后恢复。
 
 你可以用熟悉的修改语法编写更新。Travels 默认通过 [Mutative](https://mutative.js.org/) 生成不可变状态；可变模式与 Journal 则支持响应式 Store 和由外部持有的状态。
 
 <Callout type="info" title="Travels 3">
-第 3 版采用显式工厂函数、唯一的原子持久化恢复路径、只读共享视图，并将“拥有状态的时间线”和“外部 Journal”拆分为不同能力。正在升级？请先阅读[迁移指南](/zh/docs/migration)。
+第 3 版采用显式工厂函数、唯一的原子持久化恢复路径、只读共享视图，并将“拥有状态的时间线”和“外部 Journal”拆分为不同能力。正在升级？请先阅读[迁移指南](/travels/zh/llms.mdx/docs/migration/content.md)。
 </Callout>
 
 ## 按目标开始 [#按目标开始]
 
 <Cards>
-  <Card title="安装并构建时间线" href="/zh/docs/getting-started/installation" description="环境要求、安装依赖，以及一个最小可运行示例。" />
-  <Card title="理解历史模型" href="/zh/docs/concepts/how-it-works" description="状态、补丁、位置、归档、分支与基线。" />
-  <Card title="接入你的框架" href="/zh/docs/integrations" description="React、Vue、Zustand、MobX、Pinia、表单与外部 Store。" />
-  <Card title="持久化完整历史" href="/zh/docs/persistence" description="序列化、校验、恢复、迁移并修复时间线快照。" />
-  <Card title="掌握进阶行为" href="/zh/docs/guides" description="事务、手动归档、事件、可变状态与 Journal。" />
-  <Card title="查阅精确 API" href="/zh/docs/api-reference" description="每个导出的函数、类、接口、类型别名与变量。" />
+  <Card title="安装并构建时间线" href="/travels/zh/llms.mdx/docs/getting-started/installation/content.md" description="环境要求、安装依赖，以及一个最小可运行示例。" />
+  <Card title="理解历史模型" href="/travels/zh/llms.mdx/docs/concepts/how-it-works/content.md" description="状态、补丁、位置、归档、分支与基线。" />
+  <Card title="接入你的框架" href="/travels/zh/llms.mdx/docs/integrations/content.md" description="React、Vue、Zustand、MobX、Pinia、表单与外部 Store。" />
+  <Card title="持久化完整历史" href="/travels/zh/llms.mdx/docs/persistence/content.md" description="序列化、校验、恢复、迁移并修复时间线快照。" />
+  <Card title="掌握进阶行为" href="/travels/zh/llms.mdx/docs/guides/content.md" description="事务、手动归档、事件、可变状态与 Journal。" />
+  <Card title="查阅精确 API" href="/travels/zh/llms.mdx/docs/api-reference/content.md" description="每个导出的函数、类、接口、类型别名与变量。" />
 </Cards>
 
 ## 一分钟完成一个完整示例 [#一分钟完成一个完整示例]
@@ -48,7 +48,7 @@ const snapshot = travels.serialize();
 const restored = restoreTravels(snapshot);
 ```
 
-下一步是[快速开始](/zh/docs/getting-started/quick-start)，它会逐一解释这条流程中的每个部分。
+下一步是[快速开始](/travels/zh/llms.mdx/docs/getting-started/quick-start/content.md)，它会逐一解释这条流程中的每个部分。
 
 ## 什么时候适合使用 Travels [#什么时候适合使用-travels]
 
@@ -62,7 +62,7 @@ Travels 针对历史体积、持久化和可重放的操作日志进行了优化
 | 多用户并发冲突消解 | 使用 CRDT/OT 系统；Travels 本身不负责冲突消解 |
 | 每次更新都替换完整状态 | 按你的工作负载比较快照与补丁的成本 |
 
-完整的取舍讨论见[选择合适的方案](/zh/docs/getting-started/choosing-travels)。
+完整的取舍讨论见[选择合适的方案](/travels/zh/llms.mdx/docs/getting-started/choosing-travels/content.md)。
 
 ## 公开构建模块 [#公开构建模块]
 
@@ -73,8 +73,8 @@ Travels 针对历史体积、持久化和可重放的操作日志进行了优化
 - `Travels.deserialize()` 解码、迁移并校验持久化输入。
 - `getControls()` 为 UI 组件暴露一个窄而只读的导航接口。
 
-所有导出都记录在 [API 参考](/zh/docs/api-reference)中。
+所有导出都记录在 [API 参考](/travels/zh/llms.mdx/docs/api-reference/content.md)中。
 
 ## 项目资源 [#项目资源]
 
-Travels 采用 MIT 许可，使用 TypeScript 编写。你可以在文档的[示例](/zh/docs/resources/examples)页面找到可运行示例，或浏览 [GitHub 仓库](https://github.com/mutativejs/travels)。官方绑定包括 React 的 [use-travel](https://github.com/mutativejs/use-travel) 和 Zustand 的 [zustand-travel](https://github.com/mutativejs/zustand-travel)。
+Travels 采用 MIT 许可，使用 TypeScript 编写。你可以在文档的[示例](/travels/zh/llms.mdx/docs/resources/examples/content.md)页面找到可运行示例，或浏览 [GitHub 仓库](https://github.com/mutativejs/travels)。官方绑定包括 React 的 [use-travel](https://github.com/mutativejs/use-travel) 和 Zustand 的 [zustand-travel](https://github.com/mutativejs/zustand-travel)。

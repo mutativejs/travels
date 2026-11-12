@@ -1,6 +1,6 @@
-# 实例方法 (/zh/docs/reference/instance-methods)
+# 实例方法 (/travels/zh/llms.mdx/docs/reference/instance-methods/content.md)
 
-本页按任务对公开方法分组。确切的泛型、重载、返回对象与带源码链接的签名，见生成的 [API 参考](/zh/docs/api-reference)。
+本页按任务对公开方法分组。确切的泛型、重载、返回对象与带源码链接的签名，见生成的 [API 参考](/travels/zh/llms.mdx/docs/api-reference/content.md)。
 
 ## 状态与修订号 [#状态与修订号]
 
@@ -82,4 +82,4 @@
 
 ## 订阅 [#订阅]
 
-`subscribe(listener)` 返回一个取消订阅函数。事件在提交后发布；观察者失败会通过 `onObserverError` 隔离。不要在观察者中同步调用会修改状态的方法。参见[观察者与事件](/zh/docs/guides/observers-and-events)。
+`subscribe(listener)` 返回一个取消订阅函数。事件在提交后发布；观察者失败会通过 `onObserverError` 隔离。不要在观察者中同步调用会修改状态的方法。参见[观察者与事件](/travels/zh/llms.mdx/docs/guides/observers-and-events/content.md)。

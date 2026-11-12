@@ -1,4 +1,4 @@
-# 安装 (/zh/docs/getting-started/installation)
+# 安装 (/travels/zh/llms.mdx/docs/getting-started/installation/content.md)
 
 ## 环境要求 [#环境要求]
 
@@ -7,7 +7,7 @@
 - **Mutative 2** 是 Travels 的 peer dependency。
 - 需要能够定义 `process.env.NODE_ENV` 的打包器；如果要在不使用打包器的情况下加载 ES 模块，请显式使用 Mutative 的生产版浏览器构建。
 
-Travels 提供 ESM、CommonJS、UMD 与 TypeScript 声明文件。运行时支持策略见[兼容性](/zh/docs/reference/compatibility)。
+Travels 提供 ESM、CommonJS、UMD 与 TypeScript 声明文件。运行时支持策略见[兼容性](/travels/zh/llms.mdx/docs/reference/compatibility/content.md)。
 
 ## 安装依赖 [#安装依赖]
 
@@ -82,9 +82,9 @@ Mutative 2 以 ES2018 为目标，并通过 `process.env.NODE_ENV` 选择开发�
 使用上面的 3.0.1 脚本时，可通过 `Travels.restoreTravels(Travels.Travels.deserialize(stored, { validation: 'semantic' }))` 先校验再恢复已存储的快照。
 
 <Callout type="warn" title="规范化持久化状态">
-普通对象、稠密数组、字符串、除 `-0` 之外的有限数字、布尔值与 `null` 共同构成持久化状态契约。Map 与 Set 会被拒绝。持久化之前，请先规范化日期、类实例、非 JSON 数字、函数、ref 以及其他仅存在于运行时的值。参见[状态要求](/zh/docs/concepts/state-requirements)。
+普通对象、稠密数组、字符串、除 `-0` 之外的有限数字、布尔值与 `null` 共同构成持久化状态契约。Map 与 Set 会被拒绝。持久化之前，请先规范化日期、类实例、非 JSON 数字、函数、ref 以及其他仅存在于运行时的值。参见[状态要求](/travels/zh/llms.mdx/docs/concepts/state-requirements/content.md)。
 </Callout>
 
 ## 下一步 [#下一步]
 
-跟随[快速开始](/zh/docs/getting-started/quick-start)，为时间线加入订阅、元数据、撤销/重做控件与持久化。
+跟随[快速开始](/travels/zh/llms.mdx/docs/getting-started/quick-start/content.md)，为时间线加入订阅、元数据、撤销/重做控件与持久化。

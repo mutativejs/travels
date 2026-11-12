@@ -1,4 +1,4 @@
-# Contributing (/docs/resources/contributing)
+# Contributing (/travels/llms.mdx/docs/resources/contributing/content.md)
 
 Thanks for improving Travels. This project values correctness, clear trade-offs, and small focused changes.
 
@@ -40,8 +40,8 @@ pnpm --dir website build
 
 ## Compatibility [#compatibility]
 
-See the [Compatibility Policy](/docs/reference/compatibility) for supported runtimes and dependency policy.
+See the [Compatibility Policy](/travels/llms.mdx/docs/reference/compatibility/content.md) for supported runtimes and dependency policy.
 
 ## Release Process [#release-process]
 
-See the [Release Checklist](/docs/resources/release-checklist). Releases are prepared on `main`, tagged manually with the package version, and published by the tag-triggered GitHub Actions workflow.
+See the [Release Checklist](/travels/llms.mdx/docs/resources/release-checklist/content.md). Releases are prepared on `main`, tagged manually with the package version, and published by the tag-triggered GitHub Actions workflow.

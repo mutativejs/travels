@@ -1,8 +1,8 @@
-# TravelsMigration()<S, P> (/docs/api-reference/type-aliases/TravelsMigration)
+# TravelsMigration()<S, P> (/travels/llms.mdx/docs/api-reference/type-aliases/TravelsMigration/content.md)
 
-> **TravelsMigration**\<`S`, `P`\> = (`snapshot`) => [`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
+> **TravelsMigration**\<`S`, `P`\> = (`snapshot`) => [`TravelsSerializedHistory`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
-Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L199)
+Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L199)
 
 ## Type Parameters [#type-parameters]
 
@@ -12,7 +12,7 @@ Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/b5543aa
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}
 
 ## Parameters [#parameters]
 
@@ -22,4 +22,4 @@ Defined in: [src/type.ts:199](https://github.com/mutativejs/travels/blob/b5543aa
 
 ## Returns [#returns]
 
-[`TravelsSerializedHistory`](TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>

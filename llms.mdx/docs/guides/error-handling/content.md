@@ -1,4 +1,4 @@
-# Error Handling (/docs/guides/error-handling)
+# Error Handling (/travels/llms.mdx/docs/guides/error-handling/content.md)
 
 Travels separates operation errors, persistence decoding errors, non-fatal warnings, and observer failures. Match stable `code` values rather than production error message text.
 
@@ -54,7 +54,7 @@ Use `onError` for wrapped core operation failures, especially when coordinating 
 | `MIGRATION_FAILED` | The migration callback failed or returned an invalid/asynchronous result. |
 | `FALLBACK_FAILED` | Recovery failed or produced an invalid/asynchronous result. |
 
-Entry-specific semantic failures can also expose `entryIndex` and `direction`. See [Migration and Recovery](/docs/persistence/migration-and-recovery).
+Entry-specific semantic failures can also expose `entryIndex` and `direction`. See [Migration and Recovery](/travels/llms.mdx/docs/persistence/migration-and-recovery/content.md).
 
 ## Warnings [#warnings]
 

@@ -1,4 +1,4 @@
-# 发布清单 (/zh/docs/resources/release-checklist)
+# 发布清单 (/travels/zh/llms.mdx/docs/resources/release-checklist/content.md)
 
 1. 在本地更新发布版本：
 

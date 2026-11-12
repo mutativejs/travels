@@ -1,4 +1,4 @@
-# TypeScript 指南 (/zh/docs/reference/typescript)
+# TypeScript 指南 (/travels/zh/llms.mdx/docs/reference/typescript/content.md)
 
 Travels 使用 TypeScript 编写，并为 ESM 与 CommonJS 使用方提供声明文件。大多数应用可以依赖工厂函数的类型推断，而不必逐个写出泛型参数。
 
@@ -110,4 +110,4 @@ function logEvent(event: TravelsEvent<EditorState>) {
 
 该包通过导出映射提供开发版与默认 ESM 构建、CommonJS 默认构建与声明文件、UMD 以及类型声明。请根据应用情况使用能够理解包导出的现代 TypeScript 模块解析模式，例如 `bundler`、`node16` 或 `nodenext`。
 
-由源码生成的[类型别名参考](/zh/docs/api-reference/type-aliases/Travels)包含本版本确切的泛型约束与返回结构。
+由源码生成的[类型别名参考](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)包含本版本确切的泛型约束与返回结构。

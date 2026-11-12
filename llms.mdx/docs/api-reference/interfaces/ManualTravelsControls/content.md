@@ -1,10 +1,10 @@
-# ManualTravelsControls<S, P> (/docs/api-reference/interfaces/ManualTravelsControls)
+# ManualTravelsControls<S, P> (/travels/llms.mdx/docs/api-reference/interfaces/ManualTravelsControls/content.md)
 
-Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L470)
+Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L470)
 
 ## Extends [#extends]
 
-- [`TravelsControls`](TravelsControls.mdx)\<`S`, `P`\>
+- [`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md)\<`S`, `P`\>
 
 ## Type Parameters [#type-parameters]
 
@@ -14,7 +14,7 @@ Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/b5543aa
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](../type-aliases/PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}
 
 ## Properties [#properties]
 
@@ -22,7 +22,7 @@ Defined in: [src/type.ts:470](https://github.com/mutativejs/travels/blob/b5543aa
 
 > `readonly` **archive**: (`metadata?`) => `void`
 
-Defined in: [src/type.ts:477](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L477)
+Defined in: [src/type.ts:477](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L477)
 
 Archive the current state
 
@@ -30,7 +30,7 @@ Archive the current state
 
 ##### metadata? [#metadata]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 #### Returns [#returns]
 
@@ -42,7 +42,7 @@ Archive the current state
 
 > `readonly` **back**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L432)
+Defined in: [src/type.ts:432](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L432)
 
 Go back in the history
 
@@ -58,7 +58,7 @@ Go back in the history
 
 #### Inherited from [#inherited-from]
 
-[`TravelsControls`](TravelsControls.mdx).[`back`](TravelsControls.mdx#back)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`back`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#back)
 
 ***
 
@@ -66,7 +66,7 @@ Go back in the history
 
 > `readonly` **canArchive**: () => `boolean`
 
-Defined in: [src/type.ts:481](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L481)
+Defined in: [src/type.ts:481](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L481)
 
 Check if it's possible to archive the current state
 
@@ -80,7 +80,7 @@ Check if it's possible to archive the current state
 
 > `readonly` **canBack**: () => `boolean`
 
-Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L448)
+Defined in: [src/type.ts:448](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L448)
 
 Check if it's possible to go back
 
@@ -90,7 +90,7 @@ Check if it's possible to go back
 
 #### Inherited from [#inherited-from-1]
 
-[`TravelsControls`](TravelsControls.mdx).[`canBack`](TravelsControls.mdx#canback)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`canBack`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#canback)
 
 ***
 
@@ -98,7 +98,7 @@ Check if it's possible to go back
 
 > `readonly` **canForward**: () => `boolean`
 
-Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L452)
+Defined in: [src/type.ts:452](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L452)
 
 Check if it's possible to go forward
 
@@ -108,7 +108,7 @@ Check if it's possible to go forward
 
 #### Inherited from [#inherited-from-2]
 
-[`TravelsControls`](TravelsControls.mdx).[`canForward`](TravelsControls.mdx#canforward)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`canForward`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#canforward)
 
 ***
 
@@ -116,7 +116,7 @@ Check if it's possible to go forward
 
 > `readonly` **forward**: (`amount?`) => `void`
 
-Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L436)
+Defined in: [src/type.ts:436](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L436)
 
 Go forward in the history
 
@@ -132,7 +132,7 @@ Go forward in the history
 
 #### Inherited from [#inherited-from-3]
 
-[`TravelsControls`](TravelsControls.mdx).[`forward`](TravelsControls.mdx#forward)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`forward`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#forward)
 
 ***
 
@@ -140,7 +140,7 @@ Go forward in the history
 
 > `readonly` **getHistory**: () => readonly `Immutable`\<`S`\>[]
 
-Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L415)
+Defined in: [src/type.ts:415](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L415)
 
 Get the shared history cache.
 
@@ -151,11 +151,11 @@ readonly `Immutable`\<`S`\>[]
 #### Remarks [#remarks]
 
 The returned array is Travels' shared internal cache. Use
-[getHistorySnapshot](TravelsControls.mdx#gethistorysnapshot) when you need an array you can keep or change.
+[getHistorySnapshot](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#gethistorysnapshot) when you need an array you can keep or change.
 
 #### Inherited from [#inherited-from-4]
 
-[`TravelsControls`](TravelsControls.mdx).[`getHistory`](TravelsControls.mdx#gethistory)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`getHistory`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#gethistory)
 
 ***
 
@@ -163,7 +163,7 @@ The returned array is Travels' shared internal cache. Use
 
 > `readonly` **getHistorySnapshot**: () => `S`[]
 
-Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L419)
+Defined in: [src/type.ts:419](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L419)
 
 Get fully detached history snapshots that the caller owns.
 
@@ -173,7 +173,7 @@ Get fully detached history snapshots that the caller owns.
 
 #### Inherited from [#inherited-from-5]
 
-[`TravelsControls`](TravelsControls.mdx).[`getHistorySnapshot`](TravelsControls.mdx#gethistorysnapshot)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`getHistorySnapshot`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#gethistorysnapshot)
 
 ***
 
@@ -181,7 +181,7 @@ Get fully detached history snapshots that the caller owns.
 
 > `readonly` **go**: (`position`) => `void`
 
-Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L444)
+Defined in: [src/type.ts:444](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L444)
 
 Go to a specific position in the history
 
@@ -197,15 +197,15 @@ Go to a specific position in the history
 
 #### Inherited from [#inherited-from-6]
 
-[`TravelsControls`](TravelsControls.mdx).[`go`](TravelsControls.mdx#go)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`go`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#go)
 
 ***
 
 ### patches [#patches]
 
-> `readonly` **patches**: [`ReadonlyTravelPatches`](../type-aliases/ReadonlyTravelPatches.mdx)\<`P`\>
+> `readonly` **patches**: [`ReadonlyTravelPatches`](/travels/llms.mdx/docs/api-reference/type-aliases/ReadonlyTravelPatches/content.md)\<`P`\>
 
-Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L428)
+Defined in: [src/type.ts:428](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L428)
 
 Shared read-only view of the retained patch history.
 
@@ -217,7 +217,7 @@ a detached, caller-owned copy.
 
 #### Inherited from [#inherited-from-7]
 
-[`TravelsControls`](TravelsControls.mdx).[`patches`](TravelsControls.mdx#patches)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`patches`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#patches)
 
 ***
 
@@ -225,13 +225,13 @@ a detached, caller-owned copy.
 
 > `readonly` **position**: `number`
 
-Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L407)
+Defined in: [src/type.ts:407](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L407)
 
 The current position in the history
 
 #### Inherited from [#inherited-from-8]
 
-[`TravelsControls`](TravelsControls.mdx).[`position`](TravelsControls.mdx#position)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`position`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#position)
 
 ***
 
@@ -239,7 +239,7 @@ The current position in the history
 
 > `readonly` **reset**: () => `void`
 
-Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L440)
+Defined in: [src/type.ts:440](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L440)
 
 Reset the history
 
@@ -249,4 +249,4 @@ Reset the history
 
 #### Inherited from [#inherited-from-9]
 
-[`TravelsControls`](TravelsControls.mdx).[`reset`](TravelsControls.mdx#reset)
+[`TravelsControls`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md).[`reset`](/travels/llms.mdx/docs/api-reference/interfaces/TravelsControls/content.md#reset)

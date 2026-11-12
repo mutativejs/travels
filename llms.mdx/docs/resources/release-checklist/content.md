@@ -1,4 +1,4 @@
-# Release Checklist (/docs/resources/release-checklist)
+# Release Checklist (/travels/llms.mdx/docs/resources/release-checklist/content.md)
 
 1. Update the release version locally:
 

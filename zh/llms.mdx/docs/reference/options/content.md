@@ -1,6 +1,6 @@
-# 配置选项 (/zh/docs/reference/options)
+# 配置选项 (/travels/zh/llms.mdx/docs/reference/options/content.md)
 
-工厂函数重载会根据你提供的选项推断归档模式与补丁选项。确切的生成类型见 [`TravelsOptions`](/zh/docs/api-reference/type-aliases/TravelsOptions) 与 [`RestoreTravelsOptions`](/zh/docs/api-reference/type-aliases/RestoreTravelsOptions)。
+工厂函数重载会根据你提供的选项推断归档模式与补丁选项。确切的生成类型见 [`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md) 与 [`RestoreTravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md)。
 
 ## 时间线选项 [#时间线选项]
 

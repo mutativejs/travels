@@ -1,5 +1,5 @@
-# JsonValue (/zh/docs/api-reference/type-aliases/JsonValue)
+# JsonValue (/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonValue/content.md)
 
-> **JsonValue** = [`JsonPrimitive`](JsonPrimitive.mdx) \| [`JsonObject`](JsonObject.mdx) \| [`JsonArray`](JsonArray.mdx)
+> **JsonValue** = [`JsonPrimitive`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonPrimitive/content.md) \| [`JsonObject`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonObject/content.md) \| [`JsonArray`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/JsonArray/content.md)
 
-Defined in: [src/type.ts:89](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L89)
+Defined in: [src/type.ts:89](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L89)

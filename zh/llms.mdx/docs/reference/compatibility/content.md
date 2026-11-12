@@ -1,4 +1,4 @@
-# 兼容性策略 (/zh/docs/reference/compatibility)
+# 兼容性策略 (/travels/zh/llms.mdx/docs/reference/compatibility/content.md)
 
 ## 运行时支持 [#运行时支持]
 

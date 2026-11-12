@@ -1,4 +1,4 @@
-# Transactions (/docs/guides/transactions)
+# Transactions (/travels/llms.mdx/docs/guides/transactions/content.md)
 
 Use `transaction()` when several Travels operations form one logical edit. `batch()` is an alias with the same overloads and behavior.
 

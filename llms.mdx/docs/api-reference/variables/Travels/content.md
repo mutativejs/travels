@@ -1,7 +1,7 @@
-# Travels (/docs/api-reference/variables/Travels)
+# Travels (/travels/llms.mdx/docs/api-reference/variables/Travels/content.md)
 
-> **Travels**: `Readonly`\<\{ `deserialize`: [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>; \}\>
+> **Travels**: `Readonly`\<\{ `deserialize`: [`TravelsSerializedHistory`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>; \}\>
 
-Defined in: [src/travels.ts:102](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/travels.ts#L102)
+Defined in: [src/travels.ts:100](https://github.com/mutativejs/travels/blob/v3.0.1/src/travels.ts#L100)
 
 Persistence namespace retained without exposing the internal constructor.

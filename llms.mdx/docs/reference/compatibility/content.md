@@ -1,4 +1,4 @@
-# Compatibility Policy (/docs/reference/compatibility)
+# Compatibility Policy (/travels/llms.mdx/docs/reference/compatibility/content.md)
 
 ## Runtime Support [#runtime-support]
 

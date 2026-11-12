@@ -1,8 +1,8 @@
-# TravelsKnownEventType (/docs/api-reference/type-aliases/TravelsKnownEventType)
+# TravelsKnownEventType (/travels/llms.mdx/docs/api-reference/type-aliases/TravelsKnownEventType/content.md)
 
 > **TravelsKnownEventType** = `"setState"` \| `"recordPatches"` \| `"archive"` \| `"transaction"` \| `"go"` \| `"reset"` \| `"rebase"` \| `"replaceStateWithoutHistory"`
 
-Defined in: [src/type.ts:279](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L279)
+Defined in: [src/type.ts:279](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L279)
 
 Unified event published to `subscribe()` listeners and the `devtools` hook.
 

@@ -1,4 +1,4 @@
-# 参与贡献 (/zh/docs/resources/contributing)
+# 参与贡献 (/travels/zh/llms.mdx/docs/resources/contributing/content.md)
 
 感谢你改进 Travels。本项目重视正确性、清晰的取舍，以及小而聚焦的改动。
 
@@ -40,8 +40,8 @@ pnpm --dir website build
 
 ## 兼容性 [#兼容性]
 
-受支持的运行时与依赖策略见[兼容性策略](/zh/docs/reference/compatibility)。
+受支持的运行时与依赖策略见[兼容性策略](/travels/zh/llms.mdx/docs/reference/compatibility/content.md)。
 
 ## 发布流程 [#发布流程]
 
-见[发布清单](/zh/docs/resources/release-checklist)。发布在 `main` 分支上准备，手动使用包版本打标签，并由标签触发的 GitHub Actions 工作流发布。
+见[发布清单](/travels/zh/llms.mdx/docs/resources/release-checklist/content.md)。发布在 `main` 分支上准备，手动使用包版本打标签，并由标签触发的 GitHub Actions 工作流发布。

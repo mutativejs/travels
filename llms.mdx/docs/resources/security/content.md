@@ -1,4 +1,4 @@
-# Security Policy (/docs/resources/security)
+# Security Policy (/travels/llms.mdx/docs/resources/security/content.md)
 
 ## Supported Versions [#supported-versions]
 

@@ -1,6 +1,6 @@
-# Troubleshooting (/docs/resources/troubleshooting)
+# Troubleshooting (/travels/llms.mdx/docs/resources/troubleshooting/content.md)
 
-Use the sections below to isolate whether a problem belongs to state ownership, history recording, replay, persistence, or the UI binding. Stable error and warning codes are listed in [Error Handling](/docs/guides/error-handling).
+Use the sections below to isolate whether a problem belongs to state ownership, history recording, replay, persistence, or the UI binding. Stable error and warning codes are listed in [Error Handling](/travels/llms.mdx/docs/guides/error-handling/content.md).
 
 ## An update does not appear in history [#an-update-does-not-appear-in-history]
 
@@ -24,7 +24,7 @@ State identity is not enough to invalidate controls. `archive()` and `rebase()` 
 - Confirm the subscription was not disposed prematurely.
 - Do not create a new timeline on every component render.
 
-See [Navigation and Controls](/docs/guides/navigation-and-controls).
+See [Navigation and Controls](/travels/llms.mdx/docs/guides/navigation-and-controls/content.md).
 
 ## `instanceof Travels` fails or throws [#instanceof-travels-fails-or-throws]
 
@@ -52,7 +52,7 @@ travels.assertPersistenceCompatible();
 const snapshot = travels.serialize({ strict: true });
 ```
 
-Then inspect the reported path and normalize the value according to [State Requirements](/docs/concepts/state-requirements). Remember that an incompatible value can remain in an old patch after leaving current state.
+Then inspect the reported path and normalize the value according to [State Requirements](/travels/llms.mdx/docs/concepts/state-requirements/content.md). Remember that an incompatible value can remain in an old patch after leaving current state.
 
 ## A mutable store loses or unexpectedly changes its root reference [#a-mutable-store-loses-or-unexpectedly-changes-its-root-reference]
 
@@ -62,7 +62,7 @@ Check whether the operation replaced the root, used a primitive root, or navigat
 restoreTravels(snapshot, { mutable: true, target: store });
 ```
 
-Do not combine mutable mode with `enableAutoFreeze`. Read the complete [operation identity table](/docs/guides/mutable-mode#behavior-by-operation).
+Do not combine mutable mode with `enableAutoFreeze`. Read the complete [operation identity table](/travels/llms.mdx/docs/guides/mutable-mode/content.md#behavior-by-operation).
 
 ## A transaction did not roll everything back [#a-transaction-did-not-roll-everything-back]
 
@@ -91,4 +91,4 @@ Every documentation page exposes Markdown through the page’s copy/view control
 
 ## Still stuck? [#still-stuck]
 
-Compare against a runnable [Example](/docs/resources/examples), then open a [GitHub issue](https://github.com/mutativejs/travels/issues) with a minimal reproduction, the Travels and Mutative versions, runtime/browser details, stable error code, and the smallest state/patch payload that demonstrates the problem. Remove secrets and private user data first.
+Compare against a runnable [Example](/travels/llms.mdx/docs/resources/examples/content.md), then open a [GitHub issue](https://github.com/mutativejs/travels/issues) with a minimal reproduction, the Travels and Mutative versions, runtime/browser details, stable error code, and the smallest state/patch payload that demonstrates the problem. Remove secrets and private user data first.

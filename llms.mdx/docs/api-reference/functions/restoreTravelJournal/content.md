@@ -1,8 +1,8 @@
-# restoreTravelJournal() (/docs/api-reference/functions/restoreTravelJournal)
+# restoreTravelJournal() (/travels/llms.mdx/docs/api-reference/functions/restoreTravelJournal/content.md)
 
-> **restoreTravelJournal**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
+> **restoreTravelJournal**\<`S`, `F`, `A`, `P`\>(`snapshot`, `options`): [`TravelJournal`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelJournal/content.md)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravelJournal.ts#L164)
+Defined in: [src/createTravelJournal.ts:164](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravelJournal.ts#L164)
 
 Restore an externally owned journal from one complete persisted snapshot.
 
@@ -28,12 +28,12 @@ Restore an externally owned journal from one complete persisted snapshot.
 
 ### snapshot [#snapshot]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 ### options [#options]
 
-[`TravelJournalOptions`](../type-aliases/TravelJournalOptions.mdx)\<`S`, `F`, `A`, `P`\>
+[`TravelJournalOptions`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelJournalOptions/content.md)\<`S`, `F`, `A`, `P`\>
 
 ## Returns [#returns]
 
-[`TravelJournal`](../type-aliases/TravelJournal.mdx)\<`S`, `F`, `A`, `P`\>
+[`TravelJournal`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelJournal/content.md)\<`S`, `F`, `A`, `P`\>

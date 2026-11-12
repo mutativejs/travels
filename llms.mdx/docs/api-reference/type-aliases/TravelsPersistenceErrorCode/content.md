@@ -1,5 +1,5 @@
-# TravelsPersistenceErrorCode (/docs/api-reference/type-aliases/TravelsPersistenceErrorCode)
+# TravelsPersistenceErrorCode (/travels/llms.mdx/docs/api-reference/type-aliases/TravelsPersistenceErrorCode/content.md)
 
 > **TravelsPersistenceErrorCode** = `"PARSE_ERROR"` \| `"INVALID_SCHEMA"` \| `"UNSUPPORTED_VERSION"` \| `"INVALID_PATCHES"` \| `"INVALID_HISTORY"` \| `"MIGRATION_FAILED"` \| `"FALLBACK_FAILED"`
 
-Defined in: [src/type.ts:175](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L175)
+Defined in: [src/type.ts:175](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L175)

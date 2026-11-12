@@ -1,4 +1,4 @@
-# Framework Integrations (/docs/integrations)
+# Framework Integrations (/travels/llms.mdx/docs/integrations/content.md)
 
 Travels’ core does not depend on a UI framework. The right integration depends on who owns state and whether your reactive system expects a new reference or stable object identity.
 
@@ -15,11 +15,11 @@ Travels’ core does not depend on a UI framework. The right integration depends
 | State machine / existing patch producer | `createTravelJournal()` | Externally owned |
 
 <Cards>
-  <Card title="React" href="/docs/integrations/react" description="External-store subscriptions, controls, and component ownership." />
-  <Card title="Vue" href="/docs/integrations/vue" description="Immutable composables and reference-stable reactive state." />
-  <Card title="Zustand" href="/docs/integrations/zustand" description="Official middleware and direct core integration." />
-  <Card title="MobX and Pinia" href="/docs/integrations/mobx-pinia" description="Mutable timelines for identity-sensitive stores." />
-  <Card title="Forms and External Stores" href="/docs/integrations/external-stores" description="Single-owner synchronization and delegated navigation." />
+  <Card title="React" href="/travels/llms.mdx/docs/integrations/react/content.md" description="External-store subscriptions, controls, and component ownership." />
+  <Card title="Vue" href="/travels/llms.mdx/docs/integrations/vue/content.md" description="Immutable composables and reference-stable reactive state." />
+  <Card title="Zustand" href="/travels/llms.mdx/docs/integrations/zustand/content.md" description="Official middleware and direct core integration." />
+  <Card title="MobX and Pinia" href="/travels/llms.mdx/docs/integrations/mobx-pinia/content.md" description="Mutable timelines for identity-sensitive stores." />
+  <Card title="Forms and External Stores" href="/travels/llms.mdx/docs/integrations/external-stores/content.md" description="Single-owner synchronization and delegated navigation." />
 </Cards>
 
 ## Official v3 bindings [#official-v3-bindings]
@@ -40,4 +40,4 @@ Regardless of framework:
 5. Unsubscribe when the owner is disposed.
 6. Flush pending persistence before controlled shutdown points.
 
-Runnable source examples are linked from [Examples](/docs/resources/examples).
+Runnable source examples are linked from [Examples](/travels/llms.mdx/docs/resources/examples/content.md).

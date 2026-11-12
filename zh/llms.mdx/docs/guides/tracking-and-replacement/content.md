@@ -1,4 +1,4 @@
-# 跟踪与替换 (/zh/docs/guides/tracking-and-replacement)
+# 跟踪与替换 (/travels/zh/llms.mdx/docs/guides/tracking-and-replacement/content.md)
 
 并非每次状态变更都应该成为撤销步骤。Travels 提供了独立的工具，分别用于暂停跟踪、替换文档，以及围绕当前状态清空历史记录。
 
@@ -67,4 +67,4 @@ travels.rebase();
 
 ## 远程同步注意事项 [#远程同步注意事项]
 
-Travels 不会合并并发编辑，也不会消解冲突。在替换或变基本地状态之前，先确定文档标识、修订号顺序和冲突处理方式。当历史记录的来源很重要时，应在反序列化或替换之前，在 Travels 之外校验远程快照。参见[安全与完整性](/zh/docs/persistence/security-and-integrity)。
+Travels 不会合并并发编辑，也不会消解冲突。在替换或变基本地状态之前，先确定文档标识、修订号顺序和冲突处理方式。当历史记录的来源很重要时，应在反序列化或替换之前，在 Travels 之外校验远程快照。参见[安全与完整性](/travels/zh/llms.mdx/docs/persistence/security-and-integrity/content.md)。

@@ -1,4 +1,4 @@
-# Persistence (/docs/persistence)
+# Persistence (/travels/llms.mdx/docs/persistence/content.md)
 
 `serialize()` returns a versioned snapshot. Your application chooses how to encode and store it. On **3.0.1**, verify a stored object or JSON string with `Travels.deserialize(stored, { validation: 'semantic' })`, then pass the result to `restoreTravels()`. See the example below.
 
@@ -21,7 +21,7 @@ const snapshot: TravelsSerializedHistory<DocumentState> = {
 };
 ```
 
-State, retained patch values, patch paths, and metadata must satisfy the [durable state contract](/docs/concepts/state-requirements). `serialize()` clones the returned state, patches, and metadata so later edits do not rewrite the snapshot.
+State, retained patch values, patch paths, and metadata must satisfy the [durable state contract](/travels/llms.mdx/docs/concepts/state-requirements/content.md). `serialize()` clones the returned state, patches, and metadata so later edits do not rewrite the snapshot.
 
 ## Save a snapshot [#save-a-snapshot]
 
@@ -40,7 +40,7 @@ const unsubscribe = travels.subscribe(saveToLocalStorage);
 
 `strict: true` rejects values that cannot round-trip through the documented JSON contract. Plain `serialize()` does not call `JSON.stringify()`, compress data, or normalize runtime-only values. The explicit strict path is recommended when persistence correctness matters.
 
-The example above writes on every event for clarity. Production applications normally debounce writes, serialize at save time, queue asynchronous writes, and flush before route transitions or owner disposal. The [Storage Adapters](/docs/persistence/storage-adapters) guide includes a reusable auto-save pattern.
+The example above writes on every event for clarity. Production applications normally debounce writes, serialize at save time, queue asynchronous writes, and flush before route transitions or owner disposal. The [Storage Adapters](/travels/llms.mdx/docs/persistence/storage-adapters/content.md) guide includes a reusable auto-save pattern.
 
 ## Restore a snapshot [#restore-a-snapshot]
 
@@ -127,7 +127,7 @@ The snapshot state and timeline are accepted as one atomic input. The owner stil
 | `structural` (default) | Schema, versions, patch shapes, paths, values, position | Trusted input or latency-sensitive restore after another verification boundary |
 | `semantic` | Structural checks plus forward/inverse replay and graph isolation | Unverified browser storage, imported files, potentially corrupted snapshots |
 
-Semantic validation cost grows with state shape and reachable history. It proves replay consistency, not authenticity or provenance. See [Security and Integrity](/docs/persistence/security-and-integrity).
+Semantic validation cost grows with state shape and reachable history. It proves replay consistency, not authenticity or provenance. See [Security and Integrity](/travels/llms.mdx/docs/persistence/security-and-integrity/content.md).
 
 ## Choose storage deliberately [#choose-storage-deliberately]
 
@@ -139,7 +139,7 @@ Semantic validation cost grows with state shape and reachable history. It proves
 - Retain a last-known-good generation for important drafts.
 
 <Cards>
-  <Card title="Storage Adapters" href="/docs/persistence/storage-adapters" description="Dexie, idb, localForage, localspace, transactions, and auto-save." />
-  <Card title="Migration and Recovery" href="/docs/persistence/migration-and-recovery" description="Schema migration, fallbacks, validation modes, and typed errors." />
-  <Card title="Security and Integrity" href="/docs/persistence/security-and-integrity" description="Trust boundaries, provenance, revisions, and multi-device concerns." />
+  <Card title="Storage Adapters" href="/travels/llms.mdx/docs/persistence/storage-adapters/content.md" description="Dexie, idb, localForage, localspace, transactions, and auto-save." />
+  <Card title="Migration and Recovery" href="/travels/llms.mdx/docs/persistence/migration-and-recovery/content.md" description="Schema migration, fallbacks, validation modes, and typed errors." />
+  <Card title="Security and Integrity" href="/travels/llms.mdx/docs/persistence/security-and-integrity/content.md" description="Trust boundaries, provenance, revisions, and multi-device concerns." />
 </Cards>

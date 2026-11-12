@@ -1,4 +1,4 @@
-# 表单与外部 Store (/zh/docs/integrations/external-stores)
+# 表单与外部 Store (/travels/zh/llms.mdx/docs/integrations/external-stores/content.md)
 
 当另一个库掌管状态时，要避免制造两个彼此独立的响应式事实来源。可以选择把状态的分离副本同步到拥有状态的时间线，也可以选择由所有者实际提交的补丁驱动的 Journal。
 
@@ -95,7 +95,7 @@ const journal = createTravelJournal(authoritativeState, {
 journal.recordPatches(nextState, { patches, inversePatches });
 ```
 
-所有者不能把委托的导航再次记录为一次新编辑。`apply` 是同步的；如果所有者在部分提交之后失败，Travels 无法回滚外部副作用。在选择这条路径之前，先完整阅读[Journal 契约](/zh/docs/guides/controlled-journal)。
+所有者不能把委托的导航再次记录为一次新编辑。`apply` 是同步的；如果所有者在部分提交之后失败，Travels 无法回滚外部副作用。在选择这条路径之前，先完整阅读[Journal 契约](/travels/zh/llms.mdx/docs/guides/controlled-journal/content.md)。
 
 ## 决策指南 [#决策指南]
 

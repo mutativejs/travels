@@ -1,4 +1,4 @@
-# Controlled Journal (/docs/guides/controlled-journal)
+# Controlled Journal (/travels/llms.mdx/docs/guides/controlled-journal/content.md)
 
 `createTravelJournal()` is the adapter API for a runtime that already owns and commits state. It lets that runtime hand an existing forward/inverse patch pair to Travels without rerunning the update recipe or routing navigation around the owner's validation and subscription pipeline.
 

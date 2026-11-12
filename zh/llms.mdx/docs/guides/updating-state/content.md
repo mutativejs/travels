@@ -1,4 +1,4 @@
-# 更新状态 (/zh/docs/guides/updating-state)
+# 更新状态 (/travels/zh/llms.mdx/docs/guides/updating-state/content.md)
 
 拥有状态的时间线通过 `setState(updater, metadata?)` 接收更新。外部日志有意不提供这个方法，而是由状态所有者记录已经生成的补丁对。
 
@@ -100,4 +100,4 @@ travels.setState((draft) => {
 
 ## 提交前校验 [#提交前校验]
 
-最简单的校验边界在更新函数内部，或者在调用更新函数之前。抛出异常可以阻止操作提交。如果你包装 `setState()` 来加入共享校验，需要同时转发更新函数和可选的元数据，保留草稿修改与返回新状态两种行为，并在历史记录必须保持不变时抛出异常，而不是静默返回。完整的包装器示例见[进阶模式](/zh/docs/guides/advanced-patterns)。
+最简单的校验边界在更新函数内部，或者在调用更新函数之前。抛出异常可以阻止操作提交。如果你包装 `setState()` 来加入共享校验，需要同时转发更新函数和可选的元数据，保留草稿修改与返回新状态两种行为，并在历史记录必须保持不变时抛出异常，而不是静默返回。完整的包装器示例见[进阶模式](/travels/zh/llms.mdx/docs/guides/advanced-patterns/content.md)。

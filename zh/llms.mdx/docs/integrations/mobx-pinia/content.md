@@ -1,4 +1,4 @@
-# MobX 与 Pinia (/zh/docs/integrations/mobx-pinia)
+# MobX 与 Pinia (/travels/zh/llms.mdx/docs/integrations/mobx-pinia/content.md)
 
 MobX 与 Pinia 通常观察一个稳定的对象，而不期待不可变的根替换。用 `mutable: true` 创建 Travels，并传入组件所观察的同一个对象。
 
@@ -91,7 +91,7 @@ const restored = restoreTravels(snapshot, {
 
 ## 对象身份与根替换 [#对象身份与根替换]
 
-优先对草稿做局部修改。原始类型根、显式根替换以及某些重置或导航场景可能需要回退到不可变方式。如果你的集成依赖严格的引用相等性，参见[可变模式操作表](/zh/docs/guides/mutable-mode#各操作的行为)。
+优先对草稿做局部修改。原始类型根、显式根替换以及某些重置或导航场景可能需要回退到不可变方式。如果你的集成依赖严格的引用相等性，参见[可变模式操作表](/travels/zh/llms.mdx/docs/guides/mutable-mode/content.md#各操作的行为)。
 
 不要在可变模式下启用 `enableAutoFreeze`。即使 MobX 或 Vue 能够观察 `Map` 和 `Set`，Travels 仍然不支持它们；先规范化集合，再传给 Travels。
 

@@ -1,4 +1,4 @@
-# Advanced Patterns (/docs/guides/advanced-patterns)
+# Advanced Patterns (/travels/llms.mdx/docs/guides/advanced-patterns/content.md)
 
 You can enhance Travels by wrapping its methods to add validation, permissions, logging, or other custom behavior.
 
@@ -514,4 +514,4 @@ withPermissions(travels, (action) => currentUser.role === 'admin');
 
 ## Back to Main Documentation [#back-to-main-documentation]
 
-See the [main README](/docs) for basic usage, API reference, and getting started guide.
+See the [main README](/travels/llms.mdx/docs/content.md) for basic usage, API reference, and getting started guide.

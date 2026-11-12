@@ -1,4 +1,4 @@
-# Mutable Mode (/docs/guides/mutable-mode)
+# Mutable Mode (/travels/llms.mdx/docs/guides/mutable-mode/content.md)
 
 Mutable mode makes Travels play nicely with observable state libraries (MobX, Vue's `reactive`, Pinia stores, etc.) that rely on **stable object references** to notify subscribers. Instead of replacing the entire state object on every update, Travels mutates the original object in place while still recording JSON Patches for undo/redo.
 

@@ -1,4 +1,4 @@
-# History Lifecycle (/docs/concepts/history-lifecycle)
+# History Lifecycle (/travels/llms.mdx/docs/concepts/history-lifecycle/content.md)
 
 A Travels timeline has two related but different ideas: the **retained history window** used by navigation, and the **instance baseline** used by `reset()`. Understanding their lifecycle prevents subtle undo/redo bugs.
 
@@ -76,7 +76,7 @@ Use `onBranchDiscard({ position, discarded })` for auditing or cleanup. The hook
 
 `replaceStateWithoutHistory(updater)` applies an update, clears history, and makes the result the new baseline. It is useful for accepting an authoritative remote snapshot or replacing a document without letting users undo into the previous document.
 
-`pauseTracking()` and `resumeTracking()` instead form a scope for updates that should become the new baseline while ordinary timeline operations continue afterward. See [Tracking and Replacement](/docs/guides/tracking-and-replacement).
+`pauseTracking()` and `resumeTracking()` instead form a scope for updates that should become the new baseline while ordinary timeline operations continue afterward. See [Tracking and Replacement](/travels/llms.mdx/docs/guides/tracking-and-replacement/content.md).
 
 ## Reading history safely [#reading-history-safely]
 

@@ -1,6 +1,6 @@
-# Instance Methods (/docs/reference/instance-methods)
+# Instance Methods (/travels/llms.mdx/docs/reference/instance-methods/content.md)
 
-This page groups the public methods by task. For exact generics, overloads, return objects, and source-linked signatures, use the generated [API Reference](/docs/api-reference).
+This page groups the public methods by task. For exact generics, overloads, return objects, and source-linked signatures, use the generated [API Reference](/travels/llms.mdx/docs/api-reference/content.md).
 
 ## State and revision [#state-and-revision]
 
@@ -82,4 +82,4 @@ The exported `Travels` value is the persistence namespace, not a constructor.
 
 ## Subscriptions [#subscriptions]
 
-`subscribe(listener)` returns an unsubscribe function. Events publish after commit; observer failures are isolated through `onObserverError`. Do not synchronously call mutating methods from an observer. See [Observers and Events](/docs/guides/observers-and-events).
+`subscribe(listener)` returns an unsubscribe function. Events publish after commit; observer failures are isolated through `onObserverError`. Do not synchronously call mutating methods from an observer. See [Observers and Events](/travels/llms.mdx/docs/guides/observers-and-events/content.md).

@@ -1,4 +1,4 @@
-# createTravels() (/zh/docs/api-reference/functions/createTravels)
+# createTravels() (/travels/zh/llms.mdx/docs/api-reference/functions/createTravels/content.md)
 
 Create a new Travels instance
 
@@ -6,7 +6,7 @@ Create a new Travels instance
 
 > **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options?`): `object`
 
-Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravels.ts#L8)
+Defined in: [src/createTravels.ts:8](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravels.ts#L8)
 
 Create a new Travels instance with auto archive mode
 
@@ -32,7 +32,7 @@ Create a new Travels instance with auto archive mode
 
 #### options? [#options]
 
-`Omit`\<[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `true`, `P`, `S`\>, `"autoArchive"`\> & `object`
+`Omit`\<[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `true`, `P`, `S`\>, `"autoArchive"`\> & `object`
 
 ### Returns [#returns]
 
@@ -125,7 +125,7 @@ such a mutation rewrites the history that redo replays.
 
 ###### metadata [#metadata]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-1]
 
@@ -187,11 +187,11 @@ such a mutation rewrites the history that redo replays.
 
 #### getControls() [#getcontrols]
 
-> **getControls**(): [`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+> **getControls**(): [`RebasableTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\>
 
 ##### Returns [#returns-12]
 
-[`RebasableTravelsControls`](../type-aliases/RebasableTravelsControls.mdx)\<`S`, `P`\>
+[`RebasableTravelsControls`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/RebasableTravelsControls/content.md)\<`S`, `P`\>
 
 #### getHistory() [#gethistory]
 
@@ -203,11 +203,11 @@ readonly `Immutable`\<`S`\>[]
 
 #### getHistoryEntries() [#gethistoryentries]
 
-> **getHistoryEntries**(): [`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+> **getHistoryEntries**(): [`TravelHistoryEntry`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 ##### Returns [#returns-14]
 
-[`TravelHistoryEntry`](../type-aliases/TravelHistoryEntry.mdx)\<`P`\>[]
+[`TravelHistoryEntry`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)\<`P`\>[]
 
 #### getHistorySnapshot() [#gethistorysnapshot]
 
@@ -219,19 +219,19 @@ readonly `Immutable`\<`S`\>[]
 
 #### getMetadata() [#getmetadata]
 
-> **getMetadata**(): (`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+> **getMetadata**(): (`undefined` \| [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 ##### Returns [#returns-16]
 
-(`undefined` \| [`TravelMetadata`](../type-aliases/TravelMetadata.mdx))[]
+(`undefined` \| [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md))[]
 
 #### getPatches() [#getpatches]
 
-> **getPatches**(): [`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+> **getPatches**(): [`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 ##### Returns [#returns-17]
 
-[`TravelPatches`](../type-aliases/TravelPatches.mdx)\<`P`\>
+[`TravelPatches`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelPatches/content.md)\<`P`\>
 
 #### getPosition() [#getposition]
 
@@ -307,17 +307,17 @@ readonly `Immutable`\<`S`\>[]
 
 #### serialize() [#serialize]
 
-> **serialize**(`options?`): [`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+> **serialize**(`options?`): [`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 ##### Parameters [#parameters-8]
 
 ###### options? [#options-1]
 
-[`TravelsSerializeOptions`](../type-aliases/TravelsSerializeOptions.mdx)
+[`TravelsSerializeOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializeOptions/content.md)
 
 ##### Returns [#returns-25]
 
-[`TravelsSerializedHistory`](../type-aliases/TravelsSerializedHistory.mdx)\<`S`, `P`\>
+[`TravelsSerializedHistory`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsSerializedHistory/content.md)\<`S`, `P`\>
 
 #### setState() [#setstate]
 
@@ -335,7 +335,7 @@ readonly `Immutable`\<`S`\>[]
 
 ###### metadata? [#metadata-1]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ##### Returns [#returns-26]
 
@@ -357,7 +357,7 @@ readonly `Immutable`\<`S`\>[]
 
 ###### metadata [#metadata-2]
 
-[`TravelMetadata`](../type-aliases/TravelMetadata.mdx)
+[`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
 ###### fn [#fn-5]
 
@@ -389,9 +389,9 @@ readonly `Immutable`\<`S`\>[]
 
 ## Call Signature [#call-signature-5]
 
-> **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+> **createTravels**\<`S`, `F`, `P`\>(`initialState`, `options`): [`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `false`, `P`\>
 
-Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravels.ts#L22)
+Defined in: [src/createTravels.ts:22](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravels.ts#L22)
 
 Create a new Travels instance with manual archive mode
 
@@ -417,17 +417,17 @@ Create a new Travels instance with manual archive mode
 
 #### options [#options-2]
 
-`Omit`\<[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `false`, `P`, `S`\>, `"autoArchive"`\> & `object`
+`Omit`\<[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `false`, `P`, `S`\>, `"autoArchive"`\> & `object`
 
 ### Returns [#returns-29]
 
-[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `false`, `P`\>
+[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `false`, `P`\>
 
 ## Call Signature [#call-signature-6]
 
-> **createTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+> **createTravels**\<`S`, `F`, `A`, `P`\>(`initialState`, `options`): [`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>
 
-Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravels.ts#L37)
+Defined in: [src/createTravels.ts:37](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravels.ts#L37)
 
 Create a new Travels instance when the archive mode is selected dynamically
 or forwarded through a generic adapter.
@@ -458,8 +458,8 @@ or forwarded through a generic adapter.
 
 #### options [#options-3]
 
-[`TravelsOptions`](../type-aliases/TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>
+[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `A`, `P`, `S`\>
 
 ### Returns [#returns-30]
 
-[`Travels`](../type-aliases/Travels.mdx)\<`S`, `F`, `A`, `P`\>
+[`Travels`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/Travels/content.md)\<`S`, `F`, `A`, `P`\>

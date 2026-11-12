@@ -1,4 +1,4 @@
-# Vue 集成 (/zh/docs/integrations/vue)
+# Vue 集成 (/travels/zh/llms.mdx/docs/integrations/vue/content.md)
 
 Vue 支持 Travels 的两种所有权模式。如果能接受替换状态，就使用不可变模式搭配 ref；如果时间线必须更新组件所观察的同一个 `reactive()` 对象，则使用可变模式。
 
@@ -82,4 +82,4 @@ console.log(travels.getState() === state); // true
 
 直接绑定到可变状态的 Vue 侦听器可能在事务期间观察到临时写入，而 Travels 订阅者只会看到落定后的根事务。直接给 `state` 赋值会绕过 Travels，也不会被回滚。所有可撤销的写入都应通过 `travels.setState()` 完成。
 
-完整 Store 示例见 [MobX 与 Pinia](/zh/docs/integrations/mobx-pinia)，你也可以浏览 [Vue 源码示例](https://github.com/mutativejs/travels/blob/main/examples/vue.ts)。
+完整 Store 示例见 [MobX 与 Pinia](/travels/zh/llms.mdx/docs/integrations/mobx-pinia/content.md)，你也可以浏览 [Vue 源码示例](https://github.com/mutativejs/travels/blob/main/examples/vue.ts)。

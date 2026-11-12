@@ -1,4 +1,4 @@
-# Zustand 集成 (/zh/docs/integrations/zustand)
+# Zustand 集成 (/travels/zh/llms.mdx/docs/integrations/zustand/content.md)
 
 对于新的 Zustand 应用，官方中间件 [`zustand-travel@3`](https://github.com/mutativejs/zustand-travel) 是最直接的集成方式。当你需要独立的历史所有者或自定义持久化编排时，核心 API 仍然很有用。
 

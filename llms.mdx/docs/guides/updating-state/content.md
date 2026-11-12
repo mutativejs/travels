@@ -1,4 +1,4 @@
-# Updating State (/docs/guides/updating-state)
+# Updating State (/travels/llms.mdx/docs/guides/updating-state/content.md)
 
 State-owning timelines accept updates through `setState(updater, metadata?)`. External journals intentionally do not expose this method; their owner records an already-produced patch pair instead.
 
@@ -100,4 +100,4 @@ Enable `enableAutoFreeze` in immutable mode to make accidental mutation fail. Co
 
 ## Validate before commit [#validate-before-commit]
 
-The simplest validation boundary is inside the update recipe or before calling it. Throwing prevents the operation from committing. If you wrap `setState()` to add shared validation, forward both the updater and optional metadata, preserve draft versus returned-state behavior, and throw rather than silently returning when history must remain unchanged. Complete wrapper examples are in [Advanced Patterns](/docs/guides/advanced-patterns).
+The simplest validation boundary is inside the update recipe or before calling it. Throwing prevents the operation from committing. If you wrap `setState()` to add shared validation, forward both the updater and optional metadata, preserve draft versus returned-state behavior, and throw rather than silently returning when history must remain unchanged. Complete wrapper examples are in [Advanced Patterns](/travels/llms.mdx/docs/guides/advanced-patterns/content.md).

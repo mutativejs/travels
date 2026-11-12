@@ -1,4 +1,4 @@
-# 示例 (/zh/docs/resources/examples)
+# 示例 (/travels/zh/llms.mdx/docs/resources/examples/content.md)
 
 仓库中包含一些小示例，它们会实际调用公开 API，同时不会用演示框架掩盖集成边界。你可以把它们与本文档中的专题指南配合使用。
 
@@ -47,8 +47,8 @@ pnpm run test
 ## 相关文档 [#相关文档]
 
 <Cards>
-  <Card title="快速开始" href="/zh/docs/getting-started/quick-start" />
-  <Card title="框架集成" href="/zh/docs/integrations" />
-  <Card title="存储适配器" href="/zh/docs/persistence/storage-adapters" />
-  <Card title="参与贡献" href="/zh/docs/resources/contributing" />
+  <Card title="快速开始" href="/travels/zh/llms.mdx/docs/getting-started/quick-start/content.md" />
+  <Card title="框架集成" href="/travels/zh/llms.mdx/docs/integrations/content.md" />
+  <Card title="存储适配器" href="/travels/zh/llms.mdx/docs/persistence/storage-adapters/content.md" />
+  <Card title="参与贡献" href="/travels/zh/llms.mdx/docs/resources/contributing/content.md" />
 </Cards>

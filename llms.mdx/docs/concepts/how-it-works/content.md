@@ -1,4 +1,4 @@
-# How Travels Works (/docs/concepts/how-it-works)
+# How Travels Works (/travels/llms.mdx/docs/concepts/how-it-works/content.md)
 
 Travels turns each effective update into an immutable state transition plus two patch groups: one that moves forward and one that restores the previous state. The retained sequence of those transitions is the history.
 
@@ -55,7 +55,7 @@ Use `enableAutoFreeze: true` in immutable mode when you want accidental writes t
 
 With `mutable: true`, Travels applies patches back to the original object so MobX, Vue, Pinia, or custom proxies can keep observing the same reference. It still generates forward and inverse patches for navigation and persistence.
 
-Root replacements and primitive roots can require an immutable fallback. `enableAutoFreeze` cannot be combined with mutable mode. The [Mutable Mode Guide](/docs/guides/mutable-mode) explains every operation’s identity behavior.
+Root replacements and primitive roots can require an immutable fallback. `enableAutoFreeze` cannot be combined with mutable mode. The [Mutable Mode Guide](/travels/llms.mdx/docs/guides/mutable-mode/content.md) explains every operation’s identity behavior.
 
 ## Automatic and manual history [#automatic-and-manual-history]
 
@@ -87,7 +87,7 @@ Initial ── A ── B ── C
 
 `maxHistory` drops old patches as the timeline advances. The cursor is relative to the retained window, so it remains capped at that limit. `reset()` can still restore the instance’s true baseline even after older entries are trimmed.
 
-`rebase()` is different: it intentionally discards all past and future history and makes current state the new baseline. See [History Lifecycle](/docs/concepts/history-lifecycle).
+`rebase()` is different: it intentionally discards all past and future history and makes current state the new baseline. See [History Lifecycle](/travels/llms.mdx/docs/concepts/history-lifecycle/content.md).
 
 ## What persistence stores [#what-persistence-stores]
 

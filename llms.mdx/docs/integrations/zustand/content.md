@@ -1,4 +1,4 @@
-# Zustand Integration (/docs/integrations/zustand)
+# Zustand Integration (/travels/llms.mdx/docs/integrations/zustand/content.md)
 
 For new Zustand applications, the official [`zustand-travel@3`](https://github.com/mutativejs/zustand-travel) middleware is the most direct integration. The core API remains useful when you need a separate history owner or custom persistence orchestration.
 

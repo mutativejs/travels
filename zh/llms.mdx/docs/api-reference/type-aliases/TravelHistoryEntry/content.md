@@ -1,14 +1,14 @@
-# TravelHistoryEntry<P> (/zh/docs/api-reference/type-aliases/TravelHistoryEntry)
+# TravelHistoryEntry<P> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelHistoryEntry/content.md)
 
 > **TravelHistoryEntry**\<`P`\> = `object`
 
-Defined in: [src/type.ts:51](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L51)
+Defined in: [src/type.ts:51](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L51)
 
 ## Type Parameters [#type-parameters]
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}
 
 ## Properties [#properties]
 
@@ -16,15 +16,15 @@ Defined in: [src/type.ts:51](https://github.com/mutativejs/travels/blob/b5543aae
 
 > **inversePatches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:53](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L53)
+Defined in: [src/type.ts:53](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L53)
 
 ***
 
 ### metadata? [#metadata]
 
-> `optional` **metadata**: [`TravelMetadata`](TravelMetadata.mdx)
+> `optional` **metadata**: [`TravelMetadata`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelMetadata/content.md)
 
-Defined in: [src/type.ts:54](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L54)
+Defined in: [src/type.ts:54](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L54)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/type.ts:54](https://github.com/mutativejs/travels/blob/b5543aae
 
 > **patches**: `Patches`\<`P`\>
 
-Defined in: [src/type.ts:52](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L52)
+Defined in: [src/type.ts:52](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L52)

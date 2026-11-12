@@ -1,4 +1,4 @@
-# 进阶模式 (/zh/docs/guides/advanced-patterns)
+# 进阶模式 (/travels/zh/llms.mdx/docs/guides/advanced-patterns/content.md)
 
 你可以通过包装 Travels 的方法来增强它，加入校验、权限、日志或其他自定义行为。
 
@@ -514,4 +514,4 @@ withPermissions(travels, (action) => currentUser.role === 'admin');
 
 ## 返回主文档 [#返回主文档]
 
-基本用法、API 参考和入门指南见[主 README](/zh/docs)。
+基本用法、API 参考和入门指南见[主 README](/travels/zh/llms.mdx/docs/content.md)。

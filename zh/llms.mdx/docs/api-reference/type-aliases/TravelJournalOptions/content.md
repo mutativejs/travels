@@ -1,14 +1,14 @@
-# TravelJournalOptions<S, F, A, P> (/zh/docs/api-reference/type-aliases/TravelJournalOptions)
+# TravelJournalOptions<S, F, A, P> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelJournalOptions/content.md)
 
-> **TravelJournalOptions**\<`S`, `F`, `A`, `P`\> = `Omit`\<[`TravelsOptions`](TravelsOptions.mdx)\<`F`, `A`, `P`, `S`\>, `"mutable"`\> & `object`
+> **TravelJournalOptions**\<`S`, `F`, `A`, `P`\> = `Omit`\<[`TravelsOptions`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md)\<`F`, `A`, `P`, `S`\>, `"mutable"`\> & `object`
 
-Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/createTravelJournal.ts#L63)
+Defined in: [src/createTravelJournal.ts:63](https://github.com/mutativejs/travels/blob/v3.0.1/src/createTravelJournal.ts#L63)
 
 ## Type Declaration [#type-declaration]
 
 ### apply [#apply]
 
-> **apply**: [`TravelsControlledApply`](TravelsControlledApply.mdx)\<`S`, `P`\>
+> **apply**: [`TravelsControlledApply`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/TravelsControlledApply/content.md)\<`S`, `P`\>
 
 Apply a navigation transition through the external state owner.
 
@@ -28,4 +28,4 @@ Apply a navigation transition through the external state owner.
 
 ### P [#p]
 
-`P` *extends* [`PatchesOption`](PatchesOption.mdx) = \{ \}
+`P` *extends* [`PatchesOption`](/travels/zh/llms.mdx/docs/api-reference/type-aliases/PatchesOption/content.md) = \{ \}

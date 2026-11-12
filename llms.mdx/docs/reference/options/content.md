@@ -1,6 +1,6 @@
-# Configuration Options (/docs/reference/options)
+# Configuration Options (/travels/llms.mdx/docs/reference/options/content.md)
 
-Factory overloads infer archive mode and patch options from the options you provide. The exact generated types are available under [`TravelsOptions`](/docs/api-reference/type-aliases/TravelsOptions) and [`RestoreTravelsOptions`](/docs/api-reference/type-aliases/RestoreTravelsOptions).
+Factory overloads infer archive mode and patch options from the options you provide. The exact generated types are available under [`TravelsOptions`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsOptions/content.md) and [`RestoreTravelsOptions`](/travels/llms.mdx/docs/api-reference/type-aliases/RestoreTravelsOptions/content.md).
 
 ## Timeline options [#timeline-options]
 

@@ -1,9 +1,9 @@
-# JsonObject (/docs/api-reference/type-aliases/JsonObject)
+# JsonObject (/travels/llms.mdx/docs/api-reference/type-aliases/JsonObject/content.md)
 
 > **JsonObject** = `object`
 
-Defined in: [src/type.ts:87](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L87)
+Defined in: [src/type.ts:87](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L87)
 
 ## Index Signature [#index-signature]
 
-\[`key`: `string`\]: [`JsonValue`](JsonValue.mdx)
+\[`key`: `string`\]: [`JsonValue`](/travels/llms.mdx/docs/api-reference/type-aliases/JsonValue/content.md)

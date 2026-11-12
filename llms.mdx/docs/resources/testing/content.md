@@ -1,4 +1,4 @@
-# Testing Strategy (/docs/resources/testing)
+# Testing Strategy (/travels/llms.mdx/docs/resources/testing/content.md)
 
 Travels combines example-based, property-based, browser, package-consumer, coverage, and mutation smoke tests.
 

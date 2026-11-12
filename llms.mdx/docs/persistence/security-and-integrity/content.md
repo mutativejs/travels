@@ -1,4 +1,4 @@
-# Security and Integrity (/docs/persistence/security-and-integrity)
+# Security and Integrity (/travels/llms.mdx/docs/persistence/security-and-integrity/content.md)
 
 `Travels.deserialize({ validation: 'semantic' })` proves that the stored anchor and reachable patch entries can replay and reverse consistently on an isolated graph. It does **not** prove who wrote the snapshot, whether it is the latest generation, or whether the reconstructed past is the history originally recorded.
 
@@ -54,4 +54,4 @@ Mutable navigation can retain writes made before a replay failure. Semantic vali
 
 ## Reporting vulnerabilities [#reporting-vulnerabilities]
 
-For Travels library vulnerabilities, follow the project’s [Security Policy](/docs/resources/security). Do not include real user documents, secrets, or private persistence payloads in public issues.
+For Travels library vulnerabilities, follow the project’s [Security Policy](/travels/llms.mdx/docs/resources/security/content.md). Do not include real user documents, secrets, or private persistence payloads in public issues.

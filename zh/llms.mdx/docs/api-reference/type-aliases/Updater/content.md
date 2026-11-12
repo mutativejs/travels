@@ -1,8 +1,8 @@
-# Updater<S> (/zh/docs/api-reference/type-aliases/Updater)
+# Updater<S> (/travels/zh/llms.mdx/docs/api-reference/type-aliases/Updater/content.md)
 
 > **Updater**\<`S`\> = `S` \| () => `S` \| `DraftFunction`\<`S`\>
 
-Defined in: [src/type.ts:398](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L398)
+Defined in: [src/type.ts:398](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L398)
 
 ## Type Parameters [#type-parameters]
 

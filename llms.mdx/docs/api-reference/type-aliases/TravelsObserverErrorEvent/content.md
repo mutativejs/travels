@@ -1,8 +1,8 @@
-# TravelsObserverErrorEvent (/docs/api-reference/type-aliases/TravelsObserverErrorEvent)
+# TravelsObserverErrorEvent (/travels/llms.mdx/docs/api-reference/type-aliases/TravelsObserverErrorEvent/content.md)
 
 > **TravelsObserverErrorEvent** = `object`
 
-Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L266)
+Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L266)
 
 ## Properties [#properties]
 
@@ -10,12 +10,12 @@ Defined in: [src/type.ts:266](https://github.com/mutativejs/travels/blob/b5543aa
 
 > **error**: `unknown`
 
-Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L268)
+Defined in: [src/type.ts:268](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L268)
 
 ***
 
 ### source [#source]
 
-> **source**: [`TravelsObserverErrorSource`](TravelsObserverErrorSource.mdx)
+> **source**: [`TravelsObserverErrorSource`](/travels/llms.mdx/docs/api-reference/type-aliases/TravelsObserverErrorSource/content.md)
 
-Defined in: [src/type.ts:267](https://github.com/mutativejs/travels/blob/b5543aaea58ad69b9ce79acdf14d7ef5198f7876/src/type.ts#L267)
+Defined in: [src/type.ts:267](https://github.com/mutativejs/travels/blob/v3.0.1/src/type.ts#L267)
