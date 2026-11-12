@@ -554,9 +554,10 @@ export function PatchPlayground({ locale = 'en' }: { locale?: Locale }) {
 
   const reset = useCallback(() => {
     if (stroke.current) return;
-    travels.reset();
-    announce(text.resetAnnounce);
-  }, [announce, text, travels]);
+    setTravels(createWorldTimeline());
+    setNotice(null);
+    setAnnouncement(text.announcement(text.resetAnnounce, 0, 0));
+  }, [text]);
 
   useEffect(() => {
     if (!/mac|iphone|ipad/i.test(navigator.platform)) setModifierKey('Ctrl');

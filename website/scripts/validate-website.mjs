@@ -153,7 +153,9 @@ try {
 
   const playground = page.getByRole('group', { name: 'Travels playground' });
   const playgroundSlider = playground.getByRole('slider', { name: 'Playground history position' });
-  await playground.getByRole('application', { name: /Block builder/ }).focus();
+  const scene = playground.getByRole('application', { name: /Block builder/ });
+  const startingScene = await scene.getAttribute('aria-label');
+  await scene.focus();
   await page.keyboard.press('Enter');
   assert.equal(await playgroundSlider.inputValue(), '1', 'Placing a block should archive one playground step.');
   assert.match(await playground.getByRole('tabpanel').innerText(), /add\s+\/columns\/x3y4/, 'The recorded patch should be listed.');
@@ -166,6 +168,15 @@ try {
   assert.match(await playground.locator('.pg-persist-status').innerText(), /Restored 1 step/);
   await playground.getByRole('button', { name: 'Undo', exact: true }).click();
   assert.equal(await playgroundSlider.inputValue(), '0', 'Undo should remove the placed block.');
+  await playground.getByRole('button', { name: 'Redo', exact: true }).click();
+  await playground.getByRole('button', { name: 'Reset playground' }).click();
+  assert.equal(await playgroundSlider.inputValue(), '0');
+  assert.equal(await playgroundSlider.getAttribute('max'), '0');
+  assert.equal(await scene.getAttribute('aria-label'), startingScene);
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.equal(await playgroundSlider.getAttribute('max'), '0');
+  assert.equal(await scene.getAttribute('aria-label'), startingScene);
+  checks.push('Reset after a reload clears history and persists the starting scene');
   await checkNoOverflow(page, 'Desktop home after playground use');
   checks.push('Playground block placement, patch inspector, reload restore, and undo');
 
